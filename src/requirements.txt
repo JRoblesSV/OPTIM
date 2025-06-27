@@ -1,0 +1,33 @@
+# requirements.txt - OPTIM Sistema de Programación de Laboratorios
+# =====================================================================
+
+# GUI - Interfaz gráfica
+PyQt6==6.3.0
+
+# Datos - Procesamiento
+pandas==1.4.1
+numpy==1.22.2
+openpyxl==3.0.9
+
+# Web Scraping y RPA - Para obtener calendario automáticamente
+rpaframework==12.8.2
+selenium==4.5.0
+
+# PDF Processing - Para procesar calendarios en PDF
+PyMuPDF==1.19.6
+
+# Opcional - Solo si necesitas PDF en exportación
+reportlab==3.6.0
+
+# Opcional - Solo si necesitas gráficos en resultados
+matplotlib==3.5.2
+
+# Fechas y utilidades
+python-dateutil==2.8.2
+
+# Exportación Excel avanzada
+xlsxwriter==3.0.3
+
+# Procesamiento de archivos Excel antiguos
+xlrd==2.0.1
+
