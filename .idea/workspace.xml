@@ -5,41 +5,25 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="7d96e1af-1979-429f-b2ae-33dbce1a3447" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/.idea/ANEXO_Robles_Molina_Javier.iml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/inspectionProfiles/profiles_settings.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/modules.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/code/configuracion_labs.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/code/gui_labs.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/code/lab_scheduling.bat" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/code/modules/data_management/__init__.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/code/modules/data_management/alumnos.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/code/modules/data_management/asignaturas.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/code/modules/data_management/grupos.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/code/modules/data_management/laboratorios.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/code/modules/data_management/profesores.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/code/modules/scheduling/__init__.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/code/modules/scheduling/calendario_academico.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/code/modules/scheduling/conflict_resolver.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/code/modules/scheduling/grupo_optimizer.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/code/modules/scheduling/schedule_generator.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/code/modules/utils/__init__.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/code/modules/utils/config_manager.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/code/modules/utils/data_validator.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/code/modules/utils/export_manager.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/code/modules/web_automation/__init__.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/code/modules/web_automation/data_extractor.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/code/modules/web_automation/web_scraper.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/code/requirements.txt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/code/scheduling_labs.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/info" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/vcs.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/OPTIM" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/modules/data_sources/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/modules/data_sources/__init__.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/modules/data_sources/calendario.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/modules/data_sources/calendario.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/modules/interfaces/configurar_calendario.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/modules/interfaces/configurar_calendario.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
     <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="Python Script" />
+      </list>
+    </option>
   </component>
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
@@ -58,20 +42,105 @@
   </component>
   <component name="PropertiesComponent"><![CDATA[{
   "keyToString": {
+    "Python.configuracion_alumnos.executor": "Run",
+    "Python.configurar_asignaturas.executor": "Run",
+    "Python.configurar_aulas.executor": "Run",
+    "Python.configurar_calendario.executor": "Run",
+    "Python.configurar_horarios.executor": "Run",
     "Python.gui_labs.executor": "Run",
     "RunOnceActivity.OpenProjectViewOnStart": "true",
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "git-widget-placeholder": "main",
-    "last_opened_file_path": "B:/0_TFG_GIT/OPTIM/src",
+    "last_opened_file_path": "B:/0_TFG_GIT/OPTIM/src/modules/interfaces",
     "settings.editor.selected.configurable": "com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable"
   }
 }]]></component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
+      <recent name="B:\0_TFG_GIT\OPTIM\src\modules\interfaces" />
+      <recent name="B:\0_TFG_GIT\OPTIM\src\modules" />
+      <recent name="B:\0_TFG_GIT\OPTIM\src\iconos" />
       <recent name="B:\0_TFG_GIT\OPTIM\src" />
+      <recent name="B:\0_TFG_GIT\OPTIM" />
     </key>
   </component>
   <component name="RunManager" selected="Python.gui_labs">
+    <configuration name="configuracion_alumnos" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+      <module name="ANEXO_Robles_Molina_Javier" />
+      <option name="ENV_FILES" value="" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/src/modules/interfaces" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/src/modules/interfaces/configuracion_alumnos.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
+    <configuration name="configurar_asignaturas" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+      <module name="ANEXO_Robles_Molina_Javier" />
+      <option name="ENV_FILES" value="" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/src/modules/interfaces" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/src/modules/interfaces/configurar_asignaturas.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
+    <configuration name="configurar_aulas" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+      <module name="ANEXO_Robles_Molina_Javier" />
+      <option name="ENV_FILES" value="" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/src/modules/interfaces" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/src/modules/interfaces/configurar_aulas.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
+    <configuration name="configurar_horarios" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+      <module name="ANEXO_Robles_Molina_Javier" />
+      <option name="ENV_FILES" value="" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/src/modules/interfaces" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/src/modules/interfaces/configurar_horarios.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
     <configuration name="gui_labs" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="ANEXO_Robles_Molina_Javier" />
       <option name="ENV_FILES" value="" />
@@ -116,7 +185,10 @@
     <recent_temporary>
       <list>
         <item itemvalue="Python.gui_labs" />
-        <item itemvalue="Python.gui_labs" />
+        <item itemvalue="Python.configuracion_alumnos" />
+        <item itemvalue="Python.configurar_aulas" />
+        <item itemvalue="Python.configurar_horarios" />
+        <item itemvalue="Python.configurar_asignaturas" />
       </list>
     </recent_temporary>
   </component>

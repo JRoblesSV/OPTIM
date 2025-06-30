@@ -1,0 +1,298 @@
+{
+  "metadata": {
+    "version": "1.0",
+    "timestamp": "2025-06-30T19:18:15.511342",
+    "semestre_actual": 1
+  },
+  "configuracion": {
+    "horarios": {
+      "configurado": true,
+      "datos": {
+        "1": {
+          "adfg": {
+            "grados": [
+              "A257"
+            ],
+            "horarios": {
+              "Lunes": [
+                {
+                  "grados": [
+                    "A257"
+                  ],
+                  "hora_fin": "11:00",
+                  "hora_inicio": "09:00",
+                  "id": "franja_6"
+                }
+              ]
+            }
+          },
+          "fisica1": {
+            "grados": [
+              "A102",
+              "B102"
+            ],
+            "horarios": {
+              "Lunes": [
+                {
+                  "grados": [
+                    "A102"
+                  ],
+                  "hora_fin": "11:00",
+                  "hora_inicio": "09:00",
+                  "id": "franja_1"
+                }
+              ],
+              "Miércoles": [
+                {
+                  "grados": [
+                    "B102"
+                  ],
+                  "hora_fin": "13:00",
+                  "hora_inicio": "11:00",
+                  "id": "franja_2"
+                }
+              ]
+            }
+          }
+        },
+        "2": {
+          "Elec. Analogica": {
+            "grados": [
+              "A302",
+              "A309",
+              "EE309"
+            ],
+            "horarios": {
+              "Jueves": [
+                {
+                  "grados": [
+                    "A302"
+                  ],
+                  "hora_fin": "19:30",
+                  "hora_inicio": "15:30",
+                  "id": "franja_114"
+                }
+              ],
+              "Martes": [
+                {
+                  "grados": [
+                    "A309"
+                  ],
+                  "hora_fin": "11:30",
+                  "hora_inicio": "09:30",
+                  "id": "franja_179"
+                },
+                {
+                  "grados": [
+                    "A309",
+                    "EE309"
+                  ],
+                  "hora_fin": "13:30",
+                  "hora_inicio": "11:30",
+                  "id": "franja_180"
+                }
+              ]
+            }
+          },
+          "Elec. Digital": {
+            "grados": [
+              "A302",
+              "A309",
+              "EE309"
+            ],
+            "horarios": {
+              "Martes": [
+                {
+                  "grados": [
+                    "A309"
+                  ],
+                  "hora_fin": "13:30",
+                  "hora_inicio": "09:30",
+                  "id": "franja_127"
+                }
+              ]
+            }
+          }
+        }
+      },
+      "archivo": "horarios_integrados.json",
+      "timestamp": "2025-06-30T19:18:15.511342",
+      "semestre_actual": "1",
+      "total_asignaturas": 4,
+      "total_franjas": 7
+    },
+    "calendario": {
+      "configurado": false,
+      "datos": {},
+      "semanas_total": 0
+    },
+    "aulas": {
+      "configurado": true,
+      "datos": {
+        "Laboratorio A": {
+          "asignaturas_asociadas": [],
+          "capacidad": 24,
+          "disponible": true,
+          "edificio": "Edificio A",
+          "equipamiento": "Osciloscopios, Generadores",
+          "nombre": "Laboratorio A",
+          "planta": "1ª Planta"
+        },
+        "Laboratorio B": {
+          "asignaturas_asociadas": [],
+          "capacidad": 28,
+          "disponible": true,
+          "edificio": "Edificio B",
+          "equipamiento": "Multímetros, Fuentes",
+          "nombre": "Laboratorio B",
+          "planta": "2ª Planta"
+        }
+      },
+      "total_aulas": 2,
+      "fecha_actualizacion": "2025-06-30T18:53:38.560231"
+    },
+    "profesores": {
+      "configurado": false,
+      "datos": {},
+      "total": 0
+    },
+    "alumnos": {
+      "configurado": true,
+      "datos": {
+        "23465246": {
+          "dni": "23465246",
+          "nombre": "Juan",
+          "apellidos": "JAcobo",
+          "email": "sadgsdf@alumnos.upm.es",
+          "matricula": "342543",
+          "ano_matricula": "2024",
+          "grupo": "A102, A104",
+          "asignaturas_matriculadas": {
+            "1_adfg": {
+              "matriculado": true,
+              "lab_aprobado": true
+            },
+            "1_fisica1": {
+              "matriculado": true,
+              "lab_aprobado": false
+            },
+            "2_Elec. Analogica": {
+              "matriculado": true,
+              "lab_aprobado": false
+            }
+          },
+          "exp_centro": "asfdhgjmn",
+          "exp_agora": "dsfre",
+          "observaciones": "",
+          "fecha_creacion": "2025-06-30T17:59:15.523719"
+        }
+      },
+      "total": 1,
+      "fecha_actualizacion": "2025-06-30T17:59:33.834167"
+    },
+    "asignaturas": {
+      "configurado": true,
+      "datos": {
+        "EANA": {
+          "codigo": "EANA",
+          "configuracion_laboratorio": {
+            "equipamiento": "Analizadores, Osciloscopios",
+            "horas_por_sesion": 2,
+            "max_estudiantes_grupo": 18
+          },
+          "curso": "3º Curso",
+          "descripcion": "Electrónica analógica avanzada",
+          "estadisticas_calculadas": {
+            "con_lab_anterior": 0,
+            "grupos_recomendados": 1,
+            "sin_lab_anterior": 1,
+            "total_matriculados": 1,
+            "ultima_actualizacion": "2025-06-30T19:17:55.520975"
+          },
+          "fecha_creacion": "2025-06-29T20:00:00.000000",
+          "grados_que_cursan": [
+            "A302",
+            "A309",
+            "EE309"
+          ],
+          "nombre": "Elec. Analogica",
+          "planificacion": {
+            "clases_año": 2,
+            "grupos_previstos": 4
+          },
+          "semestre": "2º Cuatrimestre",
+          "tipo": "Laboratorio"
+        },
+        "EDIG": {
+          "codigo": "EDIG",
+          "configuracion_laboratorio": {
+            "equipamiento": "Microcontroladores, Logic Analyzers",
+            "horas_por_sesion": 2,
+            "max_estudiantes_grupo": 20
+          },
+          "curso": "2º Curso",
+          "descripcion": "Sistemas digitales y microcontroladores",
+          "estadisticas_calculadas": {
+            "con_lab_anterior": 0,
+            "grupos_recomendados": 5,
+            "sin_lab_anterior": 0,
+            "total_matriculados": 0,
+            "ultima_actualizacion": "2025-06-29T19:59:38.922844"
+          },
+          "fecha_creacion": "2025-06-29T20:00:00.000000",
+          "grados_que_cursan": [
+            "A302",
+            "A309",
+            "EE309"
+          ],
+          "nombre": "Elec. Digital",
+          "planificacion": {
+            "clases_año": 3,
+            "grupos_previstos": 5
+          },
+          "semestre": "2º Cuatrimestre",
+          "tipo": "Laboratorio"
+        },
+        "FIS1": {
+          "codigo": "FIS1",
+          "configuracion_laboratorio": {
+            "equipamiento": "Osciloscopios, Generadores",
+            "horas_por_sesion": 2,
+            "max_estudiantes_grupo": 20
+          },
+          "curso": "1º Curso",
+          "descripcion": "Física experimental básica",
+          "estadisticas_calculadas": {
+            "con_lab_anterior": 0,
+            "grupos_recomendados": 1,
+            "sin_lab_anterior": 1,
+            "total_matriculados": 1,
+            "ultima_actualizacion": "2025-06-30T19:17:55.520975"
+          },
+          "fecha_creacion": "2025-06-29T20:00:00.000000",
+          "grados_que_cursan": [
+            "A102",
+            "B102"
+          ],
+          "nombre": "fisica1",
+          "planificacion": {
+            "clases_año": 3,
+            "grupos_previstos": 6
+          },
+          "semestre": "1º Cuatrimestre",
+          "tipo": "Laboratorio"
+        }
+      },
+      "total": 3,
+      "fecha_actualizacion": "2025-06-30T18:49:43.463478"
+    }
+  },
+  "parametros_organizacion": {
+    "preferir_grupos_pares": true,
+    "peso_equilibrio_grupos": 10,
+    "peso_conflictos_horarios": 20,
+    "peso_capacidad_aulas": 25,
+    "peso_disponibilidad_profesores": 15,
+    "peso_compatibilidad_asignaturas": 30
+  }
+}
