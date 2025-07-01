@@ -1,20 +1,60 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-OPTIM - Sistema de Programación Automática de Laboratorios
-GUI Principal - Hub Central de Configuración
+Configurar GUI - OPTIM - Sistema de Programación Automática de Laboratorios
+Desarrollado por SoftVier para ETSIDI (UPM)
 
-Autor: SoftVier para ETSIDI (UPM)
-Basado en TFG exitoso - Stack: Python + PyQt6 + tema oscuro
+FUNCIONALIDADES IMPLEMENTADAS:
+1. Interfaz principal unificada del sistema OPTIM
+2. Panel de estado visual con indicadores de configuración
+3. Gestión centralizada de todos los módulos del sistema
+4. Resumen automático de configuración actual
+5. Sistema de logging de actividad con timestamps
+6. Navegación inteligente entre ventanas de configuración
+7. Guardado y carga de configuración global en JSON
+8. Validación de completitud antes de ejecutar organización
+9. Sistema de reset selectivo y completo
+10. Integración de todos los subsistemas con comunicación bidireccional
+
+Autor: Javier Robles Molina - SoftVier
+Universidad: ETSIDI (UPM)
 """
 
 import sys
 import os
 import json
 from datetime import datetime
+from PyQt6.QtWidgets import QApplication
 from PyQt6 import QtCore, QtGui, QtWidgets
 from PyQt6.QtCore import QTimer
 
+
+def center_window_on_screen_immediate(window, width, height):
+    """Centrar ventana a la pantalla"""
+    try:
+        # Obtener información de la pantalla
+        screen = QApplication.primaryScreen()
+        if screen:
+            screen_geometry = screen.availableGeometry()  # Considera la barra de tareas
+
+            # Calcular posición centrada usando las dimensiones proporcionadas
+            center_x = (screen_geometry.width() - width) // 2 + screen_geometry.x()
+            center_y = (screen_geometry.height() - height) // 2 + screen_geometry.y()
+
+            # Asegurar que la ventana no se salga de la pantalla
+            final_x = max(screen_geometry.x(), min(center_x, screen_geometry.x() + screen_geometry.width() - width))
+            final_y = max(screen_geometry.y(), min(center_y, screen_geometry.y() + screen_geometry.height() - height))
+
+            # Establecer geometría completa de una vez (posición + tamaño)
+            window.setGeometry(final_x, final_y, width, height)
+
+        else:
+            # Fallback si no se puede obtener la pantalla
+            window.setGeometry(100, 100, width, height)
+
+    except Exception as e:
+        # Fallback en caso de error
+        window.setGeometry(100, 100, width, height)
 
 
 class OptimLabsGUI(QtWidgets.QMainWindow):
@@ -42,8 +82,11 @@ class OptimLabsGUI(QtWidgets.QMainWindow):
     def setupUi(self):
         """Configurar interfaz principal"""
         self.setObjectName("OptimLabsGUI")
-        self.resize(1200, 850)
         self.setMinimumSize(QtCore.QSize(1200, 850))
+        window_width = 1200
+        window_height = 850
+        center_window_on_screen_immediate(self, window_width, window_height)
+
         self.setWindowTitle("OPTIM by SoftVier - ETSIDI")
 
         # Widget central
@@ -239,7 +282,7 @@ class OptimLabsGUI(QtWidgets.QMainWindow):
         self.botones_principales["btn_ayuda"].clicked.connect(self.mostrar_ayuda)
 
     def cargar_configuracion(self):
-        """Cargar configuración desde archivo JSON - CORREGIDO"""
+        """Cargar configuración desde archivo JSON"""
         if os.path.exists(self.config_file):
             try:
                 with open(self.config_file, 'r', encoding='utf-8') as f:
@@ -262,8 +305,8 @@ class OptimLabsGUI(QtWidgets.QMainWindow):
                 "aulas": {
                     "configurado": False,
                     "datos": {},
-                    "total_aulas": 0,  # ✅ CORREGIDO: era "total"
-                    "fecha_actualizacion": None  # ✅ AÑADIDO
+                    "total_aulas": 0,
+                    "fecha_actualizacion": None
                 },
                 "profesores": {"configurado": False, "datos": {}, "total": 0},
                 "alumnos": {"configurado": False, "datos": {}, "total": 0},
@@ -372,7 +415,7 @@ class OptimLabsGUI(QtWidgets.QMainWindow):
         config = self.configuracion["configuracion"]
         resumen = []
 
-        # SECCIÓN HORARIOS MEJORADA
+        # Sección horarios mejorado
         if config["horarios"]["configurado"]:
             horarios_info = config["horarios"]
             total_asig = horarios_info.get("total_asignaturas", 0)
@@ -444,7 +487,7 @@ class OptimLabsGUI(QtWidgets.QMainWindow):
         # TODO: Implementar ventana de calendario
 
     def actualizar_configuracion_horarios(self, datos_horarios):
-        """Actualizar configuración cuando se completen los horarios - VERSIÓN SILENCIOSA"""
+        """Actualizar configuración cuando se completen los horarios"""
         try:
             # Extraer datos del diccionario recibido
             asignaturas_data = datos_horarios.get("asignaturas", {})
@@ -555,9 +598,62 @@ class OptimLabsGUI(QtWidgets.QMainWindow):
                 f"{error_msg}\n\nDetalles técnicos:\n{type(e).__name__}: {e}"
             )
 
-    def actualizar_configuracion_profesores(self):
-        self.log_mensaje("👨‍🏫 Abriendo configuración de profesores...", "info")
-        # TODO: Implementar ventana de profesores
+    def actualizar_configuracion_profesores(self, profesores_data):
+        """Actualizar configuración de profesores en el sistema principal - Estilo idéntico a alumnos"""
+        try:
+            # Verificar si es una cancelación de cambios
+            if isinstance(profesores_data, dict) and "metadata" in profesores_data:
+                metadata = profesores_data["metadata"]
+                if metadata.get("accion") == "CANCELAR_CAMBIOS":
+                    # Restaurar datos originales desde metadata
+                    if "profesores" in profesores_data:
+                        datos_profesores = profesores_data["profesores"]
+                    else:
+                        datos_profesores = {}
+
+                    self.log_mensaje("🔄 Restaurando configuración original de profesores", "warning")
+                else:
+                    # Datos normales con metadata
+                    datos_profesores = profesores_data.get("profesores", profesores_data)
+            else:
+                # Datos directos sin metadata
+                datos_profesores = profesores_data
+
+            # Actualizar configuración interna
+            profesores_config = self.configuracion["configuracion"]["profesores"]
+
+            profesores_config["configurado"] = True if datos_profesores else False
+            profesores_config["datos"] = datos_profesores
+            profesores_config["total"] = len(datos_profesores)
+            profesores_config["fecha_actualizacion"] = datetime.now().isoformat()
+
+            # Guardar configuración
+            self.guardar_configuracion()
+
+            # Log apropiado según el tipo de actualización
+            total = len(datos_profesores)
+            if isinstance(profesores_data, dict) and profesores_data.get("metadata", {}).get(
+                    "accion") == "CANCELAR_CAMBIOS":
+                self.log_mensaje(
+                    f"🔄 Configuración de profesores restaurada: {total} profesores",
+                    "warning"
+                )
+            else:
+                self.log_mensaje(
+                    f"✅ Configuración de profesores actualizada: {total} profesores guardados",
+                    "success"
+                )
+
+            # Actualizar estado visual
+            self.actualizar_estado_visual()
+
+        except Exception as e:
+            error_msg = f"Error al actualizar configuración de profesores: {str(e)}"
+            self.log_mensaje(f"❌ {error_msg}", "error")
+            QtWidgets.QMessageBox.critical(
+                self, "Error",
+                f"{error_msg}\n\nDetalles técnicos:\n{type(e).__name__}: {e}"
+            )
 
     def actualizar_configuracion_alumnos(self, alumnos_data):
         """Actualizar configuración de alumnos en el sistema principal - Estilo idéntico a horarios"""
@@ -616,7 +712,7 @@ class OptimLabsGUI(QtWidgets.QMainWindow):
             )
 
     def actualizar_configuracion_asignaturas(self, asignaturas_data):
-        """Actualizar configuración de asignaturas en el sistema principal - VERSIÓN CORREGIDA"""
+        """Actualizar configuración de asignaturas en el sistema principal"""
         try:
             # Verificar si es una cancelación de cambios
             if isinstance(asignaturas_data, dict) and "metadata" in asignaturas_data:
@@ -837,8 +933,66 @@ class OptimLabsGUI(QtWidgets.QMainWindow):
             )
 
     def abrir_configurar_profesores(self):
+        """Abrir ventana de configuración de profesores - Estilo idéntico a alumnos"""
+        try:
+            from modules.interfaces.configuracion_profesores import ConfigurarProfesores
+            PROFESORES_DISPONIBLE = True
+        except ImportError as e:
+            print(f"⚠️ Módulo configuracion_profesores no disponible: {e}")
+            PROFESORES_DISPONIBLE = False
+
+        if not PROFESORES_DISPONIBLE:
+            QtWidgets.QMessageBox.warning(
+                self, "Módulo no disponible",
+                "El módulo configuracion_profesores.py no está disponible.\n"
+                "Verifica que esté en la misma carpeta que gui_labs.py"
+            )
+            return
+
         self.log_mensaje("👨‍🏫 Abriendo configuración de profesores...", "info")
-        # TODO: Implementar ventana de profesores
+
+        try:
+            # Cerrar ventana anterior si existe
+            if hasattr(self, 'ventana_profesores') and self.ventana_profesores:
+                self.ventana_profesores.close()
+
+            # PREPARAR DATOS EXISTENTES
+            datos_existentes = None
+            profesores_config = self.configuracion["configuracion"]["profesores"]
+
+            if profesores_config["configurado"] and profesores_config.get("datos"):
+                datos_existentes = profesores_config["datos"].copy()
+                total_profesores = profesores_config.get("total", 0)
+                self.log_mensaje(
+                    f"📥 Cargando configuración existente: {total_profesores} profesores configurados",
+                    "info"
+                )
+            else:
+                self.log_mensaje("📝 Abriendo configuración nueva de profesores", "info")
+
+            # Crear ventana
+            self.ventana_profesores = ConfigurarProfesores(
+                parent=self,
+                datos_existentes=datos_existentes
+            )
+
+            # Conectar señal
+            self.ventana_profesores.configuracion_actualizada.connect(self.actualizar_configuracion_profesores)
+
+            self.ventana_profesores.show()
+
+            if datos_existentes:
+                self.log_mensaje("✅ Ventana de profesores abierta con datos existentes", "success")
+            else:
+                self.log_mensaje("✅ Ventana de profesores abierta (configuración nueva)", "success")
+
+        except Exception as e:
+            error_msg = f"Error al abrir configuración de profesores: {str(e)}"
+            self.log_mensaje(f"❌ {error_msg}", "error")
+            QtWidgets.QMessageBox.critical(
+                self, "Error",
+                f"{error_msg}\n\nDetalles técnicos:\n{type(e).__name__}: {e}"
+            )
 
     def abrir_configurar_alumnos(self):
         """Abrir ventana de configuración de alumnos - Estilo idéntico a horarios"""
@@ -1095,7 +1249,7 @@ class OptimLabsGUI(QtWidgets.QMainWindow):
         """
 
     def aplicar_tema_oscuro(self):
-        """Aplicar tema oscuro idéntico al TFG"""
+        """Aplicar tema oscuro idéntico al sistema"""
         self.setStyleSheet("""
             QMainWindow {
                 background-color: rgb(53,53,53);

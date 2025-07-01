@@ -1,7 +1,7 @@
 {
   "metadata": {
     "version": "1.0",
-    "timestamp": "2025-06-30T19:18:15.511342",
+    "timestamp": "2025-07-01T19:32:39.010053",
     "semestre_actual": 1
   },
   "configuracion": {
@@ -25,6 +25,12 @@
                 }
               ]
             }
+          },
+          "asdgwarg": {
+            "grados": [
+              "K102"
+            ],
+            "horarios": {}
           },
           "fisica1": {
             "grados": [
@@ -116,10 +122,10 @@
         }
       },
       "archivo": "horarios_integrados.json",
-      "timestamp": "2025-06-30T19:18:15.511342",
+      "timestamp": "2025-07-01T19:32:39.010053",
       "semestre_actual": "1",
-      "total_asignaturas": 4,
-      "total_franjas": 7
+      "total_asignaturas": 0,
+      "total_franjas": 0
     },
     "calendario": {
       "configurado": false,
@@ -160,39 +166,67 @@
       "configurado": true,
       "datos": {
         "23465246": {
-          "dni": "23465246",
-          "nombre": "Juan",
-          "apellidos": "JAcobo",
-          "email": "sadgsdf@alumnos.upm.es",
-          "matricula": "342543",
           "ano_matricula": "2024",
-          "grupo": "A102, A104",
+          "apellidos": "JAcobo",
           "asignaturas_matriculadas": {
             "1_adfg": {
-              "matriculado": true,
-              "lab_aprobado": true
+              "lab_aprobado": true,
+              "matriculado": true
             },
             "1_fisica1": {
-              "matriculado": true,
-              "lab_aprobado": false
+              "lab_aprobado": false,
+              "matriculado": true
             },
             "2_Elec. Analogica": {
-              "matriculado": true,
-              "lab_aprobado": false
+              "lab_aprobado": false,
+              "matriculado": true
             }
           },
-          "exp_centro": "asfdhgjmn",
+          "dni": "23465246",
+          "email": "sadgsdf@alumnos.upm.es",
           "exp_agora": "dsfre",
-          "observaciones": "",
-          "fecha_creacion": "2025-06-30T17:59:15.523719"
+          "exp_centro": "asfdhgjmn",
+          "fecha_creacion": "2025-06-30T17:59:15.523719",
+          "grupo": "A102, A104",
+          "matricula": "342543",
+          "nombre": "Juan",
+          "observaciones": ""
         }
       },
       "total": 1,
-      "fecha_actualizacion": "2025-06-30T17:59:33.834167"
+      "fecha_actualizacion": "2025-07-01T19:32:12.442303"
     },
     "asignaturas": {
       "configurado": true,
       "datos": {
+        "AAAA": {
+          "codigo": "AAAA",
+          "nombre": "asdgwarg",
+          "semestre": "1º Cuatrimestre",
+          "curso": "1º Curso",
+          "tipo": "Laboratorio",
+          "descripcion": "aergawr",
+          "grados_que_cursan": [
+            "K102"
+          ],
+          "configuracion_laboratorio": {
+            "horas_por_sesion": 2,
+            "max_estudiantes_grupo": 20,
+            "equipamiento": ""
+          },
+          "planificacion": {
+            "grupos_previstos": 6,
+            "clases_año": 3
+          },
+          "estadisticas_calculadas": {
+            "total_matriculados": 0,
+            "con_lab_anterior": 0,
+            "sin_lab_anterior": 0,
+            "grupos_recomendados": 0,
+            "ultima_actualizacion": "2025-06-30T19:36:36.379542"
+          },
+          "fecha_creacion": "2025-06-30T19:36:36.379542"
+        },
         "EANA": {
           "codigo": "EANA",
           "configuracion_laboratorio": {
@@ -207,7 +241,7 @@
             "grupos_recomendados": 1,
             "sin_lab_anterior": 1,
             "total_matriculados": 1,
-            "ultima_actualizacion": "2025-06-30T19:17:55.520975"
+            "ultima_actualizacion": "2025-07-01T19:31:54.866576"
           },
           "fecha_creacion": "2025-06-29T20:00:00.000000",
           "grados_que_cursan": [
@@ -267,7 +301,7 @@
             "grupos_recomendados": 1,
             "sin_lab_anterior": 1,
             "total_matriculados": 1,
-            "ultima_actualizacion": "2025-06-30T19:17:55.520975"
+            "ultima_actualizacion": "2025-07-01T19:31:54.866576"
           },
           "fecha_creacion": "2025-06-29T20:00:00.000000",
           "grados_que_cursan": [
@@ -283,8 +317,8 @@
           "tipo": "Laboratorio"
         }
       },
-      "total": 3,
-      "fecha_actualizacion": "2025-06-30T18:49:43.463478"
+      "total": 4,
+      "fecha_actualizacion": "2025-06-30T19:36:39.026603"
     }
   },
   "parametros_organizacion": {

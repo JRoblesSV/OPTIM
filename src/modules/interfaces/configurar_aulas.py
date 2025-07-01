@@ -1,15 +1,20 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-Configurar Aulas - Sistema de Programación Automática de Laboratorios
-Desarrollado por SoftVier para ETSIDI (Universidad)
+Configurar Aulas - OPTIM - Sistema de Programación Automática de Laboratorios
+Desarrollado por SoftVier para ETSIDI (UPM)
 
-MEJORAS IMPLEMENTADAS:
-1. Asociación de asignaturas a laboratorios (desde configuración global)
-2. Capacidad con unidad externa para edición manual
-3. Estadísticas simplificadas sin espacios excesivos
-4. Import/Export separados visualmente + Import desde Web
-5. Integración completa con JSON global del sistema
+FUNCIONALIDADES IMPLEMENTADAS:
+1. Gestión completa de laboratorios y aulas del centro
+2. Asociación automática de asignaturas por equipamiento
+3. Control de capacidad y disponibilidad por laboratorio
+4. Estadísticas de ocupación y distribución por edificio
+5. Sistema de equipamiento con validación cruzada
+6. Gestión de disponibilidad temporal por aula
+7. Import/Export desde CSV con datos de asociaciones
+8. Funcionalidad de importación desde fuentes web
+9. Duplicación de configuraciones de laboratorio
+10. Integración con sistema global de asignaturas
 
 Autor: Javier Robles Molina - SoftVier
 Universidad: ETSIDI (UPM)
@@ -18,6 +23,7 @@ Universidad: ETSIDI (UPM)
 import sys
 import os
 import json
+import pandas as pd
 from datetime import datetime
 from PyQt6.QtWidgets import (
     QApplication, QMainWindow, QWidget, QVBoxLayout, QHBoxLayout,
@@ -30,6 +36,34 @@ from PyQt6.QtCore import Qt, pyqtSignal
 from PyQt6.QtGui import QFont, QPalette, QColor
 
 
+def center_window_on_screen_immediate(window, width, height):
+    """Centrar ventana a la pantalla"""
+    try:
+        # Obtener información de la pantalla
+        screen = QApplication.primaryScreen()
+        if screen:
+            screen_geometry = screen.availableGeometry()  # Considera la barra de tareas
+
+            # Calcular posición centrada usando las dimensiones proporcionadas
+            center_x = (screen_geometry.width() - width) // 2 + screen_geometry.x()
+            center_y = (screen_geometry.height() - height) // 2 + screen_geometry.y()
+
+            # Asegurar que la ventana no se salga de la pantalla
+            final_x = max(screen_geometry.x(), min(center_x, screen_geometry.x() + screen_geometry.width() - width))
+            final_y = max(screen_geometry.y(), min(center_y, screen_geometry.y() + screen_geometry.height() - height))
+
+            # Establecer geometría completa de una vez (posición + tamaño)
+            window.setGeometry(final_x, final_y, width, height)
+
+        else:
+            # Fallback si no se puede obtener la pantalla
+            window.setGeometry(100, 100, width, height)
+
+    except Exception as e:
+        # Fallback en caso de error
+        window.setGeometry(100, 100, width, height)
+
+
 class GestionAulaDialog(QDialog):
     """Dialog para añadir/editar aula con gestión de asignaturas asociadas"""
 
@@ -39,7 +73,10 @@ class GestionAulaDialog(QDialog):
         self.asignaturas_disponibles = asignaturas_disponibles or []
         self.setWindowTitle("Editar Laboratorio" if aula_existente else "Nuevo Laboratorio")
         self.setModal(True)
-        self.resize(600, 500)
+        window_width = 600
+        window_height = 500
+        center_window_on_screen_immediate(self, window_width, window_height)
+
         self.setup_ui()
         self.apply_dark_theme()
 
@@ -57,7 +94,7 @@ class GestionAulaDialog(QDialog):
         self.edit_nombre = QLineEdit()
         self.edit_nombre.setPlaceholderText("Ej: Lab_Fisica_A")
 
-        # Capacidad con unidad externa (MEJORA 1)
+        # Capacidad con unidad externa
         capacidad_layout = QHBoxLayout()
         self.spin_capacidad = QSpinBox()
         self.spin_capacidad.setRange(5, 50)
@@ -94,7 +131,7 @@ class GestionAulaDialog(QDialog):
         datos_group.setLayout(datos_layout)
         layout.addWidget(datos_group)
 
-        # Asignaturas que se cursan en este laboratorio (NUEVA FUNCIONALIDAD)
+        # Asignaturas que se cursan en este laboratorio
         asignaturas_group = QGroupBox("📚 ASIGNATURAS QUE SE CURSAN EN ESTE LABORATORIO")
         asignaturas_layout = QVBoxLayout()
 
@@ -199,11 +236,11 @@ class GestionAulaDialog(QDialog):
             'edificio': self.edit_edificio.text().strip(),
             'planta': self.edit_planta.text().strip(),
             'disponible': self.check_disponible.isChecked(),
-            'asignaturas_asociadas': asignaturas_seleccionadas  # NUEVA CARACTERÍSTICA
+            'asignaturas_asociadas': asignaturas_seleccionadas
         }
 
     def apply_dark_theme(self):
-        """Aplicar tema oscuro idéntico a horarios"""
+        """Aplicar tema oscuro idéntico al sistema"""
         self.setStyleSheet("""
             QDialog {
                 background-color: #2b2b2b;
@@ -266,7 +303,9 @@ class ConfigurarAulas(QMainWindow):
         super().__init__()
         self.parent_window = parent
         self.setWindowTitle("Configurar Aulas - OPTIM Labs")
-        self.setGeometry(100, 100, 1200, 650)  # Reducido altura
+        window_width = 1200
+        window_height = 650
+        center_window_on_screen_immediate(self, window_width, window_height)
 
         # Obtener asignaturas disponibles desde el sistema global
         self.asignaturas_disponibles = self.obtener_asignaturas_del_sistema()
@@ -343,7 +382,7 @@ class ConfigurarAulas(QMainWindow):
         self.setCentralWidget(central_widget)
 
         main_layout = QVBoxLayout()
-        main_layout.setSpacing(10)  # Reducir espaciado (MEJORA 2)
+        main_layout.setSpacing(10)
 
         # Título principal
         titulo = QLabel("🏢 CONFIGURACIÓN DE AULAS Y LABORATORIOS")
@@ -382,7 +421,7 @@ class ConfigurarAulas(QMainWindow):
         # Lista de aulas
         self.list_aulas = QListWidget()
         self.list_aulas.setMaximumWidth(350)
-        self.list_aulas.setMinimumHeight(350)  # Reducido
+        self.list_aulas.setMinimumHeight(350)
         left_layout.addWidget(self.list_aulas)
 
         left_panel.setLayout(left_layout)
@@ -391,7 +430,7 @@ class ConfigurarAulas(QMainWindow):
         # Columna central - Detalles del aula
         center_panel = QGroupBox("🔍 DETALLES DEL LABORATORIO")
         center_layout = QVBoxLayout()
-        center_layout.setSpacing(8)  # Reducir espaciado (MEJORA 2)
+        center_layout.setSpacing(8)
 
         # Nombre del aula seleccionada
         self.label_aula_actual = QLabel("Seleccione un laboratorio")
@@ -400,18 +439,18 @@ class ConfigurarAulas(QMainWindow):
 
         # Información detallada
         self.info_aula = QTextEdit()
-        self.info_aula.setMaximumHeight(200)  # Reducido
+        self.info_aula.setMaximumHeight(200)
         self.info_aula.setReadOnly(True)
         self.info_aula.setText("ℹ️ Seleccione un laboratorio para ver sus detalles")
         center_layout.addWidget(self.info_aula)
 
-        # Estadísticas simplificadas (MEJORA 2)
+        # Estadísticas simplificadas
         stats_group = QGroupBox("📊 ESTADÍSTICAS")
         stats_layout = QVBoxLayout()
         stats_layout.setSpacing(5)  # Espaciado mínimo
 
         self.texto_stats = QTextEdit()
-        self.texto_stats.setMaximumHeight(120)  # Muy reducido
+        self.texto_stats.setMaximumHeight(120)
         self.texto_stats.setReadOnly(True)
         self.texto_stats.setText("📈 Seleccione datos para ver estadísticas")
         stats_layout.addWidget(self.texto_stats)
@@ -422,7 +461,7 @@ class ConfigurarAulas(QMainWindow):
         center_panel.setLayout(center_layout)
         content_layout.addWidget(center_panel)
 
-        # Columna derecha - Acciones y configuración (MEJORA 3: Separar import/export)
+        # Columna derecha - Acciones y configuración
         right_panel = QGroupBox("⚙️ GESTIÓN Y CONFIGURACIÓN")
         right_layout = QVBoxLayout()
 
@@ -443,7 +482,7 @@ class ConfigurarAulas(QMainWindow):
         acciones_group.setLayout(acciones_layout)
         right_layout.addWidget(acciones_group)
 
-        # MEJORA 3: IMPORTAR separado
+        # Importar
         importar_group = QGroupBox("📥 IMPORTAR DATOS")
         importar_layout = QVBoxLayout()
 
@@ -463,7 +502,7 @@ class ConfigurarAulas(QMainWindow):
         importar_group.setLayout(importar_layout)
         right_layout.addWidget(importar_group)
 
-        # MEJORA 3: EXPORTAR separado
+        # Exportar
         exportar_group = QGroupBox("📤 EXPORTAR DATOS")
         exportar_layout = QVBoxLayout()
 
@@ -571,7 +610,7 @@ class ConfigurarAulas(QMainWindow):
         return ', '.join(str(int(hex_color[i:i + 2], 16)) for i in (0, 2, 4))
 
     def apply_dark_theme(self):
-        """Aplicar tema oscuro idéntico a configurar_horarios.py"""
+        """Aplicar tema oscuro idéntico al sistema"""
         self.setStyleSheet("""
             QMainWindow {
                 background-color: #2b2b2b;
@@ -725,7 +764,7 @@ class ConfigurarAulas(QMainWindow):
         self.btn_toggle_disponible.setText(f"🔄 {estado_actual}")
 
     def actualizar_estadisticas(self):
-        """Actualizar estadísticas simplificadas (MEJORA 2)"""
+        """Actualizar estadísticas simplificadas"""
         total = len(self.datos_configuracion)
         if total == 0:
             self.texto_stats.setText("📊 No hay aulas configuradas")
@@ -746,7 +785,7 @@ class ConfigurarAulas(QMainWindow):
         total_asociaciones = sum(len(datos.get('asignaturas_asociadas', []))
                                  for datos in self.datos_configuracion.values())
 
-        # ESTADÍSTICAS SIMPLIFICADAS (sin espacios excesivos)
+        # Estadísticas
         stats = f"📈 RESUMEN: {total} aulas, {disponibles} disponibles\n"
         stats += f"👥 CAPACIDAD: {cap_total} total"
         if capacidades:
@@ -910,7 +949,7 @@ class ConfigurarAulas(QMainWindow):
                                 f"Laboratorio '{self.aula_actual}' marcado como {estado_texto}")
 
     def importar_desde_web(self):
-        """NUEVA FUNCIONALIDAD: Importar desde web (MEJORA 3)"""
+        """NUEVA FUNCIONALIDAD: Importar desde web"""
         QMessageBox.information(self, "Funcionalidad Web",
                                 "🌐 Importar desde Web\n\n"
                                 "Esta funcionalidad permitirá importar datos de laboratorios\n"
@@ -928,8 +967,6 @@ class ConfigurarAulas(QMainWindow):
             return
 
         try:
-            import pandas as pd
-
             df = pd.read_csv(archivo)
 
             # Verificar columnas requeridas
@@ -1007,8 +1044,6 @@ class ConfigurarAulas(QMainWindow):
             return
 
         try:
-            import pandas as pd
-
             datos_export = []
             for nombre, datos in self.datos_configuracion.items():
                 # Convertir asignaturas asociadas a string

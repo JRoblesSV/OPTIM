@@ -1,12 +1,23 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-Configurar Horarios - Sistema de Programación Automática de Laboratorios
-Desarrollado por SoftVier para ETSIDI (Universidad)
+Configurar Horarios - OPTIM - Sistema de Programación Automática de Laboratorios
+Desarrollado por SoftVier para ETSIDI (UPM)
 
-MODIFICACIONES APLICADAS:
-1. Entrada manual de hora inicio y fin (sin cálculo automático)
-2. Funcionalidad completa de editar franja horaria
+FUNCIONALIDADES IMPLEMENTADAS:
+1. Configuración manual de franjas horarias por asignatura
+2. Gestión automática de solapamientos temporales
+3. Sistema de semestres con asignaturas filtradas
+4. Gestión dinámica de grados por asignatura
+5. Vista de calendario semanal con edición in-situ
+6. Validación automática de conflictos horarios
+7. Fusión inteligente de franjas con grados compartidos
+8. Edición completa de franjas existentes
+9. Import/Export de configuraciones en formato JSON
+10. Sincronización con sistema central de asignaturas
+
+Autor: Javier Robles Molina - SoftVier
+Universidad: ETSIDI (UPM)
 """
 
 import sys
@@ -24,6 +35,34 @@ from PyQt6.QtCore import Qt, QTime, pyqtSignal
 from PyQt6.QtGui import QFont, QPalette, QColor
 
 
+def center_window_on_screen_immediate(window, width, height):
+    """Centrar ventana a la pantalla"""
+    try:
+        # Obtener información de la pantalla
+        screen = QApplication.primaryScreen()
+        if screen:
+            screen_geometry = screen.availableGeometry()  # Considera la barra de tareas
+
+            # Calcular posición centrada usando las dimensiones proporcionadas
+            center_x = (screen_geometry.width() - width) // 2 + screen_geometry.x()
+            center_y = (screen_geometry.height() - height) // 2 + screen_geometry.y()
+
+            # Asegurar que la ventana no se salga de la pantalla
+            final_x = max(screen_geometry.x(), min(center_x, screen_geometry.x() + screen_geometry.width() - width))
+            final_y = max(screen_geometry.y(), min(center_y, screen_geometry.y() + screen_geometry.height() - height))
+
+            # Establecer geometría completa de una vez (posición + tamaño)
+            window.setGeometry(final_x, final_y, width, height)
+
+        else:
+            # Fallback si no se puede obtener la pantalla
+            window.setGeometry(100, 100, width, height)
+
+    except Exception as e:
+        # Fallback en caso de error
+        window.setGeometry(100, 100, width, height)
+
+
 class GestionAsignaturaDialog(QDialog):
     """Dialog para añadir/editar asignatura"""
 
@@ -32,7 +71,10 @@ class GestionAsignaturaDialog(QDialog):
         self.asignatura_existente = asignatura_existente
         self.setWindowTitle("Editar Asignatura" if asignatura_existente else "Nueva Asignatura")
         self.setModal(True)
-        self.resize(400, 200)
+        window_width = 400
+        window_height = 200
+        center_window_on_screen_immediate(self, window_width, window_height)
+
         self.setup_ui()
         self.apply_dark_theme()
 
@@ -79,7 +121,7 @@ class GestionAsignaturaDialog(QDialog):
 
 
 class AnadirFranjaDialog(QDialog):
-    """Dialog para añadir/editar franja horaria - VERSIÓN MODIFICADA"""
+    """Dialog para añadir/editar franja horaria"""
 
     def __init__(self, asignatura_actual, parent=None, franja_existente=None):
         super().__init__(parent)
@@ -92,7 +134,10 @@ class AnadirFranjaDialog(QDialog):
         titulo = f"Editar Franja - {asignatura_actual}" if self.es_edicion else f"Añadir Franja - {asignatura_actual}"
         self.setWindowTitle(titulo)
         self.setModal(True)
-        self.resize(300, 200)
+        window_width = 300
+        window_height = 200
+        center_window_on_screen_immediate(self, window_width, window_height)
+
         self.setup_ui()
         self.apply_dark_theme()
 
@@ -152,7 +197,7 @@ class AnadirFranjaDialog(QDialog):
 
         # Botones
         buttons = QDialogButtonBox(QDialogButtonBox.StandardButton.Ok | QDialogButtonBox.StandardButton.Cancel)
-        buttons.accepted.connect(self.validar_y_aceptar)  # CAMBIADO: Validación antes de aceptar
+        buttons.accepted.connect(self.validar_y_aceptar)  # Validación antes de aceptar
         buttons.rejected.connect(self.reject)
         layout.addWidget(buttons)
 
@@ -201,10 +246,6 @@ class AnadirFranjaDialog(QDialog):
         hora_fin = hora_inicio.addSecs(2 * 3600)  # +2 horas
         self.label_hora_fin.setText(hora_fin.toString("HH:mm"))
 
-    def actualizar_info_duracion(self):
-        """Método legacy - ya no necesario"""
-        pass
-
     def validar_y_aceptar(self):
         """Valida los datos antes de aceptar el diálogo"""
         # La validación de hora inicio < hora fin ya no es necesaria porque es automática
@@ -229,7 +270,7 @@ class AnadirFranjaDialog(QDialog):
         return {
             'dia': self.combo_dia.currentText(),
             'hora_inicio': self.time_inicio.time().toString("HH:mm"),
-            'hora_fin': self.label_hora_fin.text(),  # CAMBIADO: usar label en lugar de QTimeEdit
+            'hora_fin': self.label_hora_fin.text(),  # usar label en lugar de QTimeEdit
             'grados': grados_seleccionados
         }
 
@@ -344,7 +385,7 @@ class FranjaWidget(QFrame):
         btn_editar.setToolTip("Editar franja")
         btn_editar.clicked.connect(self.editar_franja)
 
-        # Botón ELIMINAR - Color rojo
+        # Botón ELIMINAR - Color rojo más suave
         btn_eliminar = QPushButton("🗑️")
         btn_eliminar.setMinimumSize(30, 30)
         btn_eliminar.setMaximumSize(40, 40)
@@ -427,7 +468,9 @@ class ConfigurarHorarios(QMainWindow):
         super().__init__()
         self.parent_window = parent
         self.setWindowTitle("Configurar Horarios - OPTIM Labs")
-        self.setGeometry(100, 100, 1400, 800)
+        window_width = 1400
+        window_height = 800
+        center_window_on_screen_immediate(self, window_width, window_height)
 
         # Estructura de datos principal
         if datos_existentes:
@@ -931,7 +974,7 @@ class ConfigurarHorarios(QMainWindow):
         central_widget.setLayout(main_layout)
 
     def apply_dark_theme(self):
-        """Aplica tema oscuro idéntico al TFG original"""
+        """Aplicar tema oscuro idéntico al sistema"""
         self.setStyleSheet("""
             QMainWindow {
                 background-color: #2b2b2b;
@@ -1006,7 +1049,7 @@ class ConfigurarHorarios(QMainWindow):
         """)
 
     def conectar_signals(self):
-        """Conecta las señales de los widgets - VERSIÓN SIMPLIFICADA"""
+        """Conecta las señales de los widgets"""
         self.radio_sem1.clicked.connect(self.cambiar_semestre)
         self.radio_sem2.clicked.connect(self.cambiar_semestre)
         self.list_asignaturas.itemClicked.connect(self.seleccionar_asignatura)
@@ -1514,7 +1557,7 @@ class ConfigurarHorarios(QMainWindow):
         return f"franja_{self.contador_franjas}"
 
     def anadir_franja(self, dia):
-        """Abre dialog para añadir nueva franja horaria - VERSIÓN MODIFICADA"""
+        """Abre dialog para añadir nueva franja horaria"""
         if not self.asignatura_actual:
             QMessageBox.warning(self, "Advertencia", "Seleccione primero una asignatura")
             return
@@ -1858,7 +1901,7 @@ class ConfigurarHorarios(QMainWindow):
                 QMessageBox.critical(self, "Error", f"Error al guardar configuración:\n{str(e)}")
 
     def guardar_en_sistema(self):
-        """Guarda la configuración en el sistema principal y cierra la ventana - VERSIÓN SIMPLIFICADA"""
+        """Guarda la configuración en el sistema principal y cierra la ventana"""
         try:
             # Verificar que hay datos para guardar
             if not self.datos_configuracion["asignaturas"]:
@@ -2037,7 +2080,7 @@ class ConfigurarHorarios(QMainWindow):
 
             # Solo ahora restaurar datos locales
             self.datos_configuracion = datos_originales
-            self.datos_guardados_en_sistema = False  # ← CORREGIDO: NO marcar como guardado
+            self.datos_guardados_en_sistema = False  # NO marcar como guardado
             self.datos_iniciales = json.dumps(datos_originales, sort_keys=True)
 
             self.log_mensaje("📤 Señal de cancelación enviada al sistema principal", "info")
@@ -2073,7 +2116,6 @@ class ConfigurarHorarios(QMainWindow):
                     if "grados" in asignaturas_ordenadas[nombre]:
                         asignaturas_ordenadas[nombre]["grados"].sort()
 
-                # Reemplazar con la versión ordenada
                 self.datos_configuracion["asignaturas"][semestre] = asignaturas_ordenadas
 
     def auto_seleccionar_asignatura(self, nombre_asignatura):

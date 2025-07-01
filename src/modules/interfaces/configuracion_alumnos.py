@@ -1,16 +1,20 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-Configurar Alumnos - Sistema de Programación Automática de Laboratorios
-Desarrollado por SoftVier para ETSIDI (Universidad)
+Configurar Alumnos - OPTIM - Sistema de Programación Automática de Laboratorios
+Desarrollado por SoftVier para ETSIDI (UPM)
 
 FUNCIONALIDADES IMPLEMENTADAS:
-1. Gestión completa de alumnos matriculados
-2. Filtros por asignatura (desde configuración global)
-3. Detección automática de alumnos en múltiples asignaturas
-4. Estadísticas por asignatura y experiencia previa
-5. Import/Export desde CSV con validación de datos
-6. Integración completa con JSON global del sistema
+1. Gestión completa de alumnos matriculados por DNI
+2. Sistema de grados matriculados con validación dinámica
+3. Asignaturas matriculadas con estado de laboratorio previo
+4. Filtros avanzados por asignatura y experiencia previa
+5. Estadísticas automáticas de matriculación por asignatura
+6. Detección y gestión de alumnos duplicados
+7. Import/Export desde CSV con validación de datos
+8. Duplicación de registros con modificación automática
+9. Sincronización bidireccional con módulo de asignaturas
+10. Integración completa con sistema de configuración global
 
 Autor: Javier Robles Molina - SoftVier
 Universidad: ETSIDI (UPM)
@@ -18,17 +22,48 @@ Universidad: ETSIDI (UPM)
 
 import sys
 import os
+import re
 import json
+import pandas as pd
+
 from datetime import datetime
 from PyQt6.QtWidgets import (
     QApplication, QMainWindow, QWidget, QVBoxLayout, QHBoxLayout,
     QGridLayout, QLabel, QPushButton, QComboBox, QSpinBox, QListWidget,
     QListWidgetItem, QGroupBox, QFrame, QScrollArea, QMessageBox,
     QDialog, QDialogButtonBox, QCheckBox, QFileDialog,
-    QLineEdit, QInputDialog, QTextEdit, QFormLayout
+    QLineEdit, QInputDialog, QTextEdit, QFormLayout, QSizePolicy
 )
-from PyQt6.QtCore import Qt, pyqtSignal
+from PyQt6.QtCore import Qt, pyqtSignal, QTimer
 from PyQt6.QtGui import QFont, QPalette, QColor
+
+
+def center_window_on_screen_immediate(window, width, height):
+    """Centrar ventana a la pantalla"""
+    try:
+        # Obtener información de la pantalla
+        screen = QApplication.primaryScreen()
+        if screen:
+            screen_geometry = screen.availableGeometry()  # Considera la barra de tareas
+
+            # Calcular posición centrada usando las dimensiones proporcionadas
+            center_x = (screen_geometry.width() - width) // 2 + screen_geometry.x()
+            center_y = (screen_geometry.height() - height) // 2 + screen_geometry.y()
+
+            # Asegurar que la ventana no se salga de la pantalla
+            final_x = max(screen_geometry.x(), min(center_x, screen_geometry.x() + screen_geometry.width() - width))
+            final_y = max(screen_geometry.y(), min(center_y, screen_geometry.y() + screen_geometry.height() - height))
+
+            # Establecer geometría completa de una vez (posición + tamaño)
+            window.setGeometry(final_x, final_y, width, height)
+
+        else:
+            # Fallback si no se puede obtener la pantalla
+            window.setGeometry(100, 100, width, height)
+
+    except Exception as e:
+        # Fallback en caso de error
+        window.setGeometry(100, 100, width, height)
 
 
 class GestionAlumnoDialog(QDialog):
@@ -41,7 +76,13 @@ class GestionAlumnoDialog(QDialog):
         self.grados_disponibles = self.obtener_grados_del_sistema()
         self.setWindowTitle("Editar Alumno" if alumno_existente else "Nuevo Alumno")
         self.setModal(True)
-        self.resize(700, 700)
+
+        # Centrar sin parpadeos
+        window_width = 1100
+        window_height = 950
+        center_window_on_screen_immediate(self, window_width, window_height)
+        self.setMinimumSize(1000, 900)
+
         self.setup_ui()
         self.apply_dark_theme()
 
@@ -50,140 +91,248 @@ class GestionAlumnoDialog(QDialog):
 
     def setup_ui(self):
         layout = QVBoxLayout()
+        layout.setSpacing(12)
 
         # 👤 DATOS PERSONALES
         datos_personales_group = QGroupBox("👤 DATOS PERSONALES")
-        datos_personales_layout = QFormLayout()
+        datos_personales_layout = QGridLayout()
 
-        # DNI
+        # Fila 1: DNI | Email
         self.edit_dni = QLineEdit()
         self.edit_dni.setPlaceholderText("Ej: 12345678A")
         self.edit_dni.setMaxLength(9)
 
-        # Nombre
-        self.edit_nombre = QLineEdit()
-        self.edit_nombre.setPlaceholderText("Ej: Juan")
-
-        # Apellidos
-        self.edit_apellidos = QLineEdit()
-        self.edit_apellidos.setPlaceholderText("Ej: García López")
-
-        # Email
         self.edit_email = QLineEdit()
         self.edit_email.setPlaceholderText("Ej: juan.garcia@alumnos.upm.es")
 
-        datos_personales_layout.addRow("🆔 DNI:", self.edit_dni)
-        datos_personales_layout.addRow("👤 Nombre:", self.edit_nombre)
-        datos_personales_layout.addRow("👤 Apellidos:", self.edit_apellidos)
-        datos_personales_layout.addRow("📧 Email:", self.edit_email)
+        datos_personales_layout.addWidget(QLabel("🆔 DNI:"), 0, 0)
+        datos_personales_layout.addWidget(self.edit_dni, 0, 1)
+        datos_personales_layout.addWidget(QLabel("📧 Email:"), 0, 2)
+        datos_personales_layout.addWidget(self.edit_email, 0, 3)
+
+        # Fila 2: Nombre | Apellidos
+        self.edit_nombre = QLineEdit()
+        self.edit_nombre.setPlaceholderText("Ej: Juan")
+
+        self.edit_apellidos = QLineEdit()
+        self.edit_apellidos.setPlaceholderText("Ej: García López")
+
+        datos_personales_layout.addWidget(QLabel("👤 Nombre:"), 1, 0)
+        datos_personales_layout.addWidget(self.edit_nombre, 1, 1)
+        datos_personales_layout.addWidget(QLabel("👤 Apellidos:"), 1, 2)
+        datos_personales_layout.addWidget(self.edit_apellidos, 1, 3)
 
         datos_personales_group.setLayout(datos_personales_layout)
         layout.addWidget(datos_personales_group)
 
         # 🎓 DATOS ACADÉMICOS
         datos_academicos_group = QGroupBox("🎓 DATOS ACADÉMICOS")
-        datos_academicos_layout = QFormLayout()
+        datos_academicos_layout = QGridLayout()
 
-        # Número de matrícula
+        # Fila 1: N° Matrícula | Año Matrícula
         self.edit_matricula = QLineEdit()
         self.edit_matricula.setPlaceholderText("Ej: 2024000123")
 
-        # Año matrícula (campo libre, no combo limitado)
         self.edit_ano_matricula = QLineEdit()
         self.edit_ano_matricula.setPlaceholderText("Ej: 2024")
         self.edit_ano_matricula.setMaxLength(4)
 
-        # Grupo matrícula
-        grados_group = QGroupBox("🎓 GRADOS MATRICULADO")
-        grados_layout = QVBoxLayout()
-
-        if self.grados_disponibles:
-            info_grados = QLabel("Selecciona los grados en los que está matriculado:")
-            info_grados.setStyleSheet("color: #cccccc; font-size: 11px; margin-bottom: 8px;")
-            grados_layout.addWidget(info_grados)
-
-            # Diccionario para checkboxes de grados
-            self.checks_grados = {}
-
-            for grado in self.grados_disponibles:
-                check_grado = QCheckBox(grado)
-                check_grado.toggled.connect(self.filtrar_asignaturas_por_grados)
-                self.checks_grados[grado] = check_grado
-                grados_layout.addWidget(check_grado)
-        else:
-            no_grados_label = QLabel("⚠️ No hay grados configurados en el sistema.")
-            no_grados_label.setStyleSheet("color: #ffaa00; font-style: italic; padding: 10px;")
-            grados_layout.addWidget(no_grados_label)
-            self.checks_grados = {}
-
-        grados_group.setLayout(grados_layout)
-        layout.addWidget(grados_group)
-
-        datos_academicos_layout.addRow("📋 N° Matrícula:", self.edit_matricula)
-        datos_academicos_layout.addRow("📅 Año Matrícula:", self.edit_ano_matricula)
+        datos_academicos_layout.addWidget(QLabel("📋 N° Matrícula:"), 0, 0)
+        datos_academicos_layout.addWidget(self.edit_matricula, 0, 1)
+        datos_academicos_layout.addWidget(QLabel("📅 Año Matrícula:"), 0, 2)
+        datos_academicos_layout.addWidget(self.edit_ano_matricula, 0, 3)
 
         datos_academicos_group.setLayout(datos_academicos_layout)
         layout.addWidget(datos_academicos_group)
 
-        # 📚 ASIGNATURAS MATRICULADAS
-        asignaturas_group = QGroupBox("📚 ASIGNATURAS MATRICULADAS")
-        asignaturas_layout = QVBoxLayout()
+        # 🎓📚 GRADOS Y ASIGNATURAS (LADO A LADO)
+        grados_asignaturas_group = QGroupBox("🎓📚 GRADOS Y ASIGNATURAS MATRICULADAS")
+        grados_asignaturas_main_layout = QHBoxLayout()  # Layout horizontal principal
+        grados_asignaturas_main_layout.setSpacing(15)
 
-        if self.tiene_asignaturas_disponibles():
-            info_label = QLabel("Selecciona las asignaturas matriculadas y marca si ya aprobó el laboratorio:")
-            info_label.setStyleSheet("color: #cccccc; font-size: 11px; margin-bottom: 8px;")
-            asignaturas_layout.addWidget(info_label)
+        # COLUMNA IZQUIERDA: GRADOS MATRICULADOS
+        grados_container = QWidget()
+        grados_main_layout = QVBoxLayout(grados_container)
+        grados_main_layout.setSpacing(8)
+        grados_main_layout.setContentsMargins(0, 0, 0, 0)
 
-            # Diccionarios para checkboxes
-            self.checks_asignaturas = {}
-            self.checks_lab_aprobado = {}
+        grados_title = QLabel("🎓 GRADOS MATRICULADOS")
+        grados_title.setStyleSheet("""
+            color: #4a9eff; 
+            font-weight: bold; 
+            font-size: 14px; 
+            margin-bottom: 8px;
+            padding: 6px;
+            border-bottom: 2px solid #4a9eff;
+        """)
+        grados_title.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        grados_main_layout.addWidget(grados_title)
 
-            # Organizar por semestre
-            asignaturas_sem1 = self.asignaturas_disponibles.get("1", {})
-            asignaturas_sem2 = self.asignaturas_disponibles.get("2", {})
+        if self.grados_disponibles:
+            info_grados = QLabel("Selecciona los grados matriculados:")
+            info_grados.setStyleSheet("color: #cccccc; font-size: 11px; margin-bottom: 6px;")
+            grados_main_layout.addWidget(info_grados)
 
-            if asignaturas_sem1:
-                sem1_label = QLabel("📋 1º Cuatrimestre:")
-                sem1_label.setStyleSheet("color: #4a9eff; font-weight: bold; margin-top: 8px;")
-                asignaturas_layout.addWidget(sem1_label)
+            # SCROLL AREA PARA GRADOS
+            self.grados_scroll = QScrollArea()
+            self.grados_scroll.setWidgetResizable(True)
+            self.grados_scroll.setFixedHeight(300)
+            self.grados_scroll.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
+            self.grados_scroll.setVerticalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAsNeeded)
+            self.grados_scroll.setFrameStyle(QFrame.Shape.Box)
+            self.grados_scroll.setLineWidth(1)
 
-                for asignatura in sorted(asignaturas_sem1.keys()):
-                    self.crear_fila_asignatura(asignatura, "1", asignaturas_layout)
+            # Widget scrollable para grados
+            self.grados_scroll_widget = QWidget()
+            self.grados_scroll_layout = QVBoxLayout(self.grados_scroll_widget)
+            self.grados_scroll_layout.setContentsMargins(10, 10, 10, 10)
+            self.grados_scroll_layout.setSpacing(8)
+            self.grados_scroll_layout.setAlignment(Qt.AlignmentFlag.AlignTop)
 
-            if asignaturas_sem2:
-                sem2_label = QLabel("📋 2º Cuatrimestre:")
-                sem2_label.setStyleSheet("color: #4a9eff; font-weight: bold; margin-top: 8px;")
-                asignaturas_layout.addWidget(sem2_label)
+            # Organizar grados por curso
+            grados_por_curso = {"1": [], "2": [], "3": [], "4": []}
 
-                for asignatura in sorted(asignaturas_sem2.keys()):
-                    self.crear_fila_asignatura(asignatura, "2", asignaturas_layout)
+            for grado in self.grados_disponibles:
+                curso = self.extraer_curso_de_grado(grado)
+                if curso in grados_por_curso:
+                    grados_por_curso[curso].append(grado)
+                else:
+                    grados_por_curso["1"].append(grado)
+
+            # Crear secciones para cada curso
+            self.checks_grados = {}
+            for curso in ["1", "2", "3", "4"]:
+                if grados_por_curso[curso]:
+                    # Etiqueta del curso
+                    curso_label = QLabel(f"📚 {curso}º Curso")
+                    curso_label.setStyleSheet("""
+                        color: #90EE90; 
+                        font-weight: bold; 
+                        font-size: 12px; 
+                        margin: 8px 0px 4px 0px;
+                        padding: 4px;
+                        background-color: rgba(144, 238, 144, 0.1);
+                        border-radius: 4px;
+                    """)
+                    curso_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
+                    self.grados_scroll_layout.addWidget(curso_label)
+
+                    # Checkboxes del curso
+                    for grado in sorted(grados_por_curso[curso]):
+                        check_grado = QCheckBox(grado)
+                        check_grado.setStyleSheet("""
+                            QCheckBox {
+                                font-size: 12px;
+                                font-weight: 500;
+                                padding: 4px 6px;
+                                margin: 2px 0px;
+                                color: #ffffff;
+                            }
+                            QCheckBox::indicator {
+                                width: 18px;
+                                height: 18px;
+                                margin-right: 8px;
+                            }
+                            QCheckBox:hover {
+                                background-color: rgba(74, 158, 255, 0.15);
+                                border-radius: 4px;
+                            }
+                        """)
+                        check_grado.toggled.connect(self.filtrar_asignaturas_por_grados)
+                        self.checks_grados[grado] = check_grado
+                        self.grados_scroll_layout.addWidget(check_grado)
+
+            # Añadir stretch al final para que el contenido se mantenga arriba
+            self.grados_scroll_layout.addStretch()
+
+            # Configurar el scroll area
+            self.grados_scroll.setWidget(self.grados_scroll_widget)
+            grados_main_layout.addWidget(self.grados_scroll)
         else:
-            # No hay asignaturas configuradas
-            no_asig_label = QLabel("⚠️ No hay asignaturas configuradas en el sistema.\n"
-                                   "Configure primero los horarios para poder matricular alumnos.")
-            no_asig_label.setStyleSheet("color: #ffaa00; font-style: italic; padding: 10px;")
-            no_asig_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
-            asignaturas_layout.addWidget(no_asig_label)
-            self.checks_asignaturas = {}
-            self.checks_lab_aprobado = {}
+            no_grados_label = QLabel("⚠️ No hay grados configurados en el sistema.")
+            no_grados_label.setStyleSheet("color: #ffaa00; font-style: italic; padding: 20px; font-size: 12px;")
+            grados_main_layout.addWidget(no_grados_label)
+            self.checks_grados = {}
 
-        asignaturas_group.setLayout(asignaturas_layout)
-        layout.addWidget(asignaturas_group)
+        # COLUMNA DERECHA: ASIGNATURAS MATRICULADAS
+        asignaturas_container = QWidget()
+        asignaturas_main_layout = QVBoxLayout(asignaturas_container)
+        asignaturas_main_layout.setSpacing(8)
+        asignaturas_main_layout.setContentsMargins(0, 0, 0, 0)
+
+        asignaturas_title = QLabel("📚 ASIGNATURAS MATRICULADAS")
+        asignaturas_title.setStyleSheet("""
+            color: #4a9eff; 
+            font-weight: bold; 
+            font-size: 14px; 
+            margin-bottom: 8px;
+            padding: 6px;
+            border-bottom: 2px solid #4a9eff;
+        """)
+        asignaturas_title.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        asignaturas_main_layout.addWidget(asignaturas_title)
+
+        info_asig_label = QLabel("Selecciona asignaturas y marca si ya aprobó el lab:")
+        info_asig_label.setStyleSheet("color: #cccccc; font-size: 11px; margin-bottom: 6px;")
+        asignaturas_main_layout.addWidget(info_asig_label)
+
+        # SCROLL AREA PARA ASIGNATURAS
+        self.asignaturas_scroll = QScrollArea()
+        self.asignaturas_scroll.setWidgetResizable(True)  # CRÍTICO
+        self.asignaturas_scroll.setFixedHeight(300)
+        self.asignaturas_scroll.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
+        self.asignaturas_scroll.setVerticalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAsNeeded)
+        self.asignaturas_scroll.setFrameStyle(QFrame.Shape.Box)
+        self.asignaturas_scroll.setLineWidth(1)
+
+        # WIDGET SCROLLABLE
+        self.asignaturas_scroll_widget = QWidget()
+        self.asignaturas_scroll_widget.setMinimumSize(200, 100)
+        self.asignaturas_scroll_widget.setSizePolicy(
+            QSizePolicy.Policy.Preferred,
+            QSizePolicy.Policy.Expanding
+        )
+
+        # LAYOUT DEL WIDGET SCROLLABLE
+        self.asignaturas_scroll_layout = QVBoxLayout()
+        self.asignaturas_scroll_layout.setContentsMargins(10, 10, 10, 10)
+        self.asignaturas_scroll_layout.setSpacing(6)
+
+        # IMPORTANTE: Configurar el layout en el widget
+        self.asignaturas_scroll_widget.setLayout(self.asignaturas_scroll_layout)
+
+        # Diccionarios para checkboxes
+        self.checks_asignaturas = {}
+        self.checks_lab_aprobado = {}
+
+        # INICIALIZAR CON MENSAJE
+        self.mostrar_mensaje_seleccionar_grados()
+
+        # CONFIGURAR EL SCROLL AREA - DESPUÉS de configurar el layout
+        self.asignaturas_scroll.setWidget(self.asignaturas_scroll_widget)
+        asignaturas_main_layout.addWidget(self.asignaturas_scroll)
+
+        # Añadir las dos columnas al layout principal
+        grados_asignaturas_main_layout.addWidget(grados_container, 1)  # 50% del ancho
+        grados_asignaturas_main_layout.addWidget(asignaturas_container, 1)  # 50% del ancho
+
+        grados_asignaturas_group.setLayout(grados_asignaturas_main_layout)
+        layout.addWidget(grados_asignaturas_group)
 
         # 📋 EXPEDIENTES
         expedientes_group = QGroupBox("📋 EXPEDIENTES")
-        expedientes_layout = QFormLayout()
+        expedientes_layout = QGridLayout()
 
-        # N° Expediente Centro
         self.edit_exp_centro = QLineEdit()
         self.edit_exp_centro.setPlaceholderText("Ej: GIN-14")
 
-        # N° Expediente Ágora
         self.edit_exp_agora = QLineEdit()
         self.edit_exp_agora.setPlaceholderText("Ej: AGR789012")
 
-        expedientes_layout.addRow("🏫 N° Exp. Centro:", self.edit_exp_centro)
-        expedientes_layout.addRow("🌐 N° Exp. Ágora:", self.edit_exp_agora)
+        expedientes_layout.addWidget(QLabel("🏫 N° Exp. Centro:"), 0, 0)
+        expedientes_layout.addWidget(self.edit_exp_centro, 0, 1)
+        expedientes_layout.addWidget(QLabel("🌐 N° Exp. Ágora:"), 0, 2)
+        expedientes_layout.addWidget(self.edit_exp_agora, 0, 3)
 
         expedientes_group.setLayout(expedientes_layout)
         layout.addWidget(expedientes_group)
@@ -193,7 +342,7 @@ class GestionAlumnoDialog(QDialog):
         observaciones_layout = QVBoxLayout()
 
         self.edit_observaciones = QTextEdit()
-        self.edit_observaciones.setMaximumHeight(80)
+        self.edit_observaciones.setMaximumHeight(60)
         self.edit_observaciones.setPlaceholderText("Observaciones adicionales sobre el alumno...")
         observaciones_layout.addWidget(self.edit_observaciones)
 
@@ -208,38 +357,80 @@ class GestionAlumnoDialog(QDialog):
 
         self.setLayout(layout)
 
+    def mostrar_mensaje_seleccionar_grados(self):
+        """Mostrar mensaje inicial para seleccionar grados"""
+        # Limpiar layout
+        self.limpiar_layout_asignaturas()
+
+        # Mensaje inicial
+        mensaje_label = QLabel("⚠️ Selecciona primero los grados para ver las asignaturas disponibles.")
+        mensaje_label.setStyleSheet("""
+            color: #ffaa00; 
+            font-style: italic; 
+            font-size: 13px;
+            padding: 30px 20px; 
+            text-align: center;
+            background-color: rgba(255, 170, 0, 0.1);
+            border: 1px dashed #ffaa00;
+            border-radius: 6px;
+            margin: 20px;
+        """)
+        mensaje_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        mensaje_label.setWordWrap(True)
+        self.asignaturas_scroll_layout.addWidget(mensaje_label)
+
+        # CLAVE: Actualizar el scroll area
+        self.asignaturas_scroll_widget.adjustSize()
+        self.asignaturas_scroll.updateGeometry()
+
+    def limpiar_layout_asignaturas(self):
+        """Limpiar el layout de asignaturas de forma segura"""
+        # Limpiar diccionarios
+        self.checks_asignaturas = {}
+        self.checks_lab_aprobado = {}
+
+        # Limpiar layout de forma más robusta
+        while self.asignaturas_scroll_layout.count():
+            child = self.asignaturas_scroll_layout.takeAt(0)
+            if child.widget():
+                child.widget().deleteLater()
+
+        # IMPORTANTE: Procesar eventos pendientes para que se eliminen los widgets
+        QApplication.processEvents()
+
     def obtener_grados_del_sistema(self):
-        """Obtener códigos de grupos disponibles desde el sistema global"""
+        """Obtener códigos de grados disponibles desde el sistema global"""
         try:
             if self.parent() and hasattr(self.parent(), 'parent_window'):
                 parent_window = self.parent().parent_window
                 if parent_window and hasattr(parent_window, 'configuracion'):
                     config_asignaturas = parent_window.configuracion["configuracion"]["asignaturas"]
                     if config_asignaturas.get("configurado") and config_asignaturas.get("datos"):
-                        codigos_grupos = set()
+                        codigos_grados = set()
                         for asig_data in config_asignaturas["datos"].values():
-                            # CAMBIO: buscar en "grupos" en lugar de "grados"
-                            grupos_asig = asig_data.get("grupos", [])
-                            codigos_grupos.update(grupos_asig)
-                        return sorted(list(codigos_grupos))
+                            # buscar en "grados_que_cursan"
+                            grados_asig = asig_data.get("grados_que_cursan", [])
+                            codigos_grados.update(grados_asig)
+                        return sorted(list(codigos_grados))
             return []
         except Exception as e:
-            print(f"Error obteniendo códigos de grupos: {e}")
+            print(f"Error obteniendo códigos de grados: {e}")
             return []
 
     def filtrar_asignaturas_por_grados(self):
-        """Filtrar asignaturas disponibles según códigos de grupos seleccionados"""
-        # Obtener códigos de grupos seleccionados
-        grupos_seleccionados = [grupo for grupo, check in self.checks_grados.items() if check.isChecked()]
+        """Filtrar asignaturas disponibles según códigos de grados seleccionados"""
+        # Obtener códigos de grados seleccionados
+        grados_seleccionados = [grado for grado, check in self.checks_grados.items() if check.isChecked()]
 
         # Limpiar asignaturas actuales
-        self.limpiar_checkboxes_asignaturas()
+        self.limpiar_layout_asignaturas()
 
-        if not grupos_seleccionados:
-            # Si no hay grupos seleccionados, no mostrar asignaturas
+        if not grados_seleccionados:
+            # Si no hay grados seleccionados, mostrar mensaje
+            self.mostrar_mensaje_seleccionar_grados()
             return
 
-        # Filtrar asignaturas por códigos de grupos
+        # Filtrar asignaturas por códigos de grados
         asignaturas_filtradas = {"1": {}, "2": {}}
 
         try:
@@ -250,112 +441,219 @@ class GestionAlumnoDialog(QDialog):
                     if config_asignaturas.get("configurado") and config_asignaturas.get("datos"):
                         for codigo, asig_data in config_asignaturas["datos"].items():
                             nombre_asig = asig_data.get("nombre", "")
-                            semestre = asig_data.get("semestre", "1")
-                            # buscar en "grupos"
-                            grupos_asig = asig_data.get("grupos", [])
+                            semestre_str = asig_data.get("semestre", "1º Cuatrimestre")
 
-                            # Si la asignatura pertenece a algún grupo seleccionado
-                            if any(grupo in grupos_asig for grupo in grupos_seleccionados):
-                                asignaturas_filtradas[str(semestre)][nombre_asig] = asig_data
+                            # Detectar semestre
+                            if "1º" in semestre_str or "primer" in semestre_str.lower():
+                                semestre = "1"
+                            elif "2º" in semestre_str or "segundo" in semestre_str.lower():
+                                semestre = "2"
+                            else:
+                                semestre = "1"
+
+                            # buscar en "grados_que_cursan"
+                            grados_asig = asig_data.get("grados_que_cursan", [])
+
+                            # Si la asignatura pertenece a algún grado seleccionado
+                            if any(grado in grados_asig for grado in grados_seleccionados):
+                                asignaturas_filtradas[semestre][nombre_asig] = asig_data
 
         except Exception as e:
-            print(f"Error filtrando asignaturas por grupos: {e}")
-
-        # Actualizar asignaturas disponibles temporalmente
-        self.asignaturas_filtradas = asignaturas_filtradas
+            print(f"Error filtrando asignaturas por grados: {e}")
 
         # Recrear checkboxes de asignaturas
-        self.crear_checkboxes_asignaturas(asignaturas_filtradas)
+        self.crear_asignaturas_filtradas(asignaturas_filtradas)
 
-    def limpiar_checkboxes_asignaturas(self):
-        """Limpiar checkboxes de asignaturas existentes"""
-        # Buscar el groupbox de asignaturas y limpiar su contenido
-        for i in reversed(range(self.layout().count())):
-            widget = self.layout().itemAt(i).widget()
-            if isinstance(widget, QGroupBox) and "ASIGNATURAS MATRICULADAS" in widget.title():
-                # Limpiar el layout interno
-                layout_asig = widget.layout()
-                if layout_asig:
-                    for j in reversed(range(layout_asig.count())):
-                        child = layout_asig.itemAt(j)
-                        if child.widget():
-                            child.widget().deleteLater()
-                        elif child.layout():
-                            self.clear_layout(child.layout())
-    def clear_layout(self, layout):
-        """Limpiar un layout recursivamente"""
-        while layout.count():
-            child = layout.takeAt(0)
-            if child.widget():
-                child.widget().deleteLater()
-            elif child.layout():
-                self.clear_layout(child.layout())
+        # CLAVE: Forzar actualización final del scroll area
+        QApplication.processEvents()
 
-    def crear_checkboxes_asignaturas(self, asignaturas_data):
-        """Recrear checkboxes de asignaturas basado en grados seleccionados"""
-        # Buscar el groupbox de asignaturas
-        asignaturas_group = None
-        for i in range(self.layout().count()):
-            widget = self.layout().itemAt(i).widget()
-            if isinstance(widget, QGroupBox) and "ASIGNATURAS MATRICULADAS" in widget.title():
-                asignaturas_group = widget
-                break
+        # Asegurar que el scroll esté visible y funcional
+        self.asignaturas_scroll.setVisible(True)
+        self.asignaturas_scroll_widget.setVisible(True)
 
-        if not asignaturas_group:
+    def crear_asignaturas_filtradas(self, asignaturas_data):
+        """Crear checkboxes de asignaturas filtradas"""
+        if not asignaturas_data.get("1") and not asignaturas_data.get("2"):
+            # No hay asignaturas para los grados seleccionados
+            no_asig_label = QLabel("⚠️ No hay asignaturas configuradas para los grados seleccionados.")
+            no_asig_label.setStyleSheet("""
+                color: #ffaa00; 
+                font-style: italic; 
+                font-size: 13px;
+                padding: 25px; 
+                text-align: center;
+                background-color: rgba(255, 170, 0, 0.1);
+                border: 1px dashed #ffaa00;
+                border-radius: 6px;
+                margin: 15px;
+                min-height: 200px;
+            """)
+            no_asig_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
+            no_asig_label.setWordWrap(True)
+            self.asignaturas_scroll_layout.addWidget(no_asig_label)
+
+            # Forzar actualización del scroll
+            self.actualizar_scroll_asignaturas()
             return
 
-        asignaturas_layout = asignaturas_group.layout()
+        # 1º Cuatrimestre
+        if asignaturas_data.get("1"):
+            sem1_label = QLabel("📋 1º Cuatrimestre:")
+            sem1_label.setStyleSheet("""
+                color: #90EE90; 
+                font-weight: bold; 
+                font-size: 13px;
+                margin: 10px 0px 6px 0px;
+                padding: 6px;
+                background-color: rgba(144, 238, 144, 0.1);
+                border-radius: 4px;
+            """)
+            self.asignaturas_scroll_layout.addWidget(sem1_label)
 
-        # Limpiar diccionarios
-        self.checks_asignaturas = {}
-        self.checks_lab_aprobado = {}
+            for asignatura in sorted(asignaturas_data["1"].keys()):
+                self.crear_fila_asignatura(asignatura, "1")
 
-        if asignaturas_data.get("1") or asignaturas_data.get("2"):
-            info_label = QLabel("Selecciona las asignaturas matriculadas y marca si ya aprobó el laboratorio:")
-            info_label.setStyleSheet("color: #cccccc; font-size: 11px; margin-bottom: 8px;")
-            asignaturas_layout.addWidget(info_label)
+        # 2º Cuatrimestre
+        if asignaturas_data.get("2"):
+            sem2_label = QLabel("📋 2º Cuatrimestre:")
+            sem2_label.setStyleSheet("""
+                color: #90EE90; 
+                font-weight: bold; 
+                font-size: 13px;
+                margin: 15px 0px 6px 0px;
+                padding: 6px;
+                background-color: rgba(144, 238, 144, 0.1);
+                border-radius: 4px;
+            """)
+            self.asignaturas_scroll_layout.addWidget(sem2_label)
 
-            # 1º Cuatrimestre
-            if asignaturas_data.get("1"):
-                sem1_label = QLabel("📋 1º Cuatrimestre:")
-                sem1_label.setStyleSheet("color: #4a9eff; font-weight: bold; margin-top: 8px;")
-                asignaturas_layout.addWidget(sem1_label)
+            for asignatura in sorted(asignaturas_data["2"].keys()):
+                self.crear_fila_asignatura(asignatura, "2")
 
-                for asignatura in sorted(asignaturas_data["1"].keys()):
-                    self.crear_fila_asignatura(asignatura, "1", asignaturas_layout)
+        # IMPORTANTE: Añadir stretch al final
+        self.asignaturas_scroll_layout.addStretch()
 
-            # 2º Cuatrimestre
-            if asignaturas_data.get("2"):
-                sem2_label = QLabel("📋 2º Cuatrimestre:")
-                sem2_label.setStyleSheet("color: #4a9eff; font-weight: bold; margin-top: 8px;")
-                asignaturas_layout.addWidget(sem2_label)
+        # Forzar actualización completa del scroll
+        self.actualizar_scroll_asignaturas()
 
-                for asignatura in sorted(asignaturas_data["2"].keys()):
-                    self.crear_fila_asignatura(asignatura, "2", asignaturas_layout)
-        else:
-            no_asig_label = QLabel("⚠️ Selecciona primero los grados para ver las asignaturas disponibles.")
-            no_asig_label.setStyleSheet("color: #ffaa00; font-style: italic; padding: 10px;")
-            no_asig_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
-            asignaturas_layout.addWidget(no_asig_label)
+    def actualizar_scroll_asignaturas(self):
+        """Función para forzar actualización del scroll de asignaturas"""
+        # Procesar eventos pendientes primero
+        QApplication.processEvents()
 
-    def crear_fila_asignatura(self, asignatura, semestre, parent_layout):
-        """Crea una fila con checkbox de asignatura + checkbox de lab aprobado"""
-        fila_layout = QHBoxLayout()
-        fila_layout.setContentsMargins(20, 2, 10, 2)
+        # Calcular el tamaño real del contenido
+        total_height = 0
+        for i in range(self.asignaturas_scroll_layout.count()):
+            item = self.asignaturas_scroll_layout.itemAt(i)
+            if item and item.widget():
+                widget = item.widget()
+                widget.adjustSize()
+                total_height += widget.sizeHint().height()
+
+        # Añadir márgenes y espaciado
+        margins = self.asignaturas_scroll_layout.contentsMargins()
+        total_height += margins.top() + margins.bottom()
+        total_height += self.asignaturas_scroll_layout.spacing() * max(0, self.asignaturas_scroll_layout.count() - 1)
+
+        # Establecer tamaño mínimo del widget basado en contenido
+        self.asignaturas_scroll_widget.setMinimumHeight(max(100, total_height))
+
+        # Forzar actualización del widget y scroll area
+        self.asignaturas_scroll_widget.updateGeometry()
+        self.asignaturas_scroll_widget.adjustSize()
+
+        # Procesar eventos
+        QApplication.processEvents()
+
+        # Actualizar el scroll area
+        self.asignaturas_scroll.updateGeometry()
+
+        # Scroll al inicio
+        self.asignaturas_scroll.verticalScrollBar().setValue(0)
+
+        # Procesar eventos finales
+        QApplication.processEvents()
+
+    def crear_fila_asignatura(self, asignatura, semestre):
+        """Crea una fila con checkbox de asignatura + checkbox de lab aprobado al lado"""
+        fila_widget = QWidget()
+        fila_widget.setStyleSheet("""
+            QWidget:hover {
+                background-color: rgba(74, 158, 255, 0.1);
+                border-radius: 6px;
+            }
+        """)
+
+        # Layout HORIZONTAL para poner asignatura y lab aprobado lado a lado
+        fila_layout = QHBoxLayout(fila_widget)
+        fila_layout.setContentsMargins(8, 4, 8, 4)  # Menos padding vertical
+        fila_layout.setSpacing(15)  # Espacio entre asignatura y lab aprobado
 
         # Checkbox principal de asignatura
         key_asignatura = f"{semestre}_{asignatura}"
         check_asignatura = QCheckBox(asignatura)
-        check_asignatura.setMinimumWidth(200)
+        check_asignatura.setStyleSheet("""
+            QCheckBox {
+                font-size: 12px;
+                font-weight: 500;
+                padding: 4px;
+                color: #ffffff;
+                min-width: 180px;
+            }
+            QCheckBox::indicator {
+                width: 18px;
+                height: 18px;
+                margin-right: 8px;
+            }
+            QCheckBox::indicator:unchecked {
+                background-color: #3c3c3c;
+                border: 2px solid #666666;
+                border-radius: 4px;
+            }
+            QCheckBox::indicator:unchecked:hover {
+                border-color: #4a9eff;
+                background-color: #4a4a4a;
+            }
+            QCheckBox::indicator:checked {
+                background-color: #4a9eff;
+                border: 2px solid #4a9eff;
+                border-radius: 4px;
+            }
+        """)
         self.checks_asignaturas[key_asignatura] = check_asignatura
 
-        # Checkbox pequeño para lab aprobado
+        # Checkbox para lab aprobado al lado
         check_lab = QCheckBox("🎓 Lab aprobado")
-        check_lab.setStyleSheet("color: #90EE90; font-size: 10px;")
-        check_lab.setEnabled(False)  # Inicialmente deshabilitado
+        check_lab.setStyleSheet("""
+            QCheckBox {
+                color: #90EE90; 
+                font-size: 11px;
+                font-weight: 500;
+                padding: 2px;
+            }
+            QCheckBox::indicator {
+                width: 16px;
+                height: 16px;
+                margin-right: 6px;
+            }
+            QCheckBox::indicator:unchecked {
+                background-color: #3c3c3c;
+                border: 2px solid #666666;
+                border-radius: 3px;
+            }
+            QCheckBox::indicator:checked {
+                background-color: #90EE90;
+                border: 2px solid #90EE90;
+                border-radius: 3px;
+            }
+            QCheckBox:disabled {
+                color: #666666;
+            }
+        """)
+        check_lab.setEnabled(False)
         self.checks_lab_aprobado[key_asignatura] = check_lab
 
-        # Conectar señal para habilitar/deshabilitar el checkbox de lab
+        # Conectar señales
         check_asignatura.toggled.connect(
             lambda checked, lab_check=check_lab: lab_check.setEnabled(checked)
         )
@@ -363,11 +661,21 @@ class GestionAlumnoDialog(QDialog):
             lambda checked, lab_check=check_lab: lab_check.setChecked(False) if not checked else None
         )
 
+        # Añadir widgets al layout horizontal
         fila_layout.addWidget(check_asignatura)
         fila_layout.addWidget(check_lab)
-        fila_layout.addStretch()
+        fila_layout.addStretch()  # Push a la izquierda
 
-        parent_layout.addLayout(fila_layout)
+        # Añadir la fila al layout del scroll
+        self.asignaturas_scroll_layout.addWidget(fila_widget)
+
+    def extraer_curso_de_grado(self, grado):
+        """Extraer curso del código de grado (ej: A102 -> '1', EE309 -> '3')"""
+        # Buscar patrón LLXNN donde L=letras, X=primer dígito del curso, NN=resto
+        match = re.search(r'[A-Z]+(\d)', grado)
+        if match:
+            return match.group(1)  # Primer dígito
+        return "1"  # Por defecto 1º curso
 
     def tiene_asignaturas_disponibles(self):
         """Verificar si hay asignaturas disponibles"""
@@ -376,7 +684,7 @@ class GestionAlumnoDialog(QDialog):
         return bool(sem1 or sem2)
 
     def cargar_datos_existentes(self):
-        """Cargar datos del alumno existente con nueva estructura"""
+        """Cargar datos del alumno existente con nueva estructura - SCROLL FINAL"""
         if not self.alumno_existente:
             return
 
@@ -392,16 +700,6 @@ class GestionAlumnoDialog(QDialog):
         self.edit_matricula.setText(datos.get('matricula', ''))
         ano_matricula = datos.get('ano_matricula', '2024')
         self.edit_ano_matricula.setText(ano_matricula)
-        grupos_matriculado = datos.get('grados_matriculado', [])
-
-        # Marcar checkboxes de grupos
-        for grupo, check in self.checks_grados.items():
-            if grupo in grupos_matriculado:
-                check.setChecked(True)
-
-        # Filtrar asignaturas por grupos seleccionados ANTES de cargar asignaturas
-        if grupos_matriculado:
-            self.filtrar_asignaturas_por_grados()
 
         # Expedientes
         self.edit_exp_centro.setText(datos.get('exp_centro', ''))
@@ -410,22 +708,34 @@ class GestionAlumnoDialog(QDialog):
         # Observaciones
         self.edit_observaciones.setText(datos.get('observaciones', ''))
 
-        # Cargar asignaturas matriculadas y experiencia por asignatura
-        asignaturas_matriculadas = datos.get('asignaturas_matriculadas', {})
+        # Grados matriculado
+        grupos_matriculado = datos.get('grados_matriculado', [])
+        for grupo, check in self.checks_grados.items():
+            if grupo in grupos_matriculado:
+                check.setChecked(True)
 
-        # Formato esperado: {"1_Fisica": {"matriculado": True, "lab_aprobado": False}, ...}
-        for key, check_asig in self.checks_asignaturas.items():
-            if key in asignaturas_matriculadas:
-                info_asignatura = asignaturas_matriculadas[key]
+        # IMPORTANTE: Filtrar asignaturas DESPUÉS de marcar grados
+        if grupos_matriculado:
+            self.filtrar_asignaturas_por_grados()
 
-                # Marcar asignatura como matriculada
-                if info_asignatura.get('matriculado', False):
-                    check_asig.setChecked(True)
+            # Procesar eventos pendientes para que se aplique el filtrado
+            QApplication.processEvents()
 
-                    # Habilitar y marcar checkbox de lab aprobado si corresponde
-                    if key in self.checks_lab_aprobado:
-                        self.checks_lab_aprobado[key].setEnabled(True)
-                        self.checks_lab_aprobado[key].setChecked(info_asignatura.get('lab_aprobado', False))
+            # Luego cargar asignaturas matriculadas
+            asignaturas_matriculadas = datos.get('asignaturas_matriculadas', {})
+            for key, check_asig in self.checks_asignaturas.items():
+                if key in asignaturas_matriculadas:
+                    info_asignatura = asignaturas_matriculadas[key]
+
+                    if info_asignatura.get('matriculado', False):
+                        check_asig.setChecked(True)
+
+                        if key in self.checks_lab_aprobado:
+                            self.checks_lab_aprobado[key].setEnabled(True)
+                            self.checks_lab_aprobado[key].setChecked(info_asignatura.get('lab_aprobado', False))
+
+            # Actualizar scroll final
+            self.actualizar_scroll_asignaturas()
 
     def validar_y_aceptar(self):
         """Validar datos antes de aceptar con nueva estructura"""
@@ -482,7 +792,7 @@ class GestionAlumnoDialog(QDialog):
             'ano_matricula': self.edit_ano_matricula.text().strip(),
             'grados_matriculado': [grupo for grupo, check in self.checks_grados.items() if check.isChecked()],
 
-            # Asignaturas (nueva estructura)
+            # Asignaturas
             'asignaturas_matriculadas': asignaturas_matriculadas,
 
             # Expedientes
@@ -497,7 +807,7 @@ class GestionAlumnoDialog(QDialog):
         }
 
     def apply_dark_theme(self):
-        """Aplicar tema oscuro idéntico a configurar_aulas"""
+        """Aplicar tema oscuro idéntico al sistema"""
         self.setStyleSheet("""
             QDialog {
                 background-color: #2b2b2b;
@@ -547,9 +857,32 @@ class GestionAlumnoDialog(QDialog):
                 border-color: #4a9eff;
                 background-color: #4a4a4a;
             }
+            QScrollArea {
+                background-color: #3c3c3c;
+                border: 1px solid #555555;
+                border-radius: 5px;
+            }
+            QScrollBar:vertical {
+                background-color: #3c3c3c;
+                width: 12px;
+                border-radius: 6px;
+            }
+            QScrollBar::handle:vertical {
+                background-color: #666666;
+                border-radius: 6px;
+                min-height: 20px;
+            }
+            QScrollBar::handle:vertical:hover {
+                background-color: #4a9eff;
+            }
+            QScrollBar::add-line:vertical, QScrollBar::sub-line:vertical {
+                border: none;
+                background: none;
+            }
         """)
 
 
+# El resto de las clases permanecen igual...
 class ConfigurarAlumnos(QMainWindow):
     """Ventana principal para configurar alumnos matriculados"""
 
@@ -560,7 +893,12 @@ class ConfigurarAlumnos(QMainWindow):
         super().__init__()
         self.parent_window = parent
         self.setWindowTitle("Configurar Alumnos - OPTIM Labs")
-        self.setGeometry(100, 100, 1400, 700)
+
+        # Centrar inmediatamente sin parpadeo
+        window_width = 1500
+        window_height = 900
+        center_window_on_screen_immediate(self, window_width, window_height)
+        self.setMinimumSize(1400, 850)
 
         # Obtener asignaturas disponibles desde el sistema global
         self.asignaturas_disponibles = self.obtener_asignaturas_del_sistema()
@@ -588,9 +926,31 @@ class ConfigurarAlumnos(QMainWindow):
         """Obtener asignaturas configuradas desde el sistema global"""
         try:
             if self.parent_window and hasattr(self.parent_window, 'configuracion'):
-                config_horarios = self.parent_window.configuracion["configuracion"]["horarios"]
-                if config_horarios.get("configurado") and config_horarios.get("datos"):
-                    return config_horarios["datos"]
+                # Buscar en asignaturas
+                config_asignaturas = self.parent_window.configuracion["configuracion"]["asignaturas"]
+
+                if config_asignaturas.get("configurado") and config_asignaturas.get("datos"):
+                    # Transformar datos de asignaturas al formato esperado por la ventana
+                    asignaturas_transformadas = {"1": {}, "2": {}}
+
+                    for codigo, asig_data in config_asignaturas["datos"].items():
+                        nombre = asig_data.get("nombre", "")
+                        semestre_str = asig_data.get("semestre", "1º Cuatrimestre")
+
+                        # Detectar semestre: "1º Cuatrimestre" -> "1", "2º Cuatrimestre" -> "2"
+                        if "1º" in semestre_str or "primer" in semestre_str.lower():
+                            semestre = "1"
+                        elif "2º" in semestre_str or "segundo" in semestre_str.lower():
+                            semestre = "2"
+                        else:
+                            semestre = "1"  # Por defecto
+
+                        # Añadir asignatura al semestre correspondiente
+                        if nombre:  # Solo si tiene nombre
+                            asignaturas_transformadas[semestre][nombre] = asig_data
+
+                    return asignaturas_transformadas
+
             return {"1": {}, "2": {}}
         except Exception as e:
             self.log_mensaje(f"⚠️ Error obteniendo asignaturas del sistema: {e}", "warning")
@@ -918,7 +1278,7 @@ class ConfigurarAlumnos(QMainWindow):
         return ', '.join(str(int(hex_color[i:i + 2], 16)) for i in (0, 2, 4))
 
     def apply_dark_theme(self):
-        """Aplicar tema oscuro idéntico a configurar_horarios"""
+        """Aplicar tema oscuro idéntico al sistema"""
         self.setStyleSheet("""
             QMainWindow {
                 background-color: #2b2b2b;
@@ -1033,7 +1393,7 @@ class ConfigurarAlumnos(QMainWindow):
         self.check_solo_sin_lab.toggled.connect(self.aplicar_filtro_asignatura)
 
     def aplicar_filtro_asignatura(self):
-        """Aplicar filtro por asignatura y experiencia con nueva estructura - FILTRO CONTEXTUAL CORREGIDO"""
+        """Aplicar filtro por asignatura y experiencia con nueva estructura"""
         filtro_texto = self.combo_filtro_asignatura.currentText()
         solo_sin_lab = self.check_solo_sin_lab.isChecked()
 
@@ -1327,7 +1687,7 @@ class ConfigurarAlumnos(QMainWindow):
         letra_original = datos_originales['dni'][-1]
 
         # Buscar letra disponible
-        letras = "BCDEFGHIJKLMNPQRSTUVWXYZ"
+        letras = "ABCDEFGHIJKLMNPQRSTUVWXYZ"
         dni_nuevo = datos_originales['dni']
 
         for letra in letras:
@@ -1402,11 +1762,11 @@ class ConfigurarAlumnos(QMainWindow):
                 duplicados_dni[dni] = [datos]
 
             # Por nombre completo
-            nombre_completo = f"{datos.get('apellidos', '')} {datos.get('nombre', '')}".strip().lower()
-            if nombre_completo in duplicados_nombre:
-                duplicados_nombre[nombre_completo].append((dni, datos))
-            else:
-                duplicados_nombre[nombre_completo] = [(dni, datos)]
+            # nombre_completo = f"{datos.get('apellidos', '')} {datos.get('nombre', '')}".strip().lower()
+            # if nombre_completo in duplicados_nombre:
+            #     duplicados_nombre[nombre_completo].append((dni, datos))
+            # else:
+            #     duplicados_nombre[nombre_completo] = [(dni, datos)]
 
         # Filtrar solo los que tienen duplicados
         duplicados_reales = []
@@ -1462,7 +1822,7 @@ class ConfigurarAlumnos(QMainWindow):
         # Estadísticas generales
         total_alumnos = len(self.datos_configuracion)
 
-        # Contar alumnos con experiencia global
+        # Contar alumnos con laboratorios aprobados global
         con_experiencia = 0
         for datos in self.datos_configuracion.values():
             asignaturas_matriculadas = datos.get('asignaturas_matriculadas', {})
@@ -1569,8 +1929,6 @@ class ConfigurarAlumnos(QMainWindow):
             return
 
         try:
-            import pandas as pd
-
             df = pd.read_csv(archivo)
 
             # Verificar columnas requeridas
@@ -1657,8 +2015,6 @@ class ConfigurarAlumnos(QMainWindow):
             return
 
         try:
-            import pandas as pd
-
             datos_export = []
             for dni, datos in self.datos_configuracion.items():
                 # Expandir por asignatura (una fila por asignatura)
@@ -2036,6 +2392,7 @@ def main():
         }
     }
 
+    # La ventana ya se centra automáticamente en su constructor
     window = ConfigurarAlumnos(datos_existentes=datos_ejemplo)
     window.show()
 
