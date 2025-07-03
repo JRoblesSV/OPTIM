@@ -378,8 +378,14 @@ class OptimLabsGUI(QtWidgets.QMainWindow):
         """Obtener estado de configuración de calendario"""
         calendario = self.configuracion["configuracion"]["calendario"]
         if calendario["configurado"]:
-            semanas = calendario.get("semanas_total", 0)
-            return ("✅", f"{semanas} semanas", "rgb(100,255,100)")
+            dias_1 = calendario.get("dias_semestre_1", 0)
+            dias_2 = calendario.get("dias_semestre_2", 0)
+            total_dias = dias_1 + dias_2
+
+            if total_dias > 0:
+                return ("✅", f"{total_dias} días ({dias_1}+{dias_2})", "rgb(100,255,100)")
+            else:
+                return ("⚠️", "Configurado sin días", "rgb(255,200,100)")
         return ("❌", "Sin configurar", "rgb(255,100,100)")
 
     def get_estado_aulas(self):
@@ -482,9 +488,68 @@ class OptimLabsGUI(QtWidgets.QMainWindow):
 
     # ========= ACTUALIZACION DE CONFIGURACION =========
 
-    def actualizar_configuracion_calendario(self):
-        self.log_mensaje("📅 Abriendo configuración de calendario...", "info")
-        # TODO: Implementar ventana de calendario
+    def actualizar_configuracion_calendario(self, calendario_data):
+        """Actualizar configuración de calendario en el sistema principal - Estilo idéntico a horarios"""
+        try:
+            # Verificar si es una cancelación de cambios
+            if isinstance(calendario_data, dict) and "metadata" in calendario_data:
+                metadata = calendario_data["metadata"]
+                if metadata.get("accion") == "CANCELAR_CAMBIOS":
+                    # Restaurar datos originales desde metadata
+                    if "calendario" in calendario_data:
+                        datos_calendario = calendario_data["calendario"]
+                    else:
+                        datos_calendario = {}
+                    self.log_mensaje("🔄 Restaurando configuración original de calendario", "warning")
+                else:
+                    # Datos normales con metadata
+                    datos_calendario = calendario_data.get("calendario", calendario_data)
+            else:
+                # Datos directos sin metadata
+                datos_calendario = calendario_data
+
+            # Calcular estadísticas
+            dias_1 = len(datos_calendario.get("semestre_1", {}))
+            dias_2 = len(datos_calendario.get("semestre_2", {}))
+            total_dias = dias_1 + dias_2
+            semanas_estimadas = total_dias // 5 if total_dias > 0 else 0
+
+            # Actualizar configuración interna
+            calendario_config = self.configuracion["configuracion"]["calendario"]
+
+            calendario_config["configurado"] = True if total_dias > 0 else False
+            calendario_config["datos"] = datos_calendario
+            calendario_config["semanas_total"] = semanas_estimadas
+            calendario_config["dias_semestre_1"] = dias_1
+            calendario_config["dias_semestre_2"] = dias_2
+            calendario_config["fecha_actualizacion"] = datetime.now().isoformat()
+
+            # Guardar configuración
+            self.guardar_configuracion()
+
+            # Log apropiado según el tipo de actualización
+            if isinstance(calendario_data, dict) and calendario_data.get("metadata", {}).get(
+                    "accion") == "CANCELAR_CAMBIOS":
+                self.log_mensaje(
+                    f"🔄 Configuración de calendario restaurada: {total_dias} días lectivos",
+                    "warning"
+                )
+            else:
+                self.log_mensaje(
+                    f"✅ Configuración de calendario actualizada: {total_dias} días lectivos guardados ({dias_1}+{dias_2})",
+                    "success"
+                )
+
+            # Actualizar estado visual
+            self.actualizar_estado_visual()
+
+        except Exception as e:
+            error_msg = f"Error al actualizar configuración de calendario: {str(e)}"
+            self.log_mensaje(f"❌ {error_msg}", "error")
+            QtWidgets.QMessageBox.critical(
+                self, "Error",
+                f"{error_msg}\n\nDetalles técnicos:\n{type(e).__name__}: {e}"
+            )
 
     def actualizar_configuracion_horarios(self, datos_horarios):
         """Actualizar configuración cuando se completen los horarios"""
@@ -795,8 +860,66 @@ class OptimLabsGUI(QtWidgets.QMainWindow):
 
     # ========= MÉTODOS DE NAVEGACIÓN =========
     def abrir_configurar_calendario(self):
+        """Abrir ventana de configuración de calendario - Estilo idéntico a horarios"""
+        try:
+            from modules.interfaces.configurar_calendario import ConfigurarCalendario
+            CALENDARIO_DISPONIBLE = True
+        except ImportError as e:
+            print(f"⚠️ Módulo configurar_calendario no disponible: {e}")
+            CALENDARIO_DISPONIBLE = False
+
+        if not CALENDARIO_DISPONIBLE:
+            QtWidgets.QMessageBox.warning(
+                self, "Módulo no disponible",
+                "El módulo configurar_calendario.py no está disponible.\n"
+                "Verifica que esté en la misma carpeta que gui_labs.py"
+            )
+            return
+
         self.log_mensaje("📅 Abriendo configuración de calendario...", "info")
-        # TODO: Implementar ventana de calendario
+
+        try:
+            # Cerrar ventana anterior si existe
+            if hasattr(self, 'ventana_calendario') and self.ventana_calendario:
+                self.ventana_calendario.close()
+
+            # PREPARAR DATOS EXISTENTES PARA PASAR A LA VENTANA
+            datos_existentes = None
+            calendario_config = self.configuracion["configuracion"]["calendario"]
+
+            if calendario_config["configurado"] and calendario_config.get("datos"):
+                datos_existentes = calendario_config["datos"].copy()
+                semanas = calendario_config.get("semanas_total", 0)
+                self.log_mensaje(
+                    f"📥 Cargando configuración existente: {semanas} semanas configuradas",
+                    "info"
+                )
+            else:
+                self.log_mensaje("📝 Abriendo configuración nueva de calendario", "info")
+
+            # Crear ventana con datos existentes (o None si no hay)
+            self.ventana_calendario = ConfigurarCalendario(
+                parent=self,
+                datos_existentes=datos_existentes
+            )
+
+            # Conectar señal para recibir configuración actualizada
+            self.ventana_calendario.configuracion_actualizada.connect(self.actualizar_configuracion_calendario)
+
+            self.ventana_calendario.show()
+
+            if datos_existentes:
+                self.log_mensaje("✅ Ventana de calendario abierta con datos existentes", "success")
+            else:
+                self.log_mensaje("✅ Ventana de calendario abierta (configuración nueva)", "success")
+
+        except Exception as e:
+            error_msg = f"Error al abrir configuración de calendario: {str(e)}"
+            self.log_mensaje(f"❌ {error_msg}", "error")
+            QtWidgets.QMessageBox.critical(
+                self, "Error",
+                f"{error_msg}\n\nDetalles técnicos:\n{type(e).__name__}: {e}"
+            )
 
     def abrir_configurar_horarios(self):
         """Abrir ventana de configuración de horarios"""
