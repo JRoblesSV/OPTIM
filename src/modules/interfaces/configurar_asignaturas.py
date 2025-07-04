@@ -6,7 +6,7 @@ Desarrollado por SoftVier para ETSIDI (UPM)
 
 FUNCIONALIDADES IMPLEMENTADAS:
 1. Gestión integral de asignaturas con datos académicos completos
-2. Configuración dinámica de grados que cursan cada asignatura
+2. Configuración dinámica de cursos que cursan cada asignatura
 3. Planificación automática de grupos basada en matriculaciones reales
 4. Estadísticas automáticas sincronizadas con datos de alumnos
 5. Configuración detallada de laboratorio y equipamiento requerido
@@ -124,52 +124,52 @@ class GestionAsignaturaDialog(QDialog):
         basicos_group.setLayout(basicos_layout)
         layout.addWidget(basicos_group)
 
-        # Gestión dinámica de grados (como en configurar_horarios.py)
-        grados_group = QGroupBox("🎓 GRADOS QUE CURSAN ESTA ASIGNATURA")
-        grados_layout = QVBoxLayout()
+        # Gestión dinámica de cursos (como en configurar_horarios.py)
+        cursos_group = QGroupBox("🎓 CURSOS QUE CURSAN ESTA ASIGNATURA")
+        cursos_layout = QVBoxLayout()
 
         # Header con botones de gestión
-        grados_header = QHBoxLayout()
-        grados_header.addWidget(QLabel("Grados:"))
-        grados_header.addStretch()
+        cursos_header = QHBoxLayout()
+        cursos_header.addWidget(QLabel("Cursos:"))
+        cursos_header.addStretch()
 
-        btn_add_grado = QPushButton("➕")
-        btn_add_grado.setMinimumSize(30, 25)
-        btn_add_grado.setMaximumSize(40, 40)
-        btn_add_grado.setStyleSheet(self.get_button_style("#4CAF50"))
-        btn_add_grado.setToolTip("Añadir nuevo grado")
-        btn_add_grado.clicked.connect(self.anadir_grado)
-        grados_header.addWidget(btn_add_grado)
+        btn_add_curso = QPushButton("➕")
+        btn_add_curso.setMinimumSize(30, 25)
+        btn_add_curso.setMaximumSize(40, 40)
+        btn_add_curso.setStyleSheet(self.get_button_style("#4CAF50"))
+        btn_add_curso.setToolTip("Añadir nuevo curso")
+        btn_add_curso.clicked.connect(self.anadir_curso)
+        cursos_header.addWidget(btn_add_curso)
 
-        btn_edit_grado = QPushButton("✏️")
-        btn_edit_grado.setMinimumSize(30, 25)
-        btn_edit_grado.setMaximumSize(40, 40)
-        btn_edit_grado.setStyleSheet(self.get_button_style("#2196F3"))
-        btn_edit_grado.setToolTip("Editar grado seleccionado")
-        btn_edit_grado.clicked.connect(self.editar_grado_seleccionado)
-        grados_header.addWidget(btn_edit_grado)
+        btn_edit_curso = QPushButton("✏️")
+        btn_edit_curso.setMinimumSize(30, 25)
+        btn_edit_curso.setMaximumSize(40, 40)
+        btn_edit_curso.setStyleSheet(self.get_button_style("#2196F3"))
+        btn_edit_curso.setToolTip("Editar curso seleccionado")
+        btn_edit_curso.clicked.connect(self.editar_curso_seleccionado)
+        cursos_header.addWidget(btn_edit_curso)
 
-        btn_delete_grado = QPushButton("🗑️")
-        btn_delete_grado.setMinimumSize(30, 25)
-        btn_delete_grado.setMaximumSize(40, 40)
-        btn_delete_grado.setStyleSheet(self.get_button_style("#f44336"))
-        btn_delete_grado.setToolTip("Eliminar grado seleccionado")
-        btn_delete_grado.clicked.connect(self.eliminar_grado_seleccionado)
-        grados_header.addWidget(btn_delete_grado)
+        btn_delete_curso = QPushButton("🗑️")
+        btn_delete_curso.setMinimumSize(30, 25)
+        btn_delete_curso.setMaximumSize(40, 40)
+        btn_delete_curso.setStyleSheet(self.get_button_style("#f44336"))
+        btn_delete_curso.setToolTip("Eliminar curso seleccionado")
+        btn_delete_curso.clicked.connect(self.eliminar_curso_seleccionado)
+        cursos_header.addWidget(btn_delete_curso)
 
-        grados_layout.addLayout(grados_header)
+        cursos_layout.addLayout(cursos_header)
 
-        # Lista dinámica de grados
-        self.list_grados_dialog = QListWidget()
-        self.list_grados_dialog.setMaximumHeight(120)
-        grados_layout.addWidget(self.list_grados_dialog)
+        # Lista dinámica de cursos
+        self.list_cursos_dialog = QListWidget()
+        self.list_cursos_dialog.setMaximumHeight(120)
+        cursos_layout.addWidget(self.list_cursos_dialog)
 
-        info_grados = QLabel("💡 Tip: Gestiona los grados dinámicamente con los botones de arriba")
-        info_grados.setStyleSheet("color: #cccccc; font-size: 10px; font-style: italic;")
-        grados_layout.addWidget(info_grados)
+        info_cursos = QLabel("💡 Tip: Gestiona los cursos dinámicamente con los botones de arriba")
+        info_cursos.setStyleSheet("color: #cccccc; font-size: 10px; font-style: italic;")
+        cursos_layout.addWidget(info_cursos)
 
-        grados_group.setLayout(grados_layout)
-        layout.addWidget(grados_group)
+        cursos_group.setLayout(cursos_layout)
+        layout.addWidget(cursos_group)
 
         # Configuración de laboratorio
         lab_group = QGroupBox("🔬 CONFIGURACIÓN DE LABORATORIO")
@@ -273,13 +273,13 @@ class GestionAsignaturaDialog(QDialog):
 
         self.edit_descripcion.setText(datos.get('descripcion', ''))
 
-        # Grados (cargar en lista dinámica)
-        grados = datos.get('grados_que_cursan', [])
-        self.list_grados_dialog.clear()
-        for grado in sorted(grados):
-            item = QListWidgetItem(grado)
-            item.setData(Qt.ItemDataRole.UserRole, grado)
-            self.list_grados_dialog.addItem(item)
+        # Cursos (cargar en lista dinámica)
+        cursos = datos.get('cursos_que_cursan', [])
+        self.list_cursos_dialog.clear()
+        for curso in sorted(cursos):
+            item = QListWidgetItem(curso)
+            item.setData(Qt.ItemDataRole.UserRole, curso)
+            self.list_cursos_dialog.addItem(item)
 
         # Configuración laboratorio
         config_lab = datos.get('configuracion_laboratorio', {})
@@ -305,11 +305,11 @@ class GestionAsignaturaDialog(QDialog):
             self.edit_nombre.setFocus()
             return
 
-        # Validar que al menos un grado esté seleccionado
-        grados_seleccionados = self.get_grados_seleccionados()
-        if not grados_seleccionados:
-            QMessageBox.warning(self, "Grados requeridos",
-                                "Debe seleccionar al menos un grado que curse esta asignatura")
+        # Validar que al menos un curso esté seleccionado
+        cursos_seleccionados = self.get_cursos_seleccionados()
+        if not cursos_seleccionados:
+            QMessageBox.warning(self, "Cursos requeridos",
+                                "Debe seleccionar al menos un curso que curse esta asignatura")
             return
 
         self.accept()
@@ -342,115 +342,115 @@ class GestionAsignaturaDialog(QDialog):
         hex_color = hex_color.lstrip('#')
         return ', '.join(str(int(hex_color[i:i + 2], 16)) for i in (0, 2, 4))
 
-    def anadir_grado(self):
-        """Añadir nuevo grado a la asignatura"""
-        grado, ok = QInputDialog.getText(self, "Nuevo Grado", "Código del grado (ej: GII, GIOI, DOBLE):")
+    def anadir_curso(self):
+        """Añadir nuevo curso a la asignatura"""
+        curso, ok = QInputDialog.getText(self, "Nuevo Curso", "Código del curso (ej: GII, GIOI, DOBLE):")
 
-        if ok and grado.strip():
-            grado = grado.strip().upper()
+        if ok and curso.strip():
+            curso = curso.strip().upper()
 
             # Verificar si ya existe
-            for i in range(self.list_grados_dialog.count()):
-                if self.list_grados_dialog.item(i).text() == grado:
-                    QMessageBox.warning(self, "Error", "Este grado ya existe en la asignatura")
+            for i in range(self.list_cursos_dialog.count()):
+                if self.list_cursos_dialog.item(i).text() == curso:
+                    QMessageBox.warning(self, "Error", "Este curso ya existe en la asignatura")
                     return
 
             # Añadir a la lista
-            item = QListWidgetItem(grado)
-            item.setData(Qt.ItemDataRole.UserRole, grado)
-            self.list_grados_dialog.addItem(item)
+            item = QListWidgetItem(curso)
+            item.setData(Qt.ItemDataRole.UserRole, curso)
+            self.list_cursos_dialog.addItem(item)
 
             # Ordenar alfabéticamente
-            self.ordenar_grados_lista()
+            self.ordenar_cursos_lista()
 
-            # Auto-seleccionar el grado añadido
-            self.auto_seleccionar_grado_dialog(grado)
+            # Auto-seleccionar el curso añadido
+            self.auto_seleccionar_curso_dialog(curso)
 
-    def editar_grado_seleccionado(self):
-        """Editar grado seleccionado"""
-        item_actual = self.list_grados_dialog.currentItem()
+    def editar_curso_seleccionado(self):
+        """Editar curso seleccionado"""
+        item_actual = self.list_cursos_dialog.currentItem()
         if not item_actual:
-            QMessageBox.warning(self, "Advertencia", "Seleccione un grado para editar")
+            QMessageBox.warning(self, "Advertencia", "Seleccione un curso para editar")
             return
 
-        grado_original = item_actual.text()
+        curso_original = item_actual.text()
 
 
-        nuevo_grado, ok = QInputDialog.getText(
-            self, "Editar Grado",
-            f"Editar código del grado:",
-            text=grado_original
+        nuevo_curso, ok = QInputDialog.getText(
+            self, "Editar Curso",
+            f"Editar código del curso:",
+            text=curso_original
         )
 
-        if ok and nuevo_grado.strip():
-            nuevo_grado = nuevo_grado.strip().upper()
+        if ok and nuevo_curso.strip():
+            nuevo_curso = nuevo_curso.strip().upper()
 
-            if nuevo_grado == grado_original:
+            if nuevo_curso == curso_original:
                 return
 
             # Verificar si ya existe
-            for i in range(self.list_grados_dialog.count()):
-                if self.list_grados_dialog.item(i).text() == nuevo_grado:
-                    QMessageBox.warning(self, "Error", "Este grado ya existe en la asignatura")
+            for i in range(self.list_cursos_dialog.count()):
+                if self.list_cursos_dialog.item(i).text() == nuevo_curso:
+                    QMessageBox.warning(self, "Error", "Este curso ya existe en la asignatura")
                     return
 
             # Actualizar el item
-            item_actual.setText(nuevo_grado)
-            item_actual.setData(Qt.ItemDataRole.UserRole, nuevo_grado)
+            item_actual.setText(nuevo_curso)
+            item_actual.setData(Qt.ItemDataRole.UserRole, nuevo_curso)
 
             # Ordenar alfabéticamente
-            self.ordenar_grados_lista()
+            self.ordenar_cursos_lista()
 
-            # Auto-seleccionar el grado editado
-            self.auto_seleccionar_grado_dialog(nuevo_grado)
+            # Auto-seleccionar el curso editado
+            self.auto_seleccionar_curso_dialog(nuevo_curso)
 
-    def eliminar_grado_seleccionado(self):
-        """Eliminar grado seleccionado"""
-        item_actual = self.list_grados_dialog.currentItem()
+    def eliminar_curso_seleccionado(self):
+        """Eliminar Curso seleccionado"""
+        item_actual = self.list_cursos_dialog.currentItem()
         if not item_actual:
-            QMessageBox.warning(self, "Advertencia", "Seleccione un grado para eliminar")
+            QMessageBox.warning(self, "Advertencia", "Seleccione un curso para eliminar")
             return
 
-        grado = item_actual.text()
+        curso = item_actual.text()
 
         respuesta = QMessageBox.question(
-            self, "Eliminar Grado",
-            f"¿Está seguro de eliminar el grado '{grado}'?",
+            self, "Eliminar Curso",
+            f"¿Está seguro de eliminar el curso '{curso}'?",
             QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No
         )
 
         if respuesta == QMessageBox.StandardButton.Yes:
-            row = self.list_grados_dialog.row(item_actual)
-            self.list_grados_dialog.takeItem(row)
+            row = self.list_cursos_dialog.row(item_actual)
+            self.list_cursos_dialog.takeItem(row)
 
-    def ordenar_grados_lista(self):
-        """Ordenar grados alfabéticamente en la lista"""
-        grados = []
-        for i in range(self.list_grados_dialog.count()):
-            item = self.list_grados_dialog.item(i)
-            grados.append(item.text())
+    def ordenar_cursos_lista(self):
+        """Ordenar cursos alfabéticamente en la lista"""
+        cursos = []
+        for i in range(self.list_cursos_dialog.count()):
+            item = self.list_cursos_dialog.item(i)
+            cursos.append(item.text())
 
         # Limpiar y recargar ordenado
-        self.list_grados_dialog.clear()
-        for grado in sorted(grados):
-            item = QListWidgetItem(grado)
-            item.setData(Qt.ItemDataRole.UserRole, grado)
-            self.list_grados_dialog.addItem(item)
+        self.list_cursos_dialog.clear()
+        for curso in sorted(cursos):
+            item = QListWidgetItem(curso)
+            item.setData(Qt.ItemDataRole.UserRole, curso)
+            self.list_cursos_dialog.addItem(item)
 
-    def get_grados_seleccionados(self):
-        """Obtener lista de grados de la lista dinámica"""
-        grados = []
-        for i in range(self.list_grados_dialog.count()):
-            item = self.list_grados_dialog.item(i)
-            grados.append(item.text())
-        return sorted(grados)
+    def get_cursos_seleccionados(self):
+        """Obtener lista de cursos de la lista dinámica"""
+        cursos = []
+        for i in range(self.list_cursos_dialog.count()):
+            item = self.list_cursos_dialog.item(i)
+            cursos.append(item.text())
+        return sorted(cursos)
 
-    def auto_seleccionar_grado_dialog(self, grado):
-        """Auto-seleccionar grado en el dialog"""
-        for i in range(self.list_grados_dialog.count()):
-            item = self.list_grados_dialog.item(i)
-            if item.text() == grado:
-                self.list_grados_dialog.setCurrentItem(item)
+    def auto_seleccionar_curso_dialog(self, curso):
+        """Auto-seleccionar curso en el dialog"""
+        for i in range(self.list_cursos_dialog.count()):
+            item = self.list_cursos_dialog.item(i)
+            if item.text() == curso:
+                self.list_cursos_dialog.setCurrentItem(item)
                 break
 
     def get_datos_asignatura(self):
@@ -462,7 +462,7 @@ class GestionAsignaturaDialog(QDialog):
             'curso': self.combo_curso.currentText(),
             'tipo': self.combo_tipo.currentText(),
             'descripcion': self.edit_descripcion.toPlainText().strip(),
-            'grados_que_cursan': self.get_grados_seleccionados(),
+            'cursos_que_cursan': self.get_cursos_seleccionados(),
             'configuracion_laboratorio': {
                 'horas_por_sesion': self.spin_horas_sesion.value(),
                 'max_estudiantes_grupo': self.spin_max_estudiantes.value(),
@@ -660,7 +660,7 @@ class ConfigurarAsignaturas(QMainWindow):
 
         # Información del flujo
         info_label = QLabel(
-            "ℹ️ Define las asignaturas, grados que las cursan y configuración de laboratorio. Las estadísticas se actualizan desde los alumnos matriculados.")
+            "ℹ️ Define las asignaturas, cursos que las cursan y configuración de laboratorio. Las estadísticas se actualizan desde los alumnos matriculados.")
         info_label.setStyleSheet("color: #cccccc; font-size: 11px; margin-bottom: 10px;")
         info_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
         main_layout.addWidget(info_label)
@@ -993,9 +993,9 @@ class ConfigurarAsignaturas(QMainWindow):
             semestre = datos.get('semestre', 'Sin semestre')
             tipo = datos.get('tipo', 'Sin tipo')
 
-            # Mostrar grados que la cursan
-            grados = datos.get('grados_que_cursan', [])
-            grados_str = ', '.join(grados) if grados else 'Sin grados'
+            # Mostrar cursos que la cursan
+            cursos = datos.get('cursos_que_cursan', [])
+            cursos_str = ', '.join(cursos) if cursos else 'Sin cursos'
 
             # Estadísticas
             stats = datos.get('estadisticas_calculadas', {})
@@ -1008,7 +1008,7 @@ class ConfigurarAsignaturas(QMainWindow):
             texto_item = f"{icono} {codigo} - {nombre}"
             if total_matriculados > 0:
                 texto_item += f" ({sin_lab_anterior}/{total_matriculados} alumnos)"
-            texto_item += f"\n    {semestre} | {grados_str}"
+            texto_item += f"\n    {semestre} | {cursos_str}"
 
             item = QListWidgetItem(texto_item)
             item.setData(Qt.ItemDataRole.UserRole, codigo)
@@ -1040,14 +1040,14 @@ class ConfigurarAsignaturas(QMainWindow):
         info += f"📖 Tipo: {datos.get('tipo', 'No definido')}\n"
         info += f"📝 Descripción: {datos.get('descripcion', 'Sin descripción')}\n\n"
 
-        # Grados que la cursan
-        grados = datos.get('grados_que_cursan', [])
-        if grados:
-            info += f"🎓 GRADOS QUE LA CURSAN ({len(grados)}):\n"
-            for grado in grados:
-                info += f"  • {grado}\n"
+        # cursos que la cursan
+        cursos = datos.get('cursos_que_cursan', [])
+        if cursos:
+            info += f"🎓 CURSOSS QUE LA CURSAN ({len(cursos)}):\n"
+            for curso in cursos:
+                info += f"  • {curso}\n"
         else:
-            info += f"🎓 GRADOS: Sin grados asignados\n"
+            info += f"🎓 CURSOS: Sin cursos asignados\n"
         info += "\n"
 
         # Configuración laboratorio
@@ -1421,7 +1421,7 @@ class ConfigurarAsignaturas(QMainWindow):
             QMessageBox.critical(self, "Error", f"Error validando equipamiento: {e}")
 
     def importar_desde_horarios(self):
-        """Importar asignaturas y grados desde módulo de horarios"""
+        """Importar asignaturas y cursos desde módulo de horarios"""
         try:
             if not self.horarios_disponibles:
                 QMessageBox.information(self, "Sin Datos",
@@ -1436,7 +1436,7 @@ class ConfigurarAsignaturas(QMainWindow):
                 return
 
             asignaturas_importadas = 0
-            grados_importados = 0
+            cursos_importados = 0
 
             # Procesar ambos semestres
             for semestre, asignaturas_sem in asignaturas_horarios.items():
@@ -1448,8 +1448,8 @@ class ConfigurarAsignaturas(QMainWindow):
                     if codigo_asig in self.datos_configuracion:
                         continue
 
-                    # Importar grados
-                    grados = datos_asig.get("grados", [])
+                    # Importar cursos
+                    cursos = datos_asig.get("cursos", [])
 
                     # Crear asignatura nueva
                     self.datos_configuracion[codigo_asig] = {
@@ -1459,7 +1459,7 @@ class ConfigurarAsignaturas(QMainWindow):
                         'curso': "1º Curso",  # Por defecto
                         'tipo': "Laboratorio",
                         'descripcion': f"Importada desde configuración de horarios",
-                        'grados_que_cursan': sorted(grados),
+                        'cursos_que_cursan': sorted(cursos),
                         'configuracion_laboratorio': {
                             'horas_por_sesion': 2,
                             'max_estudiantes_grupo': 20,
@@ -1479,7 +1479,7 @@ class ConfigurarAsignaturas(QMainWindow):
                         'fecha_creacion': datetime.now().isoformat()
                     }
                     asignaturas_importadas += 1
-                    grados_importados += len(grados)
+                    cursos_importados += len(cursos)
 
             if asignaturas_importadas > 0:
                 # Auto-ordenar
@@ -1491,7 +1491,7 @@ class ConfigurarAsignaturas(QMainWindow):
 
                 QMessageBox.information(self, "Importación Exitosa",
                                         f"✅ Importadas {asignaturas_importadas} asignaturas "
-                                        f"con {grados_importados} grados desde horarios")
+                                        f"con {cursos_importados} cursos desde horarios")
             else:
                 QMessageBox.information(self, "Sin Importar",
                                         "No se encontraron asignaturas nuevas para importar")
@@ -1505,13 +1505,13 @@ class ConfigurarAsignaturas(QMainWindow):
             # Preparar datos para enviar a horarios
             datos_para_horarios = {}
             for codigo, datos in self.datos_configuracion.items():
-                grados = datos.get('grados_que_cursan', [])
+                cursos = datos.get('cursos_que_cursan', [])
                 stats = datos.get('estadisticas_calculadas', {})
 
                 # Convertir a formato compatible con horarios
                 datos_para_horarios[datos.get('nombre', codigo)] = {
                     'codigo': codigo,
-                    'grados': grados,
+                    'cursos': cursos,
                     'grupos_recomendados': stats.get('grupos_recomendados', 0),
                     'alumnos_reales': stats.get('sin_lab_anterior', 0),
                     'semestre': datos.get('semestre', '1º Semestre').split('º')[0]
@@ -1530,7 +1530,7 @@ class ConfigurarAsignaturas(QMainWindow):
                 # Modo independiente - mostrar datos preparados
                 mensaje = f"📤 Datos preparados para sincronización:\n\n"
                 for nombre, datos in datos_para_horarios.items():
-                    mensaje += f"• {nombre}: {len(datos['grados'])} grados, "
+                    mensaje += f"• {nombre}: {len(datos['cursos'])} cursos, "
                     mensaje += f"{datos['grupos_recomendados']} grupos\n"
 
                 QMessageBox.information(self, "Sincronización Preparada", mensaje)
@@ -1549,13 +1549,13 @@ class ConfigurarAsignaturas(QMainWindow):
                 for codigo, datos in self.datos_configuracion.items():
                     semestre_num = "1" if "1º" in datos.get('semestre', '1º Semestre') else "2"
                     nombre = datos.get('nombre', codigo)
-                    grados = datos.get('grados_que_cursan', [])
+                    cursos = datos.get('cursos_que_cursan', [])
 
                     if semestre_num not in datos_para_horarios:
                         datos_para_horarios[semestre_num] = {}
 
                     datos_para_horarios[semestre_num][nombre] = {
-                        'grados': grados,
+                        'cursos': cursos,
                         'codigo': codigo,
                         'horarios': {}  # Se mantendrán los horarios existentes
                     }
@@ -1604,12 +1604,12 @@ class ConfigurarAsignaturas(QMainWindow):
                     asignaturas_duplicadas += 1
                     continue
 
-                # Procesar grados
-                grados = []
-                if 'grados_que_cursan' in df.columns and pd.notna(row['grados_que_cursan']):
-                    grados_text = str(row['grados_que_cursan']).strip()
-                    if grados_text:
-                        grados = [g.strip().upper() for g in grados_text.split(',')]
+                # Procesar cursos
+                cursos = []
+                if 'cursos_que_cursan' in df.columns and pd.notna(row['cursos_que_cursan']):
+                    cursos_text = str(row['cursos_que_cursan']).strip()
+                    if cursos_text:
+                        cursos = [g.strip().upper() for g in cursos_text.split(',')]
 
                 self.datos_configuracion[codigo] = {
                     'codigo': codigo,
@@ -1618,7 +1618,7 @@ class ConfigurarAsignaturas(QMainWindow):
                     'curso': str(row.get('curso', '1º Curso')).strip(),
                     'tipo': str(row['tipo']).strip(),
                     'descripcion': str(row.get('descripcion', '')).strip(),
-                    'grados_que_cursan': grados,
+                    'cursos_que_cursan': cursos,
                     'configuracion_laboratorio': {
                         'horas_por_sesion': int(row.get('horas_por_sesion', 2)) if pd.notna(
                             row.get('horas_por_sesion')) else 2,
@@ -1677,8 +1677,8 @@ class ConfigurarAsignaturas(QMainWindow):
         try:
             datos_export = []
             for codigo, datos in self.datos_configuracion.items():
-                # Convertir grados a string
-                grados_str = ', '.join(datos.get('grados_que_cursan', []))
+                # Convertir cursos a string
+                cursos_str = ', '.join(datos.get('cursos_que_cursan', []))
 
                 config_lab = datos.get('configuracion_laboratorio', {})
                 planificacion = datos.get('planificacion', {})
@@ -1691,7 +1691,7 @@ class ConfigurarAsignaturas(QMainWindow):
                     'curso': datos.get('curso', ''),
                     'tipo': datos.get('tipo', ''),
                     'descripcion': datos.get('descripcion', ''),
-                    'grados_que_cursan': grados_str,
+                    'cursos_que_cursan': cursos_str,
                     'horas_por_sesion': config_lab.get('horas_por_sesion', 2),
                     'max_estudiantes_grupo': config_lab.get('max_estudiantes_grupo', 20),
                     'equipamiento': config_lab.get('equipamiento', ''),
@@ -1747,8 +1747,8 @@ class ConfigurarAsignaturas(QMainWindow):
                     f.write(f"   Semestre: {datos.get('semestre', 'No definido')}\n")
                     f.write(f"   Tipo: {datos.get('tipo', 'No definido')}\n")
 
-                    grados = datos.get('grados_que_cursan', [])
-                    f.write(f"   Grados: {', '.join(grados) if grados else 'Sin grados'}\n")
+                    cursos = datos.get('cursos_que_cursan', [])
+                    f.write(f"   Cursos: {', '.join(cursos) if cursos else 'Sin cursos'}\n")
 
                     stats = datos.get('estadisticas_calculadas', {})
                     f.write(f"   Matriculados: {stats.get('total_matriculados', 0)}\n")
@@ -2005,11 +2005,11 @@ class ConfigurarAsignaturas(QMainWindow):
 
                 for codigo, datos in self.datos_configuracion.items():
                     nombre = datos.get('nombre', codigo)
-                    grados = datos.get('grados_que_cursan', [])
+                    cursos = datos.get('cursos_que_cursan', [])
 
                     datos_para_horarios[nombre] = {
                         'codigo': codigo,
-                        'grados': grados,
+                        'cursos': cursos,
                         'horarios': {}  # Mantener horarios existentes
                     }
 
@@ -2040,7 +2040,7 @@ def main():
             "curso": "1º Curso",
             "tipo": "Laboratorio",
             "descripcion": "Introducción a la física experimental",
-            "grados_que_cursan": ["GII", "GIOI"],
+            "cursos_que_cursan": ["GII", "GIOI"],
             "configuracion_laboratorio": {
                 "horas_por_sesion": 2,
                 "max_estudiantes_grupo": 20,
@@ -2066,7 +2066,7 @@ def main():
             "curso": "2º Curso",
             "tipo": "Laboratorio",
             "descripcion": "Síntesis y análisis de compuestos orgánicos",
-            "grados_que_cursan": ["GIOI"],
+            "corsos_que_cursan": ["GIOI"],
             "configuracion_laboratorio": {
                 "horas_por_sesion": 3,
                 "max_estudiantes_grupo": 18,

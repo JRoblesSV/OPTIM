@@ -47,7 +47,9 @@
     "Python.configurar_asignaturas.executor": "Run",
     "Python.configurar_aulas.executor": "Run",
     "Python.configurar_calendario.executor": "Run",
+    "Python.configurar_calendario_funciona.executor": "Run",
     "Python.configurar_horarios.executor": "Run",
+    "Python.configurar_horarios_old.executor": "Run",
     "Python.gui_labs.executor": "Run",
     "RunOnceActivity.OpenProjectViewOnStart": "true",
     "RunOnceActivity.ShowReadmeOnStart": "true",
@@ -66,7 +68,7 @@
     </key>
   </component>
   <component name="RunManager" selected="Python.gui_labs">
-    <configuration name="configuracion_alumnos" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+    <configuration name="configurar_calendario" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="ANEXO_Robles_Molina_Javier" />
       <option name="ENV_FILES" value="" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -76,7 +78,7 @@
       <option name="IS_MODULE_SDK" value="true" />
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/src/modules/interfaces/configuracion_alumnos.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/src/modules/interfaces/configurar_calendario.py" />
       <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
@@ -85,7 +87,7 @@
       <option name="INPUT_FILE" value="" />
       <method v="2" />
     </configuration>
-    <configuration name="configuracion_profesores" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+    <configuration name="configurar_calendario_funciona" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="ANEXO_Robles_Molina_Javier" />
       <option name="ENV_FILES" value="" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -95,7 +97,7 @@
       <option name="IS_MODULE_SDK" value="true" />
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/src/modules/interfaces/configuracion_profesores.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/src/modules/interfaces/configurar_calendario_funciona.py" />
       <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
@@ -104,7 +106,7 @@
       <option name="INPUT_FILE" value="" />
       <method v="2" />
     </configuration>
-    <configuration name="configurar_asignaturas" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+    <configuration name="configurar_horarios" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="ANEXO_Robles_Molina_Javier" />
       <option name="ENV_FILES" value="" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -114,7 +116,7 @@
       <option name="IS_MODULE_SDK" value="true" />
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/src/modules/interfaces/configurar_asignaturas.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/src/modules/interfaces/configurar_horarios.py" />
       <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
@@ -123,7 +125,7 @@
       <option name="INPUT_FILE" value="" />
       <method v="2" />
     </configuration>
-    <configuration name="configurar_aulas" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+    <configuration name="configurar_horarios_old" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="ANEXO_Robles_Molina_Javier" />
       <option name="ENV_FILES" value="" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -133,7 +135,7 @@
       <option name="IS_MODULE_SDK" value="true" />
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/src/modules/interfaces/configurar_aulas.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/src/modules/interfaces/configurar_horarios_old.py" />
       <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
@@ -186,10 +188,10 @@
     <recent_temporary>
       <list>
         <item itemvalue="Python.gui_labs" />
-        <item itemvalue="Python.configurar_asignaturas" />
-        <item itemvalue="Python.configuracion_profesores" />
-        <item itemvalue="Python.configuracion_alumnos" />
-        <item itemvalue="Python.configurar_aulas" />
+        <item itemvalue="Python.configurar_horarios" />
+        <item itemvalue="Python.configurar_horarios_old" />
+        <item itemvalue="Python.configurar_calendario" />
+        <item itemvalue="Python.configurar_calendario_funciona" />
       </list>
     </recent_temporary>
   </component>

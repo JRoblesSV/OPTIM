@@ -1,7 +1,7 @@
 {
   "metadata": {
     "version": "1.0",
-    "timestamp": "2025-07-03T19:35:54.534243",
+    "timestamp": "2025-07-04T21:43:25.268081",
     "semestre_actual": 1
   },
   "configuracion": {
@@ -10,130 +10,115 @@
       "datos": {
         "1": {
           "adfg": {
-            "grados": [
+            "cursos": [
               "A257"
             ],
-            "horarios": {
-              "Lunes": [
-                {
-                  "grados": [
-                    "A257"
-                  ],
-                  "hora_fin": "11:00",
-                  "hora_inicio": "09:00",
-                  "id": "franja_6"
-                }
-              ]
+            "horarios_grid": {
+              "9:30-11:30": {
+                "Lunes": [
+                  "A257"
+                ],
+                "Martes": [
+                  "A257"
+                ]
+              }
             }
           },
           "asdgwarg": {
-            "grados": [
+            "cursos": [
               "K102"
             ],
-            "horarios": {}
+            "horarios_grid": {}
           },
           "fisica1": {
-            "grados": [
+            "cursos": [
               "A102",
               "B102"
             ],
-            "horarios": {
-              "Lunes": [
-                {
-                  "grados": [
-                    "A102"
-                  ],
-                  "hora_fin": "11:00",
-                  "hora_inicio": "09:00",
-                  "id": "franja_4"
-                },
-                {
-                  "grados": [
-                    "A102"
-                  ],
-                  "hora_fin": "13:00",
-                  "hora_inicio": "11:00",
-                  "id": "franja_5"
-                }
-              ],
-              "Miércoles": [
-                {
-                  "grados": [
-                    "B102"
-                  ],
-                  "hora_fin": "13:00",
-                  "hora_inicio": "11:00",
-                  "id": "franja_2"
-                }
-              ]
+            "horarios_grid": {
+              "9:30-11:30": {
+                "Lunes": [
+                  "A102"
+                ]
+              },
+              "11:30-13:30": {
+                "Lunes": [
+                  "A102"
+                ],
+                "Miércoles": [
+                  "B102"
+                ]
+              }
+            }
+          },
+          "pepesito": {
+            "cursos": [
+              "A2222"
+            ],
+            "horarios_grid": {
+              "9:30-11:30": {
+                "Lunes": [
+                  "A2222"
+                ],
+                "Martes": [
+                  "A2222"
+                ]
+              }
             }
           }
         },
         "2": {
           "Elec. Analogica": {
-            "grados": [
+            "cursos": [
               "A302",
               "A309",
               "EE309"
             ],
-            "horarios": {
-              "Jueves": [
-                {
-                  "grados": [
-                    "A302"
-                  ],
-                  "hora_fin": "19:30",
-                  "hora_inicio": "15:30",
-                  "id": "franja_114"
-                }
-              ],
-              "Martes": [
-                {
-                  "grados": [
-                    "A309"
-                  ],
-                  "hora_fin": "11:30",
-                  "hora_inicio": "09:30",
-                  "id": "franja_179"
-                },
-                {
-                  "grados": [
-                    "A309",
-                    "EE309"
-                  ],
-                  "hora_fin": "13:30",
-                  "hora_inicio": "11:30",
-                  "id": "franja_180"
-                }
-              ]
+            "horarios_grid": {
+              "9:30-11:30": {
+                "Martes": [
+                  "A309"
+                ]
+              },
+              "11:30-13:30": {
+                "Martes": [
+                  "A302",
+                  "A309",
+                  "EE309"
+                ]
+              },
+              "15:30-17:30": {
+                "Jueves": [
+                  "A302"
+                ]
+              }
             }
           },
           "Elec. Digital": {
-            "grados": [
+            "cursos": [
               "A302",
               "A309",
               "EE309"
             ],
-            "horarios": {
-              "Martes": [
-                {
-                  "grados": [
-                    "A309"
-                  ],
-                  "hora_fin": "13:30",
-                  "hora_inicio": "09:30",
-                  "id": "franja_127"
-                }
-              ]
+            "horarios_grid": {
+              "9:30-11:30": {
+                "Martes": []
+              },
+              "11:30-13:30": {
+                "Martes": [
+                  "A302",
+                  "A309"
+                ]
+              }
             }
           }
         }
       },
       "archivo": "horarios_integrados.json",
-      "timestamp": "2025-07-03T19:35:23.903241",
+      "timestamp": "2025-07-04T21:43:25.268081",
       "semestre_actual": "1",
-      "total_asignaturas": 0,
-      "total_franjas": 0
+      "total_asignaturas": 6,
+      "total_franjas": 11
     },
     "calendario": {
       "configurado": true,
@@ -1365,6 +1350,34 @@
     "asignaturas": {
       "configurado": true,
       "datos": {
+        "AAA": {
+          "codigo": "AAA",
+          "nombre": "pepesito",
+          "semestre": "1º Semestre",
+          "curso": "1º Curso",
+          "tipo": "Laboratorio",
+          "descripcion": "",
+          "cursos_que_cursan": [
+            "A2222"
+          ],
+          "configuracion_laboratorio": {
+            "horas_por_sesion": 2,
+            "max_estudiantes_grupo": 20,
+            "equipamiento": ""
+          },
+          "planificacion": {
+            "grupos_previstos": 6,
+            "clases_año": 3
+          },
+          "estadisticas_calculadas": {
+            "total_matriculados": 0,
+            "con_lab_anterior": 0,
+            "sin_lab_anterior": 0,
+            "grupos_recomendados": 0,
+            "ultima_actualizacion": "2025-07-04T21:25:13.483492"
+          },
+          "fecha_creacion": "2025-07-04T21:25:13.483492"
+        },
         "EANA": {
           "codigo": "EANA",
           "configuracion_laboratorio": {
@@ -1382,7 +1395,7 @@
             "ultima_actualizacion": "2025-07-03T19:34:50.322955"
           },
           "fecha_creacion": "2025-06-29T20:00:00.000000",
-          "grados_que_cursan": [
+          "cursos_que_cursan": [
             "A302",
             "A309",
             "EE309"
@@ -1412,7 +1425,7 @@
             "ultima_actualizacion": "2025-06-29T19:59:38.922844"
           },
           "fecha_creacion": "2025-06-29T20:00:00.000000",
-          "grados_que_cursan": [
+          "cursos_que_cursan": [
             "A302",
             "A309",
             "EE309"
@@ -1442,7 +1455,7 @@
             "ultima_actualizacion": "2025-07-03T19:34:50.322955"
           },
           "fecha_creacion": "2025-06-29T20:00:00.000000",
-          "grados_que_cursan": [
+          "cursos_que_cursan": [
             "A102",
             "B102"
           ],
@@ -1455,8 +1468,68 @@
           "tipo": "Laboratorio"
         }
       },
+      "total": 4,
+      "fecha_actualizacion": "2025-07-04T21:25:16.374067"
+    },
+    "cursos": {
+      "configurado": true,
+      "datos": {
+        "A102": {
+          "codigo": "A102",
+          "nombre": "Grado en Ingeniería en Tecnologías Industriales",
+          "curso_actual": "1º Curso",
+          "coordinador": "Dr. García López",
+          "departamento": "Ingeniería Industrial",
+          "creditos_totales": 240,
+          "plazas": 120,
+          "estudiantes_matriculados": 95,
+          "horario_tipo": "Mañana",
+          "observaciones": "Curso de nueva implantación",
+          "fecha_creacion": "2025-07-03T19:35:54.534243",
+          "activo": true,
+          "asignaturas_asociadas": [
+            "1_fisica1",
+            "1_adfg"
+          ]
+        },
+        "B102": {
+          "codigo": "B102",
+          "nombre": "Grado en Ingeniería Eléctrica",
+          "curso_actual": "1º Curso",
+          "coordinador": "Dra. Martínez Ruiz",
+          "departamento": "Ingeniería Eléctrica",
+          "creditos_totales": 240,
+          "plazas": 80,
+          "estudiantes_matriculados": 76,
+          "horario_tipo": "Mañana",
+          "observaciones": "",
+          "fecha_creacion": "2025-07-03T19:35:54.534243",
+          "activo": true,
+          "asignaturas_asociadas": [
+            "1_fisica1"
+          ]
+        },
+        "A302": {
+          "codigo": "A302",
+          "nombre": "Grado en Ingeniería Electrónica Industrial",
+          "curso_actual": "3º Curso",
+          "coordinador": "Dr. Fernández Castro",
+          "departamento": "Ingeniería Electrónica",
+          "creditos_totales": 240,
+          "plazas": 60,
+          "estudiantes_matriculados": 54,
+          "horario_tipo": "Tarde",
+          "observaciones": "Curso con alta demanda",
+          "fecha_creacion": "2025-07-03T19:35:54.534243",
+          "activo": true,
+          "asignaturas_asociadas": [
+            "2_Elec. Analogica",
+            "2_Elec. Digital"
+          ]
+        }
+      },
       "total": 3,
-      "fecha_actualizacion": "2025-07-03T19:34:02.625553"
+      "fecha_actualizacion": "2025-07-03T19:35:54.534243"
     }
   },
   "parametros_organizacion": {
