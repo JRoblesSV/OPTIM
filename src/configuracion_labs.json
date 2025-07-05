@@ -1,7 +1,7 @@
 {
   "metadata": {
     "version": "1.0",
-    "timestamp": "2025-07-05T11:24:37.218328",
+    "timestamp": "2025-07-05T21:31:06.196057",
     "semestre_actual": 1
   },
   "configuracion": {
@@ -9,28 +9,7 @@
       "configurado": true,
       "datos": {
         "1": {
-          "adfg": {
-            "cursos": [
-              "A257"
-            ],
-            "horarios_grid": {
-              "9:30-11:30": {
-                "Lunes": [
-                  "A257"
-                ],
-                "Martes": [
-                  "A257"
-                ]
-              }
-            }
-          },
-          "asdgwarg": {
-            "cursos": [
-              "K102"
-            ],
-            "horarios_grid": {}
-          },
-          "fisica1": {
+          "FIS1": {
             "cursos": [
               "A102",
               "B102"
@@ -39,6 +18,9 @@
               "9:30-11:30": {
                 "Lunes": [
                   "A102"
+                ],
+                "Miércoles": [
+                  "B102"
                 ]
               },
               "11:30-13:30": {
@@ -51,28 +33,46 @@
               }
             }
           },
-          "pepesito": {
+          "QUI1": {
             "cursos": [
-              "A2222"
+              "A102"
             ],
             "horarios_grid": {
               "9:30-11:30": {
-                "Lunes": [
-                  "A2222"
-                ],
                 "Martes": [
-                  "A2222"
+                  "A102"
+                ]
+              },
+              "11:30-13:30": {
+                "Martes": [
+                  "A102"
+                ]
+              }
+            }
+          },
+          "MAT1": {
+            "cursos": [
+              "B102"
+            ],
+            "horarios_grid": {
+              "9:30-11:30": {
+                "Jueves": [
+                  "B102"
+                ]
+              },
+              "11:30-13:30": {
+                "Jueves": [
+                  "B102"
                 ]
               }
             }
           }
         },
         "2": {
-          "Elec. Analogica": {
+          "EANA": {
             "cursos": [
               "A302",
-              "A309",
-              "EE309"
+              "A309"
             ],
             "horarios_grid": {
               "9:30-11:30": {
@@ -83,8 +83,7 @@
               "11:30-13:30": {
                 "Martes": [
                   "A302",
-                  "A309",
-                  "EE309"
+                  "A309"
                 ]
               },
               "15:30-17:30": {
@@ -94,19 +93,42 @@
               }
             }
           },
-          "Elec. Digital": {
+          "EDIG": {
             "cursos": [
               "A302",
-              "A309",
-              "EE309"
+              "A309"
             ],
             "horarios_grid": {
               "9:30-11:30": {
-                "Martes": []
+                "Miércoles": [
+                  "A302"
+                ]
               },
               "11:30-13:30": {
-                "Martes": [
+                "Miércoles": [
                   "A302",
+                  "A309"
+                ]
+              },
+              "15:30-17:30": {
+                "Viernes": [
+                  "A309"
+                ]
+              }
+            }
+          },
+          "PROG3": {
+            "cursos": [
+              "A309"
+            ],
+            "horarios_grid": {
+              "9:30-11:30": {
+                "Viernes": [
+                  "A309"
+                ]
+              },
+              "11:30-13:30": {
+                "Viernes": [
                   "A309"
                 ]
               }
@@ -115,10 +137,10 @@
         }
       },
       "archivo": "horarios_integrados.json",
-      "timestamp": "2025-07-04T21:43:25.268081",
+      "timestamp": "2025-07-05T12:00:00.000000",
       "semestre_actual": "1",
       "total_asignaturas": 6,
-      "total_franjas": 11
+      "total_franjas": 15
     },
     "calendario": {
       "configurado": true,
@@ -165,539 +187,22 @@
             "motivo": "",
             "es_especial": false,
             "es_fin_semana": false
-          },
-          "2025-02-10": {
-            "fecha": "2025-02-10",
-            "dia_real": "Lunes",
-            "horario_asignado": "Lunes",
-            "motivo": "",
-            "es_especial": false,
-            "es_fin_semana": false
-          },
-          "2025-02-11": {
-            "fecha": "2025-02-11",
-            "dia_real": "Martes",
-            "horario_asignado": "Martes",
-            "motivo": "",
-            "es_especial": false,
-            "es_fin_semana": false
-          },
-          "2025-02-12": {
-            "fecha": "2025-02-12",
-            "dia_real": "Miércoles",
-            "horario_asignado": "Miércoles",
-            "motivo": "",
-            "es_especial": false,
-            "es_fin_semana": false
-          },
-          "2025-02-13": {
-            "fecha": "2025-02-13",
-            "dia_real": "Jueves",
-            "horario_asignado": "Jueves",
-            "motivo": "",
-            "es_especial": false,
-            "es_fin_semana": false
-          },
-          "2025-02-14": {
-            "fecha": "2025-02-14",
-            "dia_real": "Viernes",
-            "horario_asignado": "Viernes",
-            "motivo": "",
-            "es_especial": false,
-            "es_fin_semana": false
-          },
-          "2025-02-17": {
-            "fecha": "2025-02-17",
-            "dia_real": "Lunes",
-            "horario_asignado": "Lunes",
-            "motivo": "",
-            "es_especial": false,
-            "es_fin_semana": false
-          },
-          "2025-02-18": {
-            "fecha": "2025-02-18",
-            "dia_real": "Martes",
-            "horario_asignado": "Martes",
-            "motivo": "",
-            "es_especial": false,
-            "es_fin_semana": false
-          },
-          "2025-02-19": {
-            "fecha": "2025-02-19",
-            "dia_real": "Miércoles",
-            "horario_asignado": "Miércoles",
-            "motivo": "",
-            "es_especial": false,
-            "es_fin_semana": false
-          },
-          "2025-02-20": {
-            "fecha": "2025-02-20",
-            "dia_real": "Jueves",
-            "horario_asignado": "Jueves",
-            "motivo": "",
-            "es_especial": false,
-            "es_fin_semana": false
-          },
-          "2025-02-21": {
-            "fecha": "2025-02-21",
-            "dia_real": "Viernes",
-            "horario_asignado": "Viernes",
-            "motivo": "",
-            "es_especial": false,
-            "es_fin_semana": false
-          },
-          "2025-02-24": {
-            "fecha": "2025-02-24",
-            "dia_real": "Lunes",
-            "horario_asignado": "Lunes",
-            "motivo": "",
-            "es_especial": false,
-            "es_fin_semana": false
-          },
-          "2025-02-25": {
-            "fecha": "2025-02-25",
-            "dia_real": "Martes",
-            "horario_asignado": "Martes",
-            "motivo": "",
-            "es_especial": false,
-            "es_fin_semana": false
-          },
-          "2025-02-26": {
-            "fecha": "2025-02-26",
-            "dia_real": "Miércoles",
-            "horario_asignado": "Miércoles",
-            "motivo": "",
-            "es_especial": false,
-            "es_fin_semana": false
-          },
-          "2025-02-27": {
-            "fecha": "2025-02-27",
-            "dia_real": "Jueves",
-            "horario_asignado": "Jueves",
-            "motivo": "",
-            "es_especial": false,
-            "es_fin_semana": false
-          },
-          "2025-02-28": {
-            "fecha": "2025-02-28",
-            "dia_real": "Viernes",
-            "horario_asignado": "Viernes",
-            "motivo": "",
-            "es_especial": false,
-            "es_fin_semana": false
-          },
-          "2025-03-03": {
-            "fecha": "2025-03-03",
-            "dia_real": "Lunes",
-            "horario_asignado": "Lunes",
-            "motivo": "",
-            "es_especial": false,
-            "es_fin_semana": false
-          },
-          "2025-03-04": {
-            "fecha": "2025-03-04",
-            "dia_real": "Martes",
-            "horario_asignado": "Martes",
-            "motivo": "",
-            "es_especial": false,
-            "es_fin_semana": false
-          },
-          "2025-03-05": {
-            "fecha": "2025-03-05",
-            "dia_real": "Miércoles",
-            "horario_asignado": "Miércoles",
-            "motivo": "",
-            "es_especial": false,
-            "es_fin_semana": false
-          },
-          "2025-03-06": {
-            "fecha": "2025-03-06",
-            "dia_real": "Jueves",
-            "horario_asignado": "Jueves",
-            "motivo": "",
-            "es_especial": false,
-            "es_fin_semana": false
-          },
-          "2025-03-07": {
-            "fecha": "2025-03-07",
-            "dia_real": "Viernes",
-            "horario_asignado": "Viernes",
-            "motivo": "",
-            "es_especial": false,
-            "es_fin_semana": false
-          },
-          "2025-03-10": {
-            "fecha": "2025-03-10",
-            "dia_real": "Lunes",
-            "horario_asignado": "Lunes",
-            "motivo": "",
-            "es_especial": false,
-            "es_fin_semana": false
-          },
-          "2025-03-11": {
-            "fecha": "2025-03-11",
-            "dia_real": "Martes",
-            "horario_asignado": "Martes",
-            "motivo": "",
-            "es_especial": false,
-            "es_fin_semana": false
-          },
-          "2025-03-12": {
-            "fecha": "2025-03-12",
-            "dia_real": "Miércoles",
-            "horario_asignado": "Miércoles",
-            "motivo": "",
-            "es_especial": false,
-            "es_fin_semana": false
-          },
-          "2025-03-13": {
-            "fecha": "2025-03-13",
-            "dia_real": "Jueves",
-            "horario_asignado": "Jueves",
-            "motivo": "",
-            "es_especial": false,
-            "es_fin_semana": false
-          },
-          "2025-03-14": {
-            "fecha": "2025-03-14",
-            "dia_real": "Viernes",
-            "horario_asignado": "Viernes",
-            "motivo": "",
-            "es_especial": false,
-            "es_fin_semana": false
-          },
-          "2025-03-17": {
-            "fecha": "2025-03-17",
-            "dia_real": "Lunes",
-            "horario_asignado": "Lunes",
-            "motivo": "",
-            "es_especial": false,
-            "es_fin_semana": false
-          },
-          "2025-03-18": {
-            "fecha": "2025-03-18",
-            "dia_real": "Martes",
-            "horario_asignado": "Martes",
-            "motivo": "",
-            "es_especial": false,
-            "es_fin_semana": false
-          },
-          "2025-03-19": {
-            "fecha": "2025-03-19",
-            "dia_real": "Miércoles",
-            "horario_asignado": "Miércoles",
-            "motivo": "",
-            "es_especial": false,
-            "es_fin_semana": false
-          },
-          "2025-03-20": {
-            "fecha": "2025-03-20",
-            "dia_real": "Jueves",
-            "horario_asignado": "Jueves",
-            "motivo": "",
-            "es_especial": false,
-            "es_fin_semana": false
-          },
-          "2025-03-21": {
-            "fecha": "2025-03-21",
-            "dia_real": "Viernes",
-            "horario_asignado": "Viernes",
-            "motivo": "",
-            "es_especial": false,
-            "es_fin_semana": false
-          },
-          "2025-03-24": {
-            "fecha": "2025-03-24",
-            "dia_real": "Lunes",
-            "horario_asignado": "Lunes",
-            "motivo": "",
-            "es_especial": false,
-            "es_fin_semana": false
-          },
-          "2025-03-25": {
-            "fecha": "2025-03-25",
-            "dia_real": "Martes",
-            "horario_asignado": "Martes",
-            "motivo": "",
-            "es_especial": false,
-            "es_fin_semana": false
-          },
-          "2025-03-26": {
-            "fecha": "2025-03-26",
-            "dia_real": "Miércoles",
-            "horario_asignado": "Miércoles",
-            "motivo": "",
-            "es_especial": false,
-            "es_fin_semana": false
-          },
-          "2025-03-27": {
-            "fecha": "2025-03-27",
-            "dia_real": "Jueves",
-            "horario_asignado": "Jueves",
-            "motivo": "",
-            "es_especial": false,
-            "es_fin_semana": false
-          },
-          "2025-03-28": {
-            "fecha": "2025-03-28",
-            "dia_real": "Viernes",
-            "horario_asignado": "Viernes",
-            "motivo": "",
-            "es_especial": false,
-            "es_fin_semana": false
-          },
-          "2025-03-31": {
-            "fecha": "2025-03-31",
-            "dia_real": "Lunes",
-            "horario_asignado": "Lunes",
-            "motivo": "",
-            "es_especial": false,
-            "es_fin_semana": false
-          },
-          "2025-04-01": {
-            "fecha": "2025-04-01",
-            "dia_real": "Martes",
-            "horario_asignado": "Martes",
-            "motivo": "",
-            "es_especial": false,
-            "es_fin_semana": false
-          },
-          "2025-04-02": {
-            "fecha": "2025-04-02",
-            "dia_real": "Miércoles",
-            "horario_asignado": "Miércoles",
-            "motivo": "",
-            "es_especial": false,
-            "es_fin_semana": false
-          },
-          "2025-04-03": {
-            "fecha": "2025-04-03",
-            "dia_real": "Jueves",
-            "horario_asignado": "Jueves",
-            "motivo": "",
-            "es_especial": false,
-            "es_fin_semana": false
-          },
-          "2025-04-04": {
-            "fecha": "2025-04-04",
-            "dia_real": "Viernes",
-            "horario_asignado": "Viernes",
-            "motivo": "",
-            "es_especial": false,
-            "es_fin_semana": false
-          },
-          "2025-04-07": {
-            "fecha": "2025-04-07",
-            "dia_real": "Lunes",
-            "horario_asignado": "Lunes",
-            "motivo": "",
-            "es_especial": false,
-            "es_fin_semana": false
-          },
-          "2025-04-08": {
-            "fecha": "2025-04-08",
-            "dia_real": "Martes",
-            "horario_asignado": "Martes",
-            "motivo": "",
-            "es_especial": false,
-            "es_fin_semana": false
-          },
-          "2025-04-09": {
-            "fecha": "2025-04-09",
-            "dia_real": "Miércoles",
-            "horario_asignado": "Miércoles",
-            "motivo": "",
-            "es_especial": false,
-            "es_fin_semana": false
-          },
-          "2025-04-10": {
-            "fecha": "2025-04-10",
-            "dia_real": "Jueves",
-            "horario_asignado": "Jueves",
-            "motivo": "",
-            "es_especial": false,
-            "es_fin_semana": false
-          },
-          "2025-04-11": {
-            "fecha": "2025-04-11",
-            "dia_real": "Viernes",
-            "horario_asignado": "Viernes",
-            "motivo": "",
-            "es_especial": false,
-            "es_fin_semana": false
-          },
-          "2025-04-14": {
-            "fecha": "2025-04-14",
-            "dia_real": "Lunes",
-            "horario_asignado": "Lunes",
-            "motivo": "",
-            "es_especial": false,
-            "es_fin_semana": false
-          },
-          "2025-04-15": {
-            "fecha": "2025-04-15",
-            "dia_real": "Martes",
-            "horario_asignado": "Martes",
-            "motivo": "",
-            "es_especial": false,
-            "es_fin_semana": false
-          },
-          "2025-04-16": {
-            "fecha": "2025-04-16",
-            "dia_real": "Miércoles",
-            "horario_asignado": "Miércoles",
-            "motivo": "",
-            "es_especial": false,
-            "es_fin_semana": false
-          },
-          "2025-04-17": {
-            "fecha": "2025-04-17",
-            "dia_real": "Jueves",
-            "horario_asignado": "Jueves",
-            "motivo": "",
-            "es_especial": false,
-            "es_fin_semana": false
-          },
-          "2025-04-18": {
-            "fecha": "2025-04-18",
-            "dia_real": "Viernes",
-            "horario_asignado": "Viernes",
-            "motivo": "",
-            "es_especial": false,
-            "es_fin_semana": false
-          },
-          "2025-04-21": {
-            "fecha": "2025-04-21",
-            "dia_real": "Lunes",
-            "horario_asignado": "Lunes",
-            "motivo": "",
-            "es_especial": false,
-            "es_fin_semana": false
-          },
-          "2025-04-22": {
-            "fecha": "2025-04-22",
-            "dia_real": "Martes",
-            "horario_asignado": "Martes",
-            "motivo": "",
-            "es_especial": false,
-            "es_fin_semana": false
-          },
-          "2025-04-23": {
-            "fecha": "2025-04-23",
-            "dia_real": "Miércoles",
-            "horario_asignado": "Miércoles",
-            "motivo": "",
-            "es_especial": false,
-            "es_fin_semana": false
-          },
-          "2025-04-24": {
-            "fecha": "2025-04-24",
-            "dia_real": "Jueves",
-            "horario_asignado": "Jueves",
-            "motivo": "",
-            "es_especial": false,
-            "es_fin_semana": false
-          },
-          "2025-04-25": {
-            "fecha": "2025-04-25",
-            "dia_real": "Viernes",
-            "horario_asignado": "Viernes",
-            "motivo": "",
-            "es_especial": false,
-            "es_fin_semana": false
-          },
-          "2025-04-28": {
-            "fecha": "2025-04-28",
-            "dia_real": "Lunes",
-            "horario_asignado": "Lunes",
-            "motivo": "",
-            "es_especial": false,
-            "es_fin_semana": false
-          },
-          "2025-04-29": {
-            "fecha": "2025-04-29",
-            "dia_real": "Martes",
-            "horario_asignado": "Martes",
-            "motivo": "",
-            "es_especial": false,
-            "es_fin_semana": false
-          },
-          "2025-04-30": {
-            "fecha": "2025-04-30",
-            "dia_real": "Miércoles",
-            "horario_asignado": "Miércoles",
-            "motivo": "",
-            "es_especial": false,
-            "es_fin_semana": false
-          },
-          "2025-05-01": {
-            "fecha": "2025-05-01",
-            "dia_real": "Jueves",
-            "horario_asignado": "Jueves",
-            "motivo": "",
-            "es_especial": false,
-            "es_fin_semana": false
-          },
-          "2025-05-02": {
-            "fecha": "2025-05-02",
-            "dia_real": "Viernes",
-            "horario_asignado": "Viernes",
-            "motivo": "",
-            "es_especial": false,
-            "es_fin_semana": false
-          },
-          "2025-05-05": {
-            "fecha": "2025-05-05",
-            "dia_real": "Lunes",
-            "horario_asignado": "Lunes",
-            "motivo": "",
-            "es_especial": false,
-            "es_fin_semana": false
-          },
-          "2025-05-06": {
-            "fecha": "2025-05-06",
-            "dia_real": "Martes",
-            "horario_asignado": "Martes",
-            "motivo": "",
-            "es_especial": false,
-            "es_fin_semana": false
-          },
-          "2025-05-07": {
-            "fecha": "2025-05-07",
-            "dia_real": "Miércoles",
-            "horario_asignado": "Miércoles",
-            "motivo": "",
-            "es_especial": false,
-            "es_fin_semana": false
-          },
-          "2025-05-08": {
-            "fecha": "2025-05-08",
-            "dia_real": "Jueves",
-            "horario_asignado": "Jueves",
-            "motivo": "",
-            "es_especial": false,
-            "es_fin_semana": false
-          },
-          "2025-05-09": {
-            "fecha": "2025-05-09",
-            "dia_real": "Viernes",
-            "horario_asignado": "Viernes",
-            "motivo": "",
-            "es_especial": false,
-            "es_fin_semana": false
           }
         }
       },
       "semanas_total": 14,
       "dias_semestre_1": 0,
       "dias_semestre_2": 70,
-      "fecha_actualizacion": "2025-07-05T11:24:37.218328"
+      "fecha_actualizacion": "2025-07-05T12:00:00.000000"
     },
     "aulas": {
       "configurado": true,
       "datos": {
         "Laboratorio A": {
-          "asignaturas_asociadas": [],
+          "asignaturas_asociadas": [
+            "FIS1",
+            "QUI1"
+          ],
           "capacidad": 24,
           "disponible": true,
           "edificio": "Edificio A",
@@ -706,148 +211,250 @@
           "planta": "1ª Planta"
         },
         "Laboratorio B": {
-          "asignaturas_asociadas": [],
+          "asignaturas_asociadas": [
+            "MAT1"
+          ],
           "capacidad": 28,
           "disponible": true,
           "edificio": "Edificio B",
-          "equipamiento": "Multímetros, Fuentes",
+          "equipamiento": "Ordenadores, Software matemático",
           "nombre": "Laboratorio B",
+          "planta": "2ª Planta"
+        },
+        "Laboratorio C": {
+          "asignaturas_asociadas": [
+            "EANA",
+            "EDIG"
+          ],
+          "capacidad": 20,
+          "disponible": true,
+          "edificio": "Edificio C",
+          "equipamiento": "Analizadores, Osciloscopios, Microcontroladores",
+          "nombre": "Laboratorio C",
+          "planta": "3ª Planta"
+        },
+        "Laboratorio D": {
+          "asignaturas_asociadas": [
+            "PROG3"
+          ],
+          "capacidad": 25,
+          "disponible": true,
+          "edificio": "Edificio D",
+          "equipamiento": "Ordenadores, IDEs de desarrollo",
+          "nombre": "Laboratorio D",
           "planta": "2ª Planta"
         }
       },
-      "total_aulas": 2,
-      "fecha_actualizacion": "2025-06-30T18:53:38.560231"
+      "total_aulas": 4,
+      "fecha_actualizacion": "2025-07-05T12:00:00.000000"
     },
     "profesores": {
       "configurado": true,
       "datos": {
-        "3456234": {
-          "apellidos": "sdfgsgfd",
+        "12345678A": {
+          "apellidos": "García López",
           "asignaturas_puede_impartir": [
-            "1_fisica1",
-            "2_Elec. Digital"
+            "FIS1",
+            "QUI1"
           ],
           "dias_trabajo": [
             "Lunes",
             "Martes",
             "Miércoles"
           ],
-          "dni": "3456234",
-          "email": "sdfghsd",
-          "fecha_creacion": "2025-07-03T19:34:30.499169",
+          "dni": "12345678A",
+          "email": "garcia.lopez@upm.es",
+          "fecha_creacion": "2025-07-05T12:00:00.000000",
           "fechas_no_disponibles": [],
-          "nombre": "sfgsgf",
-          "observaciones": ""
+          "nombre": "Antonio",
+          "observaciones": "Especialista en física experimental"
         },
-        "345656": {
-          "apellidos": "sdfgsgfd",
+        "87654321B": {
+          "apellidos": "Martínez Ruiz",
           "asignaturas_puede_impartir": [
-            "1_fisica1"
+            "FIS1",
+            "MAT1"
           ],
           "dias_trabajo": [
             "Lunes",
             "Martes",
-            "Miércoles"
+            "Jueves"
           ],
-          "dni": "345656",
-          "email": "sdfghsd",
-          "fecha_creacion": "2025-07-02T17:53:49.603088",
+          "dni": "87654321B",
+          "email": "martinez.ruiz@upm.es",
+          "fecha_creacion": "2025-07-05T12:00:00.000000",
           "fechas_no_disponibles": [],
-          "nombre": "sfgsgf",
-          "observaciones": ""
+          "nombre": "Carmen",
+          "observaciones": "Especialista en matemáticas aplicadas"
+        },
+        "11223344C": {
+          "apellidos": "Fernández Castro",
+          "asignaturas_puede_impartir": [
+            "EANA",
+            "EDIG"
+          ],
+          "dias_trabajo": [
+            "Martes",
+            "Miércoles",
+            "Jueves",
+            "Viernes"
+          ],
+          "dni": "11223344C",
+          "email": "fernandez.castro@upm.es",
+          "fecha_creacion": "2025-07-05T12:00:00.000000",
+          "fechas_no_disponibles": [],
+          "nombre": "Miguel",
+          "observaciones": "Especialista en electrónica"
+        },
+        "44332211D": {
+          "apellidos": "Pérez Vega",
+          "asignaturas_puede_impartir": [
+            "EDIG",
+            "PROG3"
+          ],
+          "dias_trabajo": [
+            "Miércoles",
+            "Jueves",
+            "Viernes"
+          ],
+          "dni": "44332211D",
+          "email": "perez.vega@upm.es",
+          "fecha_creacion": "2025-07-05T12:00:00.000000",
+          "fechas_no_disponibles": [],
+          "nombre": "Laura",
+          "observaciones": "Especialista en programación"
         }
       },
-      "total": 2,
-      "fecha_actualizacion": "2025-07-03T19:34:42.470790"
+      "total": 4,
+      "fecha_actualizacion": "2025-07-05T12:00:00.000000"
     },
     "alumnos": {
       "configurado": true,
       "datos": {
-        "23465246": {
+        "12345678Z": {
           "ano_matricula": "2024",
-          "apellidos": "JAcobo",
+          "apellidos": "López Pérez",
           "asignaturas_matriculadas": {
-            "1_adfg": {
-              "lab_aprobado": true,
-              "matriculado": true
-            },
-            "1_fisica1": {
+            "FIS1": {
               "lab_aprobado": false,
               "matriculado": true
             },
-            "2_Elec. Analogica": {
+            "QUI1": {
               "lab_aprobado": false,
               "matriculado": true
             }
           },
-          "dni": "23465246",
-          "email": "sadgsdf@alumnos.upm.es",
-          "exp_agora": "dsfre",
-          "exp_centro": "asfdhgjmn",
-          "fecha_creacion": "2025-06-30T17:59:15.523719",
-          "grupo": "A102, A104",
-          "matricula": "342543",
+          "dni": "12345678Z",
+          "email": "lopez.perez@alumnos.upm.es",
+          "exp_agora": "EXP001",
+          "exp_centro": "A102001",
+          "fecha_creacion": "2025-07-05T12:00:00.000000",
+          "grupo": "A102",
+          "matricula": "MAT001",
           "nombre": "Juan",
+          "observaciones": ""
+        },
+        "87654321Y": {
+          "ano_matricula": "2024",
+          "apellidos": "González Ruiz",
+          "asignaturas_matriculadas": {
+            "FIS1": {
+              "lab_aprobado": false,
+              "matriculado": true
+            },
+            "MAT1": {
+              "lab_aprobado": false,
+              "matriculado": true
+            }
+          },
+          "dni": "87654321Y",
+          "email": "gonzalez.ruiz@alumnos.upm.es",
+          "exp_agora": "EXP002",
+          "exp_centro": "B102001",
+          "fecha_creacion": "2025-07-05T12:00:00.000000",
+          "grupo": "B102",
+          "matricula": "MAT002",
+          "nombre": "María",
+          "observaciones": ""
+        },
+        "11223344X": {
+          "ano_matricula": "2024",
+          "apellidos": "Rodríguez Vega",
+          "asignaturas_matriculadas": {
+            "EANA": {
+              "lab_aprobado": true,
+              "matriculado": true
+            },
+            "EDIG": {
+              "lab_aprobado": false,
+              "matriculado": true
+            }
+          },
+          "dni": "11223344X",
+          "email": "rodriguez.vega@alumnos.upm.es",
+          "exp_agora": "EXP003",
+          "exp_centro": "A302001",
+          "fecha_creacion": "2025-07-05T12:00:00.000000",
+          "grupo": "A302",
+          "matricula": "MAT003",
+          "nombre": "Carlos",
+          "observaciones": "Lab anterior aprobado en EANA"
+        },
+        "44332211W": {
+          "ano_matricula": "2024",
+          "apellidos": "Fernández Moreno",
+          "asignaturas_matriculadas": {
+            "EANA": {
+              "lab_aprobado": false,
+              "matriculado": true
+            },
+            "EDIG": {
+              "lab_aprobado": false,
+              "matriculado": true
+            },
+            "PROG3": {
+              "lab_aprobado": false,
+              "matriculado": true
+            }
+          },
+          "dni": "44332211W",
+          "email": "fernandez.moreno@alumnos.upm.es",
+          "exp_agora": "EXP004",
+          "exp_centro": "A309001",
+          "fecha_creacion": "2025-07-05T12:00:00.000000",
+          "grupo": "A309",
+          "matricula": "MAT004",
+          "nombre": "Ana",
           "observaciones": ""
         }
       },
-      "total": 1,
-      "fecha_actualizacion": "2025-07-03T19:34:49.430074"
+      "total": 4,
+      "fecha_actualizacion": "2025-07-05T12:00:00.000000"
     },
     "asignaturas": {
       "configurado": true,
       "datos": {
-        "AAA": {
-          "codigo": "AAA",
-          "nombre": "pepesito",
-          "semestre": "1º Semestre",
-          "curso": "1º Curso",
-          "tipo": "Laboratorio",
-          "descripcion": "",
-          "cursos_que_cursan": [
-            "A2222"
-          ],
-          "configuracion_laboratorio": {
-            "horas_por_sesion": 2,
-            "max_estudiantes_grupo": 20,
-            "equipamiento": ""
-          },
-          "planificacion": {
-            "grupos_previstos": 6,
-            "clases_año": 3
-          },
-          "estadisticas_calculadas": {
-            "total_matriculados": 0,
-            "con_lab_anterior": 0,
-            "sin_lab_anterior": 0,
-            "grupos_recomendados": 0,
-            "ultima_actualizacion": "2025-07-04T21:25:13.483492"
-          },
-          "fecha_creacion": "2025-07-04T21:25:13.483492"
-        },
         "EANA": {
           "codigo": "EANA",
           "configuracion_laboratorio": {
-            "equipamiento": "Analizadores, Osciloscopios",
             "horas_por_sesion": 2,
-            "max_estudiantes_grupo": 18
+            "minutos_por_sesion": 0
           },
           "curso": "3º Curso",
-          "descripcion": "Electrónica analógica avanzada",
-          "estadisticas_calculadas": {
-            "con_lab_anterior": 0,
-            "grupos_recomendados": 1,
-            "sin_lab_anterior": 1,
-            "total_matriculados": 1,
-            "ultima_actualizacion": "2025-07-03T19:34:50.322955"
-          },
-          "fecha_creacion": "2025-06-29T20:00:00.000000",
           "cursos_que_cursan": [
             "A302",
-            "A309",
-            "EE309"
+            "A309"
           ],
-          "nombre": "Elec. Analogica",
+          "descripcion": "Electrónica analógica avanzada",
+          "estadisticas_calculadas": {
+            "con_lab_anterior": 1,
+            "grupos_recomendados": 1,
+            "sin_lab_anterior": 1,
+            "total_matriculados": 2,
+            "ultima_actualizacion": "2025-07-05T12:00:00.000000"
+          },
+          "fecha_creacion": "2025-07-05T19:53:19.629084",
+          "nombre": "Electrónica Analógica",
           "planificacion": {
             "clases_año": 2,
             "grupos_previstos": 4
@@ -858,26 +465,24 @@
         "EDIG": {
           "codigo": "EDIG",
           "configuracion_laboratorio": {
-            "equipamiento": "Microcontroladores, Logic Analyzers",
             "horas_por_sesion": 2,
-            "max_estudiantes_grupo": 20
+            "minutos_por_sesion": 0
           },
-          "curso": "2º Curso",
+          "curso": "3º Curso",
+          "cursos_que_cursan": [
+            "A302",
+            "A309"
+          ],
           "descripcion": "Sistemas digitales y microcontroladores",
           "estadisticas_calculadas": {
             "con_lab_anterior": 0,
-            "grupos_recomendados": 5,
-            "sin_lab_anterior": 0,
-            "total_matriculados": 0,
-            "ultima_actualizacion": "2025-06-29T19:59:38.922844"
+            "grupos_recomendados": 1,
+            "sin_lab_anterior": 2,
+            "total_matriculados": 2,
+            "ultima_actualizacion": "2025-07-05T12:00:00.000000"
           },
-          "fecha_creacion": "2025-06-29T20:00:00.000000",
-          "cursos_que_cursan": [
-            "A302",
-            "A309",
-            "EE309"
-          ],
-          "nombre": "Elec. Digital",
+          "fecha_creacion": "2025-07-05T12:00:00.000000",
+          "nombre": "Electrónica Digital",
           "planificacion": {
             "clases_año": 3,
             "grupos_previstos": 5
@@ -888,35 +493,115 @@
         "FIS1": {
           "codigo": "FIS1",
           "configuracion_laboratorio": {
-            "equipamiento": "Osciloscopios, Generadores",
             "horas_por_sesion": 2,
-            "max_estudiantes_grupo": 20
+            "minutos_por_sesion": 0
           },
           "curso": "1º Curso",
-          "descripcion": "Física experimental básica",
-          "estadisticas_calculadas": {
-            "con_lab_anterior": 0,
-            "grupos_recomendados": 1,
-            "sin_lab_anterior": 1,
-            "total_matriculados": 1,
-            "ultima_actualizacion": "2025-07-03T19:34:50.322955"
-          },
-          "fecha_creacion": "2025-06-29T20:00:00.000000",
           "cursos_que_cursan": [
             "A102",
             "B102"
           ],
-          "nombre": "fisica1",
+          "descripcion": "Física experimental básica",
+          "estadisticas_calculadas": {
+            "con_lab_anterior": 0,
+            "grupos_recomendados": 1,
+            "sin_lab_anterior": 2,
+            "total_matriculados": 2,
+            "ultima_actualizacion": "2025-07-05T12:00:00.000000"
+          },
+          "fecha_creacion": "2025-07-05T12:00:00.000000",
+          "nombre": "Física I",
           "planificacion": {
             "clases_año": 3,
             "grupos_previstos": 6
           },
           "semestre": "1º Semestre",
           "tipo": "Laboratorio"
+        },
+        "MAT1": {
+          "codigo": "MAT1",
+          "configuracion_laboratorio": {
+            "horas_por_sesion": 2,
+            "minutos_por_sesion": 0
+          },
+          "curso": "1º Curso",
+          "cursos_que_cursan": [
+            "B102"
+          ],
+          "descripcion": "Matemáticas aplicadas con software",
+          "estadisticas_calculadas": {
+            "con_lab_anterior": 0,
+            "grupos_recomendados": 1,
+            "sin_lab_anterior": 1,
+            "total_matriculados": 1,
+            "ultima_actualizacion": "2025-07-05T12:00:00.000000"
+          },
+          "fecha_creacion": "2025-07-05T12:00:00.000000",
+          "nombre": "Matemáticas I",
+          "planificacion": {
+            "clases_año": 3,
+            "grupos_previstos": 4
+          },
+          "semestre": "1º Semestre",
+          "tipo": "Laboratorio"
+        },
+        "PROG3": {
+          "codigo": "PROG3",
+          "configuracion_laboratorio": {
+            "horas_por_sesion": 2,
+            "minutos_por_sesion": 0
+          },
+          "curso": "3º Curso",
+          "cursos_que_cursan": [
+            "A309"
+          ],
+          "descripcion": "Programación avanzada orientada a objetos",
+          "estadisticas_calculadas": {
+            "con_lab_anterior": 0,
+            "grupos_recomendados": 1,
+            "sin_lab_anterior": 1,
+            "total_matriculados": 1,
+            "ultima_actualizacion": "2025-07-05T12:00:00.000000"
+          },
+          "fecha_creacion": "2025-07-05T19:55:22.118475",
+          "nombre": "Programación III",
+          "planificacion": {
+            "clases_año": 4,
+            "grupos_previstos": 3
+          },
+          "semestre": "2º Semestre",
+          "tipo": "Laboratorio"
+        },
+        "QUI1": {
+          "codigo": "QUI1",
+          "configuracion_laboratorio": {
+            "horas_por_sesion": 2,
+            "minutos_por_sesion": 0
+          },
+          "curso": "1º Curso",
+          "cursos_que_cursan": [
+            "A102"
+          ],
+          "descripcion": "Química experimental básica",
+          "estadisticas_calculadas": {
+            "con_lab_anterior": 0,
+            "grupos_recomendados": 1,
+            "sin_lab_anterior": 1,
+            "total_matriculados": 1,
+            "ultima_actualizacion": "2025-07-05T12:00:00.000000"
+          },
+          "fecha_creacion": "2025-07-05T19:55:29.848219",
+          "nombre": "Química I",
+          "planificacion": {
+            "clases_año": 2,
+            "grupos_previstos": 5
+          },
+          "semestre": "1º Semestre",
+          "tipo": "Laboratorio"
         }
       },
-      "total": 4,
-      "fecha_actualizacion": "2025-07-04T21:25:16.374067"
+      "total": 6,
+      "fecha_actualizacion": "2025-07-05T21:31:06.196057"
     },
     "cursos": {
       "configurado": true,
@@ -929,31 +614,14 @@
           "departamento": "Ingeniería Industrial",
           "creditos_totales": 240,
           "plazas": 120,
-          "estudiantes_matriculados": 95,
+          "estudiantes_matriculados": 1,
           "horario_tipo": "Mañana",
           "observaciones": "Curso de nueva implantación",
-          "fecha_creacion": "2025-07-03T19:35:54.534243",
+          "fecha_creacion": "2025-07-05T19:53:43.771140",
           "activo": true,
           "asignaturas_asociadas": [
-            "1_fisica1",
-            "1_adfg"
-          ]
-        },
-        "B102": {
-          "codigo": "B102",
-          "nombre": "Grado en Ingeniería Eléctrica",
-          "curso_actual": "1º Curso",
-          "coordinador": "Dra. Martínez Ruiz",
-          "departamento": "Ingeniería Eléctrica",
-          "creditos_totales": 240,
-          "plazas": 80,
-          "estudiantes_matriculados": 76,
-          "horario_tipo": "Mañana",
-          "observaciones": "",
-          "fecha_creacion": "2025-07-03T19:35:54.534243",
-          "activo": true,
-          "asignaturas_asociadas": [
-            "1_fisica1"
+            "FIS1",
+            "QUI1"
           ]
         },
         "A302": {
@@ -964,19 +632,56 @@
           "departamento": "Ingeniería Electrónica",
           "creditos_totales": 240,
           "plazas": 60,
-          "estudiantes_matriculados": 54,
+          "estudiantes_matriculados": 1,
           "horario_tipo": "Tarde",
           "observaciones": "Curso con alta demanda",
-          "fecha_creacion": "2025-07-03T19:35:54.534243",
+          "fecha_creacion": "2025-07-05T12:00:00.000000",
           "activo": true,
           "asignaturas_asociadas": [
-            "2_Elec. Analogica",
-            "2_Elec. Digital"
+            "EANA",
+            "EDIG"
+          ]
+        },
+        "A309": {
+          "codigo": "A309",
+          "nombre": "Grado en Ingeniería Electrónica y Automática",
+          "curso_actual": "3º Curso",
+          "coordinador": "Dr. Pérez Vega",
+          "departamento": "Ingeniería Electrónica",
+          "creditos_totales": 240,
+          "plazas": 45,
+          "estudiantes_matriculados": 1,
+          "horario_tipo": "Tarde",
+          "observaciones": "",
+          "fecha_creacion": "2025-07-05T12:00:00.000000",
+          "activo": true,
+          "asignaturas_asociadas": [
+            "EANA",
+            "EDIG",
+            "PROG3"
+          ]
+        },
+        "B102": {
+          "codigo": "B102",
+          "nombre": "Grado en Ingeniería Eléctrica",
+          "curso_actual": "1º Curso",
+          "coordinador": "Dra. Martínez Ruiz",
+          "departamento": "Ingeniería Eléctrica",
+          "creditos_totales": 240,
+          "plazas": 80,
+          "estudiantes_matriculados": 1,
+          "horario_tipo": "Mañana",
+          "observaciones": "",
+          "fecha_creacion": "2025-07-05T12:00:00.000000",
+          "activo": true,
+          "asignaturas_asociadas": [
+            "FIS1",
+            "MAT1"
           ]
         }
       },
-      "total": 3,
-      "fecha_actualizacion": "2025-07-03T19:35:54.534243"
+      "total": 4,
+      "fecha_actualizacion": "2025-07-05T19:55:29.848219"
     }
   },
   "parametros_organizacion": {
