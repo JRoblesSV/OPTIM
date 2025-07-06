@@ -93,6 +93,40 @@ class GestionAlumnoDialog(QDialog):
         layout = QVBoxLayout()
         layout.setSpacing(12)
 
+        # Estilo común para todos los CheckBox
+        self.estilo_checkbox_comun = """
+                QCheckBox {
+                    font-size: 12px;
+                    font-weight: 500;
+                    padding: 4px 6px;
+                    margin: 2px 0px;
+                    color: #ffffff;
+                }
+                QCheckBox::indicator {
+                    width: 18px;
+                    height: 18px;
+                    margin-right: 8px;
+                }
+                QCheckBox::indicator:unchecked {
+                    background-color: #3c3c3c;
+                    border: 2px solid #666666;
+                    border-radius: 4px;
+                }
+                QCheckBox::indicator:unchecked:hover {
+                    border-color: #4a9eff;
+                    background-color: #4a4a4a;
+                }
+                QCheckBox::indicator:checked {
+                    background-color: #4a9eff;
+                    border: 2px solid #4a9eff;
+                    border-radius: 4px;
+                }
+                QCheckBox:hover {
+                    background-color: rgba(74, 158, 255, 0.15);
+                    border-radius: 4px;
+                }
+            """
+
         # 👤 DATOS PERSONALES
         datos_personales_group = QGroupBox("👤 DATOS PERSONALES")
         datos_personales_layout = QGridLayout()
@@ -133,14 +167,8 @@ class GestionAlumnoDialog(QDialog):
         self.edit_matricula = QLineEdit()
         self.edit_matricula.setPlaceholderText("Ej: 2024000123")
 
-        self.edit_ano_matricula = QLineEdit()
-        self.edit_ano_matricula.setPlaceholderText("Ej: 2024")
-        self.edit_ano_matricula.setMaxLength(4)
-
         datos_academicos_layout.addWidget(QLabel("📋 N° Matrícula:"), 0, 0)
         datos_academicos_layout.addWidget(self.edit_matricula, 0, 1)
-        datos_academicos_layout.addWidget(QLabel("📅 Año Matrícula:"), 0, 2)
-        datos_academicos_layout.addWidget(self.edit_ano_matricula, 0, 3)
 
         datos_academicos_group.setLayout(datos_academicos_layout)
         layout.addWidget(datos_academicos_group)
@@ -189,60 +217,24 @@ class GestionAlumnoDialog(QDialog):
             self.cursos_scroll_layout.setSpacing(8)
             self.cursos_scroll_layout.setAlignment(Qt.AlignmentFlag.AlignTop)
 
-            # Organizar cursos por curso
-            cursos_por_curso = {"1": [], "2": [], "3": [], "4": []}
-
-            for curso in self.cursos_disponibles:
-                curso = self.extraer_curso_de_curso(curso)
-                if curso in cursos_por_curso:
-                    cursos_por_curso[curso].append(curso)
-                else:
-                    cursos_por_curso["1"].append(curso)
-
-            # Crear secciones para cada curso
+            # Crear checkboxes por cursos del sistema
             self.checks_cursos = {}
-            for curso in ["1", "2", "3", "4"]:
-                if cursos_por_curso[curso]:
-                    # Etiqueta del curso
-                    curso_label = QLabel(f"📚 {curso}º Curso")
-                    curso_label.setStyleSheet("""
-                        color: #90EE90; 
-                        font-weight: bold; 
-                        font-size: 12px; 
-                        margin: 8px 0px 4px 0px;
-                        padding: 4px;
-                        background-color: rgba(144, 238, 144, 0.1);
-                        border-radius: 4px;
-                    """)
-                    curso_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
-                    self.cursos_scroll_layout.addWidget(curso_label)
+            for codigo, curso_data in sorted(self.cursos_disponibles.items()):
+                nombre = curso_data.get("nombre", codigo)
+                curso_actual = curso_data.get("curso_actual", "")
 
-                    # Checkboxes del curso
-                    for curso in sorted(cursos_por_curso[curso]):
-                        check_curso = QCheckBox(curso)
-                        check_curso.setStyleSheet("""
-                            QCheckBox {
-                                font-size: 12px;
-                                font-weight: 500;
-                                padding: 4px 6px;
-                                margin: 2px 0px;
-                                color: #ffffff;
-                            }
-                            QCheckBox::indicator {
-                                width: 18px;
-                                height: 18px;
-                                margin-right: 8px;
-                            }
-                            QCheckBox:hover {
-                                background-color: rgba(74, 158, 255, 0.15);
-                                border-radius: 4px;
-                            }
-                        """)
-                        check_curso.toggled.connect(self.filtrar_asignaturas_por_cursos)
-                        self.checks_cursos[curso] = check_curso
-                        self.cursos_scroll_layout.addWidget(check_curso)
+                # Mostrar: "A102 - Grado en Ingeniería en Tecnologías Industriales (1º Curso)"
+                texto_completo = f"{codigo} - {nombre}"
+                if curso_actual:
+                    texto_completo += f" ({curso_actual})"
 
-            # Añadir stretch al final para que el contenido se mantenga arriba
+                check_curso = QCheckBox(texto_completo)
+                check_curso.setStyleSheet(self.estilo_checkbox_comun)
+                check_curso.toggled.connect(self.filtrar_asignaturas_por_cursos)
+                self.checks_cursos[codigo] = check_curso  # USAR CÓDIGO COMO KEY
+                self.cursos_scroll_layout.addWidget(check_curso)
+
+            # Añadir stretch al final
             self.cursos_scroll_layout.addStretch()
 
             # Configurar el scroll area
@@ -385,18 +377,24 @@ class GestionAlumnoDialog(QDialog):
 
     def limpiar_layout_asignaturas(self):
         """Limpiar el layout de asignaturas de forma segura"""
-        # Limpiar diccionarios
-        self.checks_asignaturas = {}
-        self.checks_lab_aprobado = {}
+        # Limpiar diccionarios PRIMERO
+        self.checks_asignaturas.clear()
+        self.checks_lab_aprobado.clear()
 
         # Limpiar layout de forma más robusta
         while self.asignaturas_scroll_layout.count():
             child = self.asignaturas_scroll_layout.takeAt(0)
             if child.widget():
-                child.widget().deleteLater()
+                widget = child.widget()
+                widget.setParent(None)  # CRÍTICO: desconectar del padre
+                widget.deleteLater()
 
         # IMPORTANTE: Procesar eventos pendientes para que se eliminen los widgets
         QApplication.processEvents()
+
+        # FORZAR ACTUALIZACIÓN FINAL
+        self.asignaturas_scroll_widget.updateGeometry()
+        self.asignaturas_scroll.updateGeometry()
 
     def obtener_cursos_del_sistema(self):
         """Obtener códigos de cursos disponibles desde el sistema global"""
@@ -404,23 +402,40 @@ class GestionAlumnoDialog(QDialog):
             if self.parent() and hasattr(self.parent(), 'parent_window'):
                 parent_window = self.parent().parent_window
                 if parent_window and hasattr(parent_window, 'configuracion'):
-                    config_asignaturas = parent_window.configuracion["configuracion"]["asignaturas"]
-                    if config_asignaturas.get("configurado") and config_asignaturas.get("datos"):
-                        codigos_cursos = set()
-                        for asig_data in config_asignaturas["datos"].values():
-                            # buscar en "cursos_que_cursan"
-                            cursos_asig = asig_data.get("cursos_que_cursan", [])
-                            codigos_cursos.update(cursos_asig)
-                        return sorted(list(codigos_cursos))
-            return []
+                    config_cursos = parent_window.configuracion["configuracion"]["cursos"]
+                    if config_cursos.get("configurado") and config_cursos.get("datos"):
+                        cursos_disponibles = {}
+                        for codigo, curso_data in config_cursos["datos"].items():
+                            nombre = curso_data.get("nombre", codigo)
+                            cursos_disponibles[codigo] = {
+                                "codigo": codigo,
+                                "nombre": nombre,
+                                "curso_actual": curso_data.get("curso_actual", ""),
+                                "asignaturas_asociadas": curso_data.get("asignaturas_asociadas", [])
+                            }
+                        return cursos_disponibles
+            return {}
         except Exception as e:
             print(f"Error obteniendo códigos de cursos: {e}")
-            return []
+            return {}
 
     def filtrar_asignaturas_por_cursos(self):
-        """Filtrar asignaturas disponibles según códigos de cursos seleccionados"""
+        """Filtrar asignaturas disponibles según cursos seleccionados"""
         # Obtener códigos de cursos seleccionados
-        cursos_seleccionados = [curso for curso, check in self.checks_cursos.items() if check.isChecked()]
+        cursos_seleccionados = [codigo for codigo, check in self.checks_cursos.items() if check.isChecked()]
+
+        # Guardar estado actual de asignaturas antes de limpiar
+        estado_asignaturas_previo = {}
+        for key, check_asig in self.checks_asignaturas.items():
+            if check_asig.isChecked():
+                lab_aprobado = False
+                if key in self.checks_lab_aprobado and self.checks_lab_aprobado[key].isEnabled():
+                    lab_aprobado = self.checks_lab_aprobado[key].isChecked()
+
+                estado_asignaturas_previo[key] = {
+                    'matriculado': True,
+                    'lab_aprobado': lab_aprobado
+                }
 
         # Limpiar asignaturas actuales
         self.limpiar_layout_asignaturas()
@@ -430,7 +445,7 @@ class GestionAlumnoDialog(QDialog):
             self.mostrar_mensaje_seleccionar_cursos()
             return
 
-        # Filtrar asignaturas por códigos de cursos
+        # Obtener asignaturas desde el sistema
         asignaturas_filtradas = {"1": {}, "2": {}}
 
         try:
@@ -439,9 +454,10 @@ class GestionAlumnoDialog(QDialog):
                 if parent_window and hasattr(parent_window, 'configuracion'):
                     config_asignaturas = parent_window.configuracion["configuracion"]["asignaturas"]
                     if config_asignaturas.get("configurado") and config_asignaturas.get("datos"):
-                        for codigo, asig_data in config_asignaturas["datos"].items():
-                            nombre_asig = asig_data.get("nombre", "")
+                        for codigo_asig, asig_data in config_asignaturas["datos"].items():
+                            nombre_asig = asig_data.get("nombre", codigo_asig)
                             semestre_str = asig_data.get("semestre", "1º Semestre")
+                            cursos_que_cursan = asig_data.get("cursos_que_cursan", [])
 
                             # Detectar semestre
                             if "1º" in semestre_str or "primer" in semestre_str.lower():
@@ -451,12 +467,13 @@ class GestionAlumnoDialog(QDialog):
                             else:
                                 semestre = "1"
 
-                            # buscar en "cursos_que_cursan"
-                            cursos_asig = asig_data.get("cursos_que_cursan", [])
-
-                            # Si la asignatura pertenece a algún curso seleccionado
-                            if any(curso in cursos_asig for curso in cursos_seleccionados):
-                                asignaturas_filtradas[semestre][nombre_asig] = asig_data
+                            # Si la asignatura es cursada por algún curso seleccionado
+                            if any(curso in cursos_que_cursan for curso in cursos_seleccionados):
+                                asignaturas_filtradas[semestre][codigo_asig] = {
+                                    "codigo": codigo_asig,
+                                    "nombre": nombre_asig,
+                                    "semestre": semestre_str
+                                }
 
         except Exception as e:
             print(f"Error filtrando asignaturas por cursos: {e}")
@@ -464,10 +481,22 @@ class GestionAlumnoDialog(QDialog):
         # Recrear checkboxes de asignaturas
         self.crear_asignaturas_filtradas(asignaturas_filtradas)
 
-        # CLAVE: Forzar actualización final del scroll area
-        QApplication.processEvents()
+        # Restaurar el estado previo de las asignaturas
+        QApplication.processEvents()  # Asegurar que los widgets están creados
 
-        # Asegurar que el scroll esté visible y funcional
+        for key, estado in estado_asignaturas_previo.items():
+            if key in self.checks_asignaturas:  # Solo si la asignatura sigue disponible
+                check_asig = self.checks_asignaturas[key]
+                check_asig.setChecked(True)
+
+                # Restaurar lab aprobado
+                if key in self.checks_lab_aprobado:
+                    lab_check = self.checks_lab_aprobado[key]
+                    lab_check.setEnabled(True)
+                    lab_check.setChecked(estado.get('lab_aprobado', False))
+
+        # Forzar actualización final del scroll area
+        QApplication.processEvents()
         self.asignaturas_scroll.setVisible(True)
         self.asignaturas_scroll_widget.setVisible(True)
 
@@ -510,8 +539,10 @@ class GestionAlumnoDialog(QDialog):
             """)
             self.asignaturas_scroll_layout.addWidget(sem1_label)
 
-            for asignatura in sorted(asignaturas_data["1"].keys()):
-                self.crear_fila_asignatura(asignatura, "1")
+            for codigo_asignatura, asig_data in sorted(asignaturas_data["1"].items()):
+                nombre = asig_data.get("nombre", codigo_asignatura)
+                texto_completo = f"{codigo_asignatura} - {nombre}"
+                self.crear_fila_asignatura_con_texto(codigo_asignatura, texto_completo)
 
         # 2º Semestre
         if asignaturas_data.get("2"):
@@ -527,8 +558,10 @@ class GestionAlumnoDialog(QDialog):
             """)
             self.asignaturas_scroll_layout.addWidget(sem2_label)
 
-            for asignatura in sorted(asignaturas_data["2"].keys()):
-                self.crear_fila_asignatura(asignatura, "2")
+            for codigo_asignatura, asig_data in sorted(asignaturas_data["2"].items()):
+                nombre = asig_data.get("nombre", codigo_asignatura)
+                texto_completo = f"{codigo_asignatura} - {nombre}"
+                self.crear_fila_asignatura_con_texto(codigo_asignatura, texto_completo)
 
         # IMPORTANTE: Añadir stretch al final
         self.asignaturas_scroll_layout.addStretch()
@@ -574,7 +607,7 @@ class GestionAlumnoDialog(QDialog):
         # Procesar eventos finales
         QApplication.processEvents()
 
-    def crear_fila_asignatura(self, asignatura, semestre):
+    def crear_fila_asignatura(self, codigo_asignatura, semestre):
         """Crea una fila con checkbox de asignatura + checkbox de lab aprobado al lado"""
         fila_widget = QWidget()
         fila_widget.setStyleSheet("""
@@ -590,34 +623,11 @@ class GestionAlumnoDialog(QDialog):
         fila_layout.setSpacing(15)  # Espacio entre asignatura y lab aprobado
 
         # Checkbox principal de asignatura
-        key_asignatura = f"{semestre}_{asignatura}"
-        check_asignatura = QCheckBox(asignatura)
-        check_asignatura.setStyleSheet("""
+        key_asignatura = codigo_asignatura
+        check_asignatura = QCheckBox(key_asignatura)
+        check_asignatura.setStyleSheet(self.estilo_checkbox_comun + """
             QCheckBox {
-                font-size: 12px;
-                font-weight: 500;
-                padding: 4px;
-                color: #ffffff;
                 min-width: 180px;
-            }
-            QCheckBox::indicator {
-                width: 18px;
-                height: 18px;
-                margin-right: 8px;
-            }
-            QCheckBox::indicator:unchecked {
-                background-color: #3c3c3c;
-                border: 2px solid #666666;
-                border-radius: 4px;
-            }
-            QCheckBox::indicator:unchecked:hover {
-                border-color: #4a9eff;
-                background-color: #4a4a4a;
-            }
-            QCheckBox::indicator:checked {
-                background-color: #4a9eff;
-                border: 2px solid #4a9eff;
-                border-radius: 4px;
             }
         """)
         self.checks_asignaturas[key_asignatura] = check_asignatura
@@ -669,6 +679,78 @@ class GestionAlumnoDialog(QDialog):
         # Añadir la fila al layout del scroll
         self.asignaturas_scroll_layout.addWidget(fila_widget)
 
+    def crear_fila_asignatura_con_texto(self, codigo_asignatura, texto_mostrar):
+        """Crea una fila con checkbox de asignatura + checkbox de lab aprobado"""
+        fila_widget = QWidget()
+        fila_widget.setStyleSheet("""
+            QWidget:hover {
+                background-color: rgba(74, 158, 255, 0.1);
+                border-radius: 6px;
+            }
+        """)
+
+        # Layout HORIZONTAL para poner asignatura y lab aprobado lado a lado
+        fila_layout = QHBoxLayout(fila_widget)
+        fila_layout.setContentsMargins(8, 4, 8, 4)
+        fila_layout.setSpacing(15)
+
+        # Checkbox principal de asignatura CON TEXTO COMPLETO
+        key_asignatura = codigo_asignatura
+        check_asignatura = QCheckBox(texto_mostrar)  # AQUÍ ESTÁ EL CAMBIO
+        check_asignatura.setStyleSheet(self.estilo_checkbox_comun + """
+            QCheckBox {
+                min-width: 180px;
+            }
+        """)
+        self.checks_asignaturas[key_asignatura] = check_asignatura
+
+        # Checkbox para lab aprobado al lado
+        check_lab = QCheckBox("🎓 Lab aprobado")
+        check_lab.setStyleSheet("""
+            QCheckBox {
+                color: #90EE90; 
+                font-size: 11px;
+                font-weight: 500;
+                padding: 2px;
+            }
+            QCheckBox::indicator {
+                width: 16px;
+                height: 16px;
+                margin-right: 6px;
+            }
+            QCheckBox::indicator:unchecked {
+                background-color: #3c3c3c;
+                border: 2px solid #666666;
+                border-radius: 3px;
+            }
+            QCheckBox::indicator:checked {
+                background-color: #90EE90;
+                border: 2px solid #90EE90;
+                border-radius: 3px;
+            }
+            QCheckBox:disabled {
+                color: #666666;
+            }
+        """)
+        check_lab.setEnabled(False)
+        self.checks_lab_aprobado[key_asignatura] = check_lab
+
+        # Conectar señales
+        check_asignatura.toggled.connect(
+            lambda checked, lab_check=check_lab: lab_check.setEnabled(checked)
+        )
+        check_asignatura.toggled.connect(
+            lambda checked, lab_check=check_lab: lab_check.setChecked(False) if not checked else None
+        )
+
+        # Añadir widgets al layout horizontal
+        fila_layout.addWidget(check_asignatura)
+        fila_layout.addWidget(check_lab)
+        fila_layout.addStretch()
+
+        # Añadir la fila al layout del scroll
+        self.asignaturas_scroll_layout.addWidget(fila_widget)
+
     def extraer_curso_de_curso(self, curso):
         """Extraer curso del código de curso (ej: A102 -> '1', EE309 -> '3')"""
         # Buscar patrón LLXNN donde L=letras, X=primer dígito del curso, NN=resto
@@ -698,8 +780,6 @@ class GestionAlumnoDialog(QDialog):
 
         # Datos académicos
         self.edit_matricula.setText(datos.get('matricula', ''))
-        ano_matricula = datos.get('ano_matricula', '2024')
-        self.edit_ano_matricula.setText(ano_matricula)
 
         # Expedientes
         self.edit_exp_centro.setText(datos.get('exp_centro', ''))
@@ -708,34 +788,63 @@ class GestionAlumnoDialog(QDialog):
         # Observaciones
         self.edit_observaciones.setText(datos.get('observaciones', ''))
 
-        # Cursos matriculado
+        # CURSOS MATRICULADOS - VERIFICAR EXISTENCIA PRIMERO
         grupos_matriculado = datos.get('cursos_matriculado', [])
-        for grupo, check in self.checks_cursos.items():
-            if grupo in grupos_matriculado:
-                check.setChecked(True)
+
+        # LIMPIAR SELECCIÓN PREVIA
+        for check in self.checks_cursos.values():
+            check.setChecked(False)
+
+        # MARCAR CURSOS EXISTENTES
+        for grupo in grupos_matriculado:
+            if grupo in self.checks_cursos:
+                self.checks_cursos[grupo].setChecked(True)
 
         # IMPORTANTE: Filtrar asignaturas DESPUÉS de marcar cursos
         if grupos_matriculado:
+            # LIMPIAR PRIMERO
+            self.limpiar_layout_asignaturas()
+
+            # FILTRAR ASIGNATURAS
             self.filtrar_asignaturas_por_cursos()
 
             # Procesar eventos pendientes para que se aplique el filtrado
             QApplication.processEvents()
 
-            # Luego cargar asignaturas matriculadas
+            # CARGAR ASIGNATURAS MATRICULADAS CON KEYS CORRECTAS
             asignaturas_matriculadas = datos.get('asignaturas_matriculadas', {})
-            for key, check_asig in self.checks_asignaturas.items():
-                if key in asignaturas_matriculadas:
-                    info_asignatura = asignaturas_matriculadas[key]
 
-                    if info_asignatura.get('matriculado', False):
-                        check_asig.setChecked(True)
+            # VERIFICAR COMPATIBILIDAD DE KEYS
+            for stored_key, info_asignatura in asignaturas_matriculadas.items():
+                # Buscar la key correcta en los checkboxes actuales
+                checkbox_key = None
 
-                        if key in self.checks_lab_aprobado:
-                            self.checks_lab_aprobado[key].setEnabled(True)
-                            self.checks_lab_aprobado[key].setChecked(info_asignatura.get('lab_aprobado', False))
+                # Estrategia 1: Key exacta
+                if stored_key in self.checks_asignaturas:
+                    checkbox_key = stored_key
+                else:
+                    # Estrategia 2: Buscar por código de asignatura
+                    for check_key in self.checks_asignaturas.keys():
+                        if check_key == stored_key:
+                            checkbox_key = check_key
+                            break
+
+                # Si encontramos la key, marcar el checkbox
+                if checkbox_key and info_asignatura.get('matriculado', False):
+                    check_asig = self.checks_asignaturas[checkbox_key]
+                    check_asig.setChecked(True)
+
+                    # Habilitar y marcar lab aprobado si corresponde
+                    if checkbox_key in self.checks_lab_aprobado:
+                        lab_check = self.checks_lab_aprobado[checkbox_key]
+                        lab_check.setEnabled(True)
+                        lab_check.setChecked(info_asignatura.get('lab_aprobado', False))
 
             # Actualizar scroll final
             self.actualizar_scroll_asignaturas()
+        else:
+            # Si no hay cursos, mostrar mensaje inicial
+            self.mostrar_mensaje_seleccionar_cursos()
 
     def validar_y_aceptar(self):
         """Validar datos antes de aceptar con nueva estructura"""
@@ -789,7 +898,6 @@ class GestionAlumnoDialog(QDialog):
 
             # Datos académicos
             'matricula': self.edit_matricula.text().strip(),
-            'ano_matricula': self.edit_ano_matricula.text().strip(),
             'cursos_matriculado': [grupo for grupo, check in self.checks_cursos.items() if check.isChecked()],
 
             # Asignaturas
@@ -945,9 +1053,14 @@ class ConfigurarAlumnos(QMainWindow):
                         else:
                             semestre = "1"  # Por defecto
 
-                        # Añadir asignatura al semestre correspondiente
+                        # CLAVE: Usar NOMBRE como key pero incluir CÓDIGO en los datos
                         if nombre:  # Solo si tiene nombre
-                            asignaturas_transformadas[semestre][nombre] = asig_data
+                            asignaturas_transformadas[semestre][nombre] = {
+                                "codigo": codigo,  # INCLUIR CÓDIGO
+                                "nombre": nombre,
+                                "semestre": semestre_str,
+                                **asig_data  # Incluir todos los datos originales
+                            }
 
                     return asignaturas_transformadas
 
@@ -1026,7 +1139,7 @@ class ConfigurarAlumnos(QMainWindow):
         self.combo_filtro_asignatura.setMaximumWidth(200)
         filtros_layout.addWidget(self.combo_filtro_asignatura)
 
-        self.check_solo_sin_lab = QCheckBox("Solo sin lab anterior")
+        self.check_solo_sin_lab = QCheckBox("Solo alumnos con laboratorio pentiende")
         self.check_solo_sin_lab.setToolTip("Mostrar solo alumnos sin experiencia previa")
         filtros_layout.addWidget(self.check_solo_sin_lab)
 
@@ -1066,6 +1179,7 @@ class ConfigurarAlumnos(QMainWindow):
         # Columna central - Detalles del alumno
         center_panel = QGroupBox("👤 DETALLES DEL ALUMNO")
         center_layout = QVBoxLayout()
+        center_layout.setSpacing(10)
 
         # Nombre del alumno seleccionado
         self.label_alumno_actual = QLabel("Seleccione un alumno")
@@ -1074,7 +1188,8 @@ class ConfigurarAlumnos(QMainWindow):
 
         # Información detallada
         self.info_alumno = QTextEdit()
-        self.info_alumno.setMaximumHeight(250)
+        self.info_alumno.setMaximumHeight(320)
+        self.info_alumno.setMinimumHeight(280)
         self.info_alumno.setReadOnly(True)
         self.info_alumno.setText("ℹ️ Seleccione un alumno para ver sus detalles")
         center_layout.addWidget(self.info_alumno)
@@ -1082,16 +1197,31 @@ class ConfigurarAlumnos(QMainWindow):
         # Estadísticas por asignatura
         stats_group = QGroupBox("📊 ESTADÍSTICAS POR ASIGNATURA")
         stats_layout = QVBoxLayout()
+        stats_layout.setSpacing(8)
 
-        # Botón para actualizar estadísticas
+        # Layout horizontal para el botón
+        btn_stats_layout = QHBoxLayout()
         self.btn_actualizar_stats = QPushButton("📈 Actualizar Estadísticas")
+        self.btn_actualizar_stats.setMaximumWidth(200)
         self.btn_actualizar_stats.clicked.connect(self.actualizar_estadisticas)
-        stats_layout.addWidget(self.btn_actualizar_stats)
+        btn_stats_layout.addWidget(self.btn_actualizar_stats)
+        btn_stats_layout.addStretch()
+        stats_layout.addLayout(btn_stats_layout)
 
+        # Grid de estadísticas
         self.texto_stats = QTextEdit()
-        self.texto_stats.setMaximumHeight(120)
+        self.texto_stats.setMinimumHeight(350)
+        self.texto_stats.setMaximumHeight(500)
         self.texto_stats.setReadOnly(True)
         self.texto_stats.setText("📈 Presiona 'Actualizar' para ver estadísticas")
+        # Mejorar fuente para mejor legibilidad
+        self.texto_stats.setStyleSheet("""
+            QTextEdit {
+                font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+                font-size: 11px;
+                line-height: 1.3;
+            }
+        """)
         stats_layout.addWidget(self.texto_stats)
 
         stats_group.setLayout(stats_layout)
@@ -1113,11 +1243,6 @@ class ConfigurarAlumnos(QMainWindow):
         self.btn_duplicar.clicked.connect(self.duplicar_alumno_seleccionado)
         acciones_layout.addWidget(self.btn_duplicar)
 
-        self.btn_marcar_lab_anterior = QPushButton("🎓 Marcar sin Lab Anterior")
-        self.btn_marcar_lab_anterior.setEnabled(False)
-        self.btn_marcar_lab_anterior.clicked.connect(self.toggle_lab_anterior)
-        acciones_layout.addWidget(self.btn_marcar_lab_anterior)
-
         self.btn_buscar_duplicados = QPushButton("🔍 Buscar Duplicados")
         self.btn_buscar_duplicados.clicked.connect(self.buscar_duplicados)
         acciones_layout.addWidget(self.btn_buscar_duplicados)
@@ -1134,9 +1259,13 @@ class ConfigurarAlumnos(QMainWindow):
         importar_group = QGroupBox("📥 IMPORTAR DATOS")
         importar_layout = QVBoxLayout()
 
-        self.btn_importar_csv = QPushButton("📥 Importar desde CSV")
-        self.btn_importar_csv.clicked.connect(self.importar_desde_csv)
-        importar_layout.addWidget(self.btn_importar_csv)
+        self.btn_importar_alumnos = QPushButton("📥 Importar Alumnos")
+        self.btn_importar_alumnos.clicked.connect(self.importar_alumnos_excel)
+        importar_layout.addWidget(self.btn_importar_alumnos)
+
+        self.btn_importar_aprobados = QPushButton("✅ Importar Alumnos Aprobados")
+        self.btn_importar_aprobados.clicked.connect(self.importar_alumnos_aprobados)
+        importar_layout.addWidget(self.btn_importar_aprobados)
 
         self.btn_cargar = QPushButton("📁 Cargar Configuración")
         self.btn_cargar.clicked.connect(self.cargar_configuracion)
@@ -1148,10 +1277,6 @@ class ConfigurarAlumnos(QMainWindow):
         # Exportar datos
         exportar_group = QGroupBox("📤 EXPORTAR DATOS")
         exportar_layout = QVBoxLayout()
-
-        self.btn_exportar_csv = QPushButton("📄 Exportar a CSV")
-        self.btn_exportar_csv.clicked.connect(self.exportar_a_csv)
-        exportar_layout.addWidget(self.btn_exportar_csv)
 
         self.btn_exportar_estadisticas = QPushButton("📊 Exportar Estadísticas")
         self.btn_exportar_estadisticas.clicked.connect(self.exportar_estadisticas)
@@ -1517,7 +1642,6 @@ class ConfigurarAlumnos(QMainWindow):
         if not item or item.flags() == Qt.ItemFlag.NoItemFlags:
             self.alumno_actual = None
             self.btn_duplicar.setEnabled(False)
-            self.btn_marcar_lab_anterior.setEnabled(False)
             return
 
         dni = item.data(Qt.ItemDataRole.UserRole)
@@ -1536,7 +1660,6 @@ class ConfigurarAlumnos(QMainWindow):
         info += f"🆔 DNI: {datos.get('dni', 'No definido')}\n"
         info += f"📧 Email: {datos.get('email', 'No definido')}\n"
         info += f"📋 Matrícula: {datos.get('expediente', 'No definido')}\n"
-        info += f"📅 Año: {datos.get('fecha_matricula', 'No definido')[:4] if datos.get('fecha_matricula') else 'No definido'}\n"
         grupos_matriculado = datos.get('cursos_matriculado', [])
         if grupos_matriculado:
             info += f"👥 Grupos: {', '.join(grupos_matriculado)}\n\n"
@@ -1573,12 +1696,6 @@ class ConfigurarAlumnos(QMainWindow):
 
         # Habilitar botones
         self.btn_duplicar.setEnabled(True)
-        self.btn_marcar_lab_anterior.setEnabled(True)
-
-        # Actualizar botón de experiencia
-        tiene_lab_anterior = datos.get('lab_anterior', False)
-        texto_boton = "🎓 Marcar sin Lab Anterior" if tiene_lab_anterior else "📝 Marcar con Lab Anterior"
-        self.btn_marcar_lab_anterior.setText(texto_boton)
 
     def anadir_alumno(self):
         """Añadir nuevo alumno"""
@@ -1670,7 +1787,6 @@ class ConfigurarAlumnos(QMainWindow):
             self.label_alumno_actual.setText("Seleccione un alumno")
             self.info_alumno.setText("ℹ️ Seleccione un alumno para ver sus detalles")
             self.btn_duplicar.setEnabled(False)
-            self.btn_marcar_lab_anterior.setEnabled(False)
             self.marcar_cambio_realizado()
 
             QMessageBox.information(self, "Éxito", "Alumno eliminado correctamente")
@@ -1744,6 +1860,505 @@ class ConfigurarAlumnos(QMainWindow):
         QMessageBox.information(self, "Estado Actualizado",
                                 f"Alumno '{nombre.strip()}' marcado como {estado_texto} previa")
 
+    def importar_alumnos_excel(self):
+        """Importar alumnos desde Excel con selector de asignatura"""
+        # Verificar que hay asignaturas disponibles
+        if not self.asignaturas_disponibles.get("1") and not self.asignaturas_disponibles.get("2"):
+            QMessageBox.warning(self, "Sin Asignaturas",
+                                "No hay asignaturas configuradas en el sistema.\n"
+                                "Configure primero las asignaturas antes de importar alumnos.")
+            return
+
+        # Selector de asignatura
+        selector = SelectorAsignaturaDialog(self.asignaturas_disponibles,
+                                            "Importar Alumnos - Seleccionar Asignatura", self)
+
+        if selector.exec() != QDialog.DialogCode.Accepted or not selector.asignatura_seleccionada:
+            return
+
+        asignatura_info = selector.asignatura_seleccionada
+
+        # Seleccionar archivo Excel
+        archivo, _ = QFileDialog.getOpenFileName(
+            self, "Importar Alumnos desde Excel",
+            "", "Archivos Excel (*.xlsx *.xls);;Excel Nuevo (*.xlsx);;Excel Antiguo (*.xls);;Todos los archivos (*)"
+        )
+
+        if not archivo:
+            return
+
+        try:
+            # Leer Excel con pandas
+            df = self._leer_excel_universal(archivo)
+
+            # Mapeo de columnas esperadas (flexibles)
+            columnas_mapeo = {
+                'dni': ['DNI', 'dni', 'Dni'],
+                'apellidos': ['Apellidos', 'apellidos', 'APELLIDOS'],
+                'nombre': ['Nombre', 'nombre', 'NOMBRE'],
+                'email': ['Email', 'email', 'EMAIL', 'E-mail', 'e-mail'],
+                'grupo': ['Grupo matrícula', 'Grupo matricula', 'grupo', 'GRUPO', 'Grupo de Matricula'],
+                'exp_centro': ['Nº Expediente en Centro', 'Exp Centro', 'exp_centro', 'Expediente Centro'],
+                'exp_agora': ['Nº Expediente en Ágora', 'Exp Agora', 'exp_agora', 'Expediente Agora']
+            }
+
+            # Detectar columnas
+            columnas_detectadas = {}
+            for campo, posibles_nombres in columnas_mapeo.items():
+                for nombre in posibles_nombres:
+                    if nombre in df.columns:
+                        columnas_detectadas[campo] = nombre
+                        break
+
+            # Verificar columnas esenciales
+            esenciales = ['dni', 'apellidos', 'nombre', 'grupo']
+            faltantes = [campo for campo in esenciales if campo not in columnas_detectadas]
+
+            if faltantes:
+                QMessageBox.warning(self, "Columnas Faltantes",
+                                    f"No se encontraron las columnas esenciales:\n"
+                                    f"{', '.join(faltantes)}\n\n"
+                                    f"Columnas disponibles: {', '.join(df.columns)}")
+                return
+
+            # Obtener cursos disponibles del sistema
+            cursos_disponibles = self.obtener_cursos_del_sistema()
+            if not cursos_disponibles:
+                QMessageBox.warning(self, "Sin Cursos",
+                                    "No hay cursos configurados en el sistema.\n"
+                                    "Configure primero los cursos antes de importar alumnos.")
+                return
+
+            # Procesar datos
+            alumnos_importados = 0
+            alumnos_actualizados = 0
+            errores = []
+            cursos_faltantes = set()
+            asignaturas_no_asociadas = set()
+
+            for index, row in df.iterrows():
+                try:
+                    # Extraer datos básicos
+                    dni = str(row[columnas_detectadas['dni']]).strip().upper()
+                    if not dni or dni == 'nan':
+                        continue
+
+                    apellidos = str(row[columnas_detectadas['apellidos']]).strip()
+                    nombre = str(row[columnas_detectadas['nombre']]).strip()
+
+                    if not apellidos or not nombre:
+                        errores.append(f"Fila {index + 2}: Nombre o apellidos vacíos")
+                        continue
+
+                    # EXTRAER CÓDIGO DE CURSO del campo grupo
+                    grupo_completo = str(row[columnas_detectadas['grupo']]).strip()
+                    codigo_curso = self._extraer_codigo_curso(grupo_completo)
+
+                    if not codigo_curso:
+                        errores.append(f"Fila {index + 2}: No se pudo extraer código de curso de '{grupo_completo}'")
+                        continue
+
+                    # VALIDAR que el curso existe
+                    if codigo_curso not in cursos_disponibles:
+                        cursos_faltantes.add(codigo_curso)
+                        errores.append(f"Fila {index + 2}: Curso '{codigo_curso}' no existe en el sistema")
+                        continue
+
+                    # VALIDAR que la asignatura está asociada al curso
+                    curso_data = cursos_disponibles[codigo_curso]
+                    asignaturas_del_curso = curso_data.get("asignaturas_asociadas", [])
+
+                    # Buscar por CÓDIGO DE ASIGNATURA
+                    codigo_asignatura = asignatura_info['codigo']
+                    if codigo_asignatura not in asignaturas_del_curso:
+                        asignaturas_no_asociadas.add(
+                            f"{codigo_asignatura} ({asignatura_info['nombre']}) → {codigo_curso}")
+                        errores.append(
+                            f"Fila {index + 2}: Asignatura '{codigo_asignatura}' no está asociada al curso '{codigo_curso}'")
+                        continue
+
+                    # Datos opcionales
+                    email = ""
+                    if 'email' in columnas_detectadas:
+                        email = str(row[columnas_detectadas['email']]).strip().lower()
+                        if email == 'nan':
+                            email = ""
+
+                    exp_centro = ""
+                    if 'exp_centro' in columnas_detectadas:
+                        exp_centro = str(row[columnas_detectadas['exp_centro']]).strip()
+                        if exp_centro == 'nan':
+                            exp_centro = ""
+
+                    exp_agora = ""
+                    if 'exp_agora' in columnas_detectadas:
+                        exp_agora = str(row[columnas_detectadas['exp_agora']]).strip()
+                        if exp_agora == 'nan':
+                            exp_agora = ""
+
+                    # Preparar datos del alumno
+                    if dni in self.datos_configuracion:
+                        # ACTUALIZAR ALUMNO EXISTENTE - AGREGAR CURSO Y ASIGNATURA
+                        alumno_datos = self.datos_configuracion[dni]
+                        cambios_realizados = False
+
+                        # Actualizar datos básicos solo si están vacíos
+                        if not alumno_datos.get('apellidos'):
+                            alumno_datos['apellidos'] = apellidos
+                            cambios_realizados = True
+                        if not alumno_datos.get('nombre'):
+                            alumno_datos['nombre'] = nombre
+                            cambios_realizados = True
+                        if not alumno_datos.get('email') and email:
+                            alumno_datos['email'] = email
+                            cambios_realizados = True
+                        if not alumno_datos.get('exp_centro') and exp_centro:
+                            alumno_datos['exp_centro'] = exp_centro
+                            cambios_realizados = True
+                        if not alumno_datos.get('exp_agora') and exp_agora:
+                            alumno_datos['exp_agora'] = exp_agora
+                            cambios_realizados = True
+
+                        # AGREGAR CURSO si no lo tiene
+                        cursos_actuales = alumno_datos.get('cursos_matriculado', [])
+                        if codigo_curso not in cursos_actuales:
+                            cursos_actuales.append(codigo_curso)
+                            alumno_datos['cursos_matriculado'] = cursos_actuales
+                            cambios_realizados = True
+
+                        # AGREGAR ASIGNATURA si no la tiene
+                        asignaturas_actuales = alumno_datos.get('asignaturas_matriculadas', {})
+                        asig_key = asignatura_info['key']
+
+                        if asig_key not in asignaturas_actuales:
+                            asignaturas_actuales[asig_key] = {
+                                "matriculado": True,
+                                "lab_aprobado": False
+                            }
+                            alumno_datos['asignaturas_matriculadas'] = asignaturas_actuales
+                            cambios_realizados = True
+
+                        if cambios_realizados:
+                            alumnos_actualizados += 1
+
+                    else:
+                        # Crear NUEVO ALUMNO
+                        self.datos_configuracion[dni] = {
+                            'dni': dni,
+                            'nombre': nombre,
+                            'apellidos': apellidos,
+                            'email': email,
+                            'matricula': exp_centro if exp_centro else dni,
+                            'cursos_matriculado': [codigo_curso],
+                            'asignaturas_matriculadas': {
+                                asignatura_info['key']: {
+                                    "matriculado": True,
+                                    "lab_aprobado": False
+                                }
+                            },
+                            'exp_centro': exp_centro,
+                            'exp_agora': exp_agora,
+                            'observaciones': f"Importado desde Excel - {asignatura_info['nombre']} - Curso {codigo_curso}",
+                            'fecha_creacion': datetime.now().isoformat()
+                        }
+                        alumnos_importados += 1
+
+                except Exception as e:
+                    errores.append(f"Fila {index + 2}: {str(e)}")
+
+            # Auto-ordenar
+            self.ordenar_alumnos_alfabeticamente()
+
+            # Actualizar interfaz
+            self.aplicar_filtro_asignatura()
+            self.marcar_cambio_realizado()
+
+            # Mostrar resultado detallado
+            mensaje = f"✅ Importación completada para {asignatura_info['nombre']}:\n\n"
+            mensaje += f"• {alumnos_importados} alumnos nuevos\n"
+            mensaje += f"• {alumnos_actualizados} alumnos actualizados\n"
+
+            if errores:
+                mensaje += f"• {len(errores)} errores\n\n"
+
+                # Mostrar cursos faltantes
+                if cursos_faltantes:
+                    mensaje += f"⚠️ CURSOS FALTANTES:\n"
+                    for curso in sorted(cursos_faltantes):
+                        mensaje += f"  • {curso}\n"
+                    mensaje += "→ Crear en: Configurar Cursos\n\n"
+
+                # Mostrar asignaturas no asociadas
+                if asignaturas_no_asociadas:
+                    mensaje += f"⚠️ ASIGNATURAS NO ASOCIADAS:\n"
+                    for asoc in sorted(asignaturas_no_asociadas):
+                        mensaje += f"  • {asoc}\n"
+                    mensaje += "→ Editar en: Configurar Asignaturas o Configurar Cursos\n\n"
+
+                # Mostrar algunos errores
+                if errores and len(errores) <= 5:
+                    mensaje += "Errores detallados:\n" + "\n".join(errores[:5])
+                elif errores:
+                    mensaje += f"Primeros errores:\n" + "\n".join(errores[:3]) + f"\n... y {len(errores) - 3} más"
+
+                # Mensaje final con instrucciones
+                if cursos_faltantes or asignaturas_no_asociadas:
+                    mensaje += f"\n\n💡 SOLUCIÓN:\n"
+                    mensaje += f"1. Ir a 'Configurar Cursos' para crear cursos faltantes\n"
+                    mensaje += f"2. Ir a 'Configurar Asignaturas' para asociar asignaturas a cursos\n"
+                    mensaje += f"3. Volver a importar el archivo Excel"
+
+            QMessageBox.information(self, "Importación Completada", mensaje)
+
+            self.log_mensaje(
+                f"📥 Importados {alumnos_importados} nuevos, {alumnos_actualizados} actualizados para {asignatura_info['nombre']}",
+                "success")
+
+        except Exception as e:
+            QMessageBox.critical(self, "Error de Importación",
+                                 f"Error al procesar archivo Excel:\n{str(e)}")
+            self.log_mensaje(f"❌ Error importando alumnos: {e}", "error")
+
+    def importar_alumnos_aprobados(self):
+        """Importar alumnos aprobados desde Excel para desmarcar laboratorio"""
+        # Verificar que hay asignaturas y alumnos
+        if not self.datos_configuracion:
+            QMessageBox.warning(self, "Sin Alumnos",
+                                "No hay alumnos configurados en el sistema.\n"
+                                "Importe primero los alumnos antes de marcar aprobados.")
+            return
+
+        if not self.asignaturas_disponibles.get("1") and not self.asignaturas_disponibles.get("2"):
+            QMessageBox.warning(self, "Sin Asignaturas",
+                                "No hay asignaturas configuradas en el sistema.")
+            return
+
+        # Selector de asignatura
+        selector = SelectorAsignaturaDialog(self.asignaturas_disponibles,
+                                            "Marcar Aprobados - Seleccionar Asignatura", self)
+
+        if selector.exec() != QDialog.DialogCode.Accepted or not selector.asignatura_seleccionada:
+            return
+
+        asignatura_info = selector.asignatura_seleccionada
+
+        # Seleccionar archivo Excel
+        archivo, _ = QFileDialog.getOpenFileName(
+            self, "Importar Alumnos Aprobados desde Excel",
+            "", "Archivos Excel (*.xlsx *.xls);;Todos los archivos (*)"
+        )
+
+        if not archivo:
+            return
+
+        try:
+            # Leer Excel
+            df = self._leer_excel_universal(archivo)
+
+            # Detectar columna de identificación (DNI o Expediente Centro)
+            columna_id = None
+            identificadores = []
+
+            posibles_columnas = ['DNI', 'dni', 'Dni', 'Nº Expediente en Centro', 'Exp Centro', 'exp_centro',
+                                 'Expediente Centro']
+
+            for col_name in posibles_columnas:
+                if col_name in df.columns:
+                    columna_id = col_name
+                    break
+
+            if not columna_id:
+                QMessageBox.warning(self, "Columna no encontrada",
+                                    f"No se encontró columna de DNI o Expediente Centro.\n\n"
+                                    f"Columnas disponibles: {', '.join(df.columns)}")
+                return
+
+            # Extraer identificadores
+            for index, row in df.iterrows():
+                identificador = str(row[columna_id]).strip().upper()
+                if identificador and identificador != 'nan':
+                    identificadores.append(identificador)
+
+            if not identificadores:
+                QMessageBox.warning(self, "Sin Datos", "No se encontraron identificadores válidos en el archivo")
+                return
+
+            # INICIALIZAR VARIABLES DE CONTEO AQUÍ
+            alumnos_marcados = 0
+            alumnos_no_encontrados = []
+            alumnos_sin_asignatura = []
+
+            # Buscar y marcar alumnos como aprobados
+            for identificador in identificadores:
+                alumno_encontrado = None
+                dni_encontrado = None
+
+                # Buscar por DNI directo
+                if identificador in self.datos_configuracion:
+                    alumno_encontrado = self.datos_configuracion[identificador]
+                    dni_encontrado = identificador
+                else:
+                    # Buscar por expediente centro
+                    for dni, datos in self.datos_configuracion.items():
+                        if datos.get('exp_centro', '').strip().upper() == identificador:
+                            alumno_encontrado = datos
+                            dni_encontrado = dni
+                            break
+
+                if not alumno_encontrado:
+                    alumnos_no_encontrados.append(identificador)
+                    continue
+
+                # Verificar si está matriculado en la asignatura
+                asignaturas_matriculadas = alumno_encontrado.get('asignaturas_matriculadas', {})
+                asig_key = asignatura_info['key']  # Ahora es solo el código
+
+                if asig_key not in asignaturas_matriculadas:
+                    nombre_completo = f"{alumno_encontrado.get('apellidos', '')} {alumno_encontrado.get('nombre', '')}"
+                    alumnos_sin_asignatura.append(f"{nombre_completo.strip()} ({dni_encontrado})")
+                    continue
+
+                # MARCAR LABORATORIO COMO APROBADO
+                if not asignaturas_matriculadas[asig_key].get('lab_aprobado', False):
+                    asignaturas_matriculadas[asig_key]['lab_aprobado'] = True
+                    alumnos_marcados += 1
+
+                    # Actualizar observaciones para registrar cuándo se aprobó
+                    observaciones_actuales = alumno_encontrado.get('observaciones', '')
+                    fecha_aprobacion = datetime.now().strftime('%d/%m/%Y')
+                    nueva_observacion = f"Lab {asignatura_info['codigo']} aprobado {fecha_aprobacion}"
+
+                    if observaciones_actuales:
+                        alumno_encontrado['observaciones'] = f"{observaciones_actuales}; {nueva_observacion}"
+                    else:
+                        alumno_encontrado['observaciones'] = nueva_observacion
+
+            # Actualizar interfaz si hubo cambios
+            if alumnos_marcados > 0:
+                self.aplicar_filtro_asignatura()
+                self.marcar_cambio_realizado()
+
+                # Reseleccionar alumno actual si existe
+                if self.alumno_actual and self.alumno_actual in self.datos_configuracion:
+                    self.seleccionar_alumno_por_dni(self.alumno_actual)
+
+            # Mostrar resultado
+            mensaje = f"✅ Proceso completado para {asignatura_info['nombre']} ({asignatura_info['codigo']}):\n\n"
+            mensaje += f"• {alumnos_marcados} alumnos marcados como 🎓 APROBADOS\n"
+            mensaje += f"• {len(alumnos_no_encontrados)} no encontrados en el sistema\n"
+            mensaje += f"• {len(alumnos_sin_asignatura)} sin matrícula en esta asignatura\n"
+
+            if alumnos_no_encontrados and len(alumnos_no_encontrados) <= 10:
+                mensaje += f"\nNo encontrados: {', '.join(alumnos_no_encontrados[:10])}"
+                if len(alumnos_no_encontrados) > 10:
+                    mensaje += f" y {len(alumnos_no_encontrados) - 10} más..."
+
+            if alumnos_sin_asignatura and len(alumnos_sin_asignatura) <= 5:
+                mensaje += f"\nSin matrícula: {', '.join(alumnos_sin_asignatura[:5])}"
+                if len(alumnos_sin_asignatura) > 5:
+                    mensaje += f" y {len(alumnos_sin_asignatura) - 5} más..."
+
+            mensaje += f"\n\n💡 Los alumnos marcados como aprobados aparecerán con 🎓 en la lista."
+
+            QMessageBox.information(self, "Proceso Completado", mensaje)
+
+            self.log_mensaje(f"✅ Marcados {alumnos_marcados} alumnos como aprobados en {asignatura_info['codigo']}",
+                             "success")
+
+        except Exception as e:
+            QMessageBox.critical(self, "Error de Procesamiento",
+                                 f"Error al procesar archivo:\n{str(e)}")
+            self.log_mensaje(f"❌ Error marcando aprobados: {e}", "error")
+
+    def _extraer_codigo_curso(self, grupo_completo):
+        """Extraer código de curso de 'Grupo de Matricula (A302)' → 'A302'"""
+        import re
+
+        # Buscar texto entre paréntesis
+        match = re.search(r'\(([^)]+)\)', grupo_completo)
+        if match:
+            return match.group(1).strip().upper()
+
+        # Si no hay paréntesis, intentar extraer código directamente
+        # Buscar patrón de letras seguidas de números
+        match = re.search(r'([A-Z]+\d+)', grupo_completo.upper())
+        if match:
+            return match.group(1)
+
+        return None
+
+    def obtener_cursos_del_sistema(self):
+        """Obtener cursos disponibles desde el sistema global"""
+        try:
+            if self.parent_window and hasattr(self.parent_window, 'configuracion'):
+                config_cursos = self.parent_window.configuracion["configuracion"]["cursos"]
+                if config_cursos.get("configurado") and config_cursos.get("datos"):
+                    return config_cursos["datos"]
+            return {}
+        except Exception as e:
+            self.log_mensaje(f"⚠️ Error obteniendo cursos del sistema: {e}", "warning")
+            return {}
+
+    def _leer_excel_universal(self, archivo):
+        """Leer archivos Excel .xlsx y .xls con manejo automático de dependencias"""
+        import os
+
+        # Detectar extensión
+        _, extension = os.path.splitext(archivo.lower())
+
+        if extension == '.xlsx':
+            # Intentar leer .xlsx con openpyxl
+            try:
+                return pd.read_excel(archivo, engine='openpyxl')
+            except ImportError:
+                # Intentar instalar openpyxl automáticamente
+                try:
+                    import subprocess
+                    import sys
+                    subprocess.check_call([sys.executable, "-m", "pip", "install", "openpyxl"])
+                    # Reintentar después de instalar
+                    return pd.read_excel(archivo, engine='openpyxl')
+                except:
+                    raise ImportError(
+                        "Para leer archivos .xlsx necesitas instalar 'openpyxl'.\n\n"
+                        "Ejecuta en terminal:\n"
+                        "pip install openpyxl\n\n"
+                        "O desde Python:\n"
+                        "import subprocess, sys\n"
+                        "subprocess.check_call([sys.executable, '-m', 'pip', 'install', 'openpyxl'])"
+                    )
+
+        elif extension == '.xls':
+            # Intentar leer .xls con xlrd
+            try:
+                return pd.read_excel(archivo, engine='xlrd')
+            except ImportError:
+                # Intentar instalar xlrd automáticamente
+                try:
+                    import subprocess
+                    import sys
+                    subprocess.check_call([sys.executable, "-m", "pip", "install", "xlrd"])
+                    # Reintentar después de instalar
+                    return pd.read_excel(archivo, engine='xlrd')
+                except:
+                    raise ImportError(
+                        "Para leer archivos .xls necesitas instalar 'xlrd'.\n\n"
+                        "Ejecuta en terminal:\n"
+                        "pip install xlrd\n\n"
+                        "O desde Python:\n"
+                        "import subprocess, sys\n"
+                        "subprocess.check_call([sys.executable, '-m', 'pip', 'install', 'xlrd'])"
+                    )
+
+        else:
+            # Intentar lectura automática (pandas decide)
+            try:
+                return pd.read_excel(archivo)
+            except Exception as e:
+                raise ValueError(f"Formato de archivo no soportado: {extension}\n"
+                                 f"Use archivos .xlsx o .xls\n\n"
+                                 f"Error original: {str(e)}")
+
     def buscar_duplicados(self):
         """Buscar alumnos duplicados por DNI o nombre completo"""
         if not self.datos_configuracion:
@@ -1811,7 +2426,8 @@ class ConfigurarAlumnos(QMainWindow):
         QMessageBox.information(self, "Sincronización Exitosa",
                                 f"✅ Asignaturas sincronizadas:\n"
                                 f"• 1º Semestre: {sem1_count} asignaturas\n"
-                                f"• 2º Semestre: {sem2_count} asignaturas")
+                                f"• 2º Semestre: {sem2_count} asignaturas\n\n"
+                                f"💡 Los cursos se actualizarán automáticamente al crear/editar alumnos")
 
     def actualizar_estadisticas(self):
         """Actualizar estadísticas por asignatura con nueva estructura"""
@@ -2121,7 +2737,6 @@ class ConfigurarAlumnos(QMainWindow):
             self.label_alumno_actual.setText("Seleccione un alumno")
             self.info_alumno.setText("ℹ️ Seleccione un alumno para ver sus detalles")
             self.btn_duplicar.setEnabled(False)
-            self.btn_marcar_lab_anterior.setEnabled(False)
 
             QMessageBox.information(self, "Éxito", "Configuración cargada correctamente")
 
@@ -2228,7 +2843,6 @@ class ConfigurarAlumnos(QMainWindow):
             self.label_alumno_actual.setText("Seleccione un alumno")
             self.info_alumno.setText("ℹ️ Seleccione un alumno para ver sus detalles")
             self.btn_duplicar.setEnabled(False)
-            self.btn_marcar_lab_anterior.setEnabled(False)
             self.marcar_cambio_realizado()
 
             QMessageBox.information(self, "Limpieza Completada", "Todos los alumnos han sido eliminados")
@@ -2344,6 +2958,135 @@ class ConfigurarAlumnos(QMainWindow):
             self.log_mensaje(f"⚠️ Error cancelando cambios: {e}", "warning")
 
 
+class SelectorAsignaturaDialog(QDialog):
+    """Dialog para seleccionar asignatura para importación"""
+
+    def __init__(self, asignaturas_disponibles, titulo="Seleccionar Asignatura", parent=None):
+        super().__init__(parent)
+        self.asignaturas_disponibles = asignaturas_disponibles
+        self.asignatura_seleccionada = None
+        self.setWindowTitle(titulo)
+        self.setModal(True)
+
+        # Centrar ventana
+        center_window_on_screen_immediate(self, 500, 300)
+
+        self.setup_ui()
+        self.apply_dark_theme()
+
+    def setup_ui(self):
+        layout = QVBoxLayout()
+
+        # Título
+        titulo_label = QLabel("📚 Selecciona la asignatura:")
+        titulo_label.setStyleSheet("color: #4a9eff; font-weight: bold; font-size: 14px; margin-bottom: 10px;")
+        layout.addWidget(titulo_label)
+
+        # Lista de asignaturas
+        self.list_asignaturas = QListWidget()
+        self.list_asignaturas.setMinimumHeight(150)
+
+        # Cargar asignaturas por semestre
+        sem1 = self.asignaturas_disponibles.get("1", {})
+        sem2 = self.asignaturas_disponibles.get("2", {})
+
+        if sem1:
+            # Separador 1º Semestre
+            item_sep1 = QListWidgetItem("📋 1º SEMESTRE")
+            item_sep1.setFlags(Qt.ItemFlag.NoItemFlags)
+            item_sep1.setBackground(QColor(74, 158, 255, 30))
+            self.list_asignaturas.addItem(item_sep1)
+
+            for nombre, asig_data in sorted(sem1.items()):
+                codigo = asig_data.get("codigo", nombre)  # USAR CÓDIGO
+                # MOSTRAR: "FIS1 - Física I"
+                item = QListWidgetItem(f"  {codigo} - {nombre}")
+                item.setData(Qt.ItemDataRole.UserRole, ("1", codigo, nombre))
+                self.list_asignaturas.addItem(item)
+
+        if sem2:
+            # Separador 2º Semestre
+            item_sep2 = QListWidgetItem("📋 2º SEMESTRE")
+            item_sep2.setFlags(Qt.ItemFlag.NoItemFlags)
+            item_sep2.setBackground(QColor(74, 158, 255, 30))
+            self.list_asignaturas.addItem(item_sep2)
+
+            for nombre, asig_data in sorted(sem2.items()):
+                codigo = asig_data.get("codigo", nombre)  # USAR CÓDIGO
+                # MOSTRAR: "EANA - Electrónica Analógica"
+                item = QListWidgetItem(f"  {codigo} - {nombre}")
+                item.setData(Qt.ItemDataRole.UserRole, ("2", codigo, nombre))
+                self.list_asignaturas.addItem(item)
+
+        if not sem1 and not sem2:
+            item_vacio = QListWidgetItem("⚠️ No hay asignaturas configuradas en el sistema")
+            item_vacio.setFlags(Qt.ItemFlag.NoItemFlags)
+            self.list_asignaturas.addItem(item_vacio)
+
+        layout.addWidget(self.list_asignaturas)
+
+        # Información
+        info_label = QLabel("💡 Selecciona la asignatura para la cual se importarán los datos")
+        info_label.setStyleSheet("color: #cccccc; font-size: 11px; margin-top: 10px;")
+        layout.addWidget(info_label)
+
+        # Botones
+        buttons = QDialogButtonBox(QDialogButtonBox.StandardButton.Ok | QDialogButtonBox.StandardButton.Cancel)
+        buttons.accepted.connect(self.accept_selection)
+        buttons.rejected.connect(self.reject)
+        layout.addWidget(buttons)
+
+        self.setLayout(layout)
+
+        # Conectar doble clic
+        self.list_asignaturas.itemDoubleClicked.connect(self.accept_selection)
+
+    def accept_selection(self):
+        current_item = self.list_asignaturas.currentItem()
+        if not current_item or current_item.flags() == Qt.ItemFlag.NoItemFlags:
+            QMessageBox.warning(self, "Selección requerida", "Debe seleccionar una asignatura")
+            return
+
+        data = current_item.data(Qt.ItemDataRole.UserRole)
+        if data:
+            semestre, codigo, nombre = data
+            self.asignatura_seleccionada = {
+                "semestre": semestre,
+                "codigo": codigo,
+                "nombre": nombre,
+                "key": codigo
+            }
+            self.accept()
+
+    def apply_dark_theme(self):
+        self.setStyleSheet("""
+            QDialog {
+                background-color: #2b2b2b;
+                color: #ffffff;
+            }
+            QListWidget {
+                background-color: #3c3c3c;
+                color: #ffffff;
+                border: 1px solid #555555;
+                border-radius: 5px;
+                padding: 5px;
+            }
+            QListWidget::item {
+                padding: 8px;
+                border-radius: 3px;
+                margin: 1px;
+            }
+            QListWidget::item:selected {
+                background-color: #4a9eff;
+                color: #ffffff;
+            }
+            QListWidget::item:hover {
+                background-color: #4a4a4a;
+            }
+            QLabel { color: #ffffff; }
+        """)
+
+
 def main():
     """Función principal para testing"""
     app = QApplication(sys.argv)
@@ -2363,7 +3106,6 @@ def main():
             "apellidos": "García López",
             "email": "juan.garcia@alumnos.upm.es",
             "matricula": "2024000123",
-            "ano_matricula": "2024",
             "cursos_matriculado": ["A202", "B204"],
             "asignaturas_matriculadas": {
                 "1_Fisica I": {"matriculado": True, "lab_aprobado": False},
@@ -2380,7 +3122,6 @@ def main():
             "apellidos": "Fernández Ruiz",
             "email": "maria.fernandez@alumnos.upm.es",
             "matricula": "2024000124",
-            "ano_matricula": "2024",
             "grupo": "B204",
             "asignaturas_matriculadas": {
                 "1_Fisica I": {"matriculado": True, "lab_aprobado": True}

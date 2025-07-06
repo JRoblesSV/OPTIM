@@ -1306,6 +1306,7 @@ class ConfigurarProfesores(QMainWindow):
         # Columna central - Detalles del profesor
         center_panel = QGroupBox("👤 DETALLES DEL PROFESOR")
         center_layout = QVBoxLayout()
+        center_layout.setSpacing(10)
 
         # Nombre del profesor seleccionado
         self.label_profesor_actual = QLabel("Seleccione un profesor")
@@ -1314,7 +1315,8 @@ class ConfigurarProfesores(QMainWindow):
 
         # Información detallada
         self.info_profesor = QTextEdit()
-        self.info_profesor.setMaximumHeight(250)
+        self.info_profesor.setMaximumHeight(320)
+        self.info_profesor.setMinimumHeight(280)
         self.info_profesor.setReadOnly(True)
         self.info_profesor.setText("ℹ️ Seleccione un profesor para ver sus detalles")
         center_layout.addWidget(self.info_profesor)
@@ -1322,16 +1324,31 @@ class ConfigurarProfesores(QMainWindow):
         # Estadísticas por asignatura
         stats_group = QGroupBox("📊 ESTADÍSTICAS POR ASIGNATURA")
         stats_layout = QVBoxLayout()
+        stats_layout.setSpacing(8)
 
-        # Botón para actualizar estadísticas
+        # Layout horizontal para el botón
+        btn_stats_layout = QHBoxLayout()
         self.btn_actualizar_stats = QPushButton("📈 Actualizar Estadísticas")
+        self.btn_actualizar_stats.setMaximumWidth(200)
         self.btn_actualizar_stats.clicked.connect(self.actualizar_estadisticas)
-        stats_layout.addWidget(self.btn_actualizar_stats)
+        btn_stats_layout.addWidget(self.btn_actualizar_stats)
+        btn_stats_layout.addStretch()
+        stats_layout.addLayout(btn_stats_layout)
 
+        # Grid de estadísticas
         self.texto_stats = QTextEdit()
-        self.texto_stats.setMaximumHeight(120)
+        self.texto_stats.setMinimumHeight(280)
+        self.texto_stats.setMaximumHeight(380)
         self.texto_stats.setReadOnly(True)
         self.texto_stats.setText("📈 Presiona 'Actualizar' para ver estadísticas")
+        # Mejorar fuente para mejor legibilidad
+        self.texto_stats.setStyleSheet("""
+            QTextEdit {
+                font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+                font-size: 11px;
+                line-height: 1.3;
+            }
+        """)
         stats_layout.addWidget(self.texto_stats)
 
         stats_group.setLayout(stats_layout)

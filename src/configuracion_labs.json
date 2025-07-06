@@ -1,7 +1,7 @@
 {
   "metadata": {
     "version": "1.0",
-    "timestamp": "2025-07-06T13:42:05.408088",
+    "timestamp": "2025-07-06T18:50:33.630406",
     "semestre_actual": 1
   },
   "configuracion": {
@@ -306,105 +306,201 @@
     "alumnos": {
       "configurado": true,
       "datos": {
-        "12345678Z": {
-          "ano_matricula": "2024",
-          "apellidos": "López Pérez",
-          "asignaturas_matriculadas": {
-            "FIS1": {
-              "lab_aprobado": false,
-              "matriculado": true
-            },
-            "QUI1": {
-              "lab_aprobado": false,
-              "matriculado": true
-            }
-          },
-          "dni": "12345678Z",
-          "email": "lopez.perez@alumnos.upm.es",
-          "exp_agora": "EXP001",
-          "exp_centro": "A102001",
-          "fecha_creacion": "2025-07-05T12:00:00.000000",
-          "grupo": "A102",
-          "matricula": "MAT001",
-          "nombre": "Juan",
-          "observaciones": ""
-        },
-        "87654321Y": {
-          "ano_matricula": "2024",
-          "apellidos": "González Ruiz",
-          "asignaturas_matriculadas": {
-            "FIS1": {
-              "lab_aprobado": false,
-              "matriculado": true
-            },
-            "MAT1": {
-              "lab_aprobado": false,
-              "matriculado": true
-            }
-          },
-          "dni": "87654321Y",
-          "email": "gonzalez.ruiz@alumnos.upm.es",
-          "exp_agora": "EXP002",
-          "exp_centro": "B102001",
-          "fecha_creacion": "2025-07-05T12:00:00.000000",
-          "grupo": "B102",
-          "matricula": "MAT002",
-          "nombre": "María",
-          "observaciones": ""
-        },
-        "11223344X": {
-          "ano_matricula": "2024",
-          "apellidos": "Rodríguez Vega",
+        "16872": {
+          "apellidos": "ROBONO MONIS",
           "asignaturas_matriculadas": {
             "EANA": {
               "lab_aprobado": true,
               "matriculado": true
             },
-            "EDIG": {
+            "FIS1": {
               "lab_aprobado": false,
               "matriculado": true
             }
           },
-          "dni": "11223344X",
-          "email": "rodriguez.vega@alumnos.upm.es",
-          "exp_agora": "EXP003",
-          "exp_centro": "A302001",
-          "fecha_creacion": "2025-07-05T12:00:00.000000",
-          "grupo": "A302",
-          "matricula": "MAT003",
-          "nombre": "Carlos",
-          "observaciones": "Lab anterior aprobado en EANA"
+          "cursos_matriculado": [
+            "A302"
+          ],
+          "dni": "16872",
+          "email": "algo@alumnos.upm.es",
+          "exp_agora": "312713",
+          "exp_centro": "53423",
+          "fecha_creacion": "2025-07-06T18:38:19.061053",
+          "matricula": "53423",
+          "nombre": "JUTIO",
+          "observaciones": "Importado desde Excel - Física I - Curso A302; Lab EANA aprobado 06/07/2025"
         },
-        "44332211W": {
-          "ano_matricula": "2024",
-          "apellidos": "Fernández Moreno",
+        "21115643": {
+          "apellidos": "ALFONSO LOMBA",
           "asignaturas_matriculadas": {
             "EANA": {
-              "lab_aprobado": false,
+              "lab_aprobado": true,
               "matriculado": true
             },
-            "EDIG": {
-              "lab_aprobado": false,
-              "matriculado": true
-            },
-            "PROG3": {
+            "FIS1": {
               "lab_aprobado": false,
               "matriculado": true
             }
           },
-          "dni": "44332211W",
-          "email": "fernandez.moreno@alumnos.upm.es",
-          "exp_agora": "EXP004",
-          "exp_centro": "A309001",
-          "fecha_creacion": "2025-07-05T12:00:00.000000",
-          "grupo": "A309",
-          "matricula": "MAT004",
-          "nombre": "Ana",
-          "observaciones": ""
+          "cursos_matriculado": [
+            "A302"
+          ],
+          "dni": "21115643",
+          "email": "carlos.alfonso@alumnos.upm.es",
+          "exp_agora": "322565",
+          "exp_centro": "56338",
+          "fecha_creacion": "2025-07-06T18:38:19.061053",
+          "matricula": "56338",
+          "nombre": "CARLOS",
+          "observaciones": "Importado desde Excel - Física I - Curso A302; Lab EANA aprobado 06/07/2025"
+        },
+        "51191346": {
+          "apellidos": "ALONSO ROMERO",
+          "asignaturas_matriculadas": {
+            "EANA": {
+              "lab_aprobado": true,
+              "matriculado": true
+            },
+            "FIS1": {
+              "lab_aprobado": false,
+              "matriculado": true
+            }
+          },
+          "cursos_matriculado": [
+            "A302"
+          ],
+          "dni": "51191346",
+          "email": "cesar.alonso.romero@alumnos.upm.es",
+          "exp_agora": "322418",
+          "exp_centro": "56255",
+          "fecha_creacion": "2025-07-06T18:38:19.062053",
+          "matricula": "56255",
+          "nombre": "CÉSAR",
+          "observaciones": "Importado desde Excel - Física I - Curso A302; Lab EANA aprobado 06/07/2025"
+        },
+        "53846408": {
+          "apellidos": "ARROYO GÓMEZ SALAS",
+          "asignaturas_matriculadas": {
+            "EANA": {
+              "lab_aprobado": true,
+              "matriculado": true
+            },
+            "FIS1": {
+              "lab_aprobado": false,
+              "matriculado": true
+            }
+          },
+          "cursos_matriculado": [
+            "A302"
+          ],
+          "dni": "53846408",
+          "email": "alejandro.arroyo@alumnos.upm.es",
+          "exp_agora": "322416",
+          "exp_centro": "56269",
+          "fecha_creacion": "2025-07-06T18:38:19.062053",
+          "matricula": "56269",
+          "nombre": "ALEJANDRO",
+          "observaciones": "Importado desde Excel - Física I - Curso A302; Lab EANA aprobado 06/07/2025"
+        },
+        "53980770": {
+          "apellidos": "ARJONILLA DIAZ",
+          "asignaturas_matriculadas": {
+            "EANA": {
+              "lab_aprobado": true,
+              "matriculado": true
+            },
+            "FIS1": {
+              "lab_aprobado": false,
+              "matriculado": true
+            }
+          },
+          "cursos_matriculado": [
+            "A302"
+          ],
+          "dni": "53980770",
+          "email": "rodrigo.adiaz@alumnos.upm.es",
+          "exp_agora": "322206",
+          "exp_centro": "55557",
+          "fecha_creacion": "2025-07-06T18:38:19.062053",
+          "matricula": "55557",
+          "nombre": "RODRIGO",
+          "observaciones": "Importado desde Excel - Física I - Curso A302; Lab EANA aprobado 06/07/2025"
+        },
+        "6719214": {
+          "apellidos": "AL KOLAIBI AL GHOULI",
+          "asignaturas_matriculadas": {
+            "EANA": {
+              "lab_aprobado": true,
+              "matriculado": true
+            },
+            "FIS1": {
+              "lab_aprobado": false,
+              "matriculado": true
+            }
+          },
+          "cursos_matriculado": [
+            "A302"
+          ],
+          "dni": "6719214",
+          "email": "a.aalkolaibi@alumnos.upm.es",
+          "exp_agora": "321611",
+          "exp_centro": "53327",
+          "fecha_creacion": "2025-07-06T18:38:19.061053",
+          "matricula": "53327",
+          "nombre": "ABDULRAHMAN",
+          "observaciones": "Importado desde Excel - Física I - Curso A302; Lab EANA aprobado 06/07/2025"
+        },
+        "70069877": {
+          "apellidos": "ÁLVAREZ CALLEJA",
+          "asignaturas_matriculadas": {
+            "EANA": {
+              "lab_aprobado": true,
+              "matriculado": true
+            },
+            "FIS1": {
+              "lab_aprobado": false,
+              "matriculado": true
+            }
+          },
+          "cursos_matriculado": [
+            "A302"
+          ],
+          "dni": "70069877",
+          "email": "jacobo.alvarez@alumnos.upm.es",
+          "exp_agora": "322496",
+          "exp_centro": "56258",
+          "fecha_creacion": "2025-07-06T18:38:19.062053",
+          "matricula": "56258",
+          "nombre": "JACOBO",
+          "observaciones": "Importado desde Excel - Física I - Curso A302; Lab EANA aprobado 06/07/2025"
+        },
+        "79059925": {
+          "apellidos": "BALLESTER ASESIO",
+          "asignaturas_matriculadas": {
+            "EANA": {
+              "lab_aprobado": true,
+              "matriculado": true
+            },
+            "FIS1": {
+              "lab_aprobado": false,
+              "matriculado": true
+            }
+          },
+          "cursos_matriculado": [
+            "A302"
+          ],
+          "dni": "79059925",
+          "email": "n.ballester@alumnos.upm.es",
+          "exp_agora": "322504",
+          "exp_centro": "56277",
+          "fecha_creacion": "2025-07-06T18:38:19.062053",
+          "matricula": "56277",
+          "nombre": "NICOLAS",
+          "observaciones": "Importado desde Excel - Física I - Curso A302; Lab EANA aprobado 06/07/2025"
         }
       },
-      "total": 4,
-      "fecha_actualizacion": "2025-07-05T12:00:00.000000"
+      "total": 8,
+      "fecha_actualizacion": "2025-07-06T18:50:33.630406"
     },
     "asignaturas": {
       "configurado": true,
@@ -474,6 +570,7 @@
           "curso": "1º Curso",
           "cursos_que_cursan": [
             "A102",
+            "A302",
             "B102"
           ],
           "descripcion": "Física experimental básica",
@@ -576,7 +673,7 @@
         }
       },
       "total": 6,
-      "fecha_actualizacion": "2025-07-05T21:31:06.196057"
+      "fecha_actualizacion": "2025-07-06T18:24:44.128171"
     },
     "cursos": {
       "configurado": true,
@@ -595,6 +692,23 @@
           "fecha_creacion": "2025-07-05T19:53:43.771140",
           "activo": true,
           "asignaturas_asociadas": [
+            "QUI1"
+          ]
+        },
+        "A102_COPIA": {
+          "codigo": "A102_COPIA",
+          "nombre": "Grado en Ingeniería en Tecnologías Industriales (Copia)",
+          "curso_actual": "1º Curso",
+          "coordinador": "Dr. García López",
+          "departamento": "Ingeniería Industrial",
+          "creditos_totales": 240,
+          "plazas": 120,
+          "estudiantes_matriculados": 0,
+          "horario_tipo": "Mañana",
+          "observaciones": "Curso de nueva implantación",
+          "fecha_creacion": "2025-07-06T16:55:45.516298",
+          "activo": true,
+          "asignaturas_asociadas": [
             "FIS1",
             "QUI1"
           ]
@@ -610,11 +724,12 @@
           "estudiantes_matriculados": 1,
           "horario_tipo": "Tarde",
           "observaciones": "Curso con alta demanda",
-          "fecha_creacion": "2025-07-05T12:00:00.000000",
+          "fecha_creacion": "2025-07-06T18:14:21.137739",
           "activo": true,
           "asignaturas_asociadas": [
             "EANA",
-            "EDIG"
+            "EDIG",
+            "FIS1"
           ]
         },
         "A309": {
@@ -650,13 +765,12 @@
           "fecha_creacion": "2025-07-05T12:00:00.000000",
           "activo": true,
           "asignaturas_asociadas": [
-            "FIS1",
             "MAT1"
           ]
         }
       },
-      "total": 4,
-      "fecha_actualizacion": "2025-07-05T19:55:29.848219"
+      "total": 5,
+      "fecha_actualizacion": "2025-07-06T18:24:37.263830"
     }
   },
   "parametros_organizacion": {
