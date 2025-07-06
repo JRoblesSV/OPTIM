@@ -12,9 +12,9 @@ FUNCIONALIDADES IMPLEMENTADAS:
 5. Sistema de equipamiento con validación cruzada
 6. Gestión de disponibilidad temporal por aula
 7. Import/Export desde CSV con datos de asociaciones
-8. Funcionalidad de importación desde fuentes web
-9. Duplicación de configuraciones de laboratorio
-10. Integración con sistema global de asignaturas
+8. Duplicación de configuraciones de laboratorio
+9. Integración con sistema global de asignaturas
+10. Gestión de días no disponibles por aula (obras, mantenimiento, etc.)
 
 Autor: Javier Robles Molina - SoftVier
 Universidad: ETSIDI (UPM)
@@ -24,15 +24,16 @@ import sys
 import os
 import json
 import pandas as pd
-from datetime import datetime
+from datetime import datetime, date
 from PyQt6.QtWidgets import (
     QApplication, QMainWindow, QWidget, QVBoxLayout, QHBoxLayout,
     QGridLayout, QLabel, QPushButton, QComboBox, QSpinBox, QListWidget,
     QListWidgetItem, QGroupBox, QFrame, QScrollArea, QMessageBox,
     QDialog, QDialogButtonBox, QCheckBox, QFileDialog,
-    QLineEdit, QInputDialog, QTextEdit, QFormLayout, QListWidgetItem
+    QLineEdit, QInputDialog, QTextEdit, QFormLayout, QListWidgetItem,
+    QTabWidget, QCalendarWidget, QSplitter, QSpacerItem, QSizePolicy
 )
-from PyQt6.QtCore import Qt, pyqtSignal
+from PyQt6.QtCore import Qt, pyqtSignal, QDate
 from PyQt6.QtGui import QFont, QPalette, QColor
 
 
@@ -65,16 +66,16 @@ def center_window_on_screen_immediate(window, width, height):
 
 
 class GestionAulaDialog(QDialog):
-    """Dialog para añadir/editar aula con gestión de asignaturas asociadas"""
+    """Dialog para añadir/editar aula con gestión de asignaturas asociadas y días no disponibles"""
 
     def __init__(self, aula_existente=None, asignaturas_disponibles=None, parent=None):
         super().__init__(parent)
         self.aula_existente = aula_existente
-        self.asignaturas_disponibles = asignaturas_disponibles or []
+        self.asignaturas_disponibles = asignaturas_disponibles or {}
         self.setWindowTitle("Editar Laboratorio" if aula_existente else "Nuevo Laboratorio")
         self.setModal(True)
-        window_width = 600
-        window_height = 500
+        window_width = 700
+        window_height = 650
         center_window_on_screen_immediate(self, window_width, window_height)
 
         self.setup_ui()
@@ -85,6 +86,7 @@ class GestionAulaDialog(QDialog):
 
     def setup_ui(self):
         layout = QVBoxLayout()
+        layout.setSpacing(12)
 
         # Datos básicos del laboratorio
         datos_group = QGroupBox("🏢 DATOS BÁSICOS DEL LABORATORIO")
@@ -116,9 +118,41 @@ class GestionAulaDialog(QDialog):
         self.edit_planta = QLineEdit()
         self.edit_planta.setPlaceholderText("Ej: Planta 1")
 
-        # Disponibilidad
+        # Disponibilidad - Checkbox con estilo consistente
         self.check_disponible = QCheckBox("Laboratorio disponible para uso")
         self.check_disponible.setChecked(True)
+        self.check_disponible.setStyleSheet("""
+            QCheckBox {
+                color: #ffffff;
+                font-size: 12px;
+                font-weight: 500;
+                padding: 6px 8px;
+                margin: 2px;
+            }
+            QCheckBox::indicator {
+                width: 18px;
+                height: 18px;
+                margin-right: 6px;
+            }
+            QCheckBox::indicator:unchecked {
+                background-color: #3c3c3c;
+                border: 2px solid #666666;
+                border-radius: 3px;
+            }
+            QCheckBox::indicator:unchecked:hover {
+                border-color: #4a9eff;
+                background-color: #4a4a4a;
+            }
+            QCheckBox::indicator:checked {
+                background-color: #4a9eff;
+                border: 2px solid #4a9eff;
+                border-radius: 3px;
+            }
+            QCheckBox:hover {
+                background-color: rgba(74, 158, 255, 0.1);
+                border-radius: 4px;
+            }
+        """)
 
         # Añadir campos al formulario
         datos_layout.addRow("🏷️ Nombre:", self.edit_nombre)
@@ -131,52 +165,232 @@ class GestionAulaDialog(QDialog):
         datos_group.setLayout(datos_layout)
         layout.addWidget(datos_group)
 
-        # Asignaturas que se cursan en este laboratorio
-        asignaturas_group = QGroupBox("📚 ASIGNATURAS QUE SE CURSAN EN ESTE LABORATORIO")
-        asignaturas_layout = QVBoxLayout()
+        # ================== TABS PRINCIPALES: ASIGNATURAS Y DÍAS NO DISPONIBLES ==================
+        tabs_widget = QTabWidget()
+
+        # ================== TAB 1: ASIGNATURAS ASOCIADAS ==================
+        tab_asignaturas = QWidget()
+        tab_asignaturas_layout = QVBoxLayout(tab_asignaturas)
+        tab_asignaturas_layout.setSpacing(15)
 
         if self.asignaturas_disponibles:
             info_label = QLabel("Selecciona las asignaturas que pueden cursarse en este laboratorio:")
             info_label.setStyleSheet("color: #cccccc; font-size: 11px; margin-bottom: 5px;")
-            asignaturas_layout.addWidget(info_label)
+            tab_asignaturas_layout.addWidget(info_label)
 
             # Crear checkboxes para cada asignatura disponible
             self.checks_asignaturas = {}
 
-            # Organizar por semestre
-            asignaturas_sem1 = self.asignaturas_disponibles.get("1", {})
-            asignaturas_sem2 = self.asignaturas_disponibles.get("2", {})
+            # Scroll area para asignaturas
+            scroll_asignaturas = QScrollArea()
+            scroll_asignaturas.setWidgetResizable(True)
+            scroll_asignaturas.setMinimumHeight(300)
+            scroll_asignaturas.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
 
-            if asignaturas_sem1:
-                sem1_label = QLabel("📋 1º Semestre:")
-                sem1_label.setStyleSheet("color: #4a9eff; font-weight: bold; margin-top: 8px;")
-                asignaturas_layout.addWidget(sem1_label)
+            scroll_widget = QWidget()
+            scroll_layout = QVBoxLayout(scroll_widget)
+            scroll_layout.setSpacing(10)
 
-                for asignatura in sorted(asignaturas_sem1.keys()):
-                    check = QCheckBox(asignatura)
-                    self.checks_asignaturas[f"1_{asignatura}"] = check
-                    asignaturas_layout.addWidget(check)
+            # Organizar por semestre basado en la configuración de asignaturas
+            asignaturas_por_semestre = {"1º Semestre": [], "2º Semestre": []}
 
-            if asignaturas_sem2:
-                sem2_label = QLabel("📋 2º Semestre:")
-                sem2_label.setStyleSheet("color: #4a9eff; font-weight: bold; margin-top: 8px;")
-                asignaturas_layout.addWidget(sem2_label)
+            for codigo, asig_data in self.asignaturas_disponibles.items():
+                semestre = asig_data.get('semestre', '1º Semestre')
+                if semestre in asignaturas_por_semestre:
+                    asignaturas_por_semestre[semestre].append((codigo, asig_data))
+                else:
+                    asignaturas_por_semestre["1º Semestre"].append((codigo, asig_data))
 
-                for asignatura in sorted(asignaturas_sem2.keys()):
-                    check = QCheckBox(asignatura)
-                    self.checks_asignaturas[f"2_{asignatura}"] = check
-                    asignaturas_layout.addWidget(check)
+            # 1º Semestre
+            if asignaturas_por_semestre["1º Semestre"]:
+                sem1_label = QLabel("📋 1º SEMESTRE:")
+                sem1_label.setStyleSheet("color: #90EE90; font-weight: bold; margin-top: 8px; font-size: 13px;")
+                scroll_layout.addWidget(sem1_label)
+
+                for codigo, asig_data in sorted(asignaturas_por_semestre["1º Semestre"],
+                                                key=lambda x: x[1].get('nombre', x[0])):
+                    nombre = asig_data.get('nombre', codigo)
+                    curso = asig_data.get('curso', '')
+                    texto_checkbox = f"{nombre} ({codigo})"
+                    if curso:
+                        texto_checkbox += f" - {curso}"
+
+                    check = QCheckBox(texto_checkbox)
+                    check.setStyleSheet("""
+                        QCheckBox {
+                            color: #ffffff;
+                            font-size: 11px;
+                            font-weight: 500;
+                            padding: 6px 8px;
+                            margin: 2px;
+                        }
+                        QCheckBox::indicator {
+                            width: 16px;
+                            height: 16px;
+                            margin-right: 6px;
+                        }
+                        QCheckBox::indicator:unchecked {
+                            background-color: #3c3c3c;
+                            border: 2px solid #666666;
+                            border-radius: 3px;
+                        }
+                        QCheckBox::indicator:unchecked:hover {
+                            border-color: #4a9eff;
+                            background-color: #4a4a4a;
+                        }
+                        QCheckBox::indicator:checked {
+                            background-color: #4a9eff;
+                            border: 2px solid #4a9eff;
+                            border-radius: 3px;
+                        }
+                        QCheckBox:hover {
+                            background-color: rgba(74, 158, 255, 0.1);
+                            border-radius: 4px;
+                        }
+                    """)
+                    self.checks_asignaturas[codigo] = check
+                    scroll_layout.addWidget(check)
+
+            # 2º Semestre
+            if asignaturas_por_semestre["2º Semestre"]:
+                # Espaciador
+                if asignaturas_por_semestre["1º Semestre"]:
+                    espaciador = QLabel("")
+                    espaciador.setFixedHeight(10)
+                    scroll_layout.addWidget(espaciador)
+
+                sem2_label = QLabel("📋 2º SEMESTRE:")
+                sem2_label.setStyleSheet("color: #FFB347; font-weight: bold; margin-top: 8px; font-size: 13px;")
+                scroll_layout.addWidget(sem2_label)
+
+                for codigo, asig_data in sorted(asignaturas_por_semestre["2º Semestre"],
+                                                key=lambda x: x[1].get('nombre', x[0])):
+                    nombre = asig_data.get('nombre', codigo)
+                    curso = asig_data.get('curso', '')
+                    texto_checkbox = f"{nombre} ({codigo})"
+                    if curso:
+                        texto_checkbox += f" - {curso}"
+
+                    check = QCheckBox(texto_checkbox)
+                    check.setStyleSheet("""
+                        QCheckBox {
+                            color: #ffffff;
+                            font-size: 11px;
+                            font-weight: 500;
+                            padding: 6px 8px;
+                            margin: 2px;
+                        }
+                        QCheckBox::indicator {
+                            width: 16px;
+                            height: 16px;
+                            margin-right: 6px;
+                        }
+                        QCheckBox::indicator:unchecked {
+                            background-color: #3c3c3c;
+                            border: 2px solid #666666;
+                            border-radius: 3px;
+                        }
+                        QCheckBox::indicator:unchecked:hover {
+                            border-color: #4a9eff;
+                            background-color: #4a4a4a;
+                        }
+                        QCheckBox::indicator:checked {
+                            background-color: #4a9eff;
+                            border: 2px solid #4a9eff;
+                            border-radius: 3px;
+                        }
+                        QCheckBox:hover {
+                            background-color: rgba(74, 158, 255, 0.1);
+                            border-radius: 4px;
+                        }
+                    """)
+                    self.checks_asignaturas[codigo] = check
+                    scroll_layout.addWidget(check)
+
+            scroll_layout.addStretch()
+            scroll_asignaturas.setWidget(scroll_widget)
+            tab_asignaturas_layout.addWidget(scroll_asignaturas)
+
         else:
             # No hay asignaturas configuradas
             no_asig_label = QLabel("⚠️ No hay asignaturas configuradas en el sistema.\n"
-                                   "Configure primero los horarios para poder asociar asignaturas.")
-            no_asig_label.setStyleSheet("color: #ffaa00; font-style: italic; padding: 10px;")
+                                   "Configure primero las asignaturas para poder asociarlas.")
+            no_asig_label.setStyleSheet("color: #ffaa00; font-style: italic; padding: 20px; font-size: 13px;")
             no_asig_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
-            asignaturas_layout.addWidget(no_asig_label)
+            tab_asignaturas_layout.addWidget(no_asig_label)
             self.checks_asignaturas = {}
 
-        asignaturas_group.setLayout(asignaturas_layout)
-        layout.addWidget(asignaturas_group)
+        # ================== TAB 2: DÍAS NO DISPONIBLES ==================
+        tab_no_disponibles = QWidget()
+        tab_no_disp_layout = QVBoxLayout(tab_no_disponibles)
+        tab_no_disp_layout.setContentsMargins(15, 20, 15, 15)
+        tab_no_disp_layout.setSpacing(15)
+
+        no_disp_info_label = QLabel("📅 Fechas NO disponibles (obras, mantenimiento, etc.):")
+        no_disp_info_label.setStyleSheet("color: #cccccc; font-size: 12px; margin-bottom: 8px;")
+        no_disp_info_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        tab_no_disp_layout.addWidget(no_disp_info_label)
+
+        # Layout horizontal para calendario y lista lado a lado
+        no_disp_horizontal = QHBoxLayout()
+        no_disp_horizontal.setSpacing(20)
+
+        # Calendario para seleccionar fechas
+        self.calendario = QCalendarWidget()
+        self.calendario.setMaximumSize(400, 280)
+        self.calendario.setMinimumWidth(300)
+        self.calendario.clicked.connect(self.agregar_fecha_no_disponible)
+
+        # Lista de fechas no disponibles a la derecha
+        no_disp_derecha = QVBoxLayout()
+        no_disp_derecha.setSpacing(10)
+
+        # Título para la lista
+        lista_titulo = QLabel("📋 Fechas bloqueadas:")
+        lista_titulo.setStyleSheet("font-weight: bold; color: #ffffff; margin-bottom: 5px;")
+        no_disp_derecha.addWidget(lista_titulo)
+
+        self.lista_fechas_no_disponibles = QListWidget()
+        self.lista_fechas_no_disponibles.setMaximumHeight(200)
+        self.lista_fechas_no_disponibles.setMinimumWidth(180)
+        no_disp_derecha.addWidget(self.lista_fechas_no_disponibles)
+
+        # Botones de gestión
+        botones_fechas = QHBoxLayout()
+        botones_fechas.setSpacing(8)
+
+        btn_eliminar_fecha = QPushButton("🗑️ Eliminar")
+        btn_limpiar_fechas = QPushButton("🧹 Limpiar Todo")
+        btn_eliminar_fecha.clicked.connect(self.eliminar_fecha_no_disponible)
+        btn_limpiar_fechas.clicked.connect(self.limpiar_todas_fechas)
+
+        botones_fechas.addWidget(btn_eliminar_fecha)
+        botones_fechas.addWidget(btn_limpiar_fechas)
+        no_disp_derecha.addLayout(botones_fechas)
+
+        # Widget contenedor derecho
+        no_disp_derecha_widget = QWidget()
+        no_disp_derecha_widget.setLayout(no_disp_derecha)
+
+        # Agregar al layout horizontal
+        no_disp_horizontal.addStretch(1)
+        no_disp_horizontal.addWidget(self.calendario)
+
+        # Espaciador central
+        espaciador_central = QSpacerItem(50, 10, QSizePolicy.Policy.Fixed, QSizePolicy.Policy.Minimum)
+        no_disp_horizontal.addItem(espaciador_central)
+
+        no_disp_horizontal.addWidget(no_disp_derecha_widget)
+        no_disp_horizontal.addStretch(1)
+
+        tab_no_disp_layout.addLayout(no_disp_horizontal)
+        tab_no_disp_layout.addStretch()
+
+        # ================== AÑADIR TABS AL WIDGET PRINCIPAL ==================
+        tabs_widget.addTab(tab_asignaturas, "📚 Asignaturas Asociadas")
+        tabs_widget.addTab(tab_no_disponibles, "❌ Días No Disponibles")
+
+        layout.addWidget(tabs_widget)
 
         # Botones
         buttons = QDialogButtonBox(QDialogButtonBox.StandardButton.Ok | QDialogButtonBox.StandardButton.Cancel)
@@ -185,6 +399,62 @@ class GestionAulaDialog(QDialog):
         layout.addWidget(buttons)
 
         self.setLayout(layout)
+
+    def agregar_fecha_no_disponible(self, fecha):
+        """Agregar fecha a la lista de no disponibles"""
+        fecha_str = fecha.toString("dd/MM/yyyy")
+
+        # Verificar si ya existe
+        for i in range(self.lista_fechas_no_disponibles.count()):
+            if self.lista_fechas_no_disponibles.item(i).text() == fecha_str:
+                return
+
+        # Añadir a la lista
+        item = QListWidgetItem(fecha_str)
+        item.setData(Qt.ItemDataRole.UserRole, fecha)
+        self.lista_fechas_no_disponibles.addItem(item)
+
+        # Ordenar lista por fecha
+        self.ordenar_fechas_no_disponibles()
+
+    def eliminar_fecha_no_disponible(self):
+        """Eliminar fecha seleccionada de la lista"""
+        current_item = self.lista_fechas_no_disponibles.currentItem()
+        if current_item:
+            row = self.lista_fechas_no_disponibles.row(current_item)
+            self.lista_fechas_no_disponibles.takeItem(row)
+
+    def limpiar_todas_fechas(self):
+        """Limpiar todas las fechas no disponibles"""
+        if self.lista_fechas_no_disponibles.count() == 0:
+            return
+
+        respuesta = QMessageBox.question(
+            self, "Limpiar Fechas",
+            f"¿Eliminar todas las {self.lista_fechas_no_disponibles.count()} fechas no disponibles?",
+            QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No
+        )
+
+        if respuesta == QMessageBox.StandardButton.Yes:
+            self.lista_fechas_no_disponibles.clear()
+
+    def ordenar_fechas_no_disponibles(self):
+        """Ordenar fechas no disponibles cronológicamente"""
+        fechas = []
+        for i in range(self.lista_fechas_no_disponibles.count()):
+            item = self.lista_fechas_no_disponibles.item(i)
+            fecha = item.data(Qt.ItemDataRole.UserRole)
+            fechas.append((fecha, item.text()))
+
+        # Ordenar por fecha usando getDate() que es compatible con PyQt6
+        fechas.sort(key=lambda x: x[0].getDate())  # getDate() devuelve (año, mes, día)
+
+        # Limpiar y rellenar lista
+        self.lista_fechas_no_disponibles.clear()
+        for fecha, texto in fechas:
+            item = QListWidgetItem(texto)
+            item.setData(Qt.ItemDataRole.UserRole, fecha)
+            self.lista_fechas_no_disponibles.addItem(item)
 
     def cargar_datos_existentes(self):
         """Cargar datos del aula existente"""
@@ -201,11 +471,22 @@ class GestionAulaDialog(QDialog):
 
         # Cargar asignaturas asociadas
         asignaturas_asociadas = datos.get('asignaturas_asociadas', [])
-        for key, check in self.checks_asignaturas.items():
-            semestre, asignatura = key.split('_', 1)
-            asignatura_completa = f"{semestre}_{asignatura}"
-            if asignatura_completa in asignaturas_asociadas or asignatura in asignaturas_asociadas:
+        for codigo, check in self.checks_asignaturas.items():
+            if codigo in asignaturas_asociadas:
                 check.setChecked(True)
+
+        # Cargar fechas no disponibles
+        fechas_no_disponibles = datos.get('fechas_no_disponibles', [])
+        for fecha_str in fechas_no_disponibles:
+            try:
+                # Convertir string a QDate
+                fecha_parts = fecha_str.split('/')
+                if len(fecha_parts) == 3:
+                    dia, mes, ano = map(int, fecha_parts)
+                    fecha = QDate(ano, mes, dia)
+                    self.agregar_fecha_no_disponible(fecha)
+            except Exception as e:
+                print(f"Error cargando fecha {fecha_str}: {e}")
 
     def validar_y_aceptar(self):
         """Validar datos antes de aceptar"""
@@ -222,12 +503,18 @@ class GestionAulaDialog(QDialog):
         self.accept()
 
     def get_datos_aula(self):
-        """Obtener datos configurados incluyendo asignaturas asociadas"""
+        """Obtener datos configurados incluyendo asignaturas asociadas y fechas no disponibles"""
         # Obtener asignaturas seleccionadas
         asignaturas_seleccionadas = []
-        for key, check in self.checks_asignaturas.items():
+        for codigo, check in self.checks_asignaturas.items():
             if check.isChecked():
-                asignaturas_seleccionadas.append(key)  # Guarda como "1_Fisica" o "2_Quimica"
+                asignaturas_seleccionadas.append(codigo)
+
+        # Obtener fechas no disponibles
+        fechas_no_disponibles = []
+        for i in range(self.lista_fechas_no_disponibles.count()):
+            item = self.lista_fechas_no_disponibles.item(i)
+            fechas_no_disponibles.append(item.text())
 
         return {
             'nombre': self.edit_nombre.text().strip(),
@@ -236,7 +523,8 @@ class GestionAulaDialog(QDialog):
             'edificio': self.edit_edificio.text().strip(),
             'planta': self.edit_planta.text().strip(),
             'disponible': self.check_disponible.isChecked(),
-            'asignaturas_asociadas': asignaturas_seleccionadas
+            'asignaturas_asociadas': asignaturas_seleccionadas,
+            'fechas_no_disponibles': fechas_no_disponibles
         }
 
     def apply_dark_theme(self):
@@ -272,23 +560,87 @@ class GestionAulaDialog(QDialog):
             QLineEdit:focus, QSpinBox:focus {
                 border-color: #4a9eff;
             }
-            QCheckBox {
-                color: #ffffff;
-                font-size: 11px;
-                padding: 2px;
-            }
-            QCheckBox::indicator {
-                width: 18px;
-                height: 18px;
-            }
-            QCheckBox::indicator:unchecked {
+            QScrollArea {
                 background-color: #3c3c3c;
-                border: 2px solid #666666;
-                border-radius: 3px;
+                border: 1px solid #555555;
+                border-radius: 5px;
             }
-            QCheckBox::indicator:unchecked:hover {
-                border-color: #4a9eff;
+            QScrollBar:vertical {
+                background-color: #3c3c3c;
+                width: 12px;
+                border-radius: 6px;
+            }
+            QScrollBar::handle:vertical {
+                background-color: #666666;
+                border-radius: 6px;
+                min-height: 20px;
+            }
+            QScrollBar::handle:vertical:hover {
+                background-color: #4a9eff;
+            }
+            QScrollBar::add-line:vertical, QScrollBar::sub-line:vertical {
+                border: none;
+                background: none;
+            }
+            QCalendarWidget {
+                background-color: #3c3c3c;
+                color: #ffffff;
+                border: 1px solid #555555;
+                border-radius: 5px;
+            }
+            QListWidget {
+                background-color: #3c3c3c;
+                color: #ffffff;
+                border: 1px solid #555555;
+                border-radius: 5px;
+                padding: 5px;
+            }
+            QListWidget::item {
+                padding: 5px;
+                border-radius: 3px;
+                margin: 1px;
+            }
+            QListWidget::item:selected {
+                background-color: #4a9eff;
+                color: #ffffff;
+            }
+            QListWidget::item:hover {
                 background-color: #4a4a4a;
+            }
+            QTabWidget::pane {
+                border: 1px solid #4a4a4a;
+                background-color: #2b2b2b;
+            }
+            QTabWidget::tab-bar {
+                alignment: center;
+            }
+            QTabBar::tab {
+                background-color: #4a4a4a;
+                color: #ffffff;
+                padding: 8px 20px;
+                margin: 2px;
+                border-radius: 4px;
+            }
+            QTabBar::tab:selected {
+                background-color: #4a9eff;
+                color: #ffffff;
+            }
+            QTabBar::tab:hover {
+                background-color: #5a5a5a;
+            }
+            QPushButton {
+                background-color: #4a4a4a;
+                color: #ffffff;
+                border: 1px solid #666666;
+                border-radius: 5px;
+                padding: 6px 12px;
+                font-weight: bold;
+            }
+            QPushButton:hover {
+                background-color: #5a5a5a;
+            }
+            QPushButton:pressed {
+                background-color: #3a3a3a;
             }
         """)
 
@@ -307,7 +659,7 @@ class ConfigurarAulas(QMainWindow):
         window_height = 650
         center_window_on_screen_immediate(self, window_width, window_height)
 
-        # Obtener asignaturas disponibles desde el sistema global
+        # Obtener asignaturas disponibles desde el sistema global - MEJORADO
         self.asignaturas_disponibles = self.obtener_asignaturas_del_sistema()
 
         # Estructura de datos principal (integrada con sistema global)
@@ -329,16 +681,17 @@ class ConfigurarAulas(QMainWindow):
         self.cargar_datos_iniciales()
 
     def obtener_asignaturas_del_sistema(self):
-        """Obtener asignaturas configuradas desde el sistema global"""
+        """Obtener asignaturas configuradas desde el sistema global - Sincronizado con asignaturas"""
         try:
             if self.parent_window and hasattr(self.parent_window, 'configuracion'):
-                config_horarios = self.parent_window.configuracion["configuracion"]["horarios"]
-                if config_horarios.get("configurado") and config_horarios.get("datos"):
-                    return config_horarios["datos"].get("asignaturas", {"1": {}, "2": {}})
-            return {"1": {}, "2": {}}
+                # Obtener de configuracion["asignaturas"] en lugar de horarios
+                config_asignaturas = self.parent_window.configuracion["configuracion"]["asignaturas"]
+                if config_asignaturas.get("configurado") and config_asignaturas.get("datos"):
+                    return config_asignaturas["datos"]
+            return {}
         except Exception as e:
             self.log_mensaje(f"⚠️ Error obteniendo asignaturas del sistema: {e}", "warning")
-            return {"1": {}, "2": {}}
+            return {}
 
     def cargar_datos_iniciales(self):
         """Cargar datos existentes al inicializar"""
@@ -447,7 +800,7 @@ class ConfigurarAulas(QMainWindow):
         # Estadísticas simplificadas
         stats_group = QGroupBox("📊 ESTADÍSTICAS")
         stats_layout = QVBoxLayout()
-        stats_layout.setSpacing(5)  # Espaciado mínimo
+        stats_layout.setSpacing(5)
 
         self.texto_stats = QTextEdit()
         self.texto_stats.setMaximumHeight(120)
@@ -479,17 +832,17 @@ class ConfigurarAulas(QMainWindow):
         self.btn_toggle_disponible.clicked.connect(self.toggle_disponibilidad_aula)
         acciones_layout.addWidget(self.btn_toggle_disponible)
 
+        self.btn_sincronizar_asignaturas = QPushButton("🔄 Sincronizar Asignaturas")
+        self.btn_sincronizar_asignaturas.setToolTip("Sincronizar con las asignaturas configuradas en el sistema")
+        self.btn_sincronizar_asignaturas.clicked.connect(self.sincronizar_asignaturas)
+        acciones_layout.addWidget(self.btn_sincronizar_asignaturas)
+
         acciones_group.setLayout(acciones_layout)
         right_layout.addWidget(acciones_group)
 
         # Importar
         importar_group = QGroupBox("📥 IMPORTAR DATOS")
         importar_layout = QVBoxLayout()
-
-        self.btn_importar_web = QPushButton("🌐 Importar desde Web")
-        self.btn_importar_web.setStyleSheet("background-color: #FF9800; color: white;")  # Naranja
-        self.btn_importar_web.clicked.connect(self.importar_desde_web)
-        importar_layout.addWidget(self.btn_importar_web)
 
         self.btn_importar_csv = QPushButton("📥 Importar desde CSV")
         self.btn_importar_csv.clicked.connect(self.importar_desde_csv)
@@ -705,7 +1058,11 @@ class ConfigurarAulas(QMainWindow):
             num_asignaturas = len(datos.get('asignaturas_asociadas', []))
             asig_info = f"({num_asignaturas} asig.)" if num_asignaturas > 0 else "(sin asig.)"
 
-            texto_item = f"{disponible_icon} {nombre} ({capacidad}p) - {edificio} {asig_info}"
+            # Mostrar fechas no disponibles
+            num_fechas_bloqueadas = len(datos.get('fechas_no_disponibles', []))
+            fechas_info = f"({num_fechas_bloqueadas} fechas bloq.)" if num_fechas_bloqueadas > 0 else ""
+
+            texto_item = f"{disponible_icon} {nombre} ({capacidad}p) - {edificio} {asig_info} {fechas_info}"
 
             item = QListWidgetItem(texto_item)
             item.setData(Qt.ItemDataRole.UserRole, nombre)
@@ -732,7 +1089,7 @@ class ConfigurarAulas(QMainWindow):
         # Actualizar etiqueta
         self.label_aula_actual.setText(f"🏢 {nombre}")
 
-        # Mostrar información detallada con asignaturas asociadas
+        # Mostrar información detallada con asignaturas asociadas y fechas no disponibles
         info = f"🏷️ LABORATORIO: {nombre}\n\n"
         info += f"👥 Capacidad: {datos.get('capacidad', 'No definida')} personas\n"
         info += f"🔧 Equipamiento: {datos.get('equipamiento', 'No definido')}\n"
@@ -744,14 +1101,30 @@ class ConfigurarAulas(QMainWindow):
         asignaturas_asociadas = datos.get('asignaturas_asociadas', [])
         if asignaturas_asociadas:
             info += f"📚 ASIGNATURAS ({len(asignaturas_asociadas)}):\n"
-            for asig in asignaturas_asociadas:
-                if '_' in asig:
-                    semestre, nombre_asig = asig.split('_', 1)
-                    info += f"  • {nombre_asig} ({semestre}º cuatr.)\n"
+            for codigo_asig in asignaturas_asociadas:
+                # Buscar el nombre de la asignatura
+                if codigo_asig in self.asignaturas_disponibles:
+                    asig_data = self.asignaturas_disponibles[codigo_asig]
+                    nombre_asig = asig_data.get('nombre', codigo_asig)
+                    semestre = asig_data.get('semestre', '')
+                    info += f"  • {nombre_asig} ({codigo_asig}) - {semestre}\n"
                 else:
-                    info += f"  • {asig}\n"
+                    info += f"  • {codigo_asig}\n"
         else:
             info += f"📚 ASIGNATURAS: Sin asignaturas asociadas\n"
+
+        # Mostrar fechas no disponibles
+        fechas_no_disponibles = datos.get('fechas_no_disponibles', [])
+        if fechas_no_disponibles:
+            info += f"\n❌ DÍAS NO DISPONIBLES ({len(fechas_no_disponibles)}):\n"
+            # Mostrar solo las primeras 5 fechas para no saturar
+            fechas_mostrar = fechas_no_disponibles[:5]
+            for fecha in fechas_mostrar:
+                info += f"  • {fecha}\n"
+            if len(fechas_no_disponibles) > 5:
+                info += f"  ... y {len(fechas_no_disponibles) - 5} fechas más\n"
+        else:
+            info += f"\n❌ DÍAS NO DISPONIBLES: Ninguno\n"
 
         self.info_aula.setText(info)
 
@@ -785,6 +1158,10 @@ class ConfigurarAulas(QMainWindow):
         total_asociaciones = sum(len(datos.get('asignaturas_asociadas', []))
                                  for datos in self.datos_configuracion.values())
 
+        # Fechas bloqueadas totales
+        total_fechas_bloqueadas = sum(len(datos.get('fechas_no_disponibles', []))
+                                      for datos in self.datos_configuracion.values())
+
         # Estadísticas
         stats = f"📈 RESUMEN: {total} aulas, {disponibles} disponibles\n"
         stats += f"👥 CAPACIDAD: {cap_total} total"
@@ -793,9 +1170,31 @@ class ConfigurarAulas(QMainWindow):
         else:
             stats += "\n"
         stats += f"🏗️ UBICACIONES: {len(edificios)} edificios\n"
-        stats += f"📚 ASOCIACIONES: {total_asociaciones} asignaturas vinculadas"
+        stats += f"📚 ASOCIACIONES: {total_asociaciones} asignaturas vinculadas\n"
+        stats += f"❌ FECHAS BLOQUEADAS: {total_fechas_bloqueadas} días"
 
         self.texto_stats.setText(stats)
+
+    # ================== FUNCIONES DE GESTIÓN DE AULAS ==================
+
+    def sincronizar_asignaturas(self):
+        """Sincronizar asignaturas con el sistema"""
+        asignaturas_nuevas = self.obtener_asignaturas_del_sistema()
+
+        if asignaturas_nuevas == self.asignaturas_disponibles:
+            QMessageBox.information(self, "Sincronización", "✅ Las asignaturas ya están sincronizadas")
+            return
+
+        self.asignaturas_disponibles = asignaturas_nuevas
+
+        # Actualizar interfaz
+        self.cargar_lista_aulas()
+
+        total_asignaturas = len(asignaturas_nuevas)
+        QMessageBox.information(self, "Sincronización Exitosa",
+                                f"✅ Asignaturas sincronizadas:\n"
+                                f"• {total_asignaturas} asignaturas disponibles\n\n"
+                                f"Ahora puedes asociar estas asignaturas a los laboratorios")
 
     def anadir_aula(self):
         """Añadir nueva aula con selección de asignaturas"""
@@ -821,9 +1220,11 @@ class ConfigurarAulas(QMainWindow):
             self.marcar_cambio_realizado()
 
             num_asignaturas = len(datos.get('asignaturas_asociadas', []))
+            num_fechas_bloqueadas = len(datos.get('fechas_no_disponibles', []))
             QMessageBox.information(self, "Éxito",
                                     f"Laboratorio '{nombre}' añadido correctamente\n"
-                                    f"Asignaturas asociadas: {num_asignaturas}")
+                                    f"Asignaturas asociadas: {num_asignaturas}\n"
+                                    f"Fechas bloqueadas: {num_fechas_bloqueadas}")
 
     def editar_aula_seleccionada(self):
         """Editar aula seleccionada"""
@@ -948,16 +1349,10 @@ class ConfigurarAulas(QMainWindow):
         QMessageBox.information(self, "Estado Actualizado",
                                 f"Laboratorio '{self.aula_actual}' marcado como {estado_texto}")
 
-    def importar_desde_web(self):
-        """NUEVA FUNCIONALIDAD: Importar desde web"""
-        QMessageBox.information(self, "Funcionalidad Web",
-                                "🌐 Importar desde Web\n\n"
-                                "Esta funcionalidad permitirá importar datos de laboratorios\n"
-                                "directamente desde fuentes web universitarias.\n\n"
-                                "🚧 Próximamente disponible en la siguiente versión.")
+    # ================== FUNCIONES DE IMPORTACIÓN Y EXPORTACIÓN ==================
 
     def importar_desde_csv(self):
-        """Importar aulas desde archivo CSV con asignaturas asociadas"""
+        """Importar aulas desde archivo CSV con asignaturas asociadas y fechas no disponibles"""
         archivo, _ = QFileDialog.getOpenFileName(
             self, "Importar Laboratorios desde CSV",
             "", "Archivos CSV (*.csv);;Todos los archivos (*)"
@@ -1000,6 +1395,13 @@ class ConfigurarAulas(QMainWindow):
                     if asig_text:
                         asignaturas_asociadas = [a.strip() for a in asig_text.split(',')]
 
+                # Procesar fechas no disponibles si existe la columna
+                fechas_no_disponibles = []
+                if 'fechas_no_disponibles' in df.columns and pd.notna(row['fechas_no_disponibles']):
+                    fechas_text = str(row['fechas_no_disponibles']).strip()
+                    if fechas_text:
+                        fechas_no_disponibles = [f.strip() for f in fechas_text.split(',')]
+
                 self.datos_configuracion[nombre] = {
                     'nombre': nombre,
                     'capacidad': int(row['capacidad']) if pd.notna(row['capacidad']) else 24,
@@ -1007,7 +1409,8 @@ class ConfigurarAulas(QMainWindow):
                     'edificio': str(row['edificio']).strip(),
                     'planta': str(row['planta']).strip(),
                     'disponible': str(row.get('disponible', 'Si')).lower() in ['si', 'sí', 'true', '1', 'yes'],
-                    'asignaturas_asociadas': asignaturas_asociadas
+                    'asignaturas_asociadas': asignaturas_asociadas,
+                    'fechas_no_disponibles': fechas_no_disponibles
                 }
                 aulas_importadas += 1
 
@@ -1029,7 +1432,7 @@ class ConfigurarAulas(QMainWindow):
             QMessageBox.critical(self, "Error de Importación", f"Error al importar archivo CSV:\n{str(e)}")
 
     def exportar_a_csv(self):
-        """Exportar aulas a archivo CSV incluyendo asignaturas asociadas"""
+        """Exportar aulas a archivo CSV incluyendo asignaturas asociadas y fechas no disponibles"""
         if not self.datos_configuracion:
             QMessageBox.information(self, "Sin Datos", "No hay laboratorios para exportar")
             return
@@ -1049,6 +1452,9 @@ class ConfigurarAulas(QMainWindow):
                 # Convertir asignaturas asociadas a string
                 asignaturas_str = ', '.join(datos.get('asignaturas_asociadas', []))
 
+                # Convertir fechas no disponibles a string
+                fechas_str = ', '.join(datos.get('fechas_no_disponibles', []))
+
                 datos_export.append({
                     'nombre': nombre,
                     'capacidad': datos.get('capacidad', 24),
@@ -1056,7 +1462,8 @@ class ConfigurarAulas(QMainWindow):
                     'edificio': datos.get('edificio', ''),
                     'planta': datos.get('planta', ''),
                     'disponible': 'Si' if datos.get('disponible', True) else 'No',
-                    'asignaturas_asociadas': asignaturas_str
+                    'asignaturas_asociadas': asignaturas_str,
+                    'fechas_no_disponibles': fechas_str
                 })
 
             df = pd.DataFrame(datos_export)
@@ -1091,6 +1498,8 @@ class ConfigurarAulas(QMainWindow):
                     'total_laboratorios': len(self.datos_configuracion),
                     'total_asociaciones': sum(len(datos.get('asignaturas_asociadas', []))
                                               for datos in self.datos_configuracion.values()),
+                    'total_fechas_bloqueadas': sum(len(datos.get('fechas_no_disponibles', []))
+                                                   for datos in self.datos_configuracion.values()),
                     'generado_por': 'OPTIM Labs - Configurar Aulas'
                 }
             }
@@ -1153,6 +1562,8 @@ class ConfigurarAulas(QMainWindow):
                               if datos.get('disponible', True))
             total_asociaciones = sum(len(datos.get('asignaturas_asociadas', []))
                                      for datos in self.datos_configuracion.values())
+            total_fechas_bloqueadas = sum(len(datos.get('fechas_no_disponibles', []))
+                                          for datos in self.datos_configuracion.values())
 
             respuesta = QMessageBox.question(
                 self, "Guardar y Cerrar",
@@ -1160,7 +1571,8 @@ class ConfigurarAulas(QMainWindow):
                 f"📊 Resumen:\n"
                 f"• {total_aulas} laboratorios configurados\n"
                 f"• {disponibles} laboratorios disponibles\n"
-                f"• {total_asociaciones} asignaturas asociadas\n\n"
+                f"• {total_asociaciones} asignaturas asociadas\n"
+                f"• {total_fechas_bloqueadas} fechas bloqueadas\n\n"
                 f"La configuración se integrará con OPTIM y la ventana se cerrará.",
                 QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No
             )
@@ -1207,6 +1619,8 @@ class ConfigurarAulas(QMainWindow):
             self.marcar_cambio_realizado()
 
             QMessageBox.information(self, "Limpieza Completada", "Todos los laboratorios han sido eliminados")
+
+    # ================== FUNCIONES DE UTILIDAD Y SISTEMA ==================
 
     def ordenar_aulas_alfabeticamente(self):
         """Reordenar aulas alfabéticamente"""
@@ -1317,7 +1731,7 @@ def main():
     palette.setColor(QPalette.ColorRole.WindowText, QColor(255, 255, 255))
     app.setPalette(palette)
 
-    # Datos de ejemplo con asignaturas asociadas
+    # Datos de ejemplo con asignaturas asociadas y fechas no disponibles
     datos_ejemplo = {
         "Lab_Fisica_A": {
             "nombre": "Lab_Fisica_A",
@@ -1326,16 +1740,18 @@ def main():
             "edificio": "Edificio A",
             "planta": "Planta 1",
             "disponible": True,
-            "asignaturas_asociadas": ["1_Fisica I", "1_Fisica II"]
+            "asignaturas_asociadas": ["FIS1", "QUI1"],  # Códigos reales del JSON
+            "fechas_no_disponibles": ["15/03/2025", "22/03/2025", "01/04/2025"]
         },
-        "Lab_Quimica_A": {
-            "nombre": "Lab_Quimica_A",
+        "Lab_Electronica_C": {
+            "nombre": "Lab_Electronica_C",
             "capacidad": 18,
-            "equipamiento": "Campana extractora + Material químico",
-            "edificio": "Edificio B",
-            "planta": "Planta 1",
+            "equipamiento": "Analizadores, Osciloscopios, Microcontroladores",
+            "edificio": "Edificio C",
+            "planta": "Planta 3",
             "disponible": True,
-            "asignaturas_asociadas": ["2_Quimica Organica", "2_Quimica Inorganica"]
+            "asignaturas_asociadas": ["EANA", "EDIG"],  # Códigos reales del JSON
+            "fechas_no_disponibles": ["10/04/2025"]
         }
     }
 

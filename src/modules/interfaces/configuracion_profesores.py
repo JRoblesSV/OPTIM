@@ -41,8 +41,6 @@ from PyQt6.QtGui import QFont, QPalette, QColor
 def center_window_on_screen_immediate(window, width, height):
     """Centrar ventana ANTES de mostrarla - SIN PARPADEO"""
     try:
-        from PyQt6.QtWidgets import QApplication
-
         # Obtener información de la pantalla
         screen = QApplication.primaryScreen()
         if screen:
@@ -532,7 +530,6 @@ class GestionProfesorDialog(QDialog):
                 child.widget().deleteLater()
 
         # Procesar eventos pendientes
-        from PyQt6.QtWidgets import QApplication
         QApplication.processEvents()
 
         # Verificar si hay asignaturas disponibles

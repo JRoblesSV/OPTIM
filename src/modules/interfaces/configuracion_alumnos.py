@@ -25,7 +25,7 @@ import os
 import re
 import json
 import pandas as pd
-
+import subprocess
 from datetime import datetime
 from PyQt6.QtWidgets import (
     QApplication, QMainWindow, QWidget, QVBoxLayout, QHBoxLayout,
@@ -2272,9 +2272,7 @@ class ConfigurarAlumnos(QMainWindow):
 
     def _extraer_codigo_curso(self, grupo_completo):
         """Extraer código de curso de 'Grupo de Matricula (A302)' → 'A302'"""
-        import re
-
-        # Buscar texto entre paréntesis
+       # Buscar texto entre paréntesis
         match = re.search(r'\(([^)]+)\)', grupo_completo)
         if match:
             return match.group(1).strip().upper()
@@ -2301,8 +2299,6 @@ class ConfigurarAlumnos(QMainWindow):
 
     def _leer_excel_universal(self, archivo):
         """Leer archivos Excel .xlsx y .xls con manejo automático de dependencias"""
-        import os
-
         # Detectar extensión
         _, extension = os.path.splitext(archivo.lower())
 
@@ -2313,8 +2309,6 @@ class ConfigurarAlumnos(QMainWindow):
             except ImportError:
                 # Intentar instalar openpyxl automáticamente
                 try:
-                    import subprocess
-                    import sys
                     subprocess.check_call([sys.executable, "-m", "pip", "install", "openpyxl"])
                     # Reintentar después de instalar
                     return pd.read_excel(archivo, engine='openpyxl')
@@ -2335,8 +2329,6 @@ class ConfigurarAlumnos(QMainWindow):
             except ImportError:
                 # Intentar instalar xlrd automáticamente
                 try:
-                    import subprocess
-                    import sys
                     subprocess.check_call([sys.executable, "-m", "pip", "install", "xlrd"])
                     # Reintentar después de instalar
                     return pd.read_excel(archivo, engine='xlrd')

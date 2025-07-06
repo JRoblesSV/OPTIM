@@ -68,7 +68,7 @@
       <recent name="B:\0_TFG_GIT\OPTIM" />
     </key>
   </component>
-  <component name="RunManager" selected="Python.configuracion_profesores">
+  <component name="RunManager" selected="Python.gui_labs">
     <configuration name="configuracion_alumnos" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="ANEXO_Robles_Molina_Javier" />
       <option name="ENV_FILES" value="" />
@@ -188,8 +188,8 @@
     </configuration>
     <recent_temporary>
       <list>
-        <item itemvalue="Python.configuracion_profesores" />
         <item itemvalue="Python.gui_labs" />
+        <item itemvalue="Python.configuracion_profesores" />
         <item itemvalue="Python.configuracion_alumnos" />
         <item itemvalue="Python.configurar_asignaturas" />
         <item itemvalue="Python.configurar_cursos" />
