@@ -1,7 +1,7 @@
 {
   "metadata": {
     "version": "1.0",
-    "timestamp": "2025-07-05T21:31:06.196057",
+    "timestamp": "2025-07-06T13:42:05.408088",
     "semestre_actual": 1
   },
   "configuracion": {
@@ -9,7 +9,7 @@
       "configurado": true,
       "datos": {
         "1": {
-          "FIS1": {
+          "Física I": {
             "cursos": [
               "A102",
               "B102"
@@ -18,117 +18,76 @@
               "9:30-11:30": {
                 "Lunes": [
                   "A102"
-                ],
-                "Miércoles": [
-                  "B102"
-                ]
-              },
-              "11:30-13:30": {
-                "Lunes": [
-                  "A102"
-                ],
-                "Miércoles": [
-                  "B102"
                 ]
               }
             }
           },
-          "QUI1": {
-            "cursos": [
-              "A102"
-            ],
-            "horarios_grid": {
-              "9:30-11:30": {
-                "Martes": [
-                  "A102"
-                ]
-              },
-              "11:30-13:30": {
-                "Martes": [
-                  "A102"
-                ]
-              }
-            }
-          },
-          "MAT1": {
+          "Matemáticas I": {
             "cursos": [
               "B102"
             ],
             "horarios_grid": {
               "9:30-11:30": {
-                "Jueves": [
+                "Martes": [
                   "B102"
                 ]
               },
-              "11:30-13:30": {
-                "Jueves": [
+              "15:30-17:30": {
+                "Miércoles": [
                   "B102"
+                ]
+              }
+            }
+          },
+          "Química I": {
+            "cursos": [
+              "A102"
+            ],
+            "horarios_grid": {
+              "9:30-11:30": {
+                "Jueves": [
+                  "A102"
                 ]
               }
             }
           }
         },
         "2": {
-          "EANA": {
+          "Electrónica Analógica": {
             "cursos": [
               "A302",
               "A309"
             ],
             "horarios_grid": {
-              "9:30-11:30": {
-                "Martes": [
-                  "A309"
-                ]
-              },
-              "11:30-13:30": {
-                "Martes": [
-                  "A302",
-                  "A309"
-                ]
-              },
               "15:30-17:30": {
                 "Jueves": [
-                  "A302"
+                  "A302",
+                  "A309"
                 ]
               }
             }
           },
-          "EDIG": {
+          "Electrónica Digital": {
             "cursos": [
               "A302",
               "A309"
             ],
             "horarios_grid": {
-              "9:30-11:30": {
-                "Miércoles": [
-                  "A302"
-                ]
-              },
               "11:30-13:30": {
                 "Miércoles": [
                   "A302",
                   "A309"
                 ]
-              },
-              "15:30-17:30": {
-                "Viernes": [
-                  "A309"
-                ]
               }
             }
           },
-          "PROG3": {
+          "Programación III": {
             "cursos": [
               "A309"
             ],
             "horarios_grid": {
-              "9:30-11:30": {
-                "Viernes": [
-                  "A309"
-                ]
-              },
-              "11:30-13:30": {
-                "Viernes": [
+              "15:30-17:30": {
+                "Lunes": [
                   "A309"
                 ]
               }
@@ -137,10 +96,10 @@
         }
       },
       "archivo": "horarios_integrados.json",
-      "timestamp": "2025-07-05T12:00:00.000000",
-      "semestre_actual": "1",
+      "timestamp": "2025-07-06T12:57:14.073448",
+      "semestre_actual": "2",
       "total_asignaturas": 6,
-      "total_franjas": 15
+      "total_franjas": 7
     },
     "calendario": {
       "configurado": true,
@@ -251,9 +210,25 @@
     "profesores": {
       "configurado": true,
       "datos": {
-        "12345678A": {
+        "27bb4512-68ff-4656-a62b-2304af3550e6": {
+          "apellidos": "adfg",
+          "asignaturas_imparte": [
+            "QUI1"
+          ],
+          "dias_trabajo": [
+            "Lunes",
+            "Martes"
+          ],
+          "fecha_creacion": "2025-07-06T12:41:22.550949",
+          "fechas_no_disponibles": [],
+          "horarios_bloqueados": {},
+          "id": "27bb4512-68ff-4656-a62b-2304af3550e6",
+          "nombre": "dfag",
+          "observaciones": ""
+        },
+        "prof_001": {
           "apellidos": "García López",
-          "asignaturas_puede_impartir": [
+          "asignaturas_imparte": [
             "FIS1",
             "QUI1"
           ],
@@ -262,16 +237,16 @@
             "Martes",
             "Miércoles"
           ],
-          "dni": "12345678A",
-          "email": "garcia.lopez@upm.es",
           "fecha_creacion": "2025-07-05T12:00:00.000000",
           "fechas_no_disponibles": [],
+          "horarios_bloqueados": {},
+          "id": "prof_001",
           "nombre": "Antonio",
           "observaciones": "Especialista en física experimental"
         },
-        "87654321B": {
+        "prof_002": {
           "apellidos": "Martínez Ruiz",
-          "asignaturas_puede_impartir": [
+          "asignaturas_imparte": [
             "FIS1",
             "MAT1"
           ],
@@ -280,16 +255,16 @@
             "Martes",
             "Jueves"
           ],
-          "dni": "87654321B",
-          "email": "martinez.ruiz@upm.es",
           "fecha_creacion": "2025-07-05T12:00:00.000000",
           "fechas_no_disponibles": [],
+          "horarios_bloqueados": {},
+          "id": "prof_002",
           "nombre": "Carmen",
           "observaciones": "Especialista en matemáticas aplicadas"
         },
-        "11223344C": {
+        "prof_003": {
           "apellidos": "Fernández Castro",
-          "asignaturas_puede_impartir": [
+          "asignaturas_imparte": [
             "EANA",
             "EDIG"
           ],
@@ -299,16 +274,16 @@
             "Jueves",
             "Viernes"
           ],
-          "dni": "11223344C",
-          "email": "fernandez.castro@upm.es",
           "fecha_creacion": "2025-07-05T12:00:00.000000",
           "fechas_no_disponibles": [],
+          "horarios_bloqueados": {},
+          "id": "prof_003",
           "nombre": "Miguel",
           "observaciones": "Especialista en electrónica"
         },
-        "44332211D": {
+        "prof_004": {
           "apellidos": "Pérez Vega",
-          "asignaturas_puede_impartir": [
+          "asignaturas_imparte": [
             "EDIG",
             "PROG3"
           ],
@@ -317,16 +292,16 @@
             "Jueves",
             "Viernes"
           ],
-          "dni": "44332211D",
-          "email": "perez.vega@upm.es",
           "fecha_creacion": "2025-07-05T12:00:00.000000",
           "fechas_no_disponibles": [],
+          "horarios_bloqueados": {},
+          "id": "prof_004",
           "nombre": "Laura",
           "observaciones": "Especialista en programación"
         }
       },
-      "total": 4,
-      "fecha_actualizacion": "2025-07-05T12:00:00.000000"
+      "total": 5,
+      "fecha_actualizacion": "2025-07-06T13:42:05.408088"
     },
     "alumnos": {
       "configurado": true,

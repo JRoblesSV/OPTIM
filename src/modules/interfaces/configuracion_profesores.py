@@ -22,6 +22,7 @@ Universidad: ETSIDI (UPM)
 
 import sys
 import os
+import uuid
 import json
 import pandas as pd
 from datetime import datetime, date
@@ -31,7 +32,7 @@ from PyQt6.QtWidgets import (
     QListWidgetItem, QGroupBox, QFrame, QScrollArea, QMessageBox,
     QDialog, QDialogButtonBox, QCheckBox, QFileDialog,
     QLineEdit, QInputDialog, QTextEdit, QFormLayout, QSizePolicy,
-    QCalendarWidget, QTabWidget
+    QCalendarWidget, QTabWidget, QSplitter, QSpacerItem
 )
 from PyQt6.QtCore import Qt, pyqtSignal, QTimer, QDate
 from PyQt6.QtGui import QFont, QPalette, QColor
@@ -67,6 +68,115 @@ def center_window_on_screen_immediate(window, width, height):
         window.setGeometry(100, 100, width, height)
 
 
+class FranjaProfesorWidget(QFrame):
+    """Widget para mostrar una franja horaria de disponibilidad del profesor"""
+
+    franja_cambiada = pyqtSignal(str, str, str)  # dia, horario, estado
+
+    def __init__(self, dia, horario, parent=None):
+        super().__init__(parent)
+        self.dia = dia
+        self.horario = horario
+        self.estado = 'disponible'  # 'disponible', 'tutoria', 'otros', 'deshabilitado'
+        self.parent_dialog = parent
+
+        self.setFixedSize(100, 60)
+        self.setup_ui()
+
+    def setup_ui(self):
+        layout = QVBoxLayout()
+        layout.setContentsMargins(2, 2, 2, 2)
+        layout.setSpacing(1)
+
+        # Icono principal
+        self.icono_label = QLabel()
+        self.icono_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        self.icono_label.setFont(QFont("Arial", 16))
+
+        # Texto de estado
+        self.estado_label = QLabel()
+        self.estado_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        self.estado_label.setFont(QFont("Arial", 7))
+
+        layout.addWidget(self.icono_label)
+        layout.addWidget(self.estado_label)
+        self.setLayout(layout)
+
+        self.actualizar_visual()
+
+    def actualizar_estado(self, nuevo_estado):
+        """Actualiza el estado de la franja"""
+        if self.estado != nuevo_estado:
+            self.estado = nuevo_estado
+            self.actualizar_visual()
+            self.franja_cambiada.emit(self.dia, self.horario, nuevo_estado)
+
+    def actualizar_visual(self):
+        """Actualiza la apariencia según el estado"""
+        if self.estado == 'disponible':
+            self.icono_label.setText("✅")
+            self.estado_label.setText("LIBRE")
+            self.setStyleSheet("""
+                FranjaProfesorWidget {
+                    background-color: #004a00;
+                    border: 2px solid #00aa00;
+                    border-radius: 4px;
+                }
+                QLabel { color: #ffffff; background: transparent; }
+            """)
+        elif self.estado == 'tutoria':
+            self.icono_label.setText("🎓")
+            self.estado_label.setText("TUTORÍA")
+            self.setStyleSheet("""
+                FranjaProfesorWidget {
+                    background-color: #4a0000;
+                    border: 2px solid #aa0000;
+                    border-radius: 4px;
+                }
+                QLabel { color: #ffffff; background: transparent; }
+            """)
+        elif self.estado == 'otros':
+            self.icono_label.setText("❌")
+            self.estado_label.setText("OCUPADO")
+            self.setStyleSheet("""
+                FranjaProfesorWidget {
+                    background-color: #4a0000;
+                    border: 2px solid #aa4400;
+                    border-radius: 4px;
+                }
+                QLabel { color: #ffffff; background: transparent; }
+            """)
+        else:  # deshabilitado
+            self.icono_label.setText("⚫")
+            self.estado_label.setText("N/A")
+            self.setStyleSheet("""
+                FranjaProfesorWidget {
+                    background-color: #2a2a2a;
+                    border: 1px solid #555555;
+                    border-radius: 4px;
+                }
+                QLabel { color: #666666; background: transparent; }
+            """)
+
+    def mousePressEvent(self, event):
+        """Maneja clicks en la franja"""
+        if self.estado == 'deshabilitado':
+            return
+
+        if self.parent_dialog:
+            modo_actual = self.parent_dialog.modo_marcado_actual
+
+            if self.estado == 'disponible':
+                # Marcar según el modo actual
+                self.actualizar_estado(modo_actual)
+            elif self.estado == modo_actual:
+                # Si ya está en el modo actual, liberar
+                self.actualizar_estado('disponible')
+            else:
+                # Cambiar al modo actual
+                self.actualizar_estado(modo_actual)
+
+
 class GestionProfesorDialog(QDialog):
     """Dialog para añadir/editar profesor con gestión de asignaturas y disponibilidad"""
 
@@ -78,7 +188,7 @@ class GestionProfesorDialog(QDialog):
         self.setModal(True)
 
         # CENTRAR INMEDIATAMENTE SIN PARPADEO
-        window_width = 800
+        window_width = 820
         window_height = 950
         center_window_on_screen_immediate(self, window_width, window_height)
         self.setMinimumSize(750, 800)
@@ -97,39 +207,26 @@ class GestionProfesorDialog(QDialog):
         datos_personales_group = QGroupBox("👤 DATOS PERSONALES")
         datos_personales_layout = QGridLayout()
 
-        # Fila 1: DNI | Email
-        self.edit_dni = QLineEdit()
-        self.edit_dni.setPlaceholderText("Ej: 12345678A")
-        self.edit_dni.setMaxLength(9)
-
-        self.edit_email = QLineEdit()
-        self.edit_email.setPlaceholderText("Ej: juan.garcia@upm.es")
-
-        datos_personales_layout.addWidget(QLabel("🆔 DNI:"), 0, 0)
-        datos_personales_layout.addWidget(self.edit_dni, 0, 1)
-        datos_personales_layout.addWidget(QLabel("📧 Email:"), 0, 2)
-        datos_personales_layout.addWidget(self.edit_email, 0, 3)
-
-        # Fila 2: Nombre | Apellidos
+        # Fila 1: Nombre | Apellidos
         self.edit_nombre = QLineEdit()
         self.edit_nombre.setPlaceholderText("Ej: Juan")
 
         self.edit_apellidos = QLineEdit()
         self.edit_apellidos.setPlaceholderText("Ej: García López")
 
-        datos_personales_layout.addWidget(QLabel("👤 Nombre:"), 1, 0)
-        datos_personales_layout.addWidget(self.edit_nombre, 1, 1)
-        datos_personales_layout.addWidget(QLabel("👤 Apellidos:"), 1, 2)
-        datos_personales_layout.addWidget(self.edit_apellidos, 1, 3)
+        datos_personales_layout.addWidget(QLabel("👤 Nombre:"), 0, 0)
+        datos_personales_layout.addWidget(self.edit_nombre, 0, 1)
+        datos_personales_layout.addWidget(QLabel("👤 Apellidos:"), 0, 2)
+        datos_personales_layout.addWidget(self.edit_apellidos, 0, 3)
 
         datos_personales_group.setLayout(datos_personales_layout)
         layout.addWidget(datos_personales_group)
 
-        # 📚 ASIGNATURAS QUE PUEDE IMPARTIR
-        asignaturas_group = QGroupBox("📚 ASIGNATURAS QUE PUEDE IMPARTIR")
+        # 📚 ASIGNATURAS QUE IMPARTE
+        asignaturas_group = QGroupBox("📚 ASIGNATURAS QUE IMPARTE")
         asignaturas_layout = QVBoxLayout()
 
-        info_asig_label = QLabel("Selecciona las asignaturas que este profesor puede impartir:")
+        info_asig_label = QLabel("Selecciona las asignaturas que este profesor imparte:")
         info_asig_label.setStyleSheet("color: #cccccc; font-size: 11px; margin-bottom: 6px;")
         asignaturas_layout.addWidget(info_asig_label)
 
@@ -172,59 +269,236 @@ class GestionProfesorDialog(QDialog):
         asignaturas_group.setLayout(asignaturas_layout)
         layout.addWidget(asignaturas_group)
 
-        # TABS PARA DISPONIBILIDAD Y DÍAS NO DISPONIBLES
+        # TABS PRINCIPALES: 3 TABS DE DISPONIBILIDAD
         tabs_widget = QTabWidget()
 
-        # TAB 1: DISPONIBILIDAD SEMANAL
-        tab_disponibilidad = QWidget()
-        tab_disp_layout = QVBoxLayout(tab_disponibilidad)
+        # ================== TAB 1: DISPONIBILIDAD SEMANAL ==================
+        tab_dias = QWidget()
+        tab_dias_layout = QVBoxLayout(tab_dias)
+        tab_dias_layout.setSpacing(20)
 
-        disp_info_label = QLabel("Marca los días de la semana en los que el profesor está disponible:")
-        disp_info_label.setStyleSheet("color: #cccccc; font-size: 11px; margin-bottom: 8px;")
-        tab_disp_layout.addWidget(disp_info_label)
+        # Explicación
+        info_dias = QLabel("📋 Selecciona los días en los que el profesor puede dar clases:")
+        info_dias.setStyleSheet("color: #cccccc; font-size: 12px; margin-bottom: 10px;")
+        tab_dias_layout.addWidget(info_dias)
 
-        # Crear checkboxes para días de la semana
-        self.crear_disponibilidad_semanal()
-        tab_disp_layout.addWidget(self.frame_disponibilidad)
+        # DÍAS DE TRABAJO - Layout horizontal centrado
+        dias_group = QGroupBox("🗓️ Días de Trabajo")
+        dias_layout = QHBoxLayout()
+        dias_layout.setSpacing(25)
 
-        tabs_widget.addTab(tab_disponibilidad, "📅 Disponibilidad Semanal")
+        self.dias_semana = ["Lunes", "Martes", "Miércoles", "Jueves", "Viernes"]
+        self.checks_dias_trabajo = {}
 
-        # TAB 2: DÍAS NO DISPONIBLES
+        for dia in self.dias_semana:
+            check_dia = QCheckBox(dia)
+            check_dia.setStyleSheet("""
+                QCheckBox {
+                    font-size: 13px;
+                    font-weight: 500;
+                    padding: 8px;
+                    color: #ffffff;
+                    min-width: 80px;
+                }
+                QCheckBox::indicator {
+                    width: 20px;
+                    height: 20px;
+                    margin-right: 8px;
+                }
+                QCheckBox::indicator:unchecked {
+                    background-color: #4a4a4a;
+                    border: 2px solid #666666;
+                    border-radius: 4px;
+                }
+                QCheckBox::indicator:unchecked:hover {
+                    border-color: #4a9eff;
+                    background-color: #5a5a5a;
+                }
+                QCheckBox::indicator:checked {
+                    background-color: #4a9eff;
+                    border: 2px solid #4a9eff;
+                    border-radius: 4px;
+                }
+                QCheckBox:hover {
+                    background-color: rgba(74, 158, 255, 0.1);
+                    border-radius: 6px;
+                }
+            """)
+            check_dia.toggled.connect(self.actualizar_grid_horarios)
+            self.checks_dias_trabajo[dia] = check_dia
+            dias_layout.addWidget(check_dia)
+
+        dias_group.setLayout(dias_layout)
+        tab_dias_layout.addWidget(dias_group)
+
+        # Información adicional
+        info_extra = QLabel("💡 El profesor dará clases los días marcados")
+        info_extra.setStyleSheet("color: #90EE90; font-size: 12px; font-style: italic; margin-top: 10px;")
+        tab_dias_layout.addWidget(info_extra)
+
+        info_siguiente = QLabel("📝 Después configura las franjas específicas en la pestaña 'Horario Semanal'")
+        info_siguiente.setStyleSheet("color: #FFB347; font-size: 11px; font-style: italic; margin-top: 5px;")
+        tab_dias_layout.addWidget(info_siguiente)
+
+        # Espaciador
+        tab_dias_layout.addStretch()
+
+        # ================== TAB 2: HORARIO SEMANAL ==================
+        tab_horarios = QWidget()
+        tab_horarios_layout = QVBoxLayout(tab_horarios)
+        tab_horarios_layout.setSpacing(15)
+
+        # MODO DE MARCADO - Layout horizontal con grupo a la izquierda
+        top_horarios_layout = QHBoxLayout()
+
+        modo_group = QGroupBox("🎯 Modo de Marcado")
+        modo_layout = QVBoxLayout()  # Cambio a vertical para ocupar menos espacio horizontal
+        modo_layout.setSpacing(8)
+
+        self.modo_marcado_actual = 'tutoria'  # Por defecto
+
+        self.btn_modo_tutoria = QPushButton("🎓 Hora Tutoría")
+        self.btn_modo_tutoria.setCheckable(True)
+        self.btn_modo_tutoria.setChecked(True)
+        self.btn_modo_tutoria.clicked.connect(lambda: self.cambiar_modo_marcado('tutoria'))
+
+        self.btn_modo_otros = QPushButton("❌ Otros")
+        self.btn_modo_otros.setCheckable(True)
+        self.btn_modo_otros.clicked.connect(lambda: self.cambiar_modo_marcado('otros'))
+
+        self.btn_limpiar_todo = QPushButton("🔄 Limpiar Todo")
+        self.btn_limpiar_todo.clicked.connect(self.limpiar_todo_grid)
+
+        # Estilos para botones de modo
+        estilo_modo = """
+            QPushButton {
+                font-size: 12px;
+                font-weight: bold;
+                padding: 8px 16px;
+                border-radius: 5px;
+                border: 2px solid #666666;
+                background-color: #4a4a4a;
+                color: #ffffff;
+                min-width: 120px;
+            }
+            QPushButton:checked {
+                background-color: #4a9eff;
+                border-color: #3a8eef;
+                color: #ffffff;
+            }
+            QPushButton:hover {
+                background-color: #5a5a5a;
+            }
+        """
+
+        self.btn_modo_tutoria.setStyleSheet(estilo_modo)
+        self.btn_modo_otros.setStyleSheet(estilo_modo)
+        self.btn_limpiar_todo.setStyleSheet("""
+            QPushButton {
+                font-size: 12px;
+                font-weight: bold;
+                padding: 8px 16px;
+                border-radius: 5px;
+                border: 2px solid #aa4400;
+                background-color: #4a2200;
+                color: #ffffff;
+                min-width: 120px;
+            }
+            QPushButton:hover {
+                background-color: #6a3300;
+            }
+        """)
+
+        modo_layout.addWidget(self.btn_modo_tutoria)
+        modo_layout.addWidget(self.btn_modo_otros)
+        modo_layout.addWidget(self.btn_limpiar_todo)
+        modo_layout.addStretch()
+
+        modo_group.setLayout(modo_layout)
+        modo_group.setMaximumWidth(380)  # Limitar ancho del grupo de modo
+        top_horarios_layout.addWidget(modo_group)
+
+        # GRID DE HORARIOS - AÑADIR AL LADO DEL MODO DE MARCADO
+        self.crear_grid_horarios_profesor()
+        top_horarios_layout.addWidget(self.grid_horarios_group)
+
+        top_horarios_layout.addStretch()  # Empujar todo hacia la izquierda
+        tab_horarios_layout.addLayout(top_horarios_layout)
+
+        # Información del grid
+        info_grid = QLabel("💡 Solo se muestran activos los días marcados como laborables")
+        info_grid.setStyleSheet("color: #cccccc; font-size: 11px; font-style: italic; margin-top: 8px;")
+        tab_horarios_layout.addWidget(info_grid)
+
+        # ================== TAB 3: DÍAS NO DISPONIBLES ==================
         tab_no_disponibles = QWidget()
         tab_no_disp_layout = QVBoxLayout(tab_no_disponibles)
+        tab_no_disp_layout.setContentsMargins(15, 20, 15, 15)
+        tab_no_disp_layout.setSpacing(15)
 
-        no_disp_info_label = QLabel("Fechas específicas en las que el profesor NO estará disponible:")
-        no_disp_info_label.setStyleSheet("color: #cccccc; font-size: 11px; margin-bottom: 8px;")
+        no_disp_info_label = QLabel("📅 Fechas NO disponibles:")
+        no_disp_info_label.setStyleSheet("color: #cccccc; font-size: 12px; margin-bottom: 8px;")
+        no_disp_info_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
         tab_no_disp_layout.addWidget(no_disp_info_label)
 
-        # Layout horizontal para calendario y lista
+        # Layout horizontal para calendario y lista lado a lado
         no_disp_horizontal = QHBoxLayout()
+        no_disp_horizontal.setSpacing(10)
 
         # Calendario para seleccionar fechas
         self.calendario = QCalendarWidget()
-        self.calendario.setMaximumSize(350, 250)
+        self.calendario.setMaximumSize(600, 300)
+        self.calendario.setMinimumWidth(350)
         self.calendario.clicked.connect(self.agregar_fecha_no_disponible)
-        no_disp_horizontal.addWidget(self.calendario)
 
-        # Lista de fechas no disponibles
+        # Lista de fechas no disponibles a la derecha
         no_disp_derecha = QVBoxLayout()
+        no_disp_derecha.setSpacing(10)
 
-        fechas_label = QLabel("📅 Fechas seleccionadas:")
-        fechas_label.setStyleSheet("font-weight: bold; color: #4a9eff;")
-        no_disp_derecha.addWidget(fechas_label)
+        # Título para la lista
+        lista_titulo = QLabel("📋 Fechas bloqueadas:")
+        lista_titulo.setStyleSheet("font-weight: bold; color: #ffffff; margin-bottom: 5px;")
+        no_disp_derecha.addWidget(lista_titulo)
 
         self.lista_fechas_no_disponibles = QListWidget()
-        self.lista_fechas_no_disponibles.setMaximumHeight(180)
+        self.lista_fechas_no_disponibles.setMaximumHeight(240)
+        self.lista_fechas_no_disponibles.setMinimumWidth(200)
         no_disp_derecha.addWidget(self.lista_fechas_no_disponibles)
 
-        # Botón para eliminar fecha seleccionada
-        btn_eliminar_fecha = QPushButton("🗑️ Eliminar Fecha Seleccionada")
+        # Botones de gestión
+        botones_fechas = QHBoxLayout()
+        botones_fechas.setSpacing(8)
+
+        btn_eliminar_fecha = QPushButton("🗑️ Eliminar")
+        btn_limpiar_fechas = QPushButton("🧹 Limpiar Todo")
         btn_eliminar_fecha.clicked.connect(self.eliminar_fecha_no_disponible)
-        no_disp_derecha.addWidget(btn_eliminar_fecha)
+        btn_limpiar_fechas.clicked.connect(self.limpiar_todas_fechas)
 
-        no_disp_horizontal.addLayout(no_disp_derecha)
+        botones_fechas.addWidget(btn_eliminar_fecha)
+        botones_fechas.addWidget(btn_limpiar_fechas)
+        no_disp_derecha.addLayout(botones_fechas)
+
+        # Widget contenedor derecho
+        no_disp_derecha_widget = QWidget()
+        no_disp_derecha_widget.setLayout(no_disp_derecha)
+
+        # Agregar al layout horizontal
+        no_disp_horizontal.addStretch(1)  # Mover todo ligeramente hacia el centro
+        no_disp_horizontal.addWidget(self.calendario)
+
+        # Espaciador central fijo (entre calendario y lista)
+        espaciador_central = QSpacerItem(100, 10, QSizePolicy.Policy.Fixed, QSizePolicy.Policy.Minimum)
+        no_disp_horizontal.addItem(espaciador_central)
+
+        no_disp_horizontal.addWidget(no_disp_derecha_widget)
+        no_disp_horizontal.addStretch(1)  # Balancear el layout
+
         tab_no_disp_layout.addLayout(no_disp_horizontal)
+        tab_no_disp_layout.addStretch()
 
+        # ================== AÑADIR TABS AL WIDGET PRINCIPAL ==================
+        tabs_widget.addTab(tab_dias, "📅 Disponibilidad Semanal")
+        tabs_widget.addTab(tab_horarios, "🗓️ Horario Semanal")
         tabs_widget.addTab(tab_no_disponibles, "❌ Días No Disponibles")
 
         layout.addWidget(tabs_widget)
@@ -362,16 +636,19 @@ class GestionProfesorDialog(QDialog):
         grid_layout.setContentsMargins(10, 5, 10, 5)
         grid_layout.setSpacing(8)
 
-        # Configurar 5 columnas
-        COLUMNAS = 5
+        # Configurar 4 columnas
+        COLUMNAS = 4
         asignaturas_lista = sorted(asignaturas_dict.keys())
 
         fila = 0
         columna = 0
 
-        for asignatura in asignaturas_lista:
-            key_asignatura = f"{semestre}_{asignatura}"
-            check_asignatura = QCheckBox(asignatura)
+        for codigo_asignatura in asignaturas_lista:
+            key_asignatura = codigo_asignatura  # Usar directamente el código
+            # Obtener el nombre para mostrar en el checkbox
+            asig_data = asignaturas_dict[codigo_asignatura]
+            nombre_asignatura = asig_data.get('nombre', codigo_asignatura)
+            check_asignatura = QCheckBox(f"{nombre_asignatura} ({codigo_asignatura})")
             check_asignatura.setStyleSheet("""
                 QCheckBox {
                     font-size: 11px;
@@ -425,78 +702,126 @@ class GestionProfesorDialog(QDialog):
         # Añadir el widget del grid al layout principal
         self.asignaturas_scroll_layout.addWidget(grid_widget)
 
-    def crear_disponibilidad_semanal(self):
-        """Crear checkboxes para disponibilidad semanal"""
-        self.frame_disponibilidad = QFrame()
-        self.frame_disponibilidad.setFrameStyle(QFrame.Shape.Box)
-        self.frame_disponibilidad.setStyleSheet("""
-            QFrame {
-                background-color: #3c3c3c;
-                border: 1px solid #555555;
-                border-radius: 5px;
-                padding: 15px;
-            }
-        """)
+    def crear_grid_horarios_profesor(self):
+        """Crea el grid de horarios 4x5 para el profesor - VERSIÓN GRANDE"""
+        self.grid_horarios_group = QGroupBox("🗓️ Horario Semanal")
+        grid_layout = QGridLayout()
+        grid_layout.setSpacing(5)
 
-        layout_disponibilidad = QVBoxLayout(self.frame_disponibilidad)
-        layout_disponibilidad.setSpacing(10)
+        # Horarios fijos del sistema
+        self.horarios_fijos = ["9:30-11:30", "11:30-13:30", "15:30-17:30", "17:30-19:30"]
 
-        # Título
-        titulo_disp = QLabel("📅 Días de trabajo:")
-        titulo_disp.setStyleSheet("font-weight: bold; color: #4a9eff; font-size: 13px; margin-bottom: 8px;")
-        layout_disponibilidad.addWidget(titulo_disp)
+        # Header vacío
+        grid_layout.addWidget(QLabel(""), 0, 0)
 
-        # Días de la semana
-        self.dias_semana = ["Lunes", "Martes", "Miércoles", "Jueves", "Viernes"]
-        self.checks_dias_trabajo = {}
-
-        # Layout horizontal para los días
-        dias_layout = QHBoxLayout()
-        dias_layout.setSpacing(20)
-
-        for dia in self.dias_semana:
-            check_dia = QCheckBox(dia)
-            check_dia.setStyleSheet("""
-                QCheckBox {
-                    font-size: 13px;
-                    font-weight: 500;
-                    padding: 8px;
-                    color: #ffffff;
-                    min-width: 80px;
-                }
-                QCheckBox::indicator {
-                    width: 20px;
-                    height: 20px;
-                    margin-right: 8px;
-                }
-                QCheckBox::indicator:unchecked {
-                    background-color: #4a4a4a;
-                    border: 2px solid #666666;
-                    border-radius: 4px;
-                }
-                QCheckBox::indicator:unchecked:hover {
-                    border-color: #4a9eff;
-                    background-color: #5a5a5a;
-                }
-                QCheckBox::indicator:checked {
-                    background-color: #4a9eff;
-                    border: 2px solid #4a9eff;
-                    border-radius: 4px;
-                }
-                QCheckBox:hover {
-                    background-color: rgba(74, 158, 255, 0.1);
-                    border-radius: 6px;
-                }
+        # Headers de días - MÁS GRANDES
+        for col, dia in enumerate(self.dias_semana):
+            header = QLabel(dia)
+            header.setAlignment(Qt.AlignmentFlag.AlignCenter)
+            header.setFont(QFont("Arial", 11, QFont.Weight.Bold))
+            header.setStyleSheet("""
+                background-color: #4a4a4a; 
+                padding: 8px; 
+                border-radius: 4px; 
+                color: white;
+                min-width: 74px;
+                max-width: 74px;
+                min-height: 30px;
             """)
-            self.checks_dias_trabajo[dia] = check_dia
-            dias_layout.addWidget(check_dia)
+            grid_layout.addWidget(header, 0, col + 1)
 
-        layout_disponibilidad.addLayout(dias_layout)
+        # Crear widgets de franjas - MÁS GRANDES
+        self.franjas_widgets = {}
 
-        # Información adicional
-        info_extra = QLabel("💡 El profesor podrá dar clases solo en los días marcados")
-        info_extra.setStyleSheet("color: #90EE90; font-size: 14px; font-style: italic; margin-top: 3px;")
-        layout_disponibilidad.addWidget(info_extra)
+        for fila, horario in enumerate(self.horarios_fijos):
+            # Header de horario - MÁS GRANDE
+            horario_header = QLabel(horario)
+            horario_header.setAlignment(Qt.AlignmentFlag.AlignCenter)
+            horario_header.setFont(QFont("Arial", 10, QFont.Weight.Bold))
+            horario_header.setStyleSheet("""
+                background-color: #5a5a5a; 
+                padding: 8px; 
+                border-radius: 4px; 
+                color: white;
+                min-width: 70px;
+                max-width: 70px;
+                min-height: 30px;
+                max-height: 30px;
+            """)
+            grid_layout.addWidget(horario_header, fila + 1, 0)
+
+            # Franjas del horario - TAMAÑO GRANDE
+            for col, dia in enumerate(self.dias_semana):
+                franja = FranjaProfesorWidget(dia, horario, self)
+                franja.actualizar_estado('deshabilitado')  # Por defecto deshabilitado
+                franja.setFixedSize(90, 55)
+
+                key = (dia, horario)
+                self.franjas_widgets[key] = franja
+                grid_layout.addWidget(franja, fila + 1, col + 1)
+
+        self.grid_horarios_group.setLayout(grid_layout)
+
+    def actualizar_grid_horarios(self):
+        """Actualiza el estado del grid cuando cambian los días de trabajo"""
+        dias_marcados = [dia for dia, check in self.checks_dias_trabajo.items() if check.isChecked()]
+
+        for (dia, horario), franja in self.franjas_widgets.items():
+            if dia in dias_marcados:
+                if franja.estado == 'deshabilitado':
+                    franja.actualizar_estado('disponible')
+            else:
+                franja.actualizar_estado('deshabilitado')
+
+    def cambiar_modo_marcado(self, nuevo_modo):
+        """Cambia el modo de marcado entre tutoría y otros"""
+        self.modo_marcado_actual = nuevo_modo
+
+        # Actualizar botones
+        self.btn_modo_tutoria.setChecked(nuevo_modo == 'tutoria')
+        self.btn_modo_otros.setChecked(nuevo_modo == 'otros')
+
+    def limpiar_todo_grid(self):
+        """Limpia todas las franjas del grid"""
+        for (dia, horario), franja in self.franjas_widgets.items():
+            if franja.estado != 'deshabilitado':
+                franja.actualizar_estado('disponible')
+
+    def manejar_cambio_franja(self, dia, horario, estado):
+        """Maneja cambios en las franjas con estadísticas"""
+
+        # SOLO validar si el usuario está interactuando (no durante inicialización)
+        if not hasattr(self, 'checks_dias_trabajo') or not self.checks_dias_trabajo:
+            return
+
+        # Obtener días marcados como laborables
+        dias_marcados = [dia for dia, check in self.checks_dias_trabajo.items() if check.isChecked()]
+
+        # Si no hay días marcados, no validar todavía
+        if not dias_marcados:
+            return
+
+        # Contar estados SOLO en días marcados como laborables
+        stats = {'disponible': 0, 'tutoria': 0, 'otros': 0}
+
+        for (franja_dia, franja_horario), franja in self.franjas_widgets.items():
+            # SOLO contar franjas de días laborables
+            if franja_dia in dias_marcados and franja.estado != 'deshabilitado':
+                stats[franja.estado] += 1
+
+        # Log del cambio
+        tipo_cambio = {
+            'tutoria': '🎓 TUTORÍA',
+            'otros': '❌ OCUPADO',
+            'disponible': '✅ LIBERADO'
+        }.get(estado, estado)
+
+        print(f"{tipo_cambio}: {dia} {horario}")
+        print(f"📊 Disponibles: {stats['disponible']}, Tutorías: {stats['tutoria']}, Ocupados: {stats['otros']}")
+
+        # Calcular total de franjas posibles en días laborables
+        total_franjas_posibles = len(dias_marcados) * len(self.horarios_fijos)
+
 
     def agregar_fecha_no_disponible(self, fecha):
         """Agregar fecha a la lista de no disponibles"""
@@ -521,6 +846,20 @@ class GestionProfesorDialog(QDialog):
         if current_item:
             row = self.lista_fechas_no_disponibles.row(current_item)
             self.lista_fechas_no_disponibles.takeItem(row)
+
+    def limpiar_todas_fechas(self):
+        """Limpiar todas las fechas no disponibles"""
+        if self.lista_fechas_no_disponibles.count() == 0:
+            return
+
+        respuesta = QMessageBox.question(
+            self, "Limpiar Fechas",
+            f"¿Eliminar todas las {self.lista_fechas_no_disponibles.count()} fechas no disponibles?",
+            QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No
+        )
+
+        if respuesta == QMessageBox.StandardButton.Yes:
+            self.lista_fechas_no_disponibles.clear()
 
     def ordenar_fechas_no_disponibles(self):
         """Ordenar fechas no disponibles cronológicamente"""
@@ -548,16 +887,14 @@ class GestionProfesorDialog(QDialog):
         datos = self.profesor_existente
 
         # Datos personales
-        self.edit_dni.setText(datos.get('dni', ''))
         self.edit_nombre.setText(datos.get('nombre', ''))
         self.edit_apellidos.setText(datos.get('apellidos', ''))
-        self.edit_email.setText(datos.get('email', ''))
 
         # Observaciones
         self.edit_observaciones.setText(datos.get('observaciones', ''))
 
         # Asignaturas que puede impartir
-        asignaturas_imparte = datos.get('asignaturas_puede_impartir', [])
+        asignaturas_imparte = datos.get('asignaturas_imparte', [])
         for key, check in self.checks_asignaturas.items():
             if key in asignaturas_imparte:
                 check.setChecked(True)
@@ -567,6 +904,17 @@ class GestionProfesorDialog(QDialog):
         for dia, check in self.checks_dias_trabajo.items():
             if dia in dias_trabajo:
                 check.setChecked(True)
+
+        # Actualizar grid después de marcar días
+        self.actualizar_grid_horarios()
+
+        # Cargar horarios bloqueados
+        horarios_bloqueados = datos.get('horarios_bloqueados', {})
+        for dia, horarios_dia in horarios_bloqueados.items():
+            for horario, tipo_bloqueo in horarios_dia.items():
+                key = (dia, horario)
+                if key in self.franjas_widgets:
+                    self.franjas_widgets[key].actualizar_estado(tipo_bloqueo)
 
         # Fechas no disponibles
         fechas_no_disponibles = datos.get('fechas_no_disponibles', [])
@@ -583,10 +931,6 @@ class GestionProfesorDialog(QDialog):
 
     def validar_y_aceptar(self):
         """Validar datos antes de aceptar"""
-        if not self.edit_dni.text().strip():
-            QMessageBox.warning(self, "Campo requerido", "El DNI es obligatorio")
-            self.edit_dni.setFocus()
-            return
 
         if not self.edit_nombre.text().strip():
             QMessageBox.warning(self, "Campo requerido", "El nombre es obligatorio")
@@ -602,7 +946,7 @@ class GestionProfesorDialog(QDialog):
         asignaturas_seleccionadas = [key for key, check in self.checks_asignaturas.items() if check.isChecked()]
         if not asignaturas_seleccionadas:
             QMessageBox.warning(self, "Asignaturas requeridas",
-                                "El profesor debe poder impartir al menos una asignatura")
+                                "El profesor debe impartir al menos una asignatura")
             return
 
         # Validar que tenga al menos un día de trabajo
@@ -616,11 +960,19 @@ class GestionProfesorDialog(QDialog):
 
     def get_datos_profesor(self):
         """Obtener datos configurados del profesor"""
-        # Obtener asignaturas que puede impartir
-        asignaturas_puede_impartir = [key for key, check in self.checks_asignaturas.items() if check.isChecked()]
+        # Obtener asignaturas que imparte
+        asignaturas_imparte = [key for key, check in self.checks_asignaturas.items() if check.isChecked()]
 
         # Obtener días de trabajo
         dias_trabajo = [dia for dia, check in self.checks_dias_trabajo.items() if check.isChecked()]
+
+        # Obtener horarios bloqueados
+        horarios_bloqueados = {}
+        for (dia, horario), franja in self.franjas_widgets.items():
+            if franja.estado in ['tutoria', 'otros']:
+                if dia not in horarios_bloqueados:
+                    horarios_bloqueados[dia] = {}
+                horarios_bloqueados[dia][horario] = franja.estado
 
         # Obtener fechas no disponibles
         fechas_no_disponibles = []
@@ -630,16 +982,16 @@ class GestionProfesorDialog(QDialog):
 
         return {
             # Datos personales
-            'dni': self.edit_dni.text().strip().upper(),
+            'id': str(uuid.uuid4()),  # Generar ID único
             'nombre': self.edit_nombre.text().strip(),
             'apellidos': self.edit_apellidos.text().strip(),
-            'email': self.edit_email.text().strip().lower(),
 
             # Asignaturas
-            'asignaturas_puede_impartir': asignaturas_puede_impartir,
+            'asignaturas_imparte': asignaturas_imparte,
 
             # Disponibilidad
             'dias_trabajo': dias_trabajo,
+            'horarios_bloqueados': horarios_bloqueados,
             'fechas_no_disponibles': fechas_no_disponibles,
 
             # Observaciones
@@ -834,8 +1186,8 @@ class ConfigurarProfesores(QMainWindow):
                             semestre = "1"  # Por defecto
 
                         # Añadir asignatura al semestre correspondiente
-                        if nombre:  # Solo si tiene nombre
-                            asignaturas_transformadas[semestre][nombre] = asig_data
+                        if nombre and codigo:  # Solo si tiene nombre y código
+                            asignaturas_transformadas[semestre][codigo] = asig_data
 
                     return asignaturas_transformadas
 
@@ -1006,10 +1358,6 @@ class ConfigurarProfesores(QMainWindow):
         self.btn_gestionar_disponibilidad.clicked.connect(self.gestionar_disponibilidad)
         acciones_layout.addWidget(self.btn_gestionar_disponibilidad)
 
-        self.btn_buscar_duplicados = QPushButton("🔍 Buscar Duplicados")
-        self.btn_buscar_duplicados.clicked.connect(self.buscar_duplicados)
-        acciones_layout.addWidget(self.btn_buscar_duplicados)
-
         self.btn_sincronizar = QPushButton("🔄 Sincronizar Asignaturas")
         self.btn_sincronizar.setToolTip("Sincronizar con las asignaturas configuradas en el sistema")
         self.btn_sincronizar.clicked.connect(self.sincronizar_asignaturas)
@@ -1124,12 +1472,14 @@ class ConfigurarProfesores(QMainWindow):
         sem2 = self.asignaturas_disponibles.get("2", {})
 
         if sem1:
-            for asignatura in sorted(sem1.keys()):
-                self.combo_filtro_asignatura.addItem(f"1º - {asignatura}")
+            for codigo_asig in sorted(sem1.keys()):
+                nombre_asig = sem1[codigo_asig].get('nombre', codigo_asig)
+                self.combo_filtro_asignatura.addItem(f"1º - {nombre_asig} ({codigo_asig})")
 
         if sem2:
-            for asignatura in sorted(sem2.keys()):
-                self.combo_filtro_asignatura.addItem(f"2º - {asignatura}")
+            for codigo_asig in sorted(sem2.keys()):
+                nombre_asig = sem2[codigo_asig].get('nombre', codigo_asig)
+                self.combo_filtro_asignatura.addItem(f"2º - {nombre_asig} ({codigo_asig})")
 
     def crear_boton_accion(self, icono, color, tooltip):
         """Crear botón de acción con estilo consistente"""
@@ -1298,7 +1648,7 @@ class ConfigurarProfesores(QMainWindow):
         profesores_filtrados = []
 
         for dni, datos in self.datos_configuracion.items():
-            asignaturas_imparte = datos.get('asignaturas_puede_impartir', [])
+            asignaturas_imparte = datos.get('asignaturas_imparte', [])
 
             # FILTRO POR ASIGNATURA
             incluir_por_asignatura = False
@@ -1309,12 +1659,17 @@ class ConfigurarProfesores(QMainWindow):
             else:
                 # Extraer semestre y asignatura del filtro "1º - Fisica"
                 if " - " in filtro_texto:
-                    sem, asig = filtro_texto.split(" - ", 1)
+                    sem, asig_completa = filtro_texto.split(" - ", 1)
                     sem_num = sem[0]  # "1º" -> "1"
-                    asig_key = f"{sem_num}_{asig}"
+
+                    # Extraer código de asignatura del formato "Nombre (CÓDIGO)"
+                    if "(" in asig_completa and ")" in asig_completa:
+                        codigo_asig = asig_completa.split("(")[1].split(")")[0]
+                    else:
+                        codigo_asig = asig_completa
 
                     # Verificar si puede impartir esta asignatura específica
-                    if asig_key in asignaturas_imparte:
+                    if codigo_asig in asignaturas_imparte:
                         incluir_por_asignatura = True
 
             # Si no pasa el filtro de asignatura, saltar
@@ -1366,10 +1721,10 @@ class ConfigurarProfesores(QMainWindow):
             disponible_hoy = dia_hoy in dias_trabajo and fecha_hoy not in fechas_no_disponibles
             disponibilidad = "✅" if disponible_hoy else "⏸️"
 
-            num_asignaturas = len(datos.get('asignaturas_puede_impartir', []))
+            num_asignaturas = len(datos.get('asignaturas_imparte', []))
             num_dias_trabajo = len(dias_trabajo)
 
-            texto_item = f"{disponibilidad} {nombre_completo.strip()} [{dni}] ({num_asignaturas} asig., {num_dias_trabajo} días)"
+            texto_item = f"{disponibilidad} {nombre_completo.strip()} ({num_asignaturas} asig., {num_dias_trabajo} días)"
 
             item = QListWidgetItem(texto_item)
             item.setData(Qt.ItemDataRole.UserRole, dni)
@@ -1407,19 +1762,27 @@ class ConfigurarProfesores(QMainWindow):
 
         # Mostrar información detallada
         info = f"👨‍🏫 PROFESOR: {nombre_completo.strip()}\n\n"
-        info += f"🆔 DNI: {datos.get('dni', 'No definido')}\n"
-        info += f"📧 Email: {datos.get('email', 'No definido')}\n\n"
 
-        # Mostrar asignaturas que puede impartir
-        asignaturas_imparte = datos.get('asignaturas_puede_impartir', [])
+        # Mostrar asignaturas que imparte
+        asignaturas_imparte = datos.get('asignaturas_imparte', [])
         info += f"📚 ASIGNATURAS ({len(asignaturas_imparte)}):\n"
         if asignaturas_imparte:
-            for asig in asignaturas_imparte:
-                if '_' in asig:
-                    semestre, nombre_asig = asig.split('_', 1)
-                    info += f"  • {nombre_asig} ({semestre}º cuatr.)\n"
+            for codigo_asig in asignaturas_imparte:
+                # Buscar el nombre de la asignatura por su código
+                nombre_encontrado = None
+                semestre_encontrado = None
+
+                for sem in ["1", "2"]:
+                    if codigo_asig in self.asignaturas_disponibles.get(sem, {}):
+                        asig_data = self.asignaturas_disponibles[sem][codigo_asig]
+                        nombre_encontrado = asig_data.get('nombre', codigo_asig)
+                        semestre_encontrado = sem
+                        break
+
+                if nombre_encontrado:
+                    info += f"  • {nombre_encontrado} ({codigo_asig}) - {semestre_encontrado}º sem.\n"
                 else:
-                    info += f"  • {asig}\n"
+                    info += f"  • {codigo_asig}\n"
         else:
             info += "  Sin asignaturas asignadas\n"
 
@@ -1452,28 +1815,24 @@ class ConfigurarProfesores(QMainWindow):
 
         if dialog.exec() == QDialog.DialogCode.Accepted:
             datos = dialog.get_datos_profesor()
-            dni = datos['dni']
-
-            if dni in self.datos_configuracion:
-                QMessageBox.warning(self, "Error", f"Ya existe un profesor con el DNI '{dni}'")
-                return
+            profesor_id = datos['id']
 
             # Añadir nuevo profesor
-            self.datos_configuracion[dni] = datos
+            self.datos_configuracion[profesor_id] = datos
 
             # Auto-ordenar
             self.ordenar_profesores_alfabeticamente()
 
             # Actualizar interfaz
             self.aplicar_filtro_asignatura()
-            self.auto_seleccionar_profesor(dni)
+            self.auto_seleccionar_profesor(profesor_id)
             self.marcar_cambio_realizado()
 
             nombre = f"{datos.get('apellidos', '')} {datos.get('nombre', '')}"
-            num_asignaturas = len(datos.get('asignaturas_puede_impartir', []))
+            num_asignaturas = len(datos.get('asignaturas_imparte', []))
             QMessageBox.information(self, "Éxito",
                                     f"Profesor '{nombre.strip()}' añadido correctamente\n"
-                                    f"Asignaturas que puede impartir: {num_asignaturas}")
+                                    f"Asignaturas que imparte: {num_asignaturas}")
 
     def editar_profesor_seleccionado(self):
         """Editar profesor seleccionado"""
@@ -1486,27 +1845,19 @@ class ConfigurarProfesores(QMainWindow):
 
         if dialog.exec() == QDialog.DialogCode.Accepted:
             datos_nuevos = dialog.get_datos_profesor()
-            dni_nuevo = datos_nuevos['dni']
-            dni_original = self.profesor_actual
 
-            # Si cambió el DNI, verificar que no exista
-            if dni_nuevo != dni_original and dni_nuevo in self.datos_configuracion:
-                QMessageBox.warning(self, "Error", f"Ya existe un profesor con el DNI '{dni_nuevo}'")
-                return
+            # Conservar el ID original
+            datos_nuevos['id'] = self.profesor_actual
+            profesor_id = self.profesor_actual
 
-            # Actualizar datos
-            if dni_nuevo != dni_original:
-                del self.datos_configuracion[dni_original]
-                self.profesor_actual = dni_nuevo
-
-            self.datos_configuracion[dni_nuevo] = datos_nuevos
+            self.datos_configuracion[profesor_id] = datos_nuevos
 
             # Auto-ordenar
             self.ordenar_profesores_alfabeticamente()
 
             # Actualizar interfaz
             self.aplicar_filtro_asignatura()
-            self.auto_seleccionar_profesor(dni_nuevo)
+            self.auto_seleccionar_profesor(profesor_id)
             self.marcar_cambio_realizado()
 
             QMessageBox.information(self, "Éxito", "Profesor actualizado correctamente")
@@ -1548,42 +1899,25 @@ class ConfigurarProfesores(QMainWindow):
 
         datos_originales = self.datos_configuracion[self.profesor_actual].copy()
 
-        # Generar DNI único (simulado)
-        dni_base = datos_originales['dni'][:-1]  # Sin la letra
-        letra_original = datos_originales['dni'][-1]
-
-        # Buscar letra disponible
-        letras = "ABCDEFGHIJKLMNPQRSTUVWXYZ"
-        dni_nuevo = datos_originales['dni']
-
-        for letra in letras:
-            if letra != letra_original:
-                dni_nuevo = dni_base + letra
-                if dni_nuevo not in self.datos_configuracion:
-                    break
-
-        datos_originales['dni'] = dni_nuevo
+        # Generar nuevo ID único y modificar nombre
+        datos_originales['id'] = str(uuid.uuid4())
         datos_originales['nombre'] = datos_originales.get('nombre', '') + " (copia)"
 
         dialog = GestionProfesorDialog(datos_originales, self.asignaturas_disponibles, self)
 
         if dialog.exec() == QDialog.DialogCode.Accepted:
             datos_nuevos = dialog.get_datos_profesor()
-            dni_final = datos_nuevos['dni']
+            profesor_id = datos_nuevos['id']
 
-            if dni_final in self.datos_configuracion:
-                QMessageBox.warning(self, "Error", f"Ya existe un profesor con el DNI '{dni_final}'")
-                return
-
-            # Añadir profesor duplicado
-            self.datos_configuracion[dni_final] = datos_nuevos
+            # Añadir profesor duplicado (el ID ya es único)
+            self.datos_configuracion[profesor_id] = datos_nuevos
 
             # Auto-ordenar
             self.ordenar_profesores_alfabeticamente()
 
             # Actualizar interfaz
             self.aplicar_filtro_asignatura()
-            self.auto_seleccionar_profesor(dni_final)
+            self.auto_seleccionar_profesor(profesor_id)
             self.marcar_cambio_realizado()
 
             nombre = f"{datos_nuevos.get('apellidos', '')} {datos_nuevos.get('nombre', '')}"
@@ -1607,44 +1941,6 @@ class ConfigurarProfesores(QMainWindow):
         mensaje += "Para modificar la disponibilidad, usa 'Editar Profesor'."
 
         QMessageBox.information(self, "Gestión de Disponibilidad", mensaje)
-
-    def buscar_duplicados(self):
-        """Buscar profesores duplicados por DNI o nombre completo"""
-        if not self.datos_configuracion:
-            QMessageBox.information(self, "Sin Datos", "No hay profesores para analizar")
-            return
-
-        duplicados_nombre = {}
-
-        # Buscar duplicados por nombre completo
-        for dni, datos in self.datos_configuracion.items():
-            nombre_completo = f"{datos.get('apellidos', '')} {datos.get('nombre', '')}".strip().lower()
-            if nombre_completo in duplicados_nombre:
-                duplicados_nombre[nombre_completo].append((dni, datos))
-            else:
-                duplicados_nombre[nombre_completo] = [(dni, datos)]
-
-        # Filtrar solo los que tienen duplicados
-        duplicados_reales = []
-        for nombre, lista in duplicados_nombre.items():
-            if len(lista) > 1:
-                duplicados_reales.append((nombre, lista))
-
-        if not duplicados_reales:
-            QMessageBox.information(self, "Análisis Completo", "✅ No se encontraron profesores duplicados")
-        else:
-            mensaje = f"⚠️ Se encontraron {len(duplicados_reales)} grupos de profesores duplicados:\n\n"
-            for nombre, lista in duplicados_reales[:5]:  # Mostrar solo los primeros 5
-                mensaje += f"• {nombre.title()}:\n"
-                for dni, datos in lista:
-                    num_asig = len(datos.get('asignaturas_puede_impartir', []))
-                    mensaje += f"  - DNI: {dni} ({num_asig} asignaturas)\n"
-                mensaje += "\n"
-
-            if len(duplicados_reales) > 5:
-                mensaje += f"... y {len(duplicados_reales) - 5} grupos más."
-
-            QMessageBox.warning(self, "Duplicados Encontrados", mensaje)
 
     def sincronizar_asignaturas(self):
         """Sincronizar asignaturas con el sistema"""
@@ -1698,7 +1994,7 @@ class ConfigurarProfesores(QMainWindow):
         stats_asignaturas = {}
 
         for dni, datos in self.datos_configuracion.items():
-            asignaturas_imparte = datos.get('asignaturas_puede_impartir', [])
+            asignaturas_imparte = datos.get('asignaturas_imparte', [])
 
             for asig_key in asignaturas_imparte:
                 if asig_key not in stats_asignaturas:
@@ -1752,7 +2048,7 @@ class ConfigurarProfesores(QMainWindow):
             df = pd.read_csv(archivo)
 
             # Verificar columnas requeridas
-            columnas_requeridas = ['dni', 'nombre', 'apellidos']
+            columnas_requeridas = ['nombre', 'apellidos']
             columnas_faltantes = [col for col in columnas_requeridas if col not in df.columns]
 
             if columnas_faltantes:
@@ -1767,13 +2063,13 @@ class ConfigurarProfesores(QMainWindow):
             profesores_duplicados = 0
 
             for _, row in df.iterrows():
-                dni = str(row['dni']).strip().upper()
-                if not dni:
+                nombre = str(row['nombre']).strip()
+                apellidos = str(row['apellidos']).strip()
+                if not nombre or not apellidos:
                     continue
 
-                if dni in self.datos_configuracion:
-                    profesores_duplicados += 1
-                    continue
+                # Generar ID único para cada importación
+                profesor_id = str(uuid.uuid4())
 
                 # Procesar asignaturas si existe la columna
                 asignaturas_imparte = []
@@ -1791,12 +2087,11 @@ class ConfigurarProfesores(QMainWindow):
                     dias_str = str(row['dias_trabajo']).strip()
                     dias_trabajo = [dia.strip() for dia in dias_str.split(',') if dia.strip()]
 
-                self.datos_configuracion[dni] = {
-                    'dni': dni,
+                self.datos_configuracion[profesor_id] = {
+                    'id': profesor_id,
                     'nombre': str(row['nombre']).strip(),
                     'apellidos': str(row.get('apellidos', '')).strip(),
-                    'email': str(row.get('email', '')).strip().lower(),
-                    'asignaturas_puede_impartir': asignaturas_imparte,
+                    'asignaturas_imparte': asignaturas_imparte,
                     'dias_trabajo': dias_trabajo,
                     'fechas_no_disponibles': [],
                     'observaciones': str(row.get('observaciones', '')).strip(),
@@ -1839,9 +2134,9 @@ class ConfigurarProfesores(QMainWindow):
 
         try:
             datos_export = []
-            for dni, datos in self.datos_configuracion.items():
+            for profesor_id, datos in self.datos_configuracion.items():
                 # Expandir por asignatura (una fila por asignatura)
-                asignaturas = datos.get('asignaturas_puede_impartir', [])
+                asignaturas = datos.get('asignaturas_imparte', [])
                 if not asignaturas:
                     asignaturas = ['Sin asignatura']
 
@@ -1853,10 +2148,9 @@ class ConfigurarProfesores(QMainWindow):
                         sem, asignatura = '', asig_key
 
                     datos_export.append({
-                        'dni': dni,
+                        'id': profesor_id,
                         'nombre': datos.get('nombre', ''),
                         'apellidos': datos.get('apellidos', ''),
-                        'email': datos.get('email', ''),
                         'asignatura': asignatura,
                         'semestre': sem,
                         'dias_trabajo': ', '.join(datos.get('dias_trabajo', [])),
@@ -1996,7 +2290,7 @@ class ConfigurarProfesores(QMainWindow):
             # Contar asignaturas únicas
             asignaturas_unicas = set()
             for datos in self.datos_configuracion.values():
-                asignaturas_unicas.update(datos.get('asignaturas_puede_impartir', []))
+                asignaturas_unicas.update(datos.get('asignaturas_imparte', []))
 
             respuesta = QMessageBox.question(
                 self, "Guardar y Cerrar",
@@ -2175,23 +2469,21 @@ def main():
 
     # Datos de ejemplo con estructura de profesores
     datos_ejemplo = {
-        "12345678A": {
-            "dni": "12345678A",
+        "prof_001": {
+            "id": "prof_001",
             "nombre": "Juan",
             "apellidos": "García López",
-            "email": "juan.garcia@upm.es",
-            "asignaturas_puede_impartir": ["1_Fisica I", "2_Fisica II"],
+            "asignaturas_imparte": ["FIS1", "QUI1"],
             "dias_trabajo": ["Lunes", "Martes", "Miércoles"],
             "fechas_no_disponibles": ["15/03/2025", "22/03/2025"],
             "observaciones": "Profesor titular con experiencia",
             "fecha_creacion": datetime.now().isoformat()
         },
-        "23456789B": {
-            "dni": "23456789B",
+        "prof_002": {
+            "id": "prof_002",
             "nombre": "María",
             "apellidos": "Fernández Ruiz",
-            "email": "maria.fernandez@upm.es",
-            "asignaturas_puede_impartir": ["1_Quimica General", "2_Quimica Organica"],
+            "asignaturas_imparte": ["EANA", "EDIG"],
             "dias_trabajo": ["Martes", "Jueves", "Viernes"],
             "fechas_no_disponibles": ["10/04/2025"],
             "observaciones": "Profesora asociada",
