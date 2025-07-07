@@ -267,7 +267,13 @@ class GestionCursoDialog(QDialog):
         asignaturas = datos.get('asignaturas_asociadas', [])
         self.list_asignaturas_dialog.clear()
         for asignatura in sorted(asignaturas):
-            item = QListWidgetItem(asignatura)
+            # Buscar nombre de la asignatura
+            nombre_asignatura = asignatura
+            if self.asignaturas_disponibles and asignatura in self.asignaturas_disponibles:
+                nombre_asignatura = self.asignaturas_disponibles[asignatura].get('nombre', asignatura)
+
+            texto_display = f"{asignatura} - {nombre_asignatura}"
+            item = QListWidgetItem(texto_display)
             item.setData(Qt.ItemDataRole.UserRole, asignatura)
             self.list_asignaturas_dialog.addItem(item)
 
@@ -1098,7 +1104,7 @@ class ConfigurarCursos(QMainWindow):
                 nombre_asignatura = asignatura
                 if asignatura in self.asignaturas_disponibles:
                     nombre_asignatura = self.asignaturas_disponibles[asignatura].get('nombre', asignatura)
-                info += f"  • {nombre_asignatura}\n"
+                info += f"  • {asignatura} - {nombre_asignatura}\n"
         else:
             info += f"📚 ASIGNATURAS: Sin asignaturas asociadas\n"
         info += "\n"

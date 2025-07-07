@@ -1672,15 +1672,26 @@ class ConfigurarAlumnos(QMainWindow):
                 info += f"👥 Grupos: No definido\n\n"
 
         # Mostrar asignaturas matriculadas
-        asignaturas_matriculadas = datos.get('asignaturas_matriculadas', [])
+        asignaturas_matriculadas = datos.get('asignaturas_matriculadas', {})
         info += f"📚 ASIGNATURAS ({len(asignaturas_matriculadas)}):\n"
         if asignaturas_matriculadas:
-            for asig in asignaturas_matriculadas:
-                if '_' in asig:
-                    semestre, nombre_asig = asig.split('_', 1)
-                    info += f"  • {nombre_asig} ({semestre}º cuatr.)\n"
-                else:
-                    info += f"  • {asig}\n"
+            for asig_key, asig_info in asignaturas_matriculadas.items():
+                if asig_info.get('matriculado', False):
+                    # Buscar el nombre de la asignatura por su código
+                    codigo_asignatura = asig_key
+                    nombre_asignatura = asig_key  # Por defecto, si no se encuentra
+
+                    # Buscar en asignaturas disponibles
+                    for sem in ["1", "2"]:
+                        for nombre, asig_data in self.asignaturas_disponibles.get(sem, {}).items():
+                            if asig_data.get('codigo') == asig_key:
+                                codigo_asignatura = asig_key
+                                nombre_asignatura = nombre
+                                break
+                        if nombre_asignatura != asig_key:
+                            break
+
+                    info += f"  • {codigo_asignatura} - {nombre_asignatura}\n"
         else:
             info += "  Sin asignaturas matriculadas\n"
 
@@ -2482,11 +2493,21 @@ class ConfigurarAlumnos(QMainWindow):
         if stats_asignaturas:
             stats_texto += f"📚 POR ASIGNATURA:\n"
             for asig_key, stats in sorted(stats_asignaturas.items()):
-                if '_' in asig_key:
-                    sem, nombre = asig_key.split('_', 1)
-                    nombre_completo = f"{nombre} ({sem}º)"
-                else:
-                    nombre_completo = asig_key
+                # Buscar el nombre completo de la asignatura por su código
+                codigo_asignatura = asig_key
+                nombre_asignatura = asig_key  # Por defecto
+
+                # Buscar en asignaturas disponibles
+                for sem in ["1", "2"]:
+                    for nombre, asig_data in self.asignaturas_disponibles.get(sem, {}).items():
+                        if asig_data.get('codigo') == asig_key:
+                            codigo_asignatura = asig_key
+                            nombre_asignatura = nombre
+                            break
+                    if nombre_asignatura != asig_key:
+                        break
+
+                nombre_completo = f"{codigo_asignatura} - {nombre_asignatura}"
 
                 total = stats['total']
                 con_exp = stats['con_experiencia']

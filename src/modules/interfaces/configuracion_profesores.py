@@ -645,7 +645,7 @@ class GestionProfesorDialog(QDialog):
             # Obtener el nombre para mostrar en el checkbox
             asig_data = asignaturas_dict[codigo_asignatura]
             nombre_asignatura = asig_data.get('nombre', codigo_asignatura)
-            check_asignatura = QCheckBox(f"{nombre_asignatura} ({codigo_asignatura})")
+            check_asignatura = QCheckBox(f"{codigo_asignatura} - {nombre_asignatura}")
             check_asignatura.setStyleSheet("""
                 QCheckBox {
                     font-size: 11px;
@@ -1794,7 +1794,7 @@ class ConfigurarProfesores(QMainWindow):
                         break
 
                 if nombre_encontrado:
-                    info += f"  • {nombre_encontrado} ({codigo_asig}) - {semestre_encontrado}º sem.\n"
+                    info += f"  • {codigo_asig} - {nombre_encontrado} ({semestre_encontrado}º sem.)\n"
                 else:
                     info += f"  • {codigo_asig}\n"
         else:
