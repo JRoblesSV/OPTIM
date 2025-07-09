@@ -1,0 +1,4540 @@
+{
+  "metadata": {
+    "version": "1.0",
+    "timestamp": "2025-07-07T21:35:11.805702",
+    "semestre_actual": 1,
+    "generado_por": "ejemplo_uso_optim.py",
+    "descripcion": "Datos de ejemplo para demostración del sistema OPTIM"
+  },
+  "configuracion": {
+    "cursos": {
+      "configurado": true,
+      "datos": {
+        "GIE": {
+          "codigo": "GIE",
+          "nombre": "Grado en Ingeniería Electrónica Industrial y Automática",
+          "director": "Dr. García López",
+          "departamento": "Ingeniería Electrónica",
+          "creditos_totales": 240,
+          "plazas": 120,
+          "estudiantes_matriculados": 115,
+          "horario_tipo": "Mañana",
+          "observaciones": "Grado principal de la escuela",
+          "fecha_creacion": "2025-07-07T21:35:11.804701",
+          "activo": true,
+          "asignaturas_asociadas": [
+            "IE001",
+            "IE002",
+            "IE003",
+            "IE004",
+            "IE005"
+          ]
+        },
+        "GITI": {
+          "codigo": "GITI",
+          "nombre": "Grado en Ingeniería en Tecnologías Industriales",
+          "director": "Dra. Martínez Ruiz",
+          "departamento": "Ingeniería Industrial",
+          "creditos_totales": 240,
+          "plazas": 80,
+          "estudiantes_matriculados": 78,
+          "horario_tipo": "Tarde",
+          "observaciones": "Enfoque en tecnologías avanzadas",
+          "fecha_creacion": "2025-07-07T21:35:11.804701",
+          "activo": true,
+          "asignaturas_asociadas": [
+            "TI001",
+            "TI002",
+            "TI003"
+          ]
+        },
+        "DOBLE": {
+          "codigo": "DOBLE",
+          "nombre": "Doble Grado GIE + GITI",
+          "director": "Dr. Fernández Silva",
+          "departamento": "Coordinación Académica",
+          "creditos_totales": 360,
+          "plazas": 40,
+          "estudiantes_matriculados": 35,
+          "horario_tipo": "Mixto",
+          "observaciones": "Programa de excelencia académica",
+          "fecha_creacion": "2025-07-07T21:35:11.804701",
+          "activo": true,
+          "asignaturas_asociadas": [
+            "IE001",
+            "IE002",
+            "TI001",
+            "TI002"
+          ]
+        }
+      },
+      "total": 3,
+      "fecha_actualizacion": "2025-07-07T21:35:11.805702"
+    },
+    "asignaturas": {
+      "configurado": true,
+      "datos": {
+        "IE001": {
+          "codigo": "IE001",
+          "nombre": "Instrumentación Electrónica",
+          "curso": 3,
+          "semestre": 1,
+          "creditos": 6.0,
+          "horas_laboratorio": 30,
+          "numero_grupos": 3,
+          "capacidad_maxima": 20,
+          "tipo_laboratorio": "Electrónica",
+          "equipamiento_requerido": [
+            "Osciloscopio",
+            "Multímetro",
+            "Fuente"
+          ],
+          "observaciones": "Requiere conocimientos previos de circuitos",
+          "fecha_actualizacion": "2025-07-07T21:35:11.804701"
+        },
+        "IE002": {
+          "codigo": "IE002",
+          "nombre": "Sistemas de Control",
+          "curso": 3,
+          "semestre": 2,
+          "creditos": 6.0,
+          "horas_laboratorio": 24,
+          "numero_grupos": 2,
+          "capacidad_maxima": 18,
+          "tipo_laboratorio": "Control",
+          "equipamiento_requerido": [
+            "PC",
+            "Software MATLAB",
+            "Planta control"
+          ],
+          "observaciones": "Uso intensivo de software especializado",
+          "fecha_actualizacion": "2025-07-07T21:35:11.804701"
+        },
+        "IE003": {
+          "codigo": "IE003",
+          "nombre": "Robótica Industrial",
+          "curso": 4,
+          "semestre": 1,
+          "creditos": 4.5,
+          "horas_laboratorio": 20,
+          "numero_grupos": 2,
+          "capacidad_maxima": 16,
+          "tipo_laboratorio": "Robótica",
+          "equipamiento_requerido": [
+            "Robot industrial",
+            "PC",
+            "Software RobotStudio"
+          ],
+          "observaciones": "Laboratorio especializado",
+          "fecha_actualizacion": "2025-07-07T21:35:11.804701"
+        },
+        "TI001": {
+          "codigo": "TI001",
+          "nombre": "Materiales Industriales",
+          "curso": 2,
+          "semestre": 1,
+          "creditos": 6.0,
+          "horas_laboratorio": 18,
+          "numero_grupos": 3,
+          "capacidad_maxima": 24,
+          "tipo_laboratorio": "Materiales",
+          "equipamiento_requerido": [
+            "Microscopio",
+            "Máquina ensayos",
+            "Horno"
+          ],
+          "observaciones": "Laboratorio de caracterización",
+          "fecha_actualizacion": "2025-07-07T21:35:11.804701"
+        },
+        "TI002": {
+          "codigo": "TI002",
+          "nombre": "Procesos de Fabricación",
+          "curso": 3,
+          "semestre": 2,
+          "creditos": 6.0,
+          "horas_laboratorio": 32,
+          "numero_grupos": 4,
+          "capacidad_maxima": 20,
+          "tipo_laboratorio": "Fabricación",
+          "equipamiento_requerido": [
+            "Torno CNC",
+            "Fresadora",
+            "Impresora 3D"
+          ],
+          "observaciones": "Requiere medidas de seguridad especiales",
+          "fecha_actualizacion": "2025-07-07T21:35:11.804701"
+        }
+      },
+      "total": 5,
+      "fecha_actualizacion": "2025-07-07T21:35:11.805702"
+    },
+    "horarios": {
+      "configurado": true,
+      "datos": {
+        "1": {
+          "IE001": {
+            "codigo": "IE001",
+            "nombre": "Instrumentación Electrónica",
+            "horarios": {
+              "Lunes": [
+                {
+                  "hora_inicio": "09:00",
+                  "hora_fin": "11:00",
+                  "duracion": 2,
+                  "tipo": "Laboratorio"
+                },
+                {
+                  "hora_inicio": "11:00",
+                  "hora_fin": "13:00",
+                  "duracion": 2,
+                  "tipo": "Laboratorio"
+                }
+              ],
+              "Miércoles": [
+                {
+                  "hora_inicio": "15:00",
+                  "hora_fin": "17:00",
+                  "duracion": 2,
+                  "tipo": "Laboratorio"
+                }
+              ]
+            }
+          },
+          "IE003": {
+            "codigo": "IE003",
+            "nombre": "Robótica Industrial",
+            "horarios": {
+              "Martes": [
+                {
+                  "hora_inicio": "09:00",
+                  "hora_fin": "11:00",
+                  "duracion": 2,
+                  "tipo": "Laboratorio"
+                }
+              ],
+              "Jueves": [
+                {
+                  "hora_inicio": "15:00",
+                  "hora_fin": "17:00",
+                  "duracion": 2,
+                  "tipo": "Laboratorio"
+                }
+              ]
+            }
+          },
+          "TI001": {
+            "codigo": "TI001",
+            "nombre": "Materiales Industriales",
+            "horarios": {
+              "Miércoles": [
+                {
+                  "hora_inicio": "09:00",
+                  "hora_fin": "11:00",
+                  "duracion": 2,
+                  "tipo": "Laboratorio"
+                },
+                {
+                  "hora_inicio": "11:00",
+                  "hora_fin": "13:00",
+                  "duracion": 2,
+                  "tipo": "Laboratorio"
+                }
+              ],
+              "Viernes": [
+                {
+                  "hora_inicio": "09:00",
+                  "hora_fin": "11:00",
+                  "duracion": 2,
+                  "tipo": "Laboratorio"
+                }
+              ]
+            }
+          }
+        },
+        "2": {
+          "IE002": {
+            "codigo": "IE002",
+            "nombre": "Sistemas de Control",
+            "horarios": {
+              "Lunes": [
+                {
+                  "hora_inicio": "15:00",
+                  "hora_fin": "17:00",
+                  "duracion": 2,
+                  "tipo": "Laboratorio"
+                }
+              ],
+              "Viernes": [
+                {
+                  "hora_inicio": "11:00",
+                  "hora_fin": "13:00",
+                  "duracion": 2,
+                  "tipo": "Laboratorio"
+                }
+              ]
+            }
+          },
+          "TI002": {
+            "codigo": "TI002",
+            "nombre": "Procesos de Fabricación",
+            "horarios": {
+              "Martes": [
+                {
+                  "hora_inicio": "15:00",
+                  "hora_fin": "17:00",
+                  "duracion": 2,
+                  "tipo": "Laboratorio"
+                },
+                {
+                  "hora_inicio": "17:00",
+                  "hora_fin": "19:00",
+                  "duracion": 2,
+                  "tipo": "Laboratorio"
+                }
+              ],
+              "Jueves": [
+                {
+                  "hora_inicio": "09:00",
+                  "hora_fin": "11:00",
+                  "duracion": 2,
+                  "tipo": "Laboratorio"
+                },
+                {
+                  "hora_inicio": "11:00",
+                  "hora_fin": "13:00",
+                  "duracion": 2,
+                  "tipo": "Laboratorio"
+                }
+              ]
+            }
+          }
+        }
+      },
+      "archivo": "horarios_generados.json",
+      "timestamp": "2025-07-07T21:35:11.805702",
+      "semestre_actual": "1",
+      "total_asignaturas": 5,
+      "total_franjas": 15
+    },
+    "calendario": {
+      "configurado": true,
+      "datos": {
+        "semestre_1": {
+          "inicio": "2024-09-16",
+          "fin": "2025-01-31",
+          "semanas": 16,
+          "dias_lectivos": {
+            "2024-09-16": "Lunes",
+            "2024-09-17": "Martes",
+            "2024-09-18": "Miércoles",
+            "2024-09-19": "Jueves",
+            "2024-09-20": "Viernes"
+          },
+          "festivos": [
+            "2024-10-12",
+            "2024-11-01",
+            "2024-12-06",
+            "2024-12-23",
+            "2025-01-07"
+          ]
+        },
+        "semestre_2": {
+          "inicio": "2025-02-03",
+          "fin": "2025-06-20",
+          "semanas": 16,
+          "dias_lectivos": {
+            "2025-02-03": "Lunes",
+            "2025-02-04": "Martes",
+            "2025-02-05": "Miércoles"
+          },
+          "festivos": [
+            "2025-03-19",
+            "2025-04-17",
+            "2025-04-18",
+            "2025-05-01",
+            "2025-05-02",
+            "2025-05-15"
+          ]
+        }
+      },
+      "semanas_total": 32,
+      "dias_semestre_1": 80,
+      "dias_semestre_2": 80,
+      "fecha_actualizacion": "2025-07-07T21:35:11.805702"
+    },
+    "aulas": {
+      "configurado": true,
+      "datos": {
+        "LAB_ELEC_1": {
+          "codigo": "LAB_ELEC_1",
+          "nombre": "Laboratorio de Electrónica 1",
+          "ubicacion": "Planta 2 - Ala Norte",
+          "capacidad": 20,
+          "tipo": "Electrónica",
+          "equipamiento": [
+            "20 puestos de trabajo",
+            "Osciloscopios digitales (20)",
+            "Multímetros (20)",
+            "Fuentes de alimentación (20)",
+            "Generadores de señal (10)",
+            "Proyector",
+            "Pizarra digital"
+          ],
+          "asignaturas_compatibles": [
+            "IE001",
+            "IE002"
+          ],
+          "software_instalado": [
+            "Proteus",
+            "LTSpice",
+            "MATLAB"
+          ],
+          "observaciones": "Equipamiento renovado en 2023",
+          "responsable": "Dr. García López",
+          "dias_no_disponibles": [],
+          "horario_mantenimiento": "Sábados 9:00-12:00",
+          "fecha_actualizacion": "2025-07-07T21:35:11.804701"
+        },
+        "LAB_CONTROL": {
+          "codigo": "LAB_CONTROL",
+          "nombre": "Laboratorio de Control",
+          "ubicacion": "Planta 2 - Ala Sur",
+          "capacidad": 18,
+          "tipo": "Control",
+          "equipamiento": [
+            "18 PCs con software especializado",
+            "Plantas de control didácticas (6)",
+            "Adquisidores de datos (6)",
+            "Sensores y actuadores variados",
+            "Proyector 4K",
+            "Sistema de audio"
+          ],
+          "asignaturas_compatibles": [
+            "IE002",
+            "IE003"
+          ],
+          "software_instalado": [
+            "MATLAB/Simulink",
+            "LabVIEW",
+            "Python"
+          ],
+          "observaciones": "Especializado en sistemas de control",
+          "responsable": "Dra. Martínez Ruiz",
+          "dias_no_disponibles": [
+            "Viernes"
+          ],
+          "horario_mantenimiento": "Viernes 14:00-18:00",
+          "fecha_actualizacion": "2025-07-07T21:35:11.804701"
+        },
+        "LAB_ROBOTICA": {
+          "codigo": "LAB_ROBOTICA",
+          "nombre": "Laboratorio de Robótica",
+          "ubicacion": "Planta 3 - Central",
+          "capacidad": 16,
+          "tipo": "Robótica",
+          "equipamiento": [
+            "Robots industriales ABB (4)",
+            "Estaciones de trabajo (16)",
+            "Cámaras de visión artificial (4)",
+            "Sistemas de seguridad",
+            "Proyector láser",
+            "Simuladores de realidad virtual"
+          ],
+          "asignaturas_compatibles": [
+            "IE003"
+          ],
+          "software_instalado": [
+            "RobotStudio",
+            "ROS",
+            "Gazebo",
+            "SolidWorks"
+          ],
+          "observaciones": "Requiere formación previa en seguridad",
+          "responsable": "Dr. Fernández Silva",
+          "dias_no_disponibles": [],
+          "horario_mantenimiento": "Lunes 8:00-9:00",
+          "fecha_actualizacion": "2025-07-07T21:35:11.804701"
+        },
+        "LAB_MATERIALES": {
+          "codigo": "LAB_MATERIALES",
+          "nombre": "Laboratorio de Materiales",
+          "ubicacion": "Planta 1 - Ala Oeste",
+          "capacidad": 24,
+          "tipo": "Materiales",
+          "equipamiento": [
+            "Microscopios ópticos (12)",
+            "Microscopio electrónico (1)",
+            "Máquinas de ensayos (4)",
+            "Hornos de tratamiento (2)",
+            "Equipos de caracterización",
+            "Sistema de extracción"
+          ],
+          "asignaturas_compatibles": [
+            "TI001"
+          ],
+          "software_instalado": [
+            "ImageJ",
+            "Origin",
+            "Excel"
+          ],
+          "observaciones": "Ventilación especializada",
+          "responsable": "Dr. González Pérez",
+          "dias_no_disponibles": [],
+          "horario_mantenimiento": "Domingo 10:00-14:00",
+          "fecha_actualizacion": "2025-07-07T21:35:11.804701"
+        },
+        "LAB_FABRICACION": {
+          "codigo": "LAB_FABRICACION",
+          "nombre": "Laboratorio de Fabricación",
+          "ubicacion": "Planta Baja - Nave Industrial",
+          "capacidad": 20,
+          "tipo": "Fabricación",
+          "equipamiento": [
+            "Tornos CNC (4)",
+            "Fresadoras CNC (2)",
+            "Impresoras 3D (6)",
+            "Máquinas de medición (2)",
+            "Herramientas manuales",
+            "Sistemas de seguridad avanzados"
+          ],
+          "asignaturas_compatibles": [
+            "TI002"
+          ],
+          "software_instalado": [
+            "Fusion 360",
+            "MasterCAM",
+            "Cura"
+          ],
+          "observaciones": "Uso obligatorio de EPIs",
+          "responsable": "Dr. Rodríguez Vega",
+          "dias_no_disponibles": [],
+          "horario_mantenimiento": "Miércoles 13:00-15:00",
+          "fecha_actualizacion": "2025-07-07T21:35:11.804701"
+        }
+      },
+      "total_aulas": 5,
+      "fecha_actualizacion": "2025-07-07T21:35:11.805702"
+    },
+    "profesores": {
+      "configurado": true,
+      "datos": {
+        "GARCIA_L": {
+          "codigo": "GARCIA_L",
+          "nombre": "Dr. García López",
+          "email": "garcia.lopez@etsidi.upm.es",
+          "departamento": "Ingeniería Electrónica",
+          "categoria": "Titular",
+          "despacho": "B-204",
+          "telefono": "913367890",
+          "asignaturas_que_imparte": [
+            "IE001",
+            "IE002"
+          ],
+          "especialidades": [
+            "Instrumentación",
+            "Sistemas electrónicos"
+          ],
+          "disponibilidad_horaria": {
+            "Lunes": [
+              {
+                "hora_inicio": "09:00",
+                "hora_fin": "13:00"
+              },
+              {
+                "hora_inicio": "15:00",
+                "hora_fin": "17:00"
+              }
+            ],
+            "Martes": [
+              {
+                "hora_inicio": "09:00",
+                "hora_fin": "13:00"
+              }
+            ],
+            "Miércoles": [
+              {
+                "hora_inicio": "09:00",
+                "hora_fin": "13:00"
+              },
+              {
+                "hora_inicio": "15:00",
+                "hora_fin": "19:00"
+              }
+            ],
+            "Jueves": [
+              {
+                "hora_inicio": "11:00",
+                "hora_fin": "13:00"
+              },
+              {
+                "hora_inicio": "15:00",
+                "hora_fin": "17:00"
+              }
+            ],
+            "Viernes": [
+              {
+                "hora_inicio": "09:00",
+                "hora_fin": "11:00"
+              }
+            ]
+          },
+          "dias_no_disponibles": [],
+          "observaciones": "Director del departamento",
+          "fecha_actualizacion": "2025-07-07T21:35:11.804701"
+        },
+        "MARTINEZ_R": {
+          "codigo": "MARTINEZ_R",
+          "nombre": "Dra. Martínez Ruiz",
+          "email": "martinez.ruiz@etsidi.upm.es",
+          "departamento": "Ingeniería de Control",
+          "categoria": "Catedrática",
+          "despacho": "B-301",
+          "telefono": "913367891",
+          "asignaturas_que_imparte": [
+            "IE002",
+            "IE003"
+          ],
+          "especialidades": [
+            "Control automático",
+            "Robótica"
+          ],
+          "disponibilidad_horaria": {
+            "Lunes": [
+              {
+                "hora_inicio": "11:00",
+                "hora_fin": "13:00"
+              },
+              {
+                "hora_inicio": "15:00",
+                "hora_fin": "19:00"
+              }
+            ],
+            "Martes": [
+              {
+                "hora_inicio": "09:00",
+                "hora_fin": "11:00"
+              },
+              {
+                "hora_inicio": "15:00",
+                "hora_fin": "17:00"
+              }
+            ],
+            "Miércoles": [
+              {
+                "hora_inicio": "11:00",
+                "hora_fin": "13:00"
+              }
+            ],
+            "Jueves": [
+              {
+                "hora_inicio": "09:00",
+                "hora_fin": "13:00"
+              },
+              {
+                "hora_inicio": "15:00",
+                "hora_fin": "19:00"
+              }
+            ],
+            "Viernes": [
+              {
+                "hora_inicio": "11:00",
+                "hora_fin": "13:00"
+              }
+            ]
+          },
+          "dias_no_disponibles": [],
+          "observaciones": "Investigadora principal en varios proyectos",
+          "fecha_actualizacion": "2025-07-07T21:35:11.804701"
+        },
+        "FERNANDEZ_S": {
+          "codigo": "FERNANDEZ_S",
+          "nombre": "Dr. Fernández Silva",
+          "email": "fernandez.silva@etsidi.upm.es",
+          "departamento": "Robótica Industrial",
+          "categoria": "Asociado",
+          "despacho": "C-102",
+          "telefono": "913367892",
+          "asignaturas_que_imparte": [
+            "IE003"
+          ],
+          "especialidades": [
+            "Robótica industrial",
+            "Visión artificial"
+          ],
+          "disponibilidad_horaria": {
+            "Martes": [
+              {
+                "hora_inicio": "09:00",
+                "hora_fin": "13:00"
+              },
+              {
+                "hora_inicio": "15:00",
+                "hora_fin": "17:00"
+              }
+            ],
+            "Miércoles": [
+              {
+                "hora_inicio": "09:00",
+                "hora_fin": "11:00"
+              }
+            ],
+            "Jueves": [
+              {
+                "hora_inicio": "09:00",
+                "hora_fin": "13:00"
+              },
+              {
+                "hora_inicio": "15:00",
+                "hora_fin": "19:00"
+              }
+            ],
+            "Viernes": [
+              {
+                "hora_inicio": "09:00",
+                "hora_fin": "13:00"
+              }
+            ]
+          },
+          "dias_no_disponibles": [
+            "Lunes"
+          ],
+          "observaciones": "Colaboración con industria",
+          "fecha_actualizacion": "2025-07-07T21:35:11.804701"
+        },
+        "GONZALEZ_P": {
+          "codigo": "GONZALEZ_P",
+          "nombre": "Dr. González Pérez",
+          "email": "gonzalez.perez@etsidi.upm.es",
+          "departamento": "Ciencia de Materiales",
+          "categoria": "Titular",
+          "despacho": "A-105",
+          "telefono": "913367893",
+          "asignaturas_que_imparte": [
+            "TI001"
+          ],
+          "especialidades": [
+            "Materiales metálicos",
+            "Caracterización"
+          ],
+          "disponibilidad_horaria": {
+            "Lunes": [
+              {
+                "hora_inicio": "09:00",
+                "hora_fin": "11:00"
+              }
+            ],
+            "Martes": [
+              {
+                "hora_inicio": "11:00",
+                "hora_fin": "13:00"
+              },
+              {
+                "hora_inicio": "15:00",
+                "hora_fin": "17:00"
+              }
+            ],
+            "Miércoles": [
+              {
+                "hora_inicio": "09:00",
+                "hora_fin": "13:00"
+              },
+              {
+                "hora_inicio": "15:00",
+                "hora_fin": "17:00"
+              }
+            ],
+            "Jueves": [
+              {
+                "hora_inicio": "09:00",
+                "hora_fin": "11:00"
+              }
+            ],
+            "Viernes": [
+              {
+                "hora_inicio": "09:00",
+                "hora_fin": "13:00"
+              },
+              {
+                "hora_inicio": "15:00",
+                "hora_fin": "17:00"
+              }
+            ]
+          },
+          "dias_no_disponibles": [],
+          "observaciones": "Especialista en ensayos de materiales",
+          "fecha_actualizacion": "2025-07-07T21:35:11.804701"
+        },
+        "RODRIGUEZ_V": {
+          "codigo": "RODRIGUEZ_V",
+          "nombre": "Dr. Rodríguez Vega",
+          "email": "rodriguez.vega@etsidi.upm.es",
+          "departamento": "Fabricación Industrial",
+          "categoria": "Titular",
+          "despacho": "D-201",
+          "telefono": "913367894",
+          "asignaturas_que_imparte": [
+            "TI002"
+          ],
+          "especialidades": [
+            "Mecanizado CNC",
+            "Fabricación aditiva"
+          ],
+          "disponibilidad_horaria": {
+            "Lunes": [
+              {
+                "hora_inicio": "15:00",
+                "hora_fin": "17:00"
+              }
+            ],
+            "Martes": [
+              {
+                "hora_inicio": "09:00",
+                "hora_fin": "13:00"
+              },
+              {
+                "hora_inicio": "15:00",
+                "hora_fin": "19:00"
+              }
+            ],
+            "Miércoles": [
+              {
+                "hora_inicio": "09:00",
+                "hora_fin": "11:00"
+              }
+            ],
+            "Jueves": [
+              {
+                "hora_inicio": "09:00",
+                "hora_fin": "13:00"
+              },
+              {
+                "hora_inicio": "15:00",
+                "hora_fin": "19:00"
+              }
+            ],
+            "Viernes": [
+              {
+                "hora_inicio": "11:00",
+                "hora_fin": "13:00"
+              }
+            ]
+          },
+          "dias_no_disponibles": [],
+          "observaciones": "Experto en tecnologías de fabricación",
+          "fecha_actualizacion": "2025-07-07T21:35:11.804701"
+        }
+      },
+      "total": 5,
+      "fecha_actualizacion": "2025-07-07T21:35:11.805702"
+    },
+    "alumnos": {
+      "configurado": true,
+      "datos": {
+        "A001": {
+          "codigo": "A001",
+          "nombre": "Alumno GIE 001",
+          "email": "alumno.gie001@alumnos.upm.es",
+          "curso_matriculado": 3,
+          "tipo_matricula": "Grado simple",
+          "asignaturas_matriculadas": [
+            "IE003",
+            "IE002"
+          ],
+          "laboratorios_aprobados": [],
+          "observaciones": "Alumno regular",
+          "fecha_matricula": "2024-09-01",
+          "fecha_actualizacion": "2025-07-07T21:35:11.804701"
+        },
+        "A002": {
+          "codigo": "A002",
+          "nombre": "Alumno GIE 002",
+          "email": "alumno.gie002@alumnos.upm.es",
+          "curso_matriculado": 3,
+          "tipo_matricula": "Grado simple",
+          "asignaturas_matriculadas": [
+            "IE003",
+            "IE001",
+            "IE002"
+          ],
+          "laboratorios_aprobados": [
+            "IE001"
+          ],
+          "observaciones": "Alumno regular",
+          "fecha_matricula": "2024-09-01",
+          "fecha_actualizacion": "2025-07-07T21:35:11.804701"
+        },
+        "A003": {
+          "codigo": "A003",
+          "nombre": "Alumno GIE 003",
+          "email": "alumno.gie003@alumnos.upm.es",
+          "curso_matriculado": 4,
+          "tipo_matricula": "Grado simple",
+          "asignaturas_matriculadas": [
+            "IE003"
+          ],
+          "laboratorios_aprobados": [
+            "IE001"
+          ],
+          "observaciones": "Alumno regular",
+          "fecha_matricula": "2024-09-01",
+          "fecha_actualizacion": "2025-07-07T21:35:11.804701"
+        },
+        "A004": {
+          "codigo": "A004",
+          "nombre": "Alumno GIE 004",
+          "email": "alumno.gie004@alumnos.upm.es",
+          "curso_matriculado": 4,
+          "tipo_matricula": "Grado simple",
+          "asignaturas_matriculadas": [
+            "IE003",
+            "IE002",
+            "IE001"
+          ],
+          "laboratorios_aprobados": [
+            "IE002"
+          ],
+          "observaciones": "Alumno regular",
+          "fecha_matricula": "2024-09-01",
+          "fecha_actualizacion": "2025-07-07T21:35:11.804701"
+        },
+        "A005": {
+          "codigo": "A005",
+          "nombre": "Alumno GIE 005",
+          "email": "alumno.gie005@alumnos.upm.es",
+          "curso_matriculado": 4,
+          "tipo_matricula": "Grado simple",
+          "asignaturas_matriculadas": [
+            "IE001",
+            "IE003"
+          ],
+          "laboratorios_aprobados": [
+            "IE001"
+          ],
+          "observaciones": "Alumno regular",
+          "fecha_matricula": "2024-09-01",
+          "fecha_actualizacion": "2025-07-07T21:35:11.804701"
+        },
+        "A006": {
+          "codigo": "A006",
+          "nombre": "Alumno GIE 006",
+          "email": "alumno.gie006@alumnos.upm.es",
+          "curso_matriculado": 4,
+          "tipo_matricula": "Grado simple",
+          "asignaturas_matriculadas": [
+            "IE003",
+            "IE002"
+          ],
+          "laboratorios_aprobados": [
+            "IE001"
+          ],
+          "observaciones": "Alumno regular",
+          "fecha_matricula": "2024-09-01",
+          "fecha_actualizacion": "2025-07-07T21:35:11.804701"
+        },
+        "A007": {
+          "codigo": "A007",
+          "nombre": "Alumno GIE 007",
+          "email": "alumno.gie007@alumnos.upm.es",
+          "curso_matriculado": 2,
+          "tipo_matricula": "Grado simple",
+          "asignaturas_matriculadas": [
+            "IE003"
+          ],
+          "laboratorios_aprobados": [],
+          "observaciones": "Alumno regular",
+          "fecha_matricula": "2024-09-01",
+          "fecha_actualizacion": "2025-07-07T21:35:11.804701"
+        },
+        "A008": {
+          "codigo": "A008",
+          "nombre": "Alumno GIE 008",
+          "email": "alumno.gie008@alumnos.upm.es",
+          "curso_matriculado": 3,
+          "tipo_matricula": "Grado simple",
+          "asignaturas_matriculadas": [
+            "IE001"
+          ],
+          "laboratorios_aprobados": [],
+          "observaciones": "Alumno regular",
+          "fecha_matricula": "2024-09-01",
+          "fecha_actualizacion": "2025-07-07T21:35:11.804701"
+        },
+        "A009": {
+          "codigo": "A009",
+          "nombre": "Alumno GIE 009",
+          "email": "alumno.gie009@alumnos.upm.es",
+          "curso_matriculado": 3,
+          "tipo_matricula": "Grado simple",
+          "asignaturas_matriculadas": [
+            "IE001"
+          ],
+          "laboratorios_aprobados": [],
+          "observaciones": "Alumno regular",
+          "fecha_matricula": "2024-09-01",
+          "fecha_actualizacion": "2025-07-07T21:35:11.804701"
+        },
+        "A010": {
+          "codigo": "A010",
+          "nombre": "Alumno GIE 010",
+          "email": "alumno.gie010@alumnos.upm.es",
+          "curso_matriculado": 3,
+          "tipo_matricula": "Grado simple",
+          "asignaturas_matriculadas": [
+            "IE003",
+            "IE002",
+            "IE001"
+          ],
+          "laboratorios_aprobados": [
+            "IE002"
+          ],
+          "observaciones": "Alumno regular",
+          "fecha_matricula": "2024-09-01",
+          "fecha_actualizacion": "2025-07-07T21:35:11.804701"
+        },
+        "A011": {
+          "codigo": "A011",
+          "nombre": "Alumno GIE 011",
+          "email": "alumno.gie011@alumnos.upm.es",
+          "curso_matriculado": 3,
+          "tipo_matricula": "Grado simple",
+          "asignaturas_matriculadas": [
+            "IE002"
+          ],
+          "laboratorios_aprobados": [],
+          "observaciones": "Alumno regular",
+          "fecha_matricula": "2024-09-01",
+          "fecha_actualizacion": "2025-07-07T21:35:11.804701"
+        },
+        "A012": {
+          "codigo": "A012",
+          "nombre": "Alumno GIE 012",
+          "email": "alumno.gie012@alumnos.upm.es",
+          "curso_matriculado": 2,
+          "tipo_matricula": "Grado simple",
+          "asignaturas_matriculadas": [
+            "IE003"
+          ],
+          "laboratorios_aprobados": [
+            "IE002"
+          ],
+          "observaciones": "Alumno regular",
+          "fecha_matricula": "2024-09-01",
+          "fecha_actualizacion": "2025-07-07T21:35:11.804701"
+        },
+        "A013": {
+          "codigo": "A013",
+          "nombre": "Alumno GIE 013",
+          "email": "alumno.gie013@alumnos.upm.es",
+          "curso_matriculado": 2,
+          "tipo_matricula": "Grado simple",
+          "asignaturas_matriculadas": [
+            "IE002",
+            "IE001"
+          ],
+          "laboratorios_aprobados": [
+            "IE001"
+          ],
+          "observaciones": "Alumno regular",
+          "fecha_matricula": "2024-09-01",
+          "fecha_actualizacion": "2025-07-07T21:35:11.804701"
+        },
+        "A014": {
+          "codigo": "A014",
+          "nombre": "Alumno GIE 014",
+          "email": "alumno.gie014@alumnos.upm.es",
+          "curso_matriculado": 4,
+          "tipo_matricula": "Grado simple",
+          "asignaturas_matriculadas": [
+            "IE003"
+          ],
+          "laboratorios_aprobados": [
+            "IE001"
+          ],
+          "observaciones": "Alumno regular",
+          "fecha_matricula": "2024-09-01",
+          "fecha_actualizacion": "2025-07-07T21:35:11.804701"
+        },
+        "A015": {
+          "codigo": "A015",
+          "nombre": "Alumno GIE 015",
+          "email": "alumno.gie015@alumnos.upm.es",
+          "curso_matriculado": 3,
+          "tipo_matricula": "Grado simple",
+          "asignaturas_matriculadas": [
+            "IE002",
+            "IE003",
+            "IE001"
+          ],
+          "laboratorios_aprobados": [],
+          "observaciones": "Alumno regular",
+          "fecha_matricula": "2024-09-01",
+          "fecha_actualizacion": "2025-07-07T21:35:11.804701"
+        },
+        "A016": {
+          "codigo": "A016",
+          "nombre": "Alumno GIE 016",
+          "email": "alumno.gie016@alumnos.upm.es",
+          "curso_matriculado": 2,
+          "tipo_matricula": "Grado simple",
+          "asignaturas_matriculadas": [
+            "IE002"
+          ],
+          "laboratorios_aprobados": [
+            "IE002"
+          ],
+          "observaciones": "Alumno regular",
+          "fecha_matricula": "2024-09-01",
+          "fecha_actualizacion": "2025-07-07T21:35:11.804701"
+        },
+        "A017": {
+          "codigo": "A017",
+          "nombre": "Alumno GIE 017",
+          "email": "alumno.gie017@alumnos.upm.es",
+          "curso_matriculado": 2,
+          "tipo_matricula": "Grado simple",
+          "asignaturas_matriculadas": [
+            "IE001",
+            "IE002"
+          ],
+          "laboratorios_aprobados": [],
+          "observaciones": "Alumno regular",
+          "fecha_matricula": "2024-09-01",
+          "fecha_actualizacion": "2025-07-07T21:35:11.804701"
+        },
+        "A018": {
+          "codigo": "A018",
+          "nombre": "Alumno GIE 018",
+          "email": "alumno.gie018@alumnos.upm.es",
+          "curso_matriculado": 2,
+          "tipo_matricula": "Grado simple",
+          "asignaturas_matriculadas": [
+            "IE001",
+            "IE002"
+          ],
+          "laboratorios_aprobados": [
+            "IE002"
+          ],
+          "observaciones": "Alumno regular",
+          "fecha_matricula": "2024-09-01",
+          "fecha_actualizacion": "2025-07-07T21:35:11.804701"
+        },
+        "A019": {
+          "codigo": "A019",
+          "nombre": "Alumno GIE 019",
+          "email": "alumno.gie019@alumnos.upm.es",
+          "curso_matriculado": 3,
+          "tipo_matricula": "Grado simple",
+          "asignaturas_matriculadas": [
+            "IE002",
+            "IE003",
+            "IE001"
+          ],
+          "laboratorios_aprobados": [],
+          "observaciones": "Alumno regular",
+          "fecha_matricula": "2024-09-01",
+          "fecha_actualizacion": "2025-07-07T21:35:11.804701"
+        },
+        "A020": {
+          "codigo": "A020",
+          "nombre": "Alumno GIE 020",
+          "email": "alumno.gie020@alumnos.upm.es",
+          "curso_matriculado": 2,
+          "tipo_matricula": "Grado simple",
+          "asignaturas_matriculadas": [
+            "IE002",
+            "IE001",
+            "IE003"
+          ],
+          "laboratorios_aprobados": [
+            "IE002"
+          ],
+          "observaciones": "Alumno regular",
+          "fecha_matricula": "2024-09-01",
+          "fecha_actualizacion": "2025-07-07T21:35:11.804701"
+        },
+        "A021": {
+          "codigo": "A021",
+          "nombre": "Alumno GIE 021",
+          "email": "alumno.gie021@alumnos.upm.es",
+          "curso_matriculado": 2,
+          "tipo_matricula": "Grado simple",
+          "asignaturas_matriculadas": [
+            "IE002",
+            "IE001",
+            "IE003"
+          ],
+          "laboratorios_aprobados": [
+            "IE002"
+          ],
+          "observaciones": "Alumno regular",
+          "fecha_matricula": "2024-09-01",
+          "fecha_actualizacion": "2025-07-07T21:35:11.804701"
+        },
+        "A022": {
+          "codigo": "A022",
+          "nombre": "Alumno GIE 022",
+          "email": "alumno.gie022@alumnos.upm.es",
+          "curso_matriculado": 4,
+          "tipo_matricula": "Grado simple",
+          "asignaturas_matriculadas": [
+            "IE001"
+          ],
+          "laboratorios_aprobados": [
+            "IE001"
+          ],
+          "observaciones": "Alumno regular",
+          "fecha_matricula": "2024-09-01",
+          "fecha_actualizacion": "2025-07-07T21:35:11.804701"
+        },
+        "A023": {
+          "codigo": "A023",
+          "nombre": "Alumno GIE 023",
+          "email": "alumno.gie023@alumnos.upm.es",
+          "curso_matriculado": 3,
+          "tipo_matricula": "Grado simple",
+          "asignaturas_matriculadas": [
+            "IE002"
+          ],
+          "laboratorios_aprobados": [
+            "IE001"
+          ],
+          "observaciones": "Alumno regular",
+          "fecha_matricula": "2024-09-01",
+          "fecha_actualizacion": "2025-07-07T21:35:11.804701"
+        },
+        "A024": {
+          "codigo": "A024",
+          "nombre": "Alumno GIE 024",
+          "email": "alumno.gie024@alumnos.upm.es",
+          "curso_matriculado": 4,
+          "tipo_matricula": "Grado simple",
+          "asignaturas_matriculadas": [
+            "IE002",
+            "IE003"
+          ],
+          "laboratorios_aprobados": [],
+          "observaciones": "Alumno regular",
+          "fecha_matricula": "2024-09-01",
+          "fecha_actualizacion": "2025-07-07T21:35:11.804701"
+        },
+        "A025": {
+          "codigo": "A025",
+          "nombre": "Alumno GIE 025",
+          "email": "alumno.gie025@alumnos.upm.es",
+          "curso_matriculado": 2,
+          "tipo_matricula": "Grado simple",
+          "asignaturas_matriculadas": [
+            "IE001",
+            "IE002"
+          ],
+          "laboratorios_aprobados": [
+            "IE002"
+          ],
+          "observaciones": "Alumno regular",
+          "fecha_matricula": "2024-09-01",
+          "fecha_actualizacion": "2025-07-07T21:35:11.804701"
+        },
+        "A026": {
+          "codigo": "A026",
+          "nombre": "Alumno GIE 026",
+          "email": "alumno.gie026@alumnos.upm.es",
+          "curso_matriculado": 2,
+          "tipo_matricula": "Grado simple",
+          "asignaturas_matriculadas": [
+            "IE001",
+            "IE003",
+            "IE002"
+          ],
+          "laboratorios_aprobados": [],
+          "observaciones": "Alumno regular",
+          "fecha_matricula": "2024-09-01",
+          "fecha_actualizacion": "2025-07-07T21:35:11.804701"
+        },
+        "A027": {
+          "codigo": "A027",
+          "nombre": "Alumno GIE 027",
+          "email": "alumno.gie027@alumnos.upm.es",
+          "curso_matriculado": 3,
+          "tipo_matricula": "Grado simple",
+          "asignaturas_matriculadas": [
+            "IE003",
+            "IE001",
+            "IE002"
+          ],
+          "laboratorios_aprobados": [],
+          "observaciones": "Alumno regular",
+          "fecha_matricula": "2024-09-01",
+          "fecha_actualizacion": "2025-07-07T21:35:11.804701"
+        },
+        "A028": {
+          "codigo": "A028",
+          "nombre": "Alumno GIE 028",
+          "email": "alumno.gie028@alumnos.upm.es",
+          "curso_matriculado": 4,
+          "tipo_matricula": "Grado simple",
+          "asignaturas_matriculadas": [
+            "IE001",
+            "IE003",
+            "IE002"
+          ],
+          "laboratorios_aprobados": [
+            "IE001"
+          ],
+          "observaciones": "Alumno regular",
+          "fecha_matricula": "2024-09-01",
+          "fecha_actualizacion": "2025-07-07T21:35:11.804701"
+        },
+        "A029": {
+          "codigo": "A029",
+          "nombre": "Alumno GIE 029",
+          "email": "alumno.gie029@alumnos.upm.es",
+          "curso_matriculado": 4,
+          "tipo_matricula": "Grado simple",
+          "asignaturas_matriculadas": [
+            "IE002",
+            "IE003"
+          ],
+          "laboratorios_aprobados": [
+            "IE002"
+          ],
+          "observaciones": "Alumno regular",
+          "fecha_matricula": "2024-09-01",
+          "fecha_actualizacion": "2025-07-07T21:35:11.804701"
+        },
+        "A030": {
+          "codigo": "A030",
+          "nombre": "Alumno GIE 030",
+          "email": "alumno.gie030@alumnos.upm.es",
+          "curso_matriculado": 2,
+          "tipo_matricula": "Grado simple",
+          "asignaturas_matriculadas": [
+            "IE002",
+            "IE001",
+            "IE003"
+          ],
+          "laboratorios_aprobados": [],
+          "observaciones": "Alumno regular",
+          "fecha_matricula": "2024-09-01",
+          "fecha_actualizacion": "2025-07-07T21:35:11.804701"
+        },
+        "A031": {
+          "codigo": "A031",
+          "nombre": "Alumno GIE 031",
+          "email": "alumno.gie031@alumnos.upm.es",
+          "curso_matriculado": 4,
+          "tipo_matricula": "Grado simple",
+          "asignaturas_matriculadas": [
+            "IE001",
+            "IE003"
+          ],
+          "laboratorios_aprobados": [
+            "IE002"
+          ],
+          "observaciones": "Alumno regular",
+          "fecha_matricula": "2024-09-01",
+          "fecha_actualizacion": "2025-07-07T21:35:11.804701"
+        },
+        "A032": {
+          "codigo": "A032",
+          "nombre": "Alumno GIE 032",
+          "email": "alumno.gie032@alumnos.upm.es",
+          "curso_matriculado": 2,
+          "tipo_matricula": "Grado simple",
+          "asignaturas_matriculadas": [
+            "IE001",
+            "IE003"
+          ],
+          "laboratorios_aprobados": [],
+          "observaciones": "Alumno regular",
+          "fecha_matricula": "2024-09-01",
+          "fecha_actualizacion": "2025-07-07T21:35:11.804701"
+        },
+        "A033": {
+          "codigo": "A033",
+          "nombre": "Alumno GIE 033",
+          "email": "alumno.gie033@alumnos.upm.es",
+          "curso_matriculado": 3,
+          "tipo_matricula": "Grado simple",
+          "asignaturas_matriculadas": [
+            "IE003"
+          ],
+          "laboratorios_aprobados": [],
+          "observaciones": "Alumno regular",
+          "fecha_matricula": "2024-09-01",
+          "fecha_actualizacion": "2025-07-07T21:35:11.804701"
+        },
+        "A034": {
+          "codigo": "A034",
+          "nombre": "Alumno GIE 034",
+          "email": "alumno.gie034@alumnos.upm.es",
+          "curso_matriculado": 3,
+          "tipo_matricula": "Grado simple",
+          "asignaturas_matriculadas": [
+            "IE002",
+            "IE001",
+            "IE003"
+          ],
+          "laboratorios_aprobados": [],
+          "observaciones": "Alumno regular",
+          "fecha_matricula": "2024-09-01",
+          "fecha_actualizacion": "2025-07-07T21:35:11.804701"
+        },
+        "A035": {
+          "codigo": "A035",
+          "nombre": "Alumno GIE 035",
+          "email": "alumno.gie035@alumnos.upm.es",
+          "curso_matriculado": 2,
+          "tipo_matricula": "Grado simple",
+          "asignaturas_matriculadas": [
+            "IE002"
+          ],
+          "laboratorios_aprobados": [
+            "IE002"
+          ],
+          "observaciones": "Alumno regular",
+          "fecha_matricula": "2024-09-01",
+          "fecha_actualizacion": "2025-07-07T21:35:11.804701"
+        },
+        "A036": {
+          "codigo": "A036",
+          "nombre": "Alumno GIE 036",
+          "email": "alumno.gie036@alumnos.upm.es",
+          "curso_matriculado": 3,
+          "tipo_matricula": "Grado simple",
+          "asignaturas_matriculadas": [
+            "IE003",
+            "IE002"
+          ],
+          "laboratorios_aprobados": [],
+          "observaciones": "Alumno regular",
+          "fecha_matricula": "2024-09-01",
+          "fecha_actualizacion": "2025-07-07T21:35:11.804701"
+        },
+        "A037": {
+          "codigo": "A037",
+          "nombre": "Alumno GIE 037",
+          "email": "alumno.gie037@alumnos.upm.es",
+          "curso_matriculado": 2,
+          "tipo_matricula": "Grado simple",
+          "asignaturas_matriculadas": [
+            "IE001",
+            "IE003"
+          ],
+          "laboratorios_aprobados": [],
+          "observaciones": "Alumno regular",
+          "fecha_matricula": "2024-09-01",
+          "fecha_actualizacion": "2025-07-07T21:35:11.804701"
+        },
+        "A038": {
+          "codigo": "A038",
+          "nombre": "Alumno GIE 038",
+          "email": "alumno.gie038@alumnos.upm.es",
+          "curso_matriculado": 2,
+          "tipo_matricula": "Grado simple",
+          "asignaturas_matriculadas": [
+            "IE001",
+            "IE003"
+          ],
+          "laboratorios_aprobados": [],
+          "observaciones": "Alumno regular",
+          "fecha_matricula": "2024-09-01",
+          "fecha_actualizacion": "2025-07-07T21:35:11.804701"
+        },
+        "A039": {
+          "codigo": "A039",
+          "nombre": "Alumno GIE 039",
+          "email": "alumno.gie039@alumnos.upm.es",
+          "curso_matriculado": 2,
+          "tipo_matricula": "Grado simple",
+          "asignaturas_matriculadas": [
+            "IE002",
+            "IE001",
+            "IE003"
+          ],
+          "laboratorios_aprobados": [],
+          "observaciones": "Alumno regular",
+          "fecha_matricula": "2024-09-01",
+          "fecha_actualizacion": "2025-07-07T21:35:11.804701"
+        },
+        "A040": {
+          "codigo": "A040",
+          "nombre": "Alumno GIE 040",
+          "email": "alumno.gie040@alumnos.upm.es",
+          "curso_matriculado": 4,
+          "tipo_matricula": "Grado simple",
+          "asignaturas_matriculadas": [
+            "IE002"
+          ],
+          "laboratorios_aprobados": [
+            "IE001"
+          ],
+          "observaciones": "Alumno regular",
+          "fecha_matricula": "2024-09-01",
+          "fecha_actualizacion": "2025-07-07T21:35:11.804701"
+        },
+        "A041": {
+          "codigo": "A041",
+          "nombre": "Alumno GIE 041",
+          "email": "alumno.gie041@alumnos.upm.es",
+          "curso_matriculado": 2,
+          "tipo_matricula": "Grado simple",
+          "asignaturas_matriculadas": [
+            "IE001",
+            "IE003"
+          ],
+          "laboratorios_aprobados": [],
+          "observaciones": "Alumno regular",
+          "fecha_matricula": "2024-09-01",
+          "fecha_actualizacion": "2025-07-07T21:35:11.804701"
+        },
+        "A042": {
+          "codigo": "A042",
+          "nombre": "Alumno GIE 042",
+          "email": "alumno.gie042@alumnos.upm.es",
+          "curso_matriculado": 3,
+          "tipo_matricula": "Grado simple",
+          "asignaturas_matriculadas": [
+            "IE003",
+            "IE002"
+          ],
+          "laboratorios_aprobados": [],
+          "observaciones": "Alumno regular",
+          "fecha_matricula": "2024-09-01",
+          "fecha_actualizacion": "2025-07-07T21:35:11.804701"
+        },
+        "A043": {
+          "codigo": "A043",
+          "nombre": "Alumno GIE 043",
+          "email": "alumno.gie043@alumnos.upm.es",
+          "curso_matriculado": 3,
+          "tipo_matricula": "Grado simple",
+          "asignaturas_matriculadas": [
+            "IE003",
+            "IE001"
+          ],
+          "laboratorios_aprobados": [
+            "IE001"
+          ],
+          "observaciones": "Alumno regular",
+          "fecha_matricula": "2024-09-01",
+          "fecha_actualizacion": "2025-07-07T21:35:11.804701"
+        },
+        "A044": {
+          "codigo": "A044",
+          "nombre": "Alumno GIE 044",
+          "email": "alumno.gie044@alumnos.upm.es",
+          "curso_matriculado": 2,
+          "tipo_matricula": "Grado simple",
+          "asignaturas_matriculadas": [
+            "IE003",
+            "IE001",
+            "IE002"
+          ],
+          "laboratorios_aprobados": [
+            "IE002"
+          ],
+          "observaciones": "Alumno regular",
+          "fecha_matricula": "2024-09-01",
+          "fecha_actualizacion": "2025-07-07T21:35:11.804701"
+        },
+        "A045": {
+          "codigo": "A045",
+          "nombre": "Alumno GIE 045",
+          "email": "alumno.gie045@alumnos.upm.es",
+          "curso_matriculado": 4,
+          "tipo_matricula": "Grado simple",
+          "asignaturas_matriculadas": [
+            "IE003",
+            "IE001"
+          ],
+          "laboratorios_aprobados": [],
+          "observaciones": "Alumno regular",
+          "fecha_matricula": "2024-09-01",
+          "fecha_actualizacion": "2025-07-07T21:35:11.804701"
+        },
+        "A046": {
+          "codigo": "A046",
+          "nombre": "Alumno GIE 046",
+          "email": "alumno.gie046@alumnos.upm.es",
+          "curso_matriculado": 2,
+          "tipo_matricula": "Grado simple",
+          "asignaturas_matriculadas": [
+            "IE001"
+          ],
+          "laboratorios_aprobados": [
+            "IE002"
+          ],
+          "observaciones": "Alumno regular",
+          "fecha_matricula": "2024-09-01",
+          "fecha_actualizacion": "2025-07-07T21:35:11.804701"
+        },
+        "A047": {
+          "codigo": "A047",
+          "nombre": "Alumno GIE 047",
+          "email": "alumno.gie047@alumnos.upm.es",
+          "curso_matriculado": 4,
+          "tipo_matricula": "Grado simple",
+          "asignaturas_matriculadas": [
+            "IE003"
+          ],
+          "laboratorios_aprobados": [
+            "IE001"
+          ],
+          "observaciones": "Alumno regular",
+          "fecha_matricula": "2024-09-01",
+          "fecha_actualizacion": "2025-07-07T21:35:11.804701"
+        },
+        "A048": {
+          "codigo": "A048",
+          "nombre": "Alumno GIE 048",
+          "email": "alumno.gie048@alumnos.upm.es",
+          "curso_matriculado": 4,
+          "tipo_matricula": "Grado simple",
+          "asignaturas_matriculadas": [
+            "IE002",
+            "IE003",
+            "IE001"
+          ],
+          "laboratorios_aprobados": [
+            "IE001"
+          ],
+          "observaciones": "Alumno regular",
+          "fecha_matricula": "2024-09-01",
+          "fecha_actualizacion": "2025-07-07T21:35:11.804701"
+        },
+        "A049": {
+          "codigo": "A049",
+          "nombre": "Alumno GIE 049",
+          "email": "alumno.gie049@alumnos.upm.es",
+          "curso_matriculado": 4,
+          "tipo_matricula": "Grado simple",
+          "asignaturas_matriculadas": [
+            "IE003"
+          ],
+          "laboratorios_aprobados": [
+            "IE001"
+          ],
+          "observaciones": "Alumno regular",
+          "fecha_matricula": "2024-09-01",
+          "fecha_actualizacion": "2025-07-07T21:35:11.804701"
+        },
+        "A050": {
+          "codigo": "A050",
+          "nombre": "Alumno GIE 050",
+          "email": "alumno.gie050@alumnos.upm.es",
+          "curso_matriculado": 2,
+          "tipo_matricula": "Grado simple",
+          "asignaturas_matriculadas": [
+            "IE002",
+            "IE001"
+          ],
+          "laboratorios_aprobados": [
+            "IE001"
+          ],
+          "observaciones": "Alumno regular",
+          "fecha_matricula": "2024-09-01",
+          "fecha_actualizacion": "2025-07-07T21:35:11.804701"
+        },
+        "A051": {
+          "codigo": "A051",
+          "nombre": "Alumno GIE 051",
+          "email": "alumno.gie051@alumnos.upm.es",
+          "curso_matriculado": 3,
+          "tipo_matricula": "Grado simple",
+          "asignaturas_matriculadas": [
+            "IE002"
+          ],
+          "laboratorios_aprobados": [],
+          "observaciones": "Alumno regular",
+          "fecha_matricula": "2024-09-01",
+          "fecha_actualizacion": "2025-07-07T21:35:11.804701"
+        },
+        "A052": {
+          "codigo": "A052",
+          "nombre": "Alumno GIE 052",
+          "email": "alumno.gie052@alumnos.upm.es",
+          "curso_matriculado": 3,
+          "tipo_matricula": "Grado simple",
+          "asignaturas_matriculadas": [
+            "IE001",
+            "IE003",
+            "IE002"
+          ],
+          "laboratorios_aprobados": [],
+          "observaciones": "Alumno regular",
+          "fecha_matricula": "2024-09-01",
+          "fecha_actualizacion": "2025-07-07T21:35:11.804701"
+        },
+        "A053": {
+          "codigo": "A053",
+          "nombre": "Alumno GIE 053",
+          "email": "alumno.gie053@alumnos.upm.es",
+          "curso_matriculado": 4,
+          "tipo_matricula": "Grado simple",
+          "asignaturas_matriculadas": [
+            "IE003",
+            "IE002"
+          ],
+          "laboratorios_aprobados": [],
+          "observaciones": "Alumno regular",
+          "fecha_matricula": "2024-09-01",
+          "fecha_actualizacion": "2025-07-07T21:35:11.804701"
+        },
+        "A054": {
+          "codigo": "A054",
+          "nombre": "Alumno GIE 054",
+          "email": "alumno.gie054@alumnos.upm.es",
+          "curso_matriculado": 2,
+          "tipo_matricula": "Grado simple",
+          "asignaturas_matriculadas": [
+            "IE001",
+            "IE002"
+          ],
+          "laboratorios_aprobados": [],
+          "observaciones": "Alumno regular",
+          "fecha_matricula": "2024-09-01",
+          "fecha_actualizacion": "2025-07-07T21:35:11.804701"
+        },
+        "A055": {
+          "codigo": "A055",
+          "nombre": "Alumno GIE 055",
+          "email": "alumno.gie055@alumnos.upm.es",
+          "curso_matriculado": 2,
+          "tipo_matricula": "Grado simple",
+          "asignaturas_matriculadas": [
+            "IE002",
+            "IE001"
+          ],
+          "laboratorios_aprobados": [],
+          "observaciones": "Alumno regular",
+          "fecha_matricula": "2024-09-01",
+          "fecha_actualizacion": "2025-07-07T21:35:11.804701"
+        },
+        "A056": {
+          "codigo": "A056",
+          "nombre": "Alumno GIE 056",
+          "email": "alumno.gie056@alumnos.upm.es",
+          "curso_matriculado": 4,
+          "tipo_matricula": "Grado simple",
+          "asignaturas_matriculadas": [
+            "IE003"
+          ],
+          "laboratorios_aprobados": [
+            "IE002"
+          ],
+          "observaciones": "Alumno regular",
+          "fecha_matricula": "2024-09-01",
+          "fecha_actualizacion": "2025-07-07T21:35:11.804701"
+        },
+        "A057": {
+          "codigo": "A057",
+          "nombre": "Alumno GIE 057",
+          "email": "alumno.gie057@alumnos.upm.es",
+          "curso_matriculado": 4,
+          "tipo_matricula": "Grado simple",
+          "asignaturas_matriculadas": [
+            "IE003",
+            "IE001"
+          ],
+          "laboratorios_aprobados": [],
+          "observaciones": "Alumno regular",
+          "fecha_matricula": "2024-09-01",
+          "fecha_actualizacion": "2025-07-07T21:35:11.804701"
+        },
+        "A058": {
+          "codigo": "A058",
+          "nombre": "Alumno GIE 058",
+          "email": "alumno.gie058@alumnos.upm.es",
+          "curso_matriculado": 3,
+          "tipo_matricula": "Grado simple",
+          "asignaturas_matriculadas": [
+            "IE002",
+            "IE003",
+            "IE001"
+          ],
+          "laboratorios_aprobados": [],
+          "observaciones": "Alumno regular",
+          "fecha_matricula": "2024-09-01",
+          "fecha_actualizacion": "2025-07-07T21:35:11.804701"
+        },
+        "A059": {
+          "codigo": "A059",
+          "nombre": "Alumno GIE 059",
+          "email": "alumno.gie059@alumnos.upm.es",
+          "curso_matriculado": 2,
+          "tipo_matricula": "Grado simple",
+          "asignaturas_matriculadas": [
+            "IE003"
+          ],
+          "laboratorios_aprobados": [
+            "IE002"
+          ],
+          "observaciones": "Alumno regular",
+          "fecha_matricula": "2024-09-01",
+          "fecha_actualizacion": "2025-07-07T21:35:11.804701"
+        },
+        "A060": {
+          "codigo": "A060",
+          "nombre": "Alumno GIE 060",
+          "email": "alumno.gie060@alumnos.upm.es",
+          "curso_matriculado": 4,
+          "tipo_matricula": "Grado simple",
+          "asignaturas_matriculadas": [
+            "IE001",
+            "IE002",
+            "IE003"
+          ],
+          "laboratorios_aprobados": [],
+          "observaciones": "Alumno regular",
+          "fecha_matricula": "2024-09-01",
+          "fecha_actualizacion": "2025-07-07T21:35:11.804701"
+        },
+        "A061": {
+          "codigo": "A061",
+          "nombre": "Alumno GIE 061",
+          "email": "alumno.gie061@alumnos.upm.es",
+          "curso_matriculado": 3,
+          "tipo_matricula": "Grado simple",
+          "asignaturas_matriculadas": [
+            "IE001",
+            "IE003"
+          ],
+          "laboratorios_aprobados": [
+            "IE002"
+          ],
+          "observaciones": "Alumno regular",
+          "fecha_matricula": "2024-09-01",
+          "fecha_actualizacion": "2025-07-07T21:35:11.804701"
+        },
+        "A062": {
+          "codigo": "A062",
+          "nombre": "Alumno GIE 062",
+          "email": "alumno.gie062@alumnos.upm.es",
+          "curso_matriculado": 2,
+          "tipo_matricula": "Grado simple",
+          "asignaturas_matriculadas": [
+            "IE002",
+            "IE001",
+            "IE003"
+          ],
+          "laboratorios_aprobados": [],
+          "observaciones": "Alumno regular",
+          "fecha_matricula": "2024-09-01",
+          "fecha_actualizacion": "2025-07-07T21:35:11.804701"
+        },
+        "A063": {
+          "codigo": "A063",
+          "nombre": "Alumno GIE 063",
+          "email": "alumno.gie063@alumnos.upm.es",
+          "curso_matriculado": 4,
+          "tipo_matricula": "Grado simple",
+          "asignaturas_matriculadas": [
+            "IE003",
+            "IE001",
+            "IE002"
+          ],
+          "laboratorios_aprobados": [
+            "IE002"
+          ],
+          "observaciones": "Alumno regular",
+          "fecha_matricula": "2024-09-01",
+          "fecha_actualizacion": "2025-07-07T21:35:11.804701"
+        },
+        "A064": {
+          "codigo": "A064",
+          "nombre": "Alumno GIE 064",
+          "email": "alumno.gie064@alumnos.upm.es",
+          "curso_matriculado": 3,
+          "tipo_matricula": "Grado simple",
+          "asignaturas_matriculadas": [
+            "IE001",
+            "IE002"
+          ],
+          "laboratorios_aprobados": [],
+          "observaciones": "Alumno regular",
+          "fecha_matricula": "2024-09-01",
+          "fecha_actualizacion": "2025-07-07T21:35:11.804701"
+        },
+        "A065": {
+          "codigo": "A065",
+          "nombre": "Alumno GIE 065",
+          "email": "alumno.gie065@alumnos.upm.es",
+          "curso_matriculado": 4,
+          "tipo_matricula": "Grado simple",
+          "asignaturas_matriculadas": [
+            "IE001"
+          ],
+          "laboratorios_aprobados": [
+            "IE002"
+          ],
+          "observaciones": "Alumno regular",
+          "fecha_matricula": "2024-09-01",
+          "fecha_actualizacion": "2025-07-07T21:35:11.804701"
+        },
+        "A066": {
+          "codigo": "A066",
+          "nombre": "Alumno GIE 066",
+          "email": "alumno.gie066@alumnos.upm.es",
+          "curso_matriculado": 4,
+          "tipo_matricula": "Grado simple",
+          "asignaturas_matriculadas": [
+            "IE001"
+          ],
+          "laboratorios_aprobados": [],
+          "observaciones": "Alumno regular",
+          "fecha_matricula": "2024-09-01",
+          "fecha_actualizacion": "2025-07-07T21:35:11.804701"
+        },
+        "A067": {
+          "codigo": "A067",
+          "nombre": "Alumno GIE 067",
+          "email": "alumno.gie067@alumnos.upm.es",
+          "curso_matriculado": 2,
+          "tipo_matricula": "Grado simple",
+          "asignaturas_matriculadas": [
+            "IE001",
+            "IE003"
+          ],
+          "laboratorios_aprobados": [
+            "IE001"
+          ],
+          "observaciones": "Alumno regular",
+          "fecha_matricula": "2024-09-01",
+          "fecha_actualizacion": "2025-07-07T21:35:11.804701"
+        },
+        "A068": {
+          "codigo": "A068",
+          "nombre": "Alumno GIE 068",
+          "email": "alumno.gie068@alumnos.upm.es",
+          "curso_matriculado": 2,
+          "tipo_matricula": "Grado simple",
+          "asignaturas_matriculadas": [
+            "IE003",
+            "IE001",
+            "IE002"
+          ],
+          "laboratorios_aprobados": [],
+          "observaciones": "Alumno regular",
+          "fecha_matricula": "2024-09-01",
+          "fecha_actualizacion": "2025-07-07T21:35:11.804701"
+        },
+        "A069": {
+          "codigo": "A069",
+          "nombre": "Alumno GIE 069",
+          "email": "alumno.gie069@alumnos.upm.es",
+          "curso_matriculado": 3,
+          "tipo_matricula": "Grado simple",
+          "asignaturas_matriculadas": [
+            "IE002",
+            "IE001"
+          ],
+          "laboratorios_aprobados": [
+            "IE001"
+          ],
+          "observaciones": "Alumno regular",
+          "fecha_matricula": "2024-09-01",
+          "fecha_actualizacion": "2025-07-07T21:35:11.804701"
+        },
+        "A070": {
+          "codigo": "A070",
+          "nombre": "Alumno GIE 070",
+          "email": "alumno.gie070@alumnos.upm.es",
+          "curso_matriculado": 4,
+          "tipo_matricula": "Grado simple",
+          "asignaturas_matriculadas": [
+            "IE003",
+            "IE002",
+            "IE001"
+          ],
+          "laboratorios_aprobados": [
+            "IE001"
+          ],
+          "observaciones": "Alumno regular",
+          "fecha_matricula": "2024-09-01",
+          "fecha_actualizacion": "2025-07-07T21:35:11.804701"
+        },
+        "A071": {
+          "codigo": "A071",
+          "nombre": "Alumno GIE 071",
+          "email": "alumno.gie071@alumnos.upm.es",
+          "curso_matriculado": 3,
+          "tipo_matricula": "Grado simple",
+          "asignaturas_matriculadas": [
+            "IE002"
+          ],
+          "laboratorios_aprobados": [
+            "IE002"
+          ],
+          "observaciones": "Alumno regular",
+          "fecha_matricula": "2024-09-01",
+          "fecha_actualizacion": "2025-07-07T21:35:11.804701"
+        },
+        "A072": {
+          "codigo": "A072",
+          "nombre": "Alumno GIE 072",
+          "email": "alumno.gie072@alumnos.upm.es",
+          "curso_matriculado": 2,
+          "tipo_matricula": "Grado simple",
+          "asignaturas_matriculadas": [
+            "IE003",
+            "IE001"
+          ],
+          "laboratorios_aprobados": [],
+          "observaciones": "Alumno regular",
+          "fecha_matricula": "2024-09-01",
+          "fecha_actualizacion": "2025-07-07T21:35:11.804701"
+        },
+        "A073": {
+          "codigo": "A073",
+          "nombre": "Alumno GIE 073",
+          "email": "alumno.gie073@alumnos.upm.es",
+          "curso_matriculado": 4,
+          "tipo_matricula": "Grado simple",
+          "asignaturas_matriculadas": [
+            "IE001",
+            "IE002",
+            "IE003"
+          ],
+          "laboratorios_aprobados": [
+            "IE001"
+          ],
+          "observaciones": "Alumno regular",
+          "fecha_matricula": "2024-09-01",
+          "fecha_actualizacion": "2025-07-07T21:35:11.804701"
+        },
+        "A074": {
+          "codigo": "A074",
+          "nombre": "Alumno GIE 074",
+          "email": "alumno.gie074@alumnos.upm.es",
+          "curso_matriculado": 3,
+          "tipo_matricula": "Grado simple",
+          "asignaturas_matriculadas": [
+            "IE001",
+            "IE002",
+            "IE003"
+          ],
+          "laboratorios_aprobados": [
+            "IE002"
+          ],
+          "observaciones": "Alumno regular",
+          "fecha_matricula": "2024-09-01",
+          "fecha_actualizacion": "2025-07-07T21:35:11.804701"
+        },
+        "A075": {
+          "codigo": "A075",
+          "nombre": "Alumno GIE 075",
+          "email": "alumno.gie075@alumnos.upm.es",
+          "curso_matriculado": 2,
+          "tipo_matricula": "Grado simple",
+          "asignaturas_matriculadas": [
+            "IE003",
+            "IE002"
+          ],
+          "laboratorios_aprobados": [],
+          "observaciones": "Alumno regular",
+          "fecha_matricula": "2024-09-01",
+          "fecha_actualizacion": "2025-07-07T21:35:11.804701"
+        },
+        "A076": {
+          "codigo": "A076",
+          "nombre": "Alumno GIE 076",
+          "email": "alumno.gie076@alumnos.upm.es",
+          "curso_matriculado": 3,
+          "tipo_matricula": "Grado simple",
+          "asignaturas_matriculadas": [
+            "IE002",
+            "IE001",
+            "IE003"
+          ],
+          "laboratorios_aprobados": [],
+          "observaciones": "Alumno regular",
+          "fecha_matricula": "2024-09-01",
+          "fecha_actualizacion": "2025-07-07T21:35:11.804701"
+        },
+        "A077": {
+          "codigo": "A077",
+          "nombre": "Alumno GIE 077",
+          "email": "alumno.gie077@alumnos.upm.es",
+          "curso_matriculado": 4,
+          "tipo_matricula": "Grado simple",
+          "asignaturas_matriculadas": [
+            "IE002",
+            "IE001"
+          ],
+          "laboratorios_aprobados": [],
+          "observaciones": "Alumno regular",
+          "fecha_matricula": "2024-09-01",
+          "fecha_actualizacion": "2025-07-07T21:35:11.804701"
+        },
+        "A078": {
+          "codigo": "A078",
+          "nombre": "Alumno GIE 078",
+          "email": "alumno.gie078@alumnos.upm.es",
+          "curso_matriculado": 4,
+          "tipo_matricula": "Grado simple",
+          "asignaturas_matriculadas": [
+            "IE001",
+            "IE003",
+            "IE002"
+          ],
+          "laboratorios_aprobados": [],
+          "observaciones": "Alumno regular",
+          "fecha_matricula": "2024-09-01",
+          "fecha_actualizacion": "2025-07-07T21:35:11.804701"
+        },
+        "A079": {
+          "codigo": "A079",
+          "nombre": "Alumno GIE 079",
+          "email": "alumno.gie079@alumnos.upm.es",
+          "curso_matriculado": 3,
+          "tipo_matricula": "Grado simple",
+          "asignaturas_matriculadas": [
+            "IE002",
+            "IE003",
+            "IE001"
+          ],
+          "laboratorios_aprobados": [
+            "IE001"
+          ],
+          "observaciones": "Alumno regular",
+          "fecha_matricula": "2024-09-01",
+          "fecha_actualizacion": "2025-07-07T21:35:11.804701"
+        },
+        "A080": {
+          "codigo": "A080",
+          "nombre": "Alumno GIE 080",
+          "email": "alumno.gie080@alumnos.upm.es",
+          "curso_matriculado": 4,
+          "tipo_matricula": "Grado simple",
+          "asignaturas_matriculadas": [
+            "IE003",
+            "IE002",
+            "IE001"
+          ],
+          "laboratorios_aprobados": [],
+          "observaciones": "Alumno regular",
+          "fecha_matricula": "2024-09-01",
+          "fecha_actualizacion": "2025-07-07T21:35:11.804701"
+        },
+        "A081": {
+          "codigo": "A081",
+          "nombre": "Alumno GIE 081",
+          "email": "alumno.gie081@alumnos.upm.es",
+          "curso_matriculado": 4,
+          "tipo_matricula": "Grado simple",
+          "asignaturas_matriculadas": [
+            "IE001",
+            "IE002",
+            "IE003"
+          ],
+          "laboratorios_aprobados": [
+            "IE001"
+          ],
+          "observaciones": "Alumno regular",
+          "fecha_matricula": "2024-09-01",
+          "fecha_actualizacion": "2025-07-07T21:35:11.804701"
+        },
+        "A082": {
+          "codigo": "A082",
+          "nombre": "Alumno GIE 082",
+          "email": "alumno.gie082@alumnos.upm.es",
+          "curso_matriculado": 4,
+          "tipo_matricula": "Grado simple",
+          "asignaturas_matriculadas": [
+            "IE001",
+            "IE002"
+          ],
+          "laboratorios_aprobados": [
+            "IE002"
+          ],
+          "observaciones": "Alumno regular",
+          "fecha_matricula": "2024-09-01",
+          "fecha_actualizacion": "2025-07-07T21:35:11.804701"
+        },
+        "A083": {
+          "codigo": "A083",
+          "nombre": "Alumno GIE 083",
+          "email": "alumno.gie083@alumnos.upm.es",
+          "curso_matriculado": 4,
+          "tipo_matricula": "Grado simple",
+          "asignaturas_matriculadas": [
+            "IE002",
+            "IE001",
+            "IE003"
+          ],
+          "laboratorios_aprobados": [],
+          "observaciones": "Alumno regular",
+          "fecha_matricula": "2024-09-01",
+          "fecha_actualizacion": "2025-07-07T21:35:11.804701"
+        },
+        "A084": {
+          "codigo": "A084",
+          "nombre": "Alumno GIE 084",
+          "email": "alumno.gie084@alumnos.upm.es",
+          "curso_matriculado": 4,
+          "tipo_matricula": "Grado simple",
+          "asignaturas_matriculadas": [
+            "IE002",
+            "IE003",
+            "IE001"
+          ],
+          "laboratorios_aprobados": [],
+          "observaciones": "Alumno regular",
+          "fecha_matricula": "2024-09-01",
+          "fecha_actualizacion": "2025-07-07T21:35:11.804701"
+        },
+        "A085": {
+          "codigo": "A085",
+          "nombre": "Alumno GIE 085",
+          "email": "alumno.gie085@alumnos.upm.es",
+          "curso_matriculado": 4,
+          "tipo_matricula": "Grado simple",
+          "asignaturas_matriculadas": [
+            "IE003",
+            "IE001",
+            "IE002"
+          ],
+          "laboratorios_aprobados": [],
+          "observaciones": "Alumno regular",
+          "fecha_matricula": "2024-09-01",
+          "fecha_actualizacion": "2025-07-07T21:35:11.804701"
+        },
+        "A086": {
+          "codigo": "A086",
+          "nombre": "Alumno GIE 086",
+          "email": "alumno.gie086@alumnos.upm.es",
+          "curso_matriculado": 4,
+          "tipo_matricula": "Grado simple",
+          "asignaturas_matriculadas": [
+            "IE003",
+            "IE002",
+            "IE001"
+          ],
+          "laboratorios_aprobados": [],
+          "observaciones": "Alumno regular",
+          "fecha_matricula": "2024-09-01",
+          "fecha_actualizacion": "2025-07-07T21:35:11.804701"
+        },
+        "A087": {
+          "codigo": "A087",
+          "nombre": "Alumno GIE 087",
+          "email": "alumno.gie087@alumnos.upm.es",
+          "curso_matriculado": 2,
+          "tipo_matricula": "Grado simple",
+          "asignaturas_matriculadas": [
+            "IE003"
+          ],
+          "laboratorios_aprobados": [
+            "IE002"
+          ],
+          "observaciones": "Alumno regular",
+          "fecha_matricula": "2024-09-01",
+          "fecha_actualizacion": "2025-07-07T21:35:11.804701"
+        },
+        "A088": {
+          "codigo": "A088",
+          "nombre": "Alumno GIE 088",
+          "email": "alumno.gie088@alumnos.upm.es",
+          "curso_matriculado": 3,
+          "tipo_matricula": "Grado simple",
+          "asignaturas_matriculadas": [
+            "IE003",
+            "IE001"
+          ],
+          "laboratorios_aprobados": [],
+          "observaciones": "Alumno regular",
+          "fecha_matricula": "2024-09-01",
+          "fecha_actualizacion": "2025-07-07T21:35:11.804701"
+        },
+        "A089": {
+          "codigo": "A089",
+          "nombre": "Alumno GIE 089",
+          "email": "alumno.gie089@alumnos.upm.es",
+          "curso_matriculado": 2,
+          "tipo_matricula": "Grado simple",
+          "asignaturas_matriculadas": [
+            "IE003",
+            "IE002"
+          ],
+          "laboratorios_aprobados": [],
+          "observaciones": "Alumno regular",
+          "fecha_matricula": "2024-09-01",
+          "fecha_actualizacion": "2025-07-07T21:35:11.804701"
+        },
+        "A090": {
+          "codigo": "A090",
+          "nombre": "Alumno GIE 090",
+          "email": "alumno.gie090@alumnos.upm.es",
+          "curso_matriculado": 3,
+          "tipo_matricula": "Grado simple",
+          "asignaturas_matriculadas": [
+            "IE002",
+            "IE003"
+          ],
+          "laboratorios_aprobados": [
+            "IE001"
+          ],
+          "observaciones": "Alumno regular",
+          "fecha_matricula": "2024-09-01",
+          "fecha_actualizacion": "2025-07-07T21:35:11.804701"
+        },
+        "A091": {
+          "codigo": "A091",
+          "nombre": "Alumno GIE 091",
+          "email": "alumno.gie091@alumnos.upm.es",
+          "curso_matriculado": 3,
+          "tipo_matricula": "Grado simple",
+          "asignaturas_matriculadas": [
+            "IE003"
+          ],
+          "laboratorios_aprobados": [
+            "IE001"
+          ],
+          "observaciones": "Alumno regular",
+          "fecha_matricula": "2024-09-01",
+          "fecha_actualizacion": "2025-07-07T21:35:11.804701"
+        },
+        "A092": {
+          "codigo": "A092",
+          "nombre": "Alumno GIE 092",
+          "email": "alumno.gie092@alumnos.upm.es",
+          "curso_matriculado": 4,
+          "tipo_matricula": "Grado simple",
+          "asignaturas_matriculadas": [
+            "IE001"
+          ],
+          "laboratorios_aprobados": [
+            "IE001"
+          ],
+          "observaciones": "Alumno regular",
+          "fecha_matricula": "2024-09-01",
+          "fecha_actualizacion": "2025-07-07T21:35:11.804701"
+        },
+        "A093": {
+          "codigo": "A093",
+          "nombre": "Alumno GIE 093",
+          "email": "alumno.gie093@alumnos.upm.es",
+          "curso_matriculado": 2,
+          "tipo_matricula": "Grado simple",
+          "asignaturas_matriculadas": [
+            "IE001",
+            "IE003",
+            "IE002"
+          ],
+          "laboratorios_aprobados": [],
+          "observaciones": "Alumno regular",
+          "fecha_matricula": "2024-09-01",
+          "fecha_actualizacion": "2025-07-07T21:35:11.804701"
+        },
+        "A094": {
+          "codigo": "A094",
+          "nombre": "Alumno GIE 094",
+          "email": "alumno.gie094@alumnos.upm.es",
+          "curso_matriculado": 4,
+          "tipo_matricula": "Grado simple",
+          "asignaturas_matriculadas": [
+            "IE001",
+            "IE002",
+            "IE003"
+          ],
+          "laboratorios_aprobados": [
+            "IE002"
+          ],
+          "observaciones": "Alumno regular",
+          "fecha_matricula": "2024-09-01",
+          "fecha_actualizacion": "2025-07-07T21:35:11.804701"
+        },
+        "A095": {
+          "codigo": "A095",
+          "nombre": "Alumno GIE 095",
+          "email": "alumno.gie095@alumnos.upm.es",
+          "curso_matriculado": 2,
+          "tipo_matricula": "Grado simple",
+          "asignaturas_matriculadas": [
+            "IE002",
+            "IE003",
+            "IE001"
+          ],
+          "laboratorios_aprobados": [],
+          "observaciones": "Alumno regular",
+          "fecha_matricula": "2024-09-01",
+          "fecha_actualizacion": "2025-07-07T21:35:11.804701"
+        },
+        "A096": {
+          "codigo": "A096",
+          "nombre": "Alumno GIE 096",
+          "email": "alumno.gie096@alumnos.upm.es",
+          "curso_matriculado": 3,
+          "tipo_matricula": "Grado simple",
+          "asignaturas_matriculadas": [
+            "IE003",
+            "IE001"
+          ],
+          "laboratorios_aprobados": [],
+          "observaciones": "Alumno regular",
+          "fecha_matricula": "2024-09-01",
+          "fecha_actualizacion": "2025-07-07T21:35:11.804701"
+        },
+        "A097": {
+          "codigo": "A097",
+          "nombre": "Alumno GIE 097",
+          "email": "alumno.gie097@alumnos.upm.es",
+          "curso_matriculado": 3,
+          "tipo_matricula": "Grado simple",
+          "asignaturas_matriculadas": [
+            "IE001",
+            "IE002",
+            "IE003"
+          ],
+          "laboratorios_aprobados": [
+            "IE002"
+          ],
+          "observaciones": "Alumno regular",
+          "fecha_matricula": "2024-09-01",
+          "fecha_actualizacion": "2025-07-07T21:35:11.804701"
+        },
+        "A098": {
+          "codigo": "A098",
+          "nombre": "Alumno GIE 098",
+          "email": "alumno.gie098@alumnos.upm.es",
+          "curso_matriculado": 3,
+          "tipo_matricula": "Grado simple",
+          "asignaturas_matriculadas": [
+            "IE003",
+            "IE002",
+            "IE001"
+          ],
+          "laboratorios_aprobados": [
+            "IE002"
+          ],
+          "observaciones": "Alumno regular",
+          "fecha_matricula": "2024-09-01",
+          "fecha_actualizacion": "2025-07-07T21:35:11.804701"
+        },
+        "A099": {
+          "codigo": "A099",
+          "nombre": "Alumno GIE 099",
+          "email": "alumno.gie099@alumnos.upm.es",
+          "curso_matriculado": 3,
+          "tipo_matricula": "Grado simple",
+          "asignaturas_matriculadas": [
+            "IE001",
+            "IE003"
+          ],
+          "laboratorios_aprobados": [],
+          "observaciones": "Alumno regular",
+          "fecha_matricula": "2024-09-01",
+          "fecha_actualizacion": "2025-07-07T21:35:11.804701"
+        },
+        "A100": {
+          "codigo": "A100",
+          "nombre": "Alumno GIE 100",
+          "email": "alumno.gie100@alumnos.upm.es",
+          "curso_matriculado": 2,
+          "tipo_matricula": "Grado simple",
+          "asignaturas_matriculadas": [
+            "IE003",
+            "IE001"
+          ],
+          "laboratorios_aprobados": [],
+          "observaciones": "Alumno regular",
+          "fecha_matricula": "2024-09-01",
+          "fecha_actualizacion": "2025-07-07T21:35:11.804701"
+        },
+        "A101": {
+          "codigo": "A101",
+          "nombre": "Alumno GIE 101",
+          "email": "alumno.gie101@alumnos.upm.es",
+          "curso_matriculado": 4,
+          "tipo_matricula": "Grado simple",
+          "asignaturas_matriculadas": [
+            "IE002",
+            "IE001"
+          ],
+          "laboratorios_aprobados": [
+            "IE002"
+          ],
+          "observaciones": "Alumno regular",
+          "fecha_matricula": "2024-09-01",
+          "fecha_actualizacion": "2025-07-07T21:35:11.804701"
+        },
+        "A102": {
+          "codigo": "A102",
+          "nombre": "Alumno GIE 102",
+          "email": "alumno.gie102@alumnos.upm.es",
+          "curso_matriculado": 2,
+          "tipo_matricula": "Grado simple",
+          "asignaturas_matriculadas": [
+            "IE001"
+          ],
+          "laboratorios_aprobados": [
+            "IE001"
+          ],
+          "observaciones": "Alumno regular",
+          "fecha_matricula": "2024-09-01",
+          "fecha_actualizacion": "2025-07-07T21:35:11.804701"
+        },
+        "A103": {
+          "codigo": "A103",
+          "nombre": "Alumno GIE 103",
+          "email": "alumno.gie103@alumnos.upm.es",
+          "curso_matriculado": 2,
+          "tipo_matricula": "Grado simple",
+          "asignaturas_matriculadas": [
+            "IE002",
+            "IE001",
+            "IE003"
+          ],
+          "laboratorios_aprobados": [
+            "IE002"
+          ],
+          "observaciones": "Alumno regular",
+          "fecha_matricula": "2024-09-01",
+          "fecha_actualizacion": "2025-07-07T21:35:11.804701"
+        },
+        "A104": {
+          "codigo": "A104",
+          "nombre": "Alumno GIE 104",
+          "email": "alumno.gie104@alumnos.upm.es",
+          "curso_matriculado": 3,
+          "tipo_matricula": "Grado simple",
+          "asignaturas_matriculadas": [
+            "IE003",
+            "IE002"
+          ],
+          "laboratorios_aprobados": [
+            "IE001"
+          ],
+          "observaciones": "Alumno regular",
+          "fecha_matricula": "2024-09-01",
+          "fecha_actualizacion": "2025-07-07T21:35:11.804701"
+        },
+        "A105": {
+          "codigo": "A105",
+          "nombre": "Alumno GIE 105",
+          "email": "alumno.gie105@alumnos.upm.es",
+          "curso_matriculado": 3,
+          "tipo_matricula": "Grado simple",
+          "asignaturas_matriculadas": [
+            "IE003"
+          ],
+          "laboratorios_aprobados": [],
+          "observaciones": "Alumno regular",
+          "fecha_matricula": "2024-09-01",
+          "fecha_actualizacion": "2025-07-07T21:35:11.804701"
+        },
+        "A106": {
+          "codigo": "A106",
+          "nombre": "Alumno GIE 106",
+          "email": "alumno.gie106@alumnos.upm.es",
+          "curso_matriculado": 4,
+          "tipo_matricula": "Grado simple",
+          "asignaturas_matriculadas": [
+            "IE003",
+            "IE001",
+            "IE002"
+          ],
+          "laboratorios_aprobados": [],
+          "observaciones": "Alumno regular",
+          "fecha_matricula": "2024-09-01",
+          "fecha_actualizacion": "2025-07-07T21:35:11.804701"
+        },
+        "A107": {
+          "codigo": "A107",
+          "nombre": "Alumno GIE 107",
+          "email": "alumno.gie107@alumnos.upm.es",
+          "curso_matriculado": 2,
+          "tipo_matricula": "Grado simple",
+          "asignaturas_matriculadas": [
+            "IE003"
+          ],
+          "laboratorios_aprobados": [],
+          "observaciones": "Alumno regular",
+          "fecha_matricula": "2024-09-01",
+          "fecha_actualizacion": "2025-07-07T21:35:11.804701"
+        },
+        "A108": {
+          "codigo": "A108",
+          "nombre": "Alumno GIE 108",
+          "email": "alumno.gie108@alumnos.upm.es",
+          "curso_matriculado": 3,
+          "tipo_matricula": "Grado simple",
+          "asignaturas_matriculadas": [
+            "IE001",
+            "IE003"
+          ],
+          "laboratorios_aprobados": [],
+          "observaciones": "Alumno regular",
+          "fecha_matricula": "2024-09-01",
+          "fecha_actualizacion": "2025-07-07T21:35:11.804701"
+        },
+        "A109": {
+          "codigo": "A109",
+          "nombre": "Alumno GIE 109",
+          "email": "alumno.gie109@alumnos.upm.es",
+          "curso_matriculado": 3,
+          "tipo_matricula": "Grado simple",
+          "asignaturas_matriculadas": [
+            "IE001",
+            "IE002"
+          ],
+          "laboratorios_aprobados": [],
+          "observaciones": "Alumno regular",
+          "fecha_matricula": "2024-09-01",
+          "fecha_actualizacion": "2025-07-07T21:35:11.804701"
+        },
+        "A110": {
+          "codigo": "A110",
+          "nombre": "Alumno GIE 110",
+          "email": "alumno.gie110@alumnos.upm.es",
+          "curso_matriculado": 3,
+          "tipo_matricula": "Grado simple",
+          "asignaturas_matriculadas": [
+            "IE001"
+          ],
+          "laboratorios_aprobados": [],
+          "observaciones": "Alumno regular",
+          "fecha_matricula": "2024-09-01",
+          "fecha_actualizacion": "2025-07-07T21:35:11.804701"
+        },
+        "A111": {
+          "codigo": "A111",
+          "nombre": "Alumno GIE 111",
+          "email": "alumno.gie111@alumnos.upm.es",
+          "curso_matriculado": 4,
+          "tipo_matricula": "Grado simple",
+          "asignaturas_matriculadas": [
+            "IE003",
+            "IE002",
+            "IE001"
+          ],
+          "laboratorios_aprobados": [],
+          "observaciones": "Alumno regular",
+          "fecha_matricula": "2024-09-01",
+          "fecha_actualizacion": "2025-07-07T21:35:11.804701"
+        },
+        "A112": {
+          "codigo": "A112",
+          "nombre": "Alumno GIE 112",
+          "email": "alumno.gie112@alumnos.upm.es",
+          "curso_matriculado": 4,
+          "tipo_matricula": "Grado simple",
+          "asignaturas_matriculadas": [
+            "IE001",
+            "IE003"
+          ],
+          "laboratorios_aprobados": [],
+          "observaciones": "Alumno regular",
+          "fecha_matricula": "2024-09-01",
+          "fecha_actualizacion": "2025-07-07T21:35:11.804701"
+        },
+        "A113": {
+          "codigo": "A113",
+          "nombre": "Alumno GIE 113",
+          "email": "alumno.gie113@alumnos.upm.es",
+          "curso_matriculado": 4,
+          "tipo_matricula": "Grado simple",
+          "asignaturas_matriculadas": [
+            "IE001"
+          ],
+          "laboratorios_aprobados": [
+            "IE002"
+          ],
+          "observaciones": "Alumno regular",
+          "fecha_matricula": "2024-09-01",
+          "fecha_actualizacion": "2025-07-07T21:35:11.804701"
+        },
+        "A114": {
+          "codigo": "A114",
+          "nombre": "Alumno GIE 114",
+          "email": "alumno.gie114@alumnos.upm.es",
+          "curso_matriculado": 4,
+          "tipo_matricula": "Grado simple",
+          "asignaturas_matriculadas": [
+            "IE002"
+          ],
+          "laboratorios_aprobados": [
+            "IE001"
+          ],
+          "observaciones": "Alumno regular",
+          "fecha_matricula": "2024-09-01",
+          "fecha_actualizacion": "2025-07-07T21:35:11.804701"
+        },
+        "A115": {
+          "codigo": "A115",
+          "nombre": "Alumno GIE 115",
+          "email": "alumno.gie115@alumnos.upm.es",
+          "curso_matriculado": 2,
+          "tipo_matricula": "Grado simple",
+          "asignaturas_matriculadas": [
+            "IE002",
+            "IE001"
+          ],
+          "laboratorios_aprobados": [
+            "IE001"
+          ],
+          "observaciones": "Alumno regular",
+          "fecha_matricula": "2024-09-01",
+          "fecha_actualizacion": "2025-07-07T21:35:11.804701"
+        },
+        "T001": {
+          "codigo": "T001",
+          "nombre": "Alumno GITI 001",
+          "email": "alumno.giti001@alumnos.upm.es",
+          "curso_matriculado": 2,
+          "tipo_matricula": "Grado simple",
+          "asignaturas_matriculadas": [
+            "TI001",
+            "TI002"
+          ],
+          "laboratorios_aprobados": [],
+          "observaciones": "Alumno regular",
+          "fecha_matricula": "2024-09-01",
+          "fecha_actualizacion": "2025-07-07T21:35:11.804701"
+        },
+        "T002": {
+          "codigo": "T002",
+          "nombre": "Alumno GITI 002",
+          "email": "alumno.giti002@alumnos.upm.es",
+          "curso_matriculado": 3,
+          "tipo_matricula": "Grado simple",
+          "asignaturas_matriculadas": [
+            "TI002"
+          ],
+          "laboratorios_aprobados": [
+            "TI001"
+          ],
+          "observaciones": "Alumno regular",
+          "fecha_matricula": "2024-09-01",
+          "fecha_actualizacion": "2025-07-07T21:35:11.804701"
+        },
+        "T003": {
+          "codigo": "T003",
+          "nombre": "Alumno GITI 003",
+          "email": "alumno.giti003@alumnos.upm.es",
+          "curso_matriculado": 3,
+          "tipo_matricula": "Grado simple",
+          "asignaturas_matriculadas": [
+            "TI002",
+            "TI001"
+          ],
+          "laboratorios_aprobados": [
+            "TI001"
+          ],
+          "observaciones": "Alumno regular",
+          "fecha_matricula": "2024-09-01",
+          "fecha_actualizacion": "2025-07-07T21:35:11.804701"
+        },
+        "T004": {
+          "codigo": "T004",
+          "nombre": "Alumno GITI 004",
+          "email": "alumno.giti004@alumnos.upm.es",
+          "curso_matriculado": 4,
+          "tipo_matricula": "Grado simple",
+          "asignaturas_matriculadas": [
+            "TI002"
+          ],
+          "laboratorios_aprobados": [],
+          "observaciones": "Alumno regular",
+          "fecha_matricula": "2024-09-01",
+          "fecha_actualizacion": "2025-07-07T21:35:11.804701"
+        },
+        "T005": {
+          "codigo": "T005",
+          "nombre": "Alumno GITI 005",
+          "email": "alumno.giti005@alumnos.upm.es",
+          "curso_matriculado": 4,
+          "tipo_matricula": "Grado simple",
+          "asignaturas_matriculadas": [
+            "TI002",
+            "TI001"
+          ],
+          "laboratorios_aprobados": [
+            "TI001"
+          ],
+          "observaciones": "Alumno regular",
+          "fecha_matricula": "2024-09-01",
+          "fecha_actualizacion": "2025-07-07T21:35:11.804701"
+        },
+        "T006": {
+          "codigo": "T006",
+          "nombre": "Alumno GITI 006",
+          "email": "alumno.giti006@alumnos.upm.es",
+          "curso_matriculado": 4,
+          "tipo_matricula": "Grado simple",
+          "asignaturas_matriculadas": [
+            "TI002",
+            "TI001"
+          ],
+          "laboratorios_aprobados": [
+            "TI001"
+          ],
+          "observaciones": "Alumno regular",
+          "fecha_matricula": "2024-09-01",
+          "fecha_actualizacion": "2025-07-07T21:35:11.804701"
+        },
+        "T007": {
+          "codigo": "T007",
+          "nombre": "Alumno GITI 007",
+          "email": "alumno.giti007@alumnos.upm.es",
+          "curso_matriculado": 2,
+          "tipo_matricula": "Grado simple",
+          "asignaturas_matriculadas": [
+            "TI001",
+            "TI002"
+          ],
+          "laboratorios_aprobados": [],
+          "observaciones": "Alumno regular",
+          "fecha_matricula": "2024-09-01",
+          "fecha_actualizacion": "2025-07-07T21:35:11.804701"
+        },
+        "T008": {
+          "codigo": "T008",
+          "nombre": "Alumno GITI 008",
+          "email": "alumno.giti008@alumnos.upm.es",
+          "curso_matriculado": 3,
+          "tipo_matricula": "Grado simple",
+          "asignaturas_matriculadas": [
+            "TI002"
+          ],
+          "laboratorios_aprobados": [
+            "TI001"
+          ],
+          "observaciones": "Alumno regular",
+          "fecha_matricula": "2024-09-01",
+          "fecha_actualizacion": "2025-07-07T21:35:11.804701"
+        },
+        "T009": {
+          "codigo": "T009",
+          "nombre": "Alumno GITI 009",
+          "email": "alumno.giti009@alumnos.upm.es",
+          "curso_matriculado": 3,
+          "tipo_matricula": "Grado simple",
+          "asignaturas_matriculadas": [
+            "TI002"
+          ],
+          "laboratorios_aprobados": [
+            "TI001"
+          ],
+          "observaciones": "Alumno regular",
+          "fecha_matricula": "2024-09-01",
+          "fecha_actualizacion": "2025-07-07T21:35:11.804701"
+        },
+        "T010": {
+          "codigo": "T010",
+          "nombre": "Alumno GITI 010",
+          "email": "alumno.giti010@alumnos.upm.es",
+          "curso_matriculado": 3,
+          "tipo_matricula": "Grado simple",
+          "asignaturas_matriculadas": [
+            "TI002"
+          ],
+          "laboratorios_aprobados": [
+            "TI001"
+          ],
+          "observaciones": "Alumno regular",
+          "fecha_matricula": "2024-09-01",
+          "fecha_actualizacion": "2025-07-07T21:35:11.804701"
+        },
+        "T011": {
+          "codigo": "T011",
+          "nombre": "Alumno GITI 011",
+          "email": "alumno.giti011@alumnos.upm.es",
+          "curso_matriculado": 4,
+          "tipo_matricula": "Grado simple",
+          "asignaturas_matriculadas": [
+            "TI002",
+            "TI001"
+          ],
+          "laboratorios_aprobados": [],
+          "observaciones": "Alumno regular",
+          "fecha_matricula": "2024-09-01",
+          "fecha_actualizacion": "2025-07-07T21:35:11.804701"
+        },
+        "T012": {
+          "codigo": "T012",
+          "nombre": "Alumno GITI 012",
+          "email": "alumno.giti012@alumnos.upm.es",
+          "curso_matriculado": 2,
+          "tipo_matricula": "Grado simple",
+          "asignaturas_matriculadas": [
+            "TI001",
+            "TI002"
+          ],
+          "laboratorios_aprobados": [],
+          "observaciones": "Alumno regular",
+          "fecha_matricula": "2024-09-01",
+          "fecha_actualizacion": "2025-07-07T21:35:11.804701"
+        },
+        "T013": {
+          "codigo": "T013",
+          "nombre": "Alumno GITI 013",
+          "email": "alumno.giti013@alumnos.upm.es",
+          "curso_matriculado": 3,
+          "tipo_matricula": "Grado simple",
+          "asignaturas_matriculadas": [
+            "TI002",
+            "TI001"
+          ],
+          "laboratorios_aprobados": [
+            "TI001"
+          ],
+          "observaciones": "Alumno regular",
+          "fecha_matricula": "2024-09-01",
+          "fecha_actualizacion": "2025-07-07T21:35:11.804701"
+        },
+        "T014": {
+          "codigo": "T014",
+          "nombre": "Alumno GITI 014",
+          "email": "alumno.giti014@alumnos.upm.es",
+          "curso_matriculado": 2,
+          "tipo_matricula": "Grado simple",
+          "asignaturas_matriculadas": [
+            "TI002",
+            "TI001"
+          ],
+          "laboratorios_aprobados": [],
+          "observaciones": "Alumno regular",
+          "fecha_matricula": "2024-09-01",
+          "fecha_actualizacion": "2025-07-07T21:35:11.804701"
+        },
+        "T015": {
+          "codigo": "T015",
+          "nombre": "Alumno GITI 015",
+          "email": "alumno.giti015@alumnos.upm.es",
+          "curso_matriculado": 4,
+          "tipo_matricula": "Grado simple",
+          "asignaturas_matriculadas": [
+            "TI001"
+          ],
+          "laboratorios_aprobados": [],
+          "observaciones": "Alumno regular",
+          "fecha_matricula": "2024-09-01",
+          "fecha_actualizacion": "2025-07-07T21:35:11.804701"
+        },
+        "T016": {
+          "codigo": "T016",
+          "nombre": "Alumno GITI 016",
+          "email": "alumno.giti016@alumnos.upm.es",
+          "curso_matriculado": 4,
+          "tipo_matricula": "Grado simple",
+          "asignaturas_matriculadas": [
+            "TI001",
+            "TI002"
+          ],
+          "laboratorios_aprobados": [
+            "TI001"
+          ],
+          "observaciones": "Alumno regular",
+          "fecha_matricula": "2024-09-01",
+          "fecha_actualizacion": "2025-07-07T21:35:11.804701"
+        },
+        "T017": {
+          "codigo": "T017",
+          "nombre": "Alumno GITI 017",
+          "email": "alumno.giti017@alumnos.upm.es",
+          "curso_matriculado": 3,
+          "tipo_matricula": "Grado simple",
+          "asignaturas_matriculadas": [
+            "TI001",
+            "TI002"
+          ],
+          "laboratorios_aprobados": [
+            "TI001"
+          ],
+          "observaciones": "Alumno regular",
+          "fecha_matricula": "2024-09-01",
+          "fecha_actualizacion": "2025-07-07T21:35:11.804701"
+        },
+        "T018": {
+          "codigo": "T018",
+          "nombre": "Alumno GITI 018",
+          "email": "alumno.giti018@alumnos.upm.es",
+          "curso_matriculado": 2,
+          "tipo_matricula": "Grado simple",
+          "asignaturas_matriculadas": [
+            "TI001",
+            "TI002"
+          ],
+          "laboratorios_aprobados": [
+            "TI001"
+          ],
+          "observaciones": "Alumno regular",
+          "fecha_matricula": "2024-09-01",
+          "fecha_actualizacion": "2025-07-07T21:35:11.804701"
+        },
+        "T019": {
+          "codigo": "T019",
+          "nombre": "Alumno GITI 019",
+          "email": "alumno.giti019@alumnos.upm.es",
+          "curso_matriculado": 4,
+          "tipo_matricula": "Grado simple",
+          "asignaturas_matriculadas": [
+            "TI001"
+          ],
+          "laboratorios_aprobados": [
+            "TI001"
+          ],
+          "observaciones": "Alumno regular",
+          "fecha_matricula": "2024-09-01",
+          "fecha_actualizacion": "2025-07-07T21:35:11.804701"
+        },
+        "T020": {
+          "codigo": "T020",
+          "nombre": "Alumno GITI 020",
+          "email": "alumno.giti020@alumnos.upm.es",
+          "curso_matriculado": 4,
+          "tipo_matricula": "Grado simple",
+          "asignaturas_matriculadas": [
+            "TI002"
+          ],
+          "laboratorios_aprobados": [],
+          "observaciones": "Alumno regular",
+          "fecha_matricula": "2024-09-01",
+          "fecha_actualizacion": "2025-07-07T21:35:11.804701"
+        },
+        "T021": {
+          "codigo": "T021",
+          "nombre": "Alumno GITI 021",
+          "email": "alumno.giti021@alumnos.upm.es",
+          "curso_matriculado": 2,
+          "tipo_matricula": "Grado simple",
+          "asignaturas_matriculadas": [
+            "TI001",
+            "TI002"
+          ],
+          "laboratorios_aprobados": [],
+          "observaciones": "Alumno regular",
+          "fecha_matricula": "2024-09-01",
+          "fecha_actualizacion": "2025-07-07T21:35:11.804701"
+        },
+        "T022": {
+          "codigo": "T022",
+          "nombre": "Alumno GITI 022",
+          "email": "alumno.giti022@alumnos.upm.es",
+          "curso_matriculado": 2,
+          "tipo_matricula": "Grado simple",
+          "asignaturas_matriculadas": [
+            "TI001",
+            "TI002"
+          ],
+          "laboratorios_aprobados": [],
+          "observaciones": "Alumno regular",
+          "fecha_matricula": "2024-09-01",
+          "fecha_actualizacion": "2025-07-07T21:35:11.804701"
+        },
+        "T023": {
+          "codigo": "T023",
+          "nombre": "Alumno GITI 023",
+          "email": "alumno.giti023@alumnos.upm.es",
+          "curso_matriculado": 2,
+          "tipo_matricula": "Grado simple",
+          "asignaturas_matriculadas": [
+            "TI002"
+          ],
+          "laboratorios_aprobados": [
+            "TI001"
+          ],
+          "observaciones": "Alumno regular",
+          "fecha_matricula": "2024-09-01",
+          "fecha_actualizacion": "2025-07-07T21:35:11.804701"
+        },
+        "T024": {
+          "codigo": "T024",
+          "nombre": "Alumno GITI 024",
+          "email": "alumno.giti024@alumnos.upm.es",
+          "curso_matriculado": 4,
+          "tipo_matricula": "Grado simple",
+          "asignaturas_matriculadas": [
+            "TI001"
+          ],
+          "laboratorios_aprobados": [],
+          "observaciones": "Alumno regular",
+          "fecha_matricula": "2024-09-01",
+          "fecha_actualizacion": "2025-07-07T21:35:11.804701"
+        },
+        "T025": {
+          "codigo": "T025",
+          "nombre": "Alumno GITI 025",
+          "email": "alumno.giti025@alumnos.upm.es",
+          "curso_matriculado": 2,
+          "tipo_matricula": "Grado simple",
+          "asignaturas_matriculadas": [
+            "TI001",
+            "TI002"
+          ],
+          "laboratorios_aprobados": [
+            "TI001"
+          ],
+          "observaciones": "Alumno regular",
+          "fecha_matricula": "2024-09-01",
+          "fecha_actualizacion": "2025-07-07T21:35:11.804701"
+        },
+        "T026": {
+          "codigo": "T026",
+          "nombre": "Alumno GITI 026",
+          "email": "alumno.giti026@alumnos.upm.es",
+          "curso_matriculado": 3,
+          "tipo_matricula": "Grado simple",
+          "asignaturas_matriculadas": [
+            "TI001"
+          ],
+          "laboratorios_aprobados": [
+            "TI001"
+          ],
+          "observaciones": "Alumno regular",
+          "fecha_matricula": "2024-09-01",
+          "fecha_actualizacion": "2025-07-07T21:35:11.804701"
+        },
+        "T027": {
+          "codigo": "T027",
+          "nombre": "Alumno GITI 027",
+          "email": "alumno.giti027@alumnos.upm.es",
+          "curso_matriculado": 3,
+          "tipo_matricula": "Grado simple",
+          "asignaturas_matriculadas": [
+            "TI002"
+          ],
+          "laboratorios_aprobados": [
+            "TI001"
+          ],
+          "observaciones": "Alumno regular",
+          "fecha_matricula": "2024-09-01",
+          "fecha_actualizacion": "2025-07-07T21:35:11.804701"
+        },
+        "T028": {
+          "codigo": "T028",
+          "nombre": "Alumno GITI 028",
+          "email": "alumno.giti028@alumnos.upm.es",
+          "curso_matriculado": 3,
+          "tipo_matricula": "Grado simple",
+          "asignaturas_matriculadas": [
+            "TI001"
+          ],
+          "laboratorios_aprobados": [
+            "TI001"
+          ],
+          "observaciones": "Alumno regular",
+          "fecha_matricula": "2024-09-01",
+          "fecha_actualizacion": "2025-07-07T21:35:11.804701"
+        },
+        "T029": {
+          "codigo": "T029",
+          "nombre": "Alumno GITI 029",
+          "email": "alumno.giti029@alumnos.upm.es",
+          "curso_matriculado": 4,
+          "tipo_matricula": "Grado simple",
+          "asignaturas_matriculadas": [
+            "TI002"
+          ],
+          "laboratorios_aprobados": [],
+          "observaciones": "Alumno regular",
+          "fecha_matricula": "2024-09-01",
+          "fecha_actualizacion": "2025-07-07T21:35:11.804701"
+        },
+        "T030": {
+          "codigo": "T030",
+          "nombre": "Alumno GITI 030",
+          "email": "alumno.giti030@alumnos.upm.es",
+          "curso_matriculado": 3,
+          "tipo_matricula": "Grado simple",
+          "asignaturas_matriculadas": [
+            "TI001"
+          ],
+          "laboratorios_aprobados": [],
+          "observaciones": "Alumno regular",
+          "fecha_matricula": "2024-09-01",
+          "fecha_actualizacion": "2025-07-07T21:35:11.804701"
+        },
+        "T031": {
+          "codigo": "T031",
+          "nombre": "Alumno GITI 031",
+          "email": "alumno.giti031@alumnos.upm.es",
+          "curso_matriculado": 3,
+          "tipo_matricula": "Grado simple",
+          "asignaturas_matriculadas": [
+            "TI001",
+            "TI002"
+          ],
+          "laboratorios_aprobados": [
+            "TI001"
+          ],
+          "observaciones": "Alumno regular",
+          "fecha_matricula": "2024-09-01",
+          "fecha_actualizacion": "2025-07-07T21:35:11.804701"
+        },
+        "T032": {
+          "codigo": "T032",
+          "nombre": "Alumno GITI 032",
+          "email": "alumno.giti032@alumnos.upm.es",
+          "curso_matriculado": 3,
+          "tipo_matricula": "Grado simple",
+          "asignaturas_matriculadas": [
+            "TI001"
+          ],
+          "laboratorios_aprobados": [],
+          "observaciones": "Alumno regular",
+          "fecha_matricula": "2024-09-01",
+          "fecha_actualizacion": "2025-07-07T21:35:11.804701"
+        },
+        "T033": {
+          "codigo": "T033",
+          "nombre": "Alumno GITI 033",
+          "email": "alumno.giti033@alumnos.upm.es",
+          "curso_matriculado": 3,
+          "tipo_matricula": "Grado simple",
+          "asignaturas_matriculadas": [
+            "TI002",
+            "TI001"
+          ],
+          "laboratorios_aprobados": [],
+          "observaciones": "Alumno regular",
+          "fecha_matricula": "2024-09-01",
+          "fecha_actualizacion": "2025-07-07T21:35:11.804701"
+        },
+        "T034": {
+          "codigo": "T034",
+          "nombre": "Alumno GITI 034",
+          "email": "alumno.giti034@alumnos.upm.es",
+          "curso_matriculado": 4,
+          "tipo_matricula": "Grado simple",
+          "asignaturas_matriculadas": [
+            "TI001",
+            "TI002"
+          ],
+          "laboratorios_aprobados": [
+            "TI001"
+          ],
+          "observaciones": "Alumno regular",
+          "fecha_matricula": "2024-09-01",
+          "fecha_actualizacion": "2025-07-07T21:35:11.804701"
+        },
+        "T035": {
+          "codigo": "T035",
+          "nombre": "Alumno GITI 035",
+          "email": "alumno.giti035@alumnos.upm.es",
+          "curso_matriculado": 4,
+          "tipo_matricula": "Grado simple",
+          "asignaturas_matriculadas": [
+            "TI002",
+            "TI001"
+          ],
+          "laboratorios_aprobados": [
+            "TI001"
+          ],
+          "observaciones": "Alumno regular",
+          "fecha_matricula": "2024-09-01",
+          "fecha_actualizacion": "2025-07-07T21:35:11.804701"
+        },
+        "T036": {
+          "codigo": "T036",
+          "nombre": "Alumno GITI 036",
+          "email": "alumno.giti036@alumnos.upm.es",
+          "curso_matriculado": 4,
+          "tipo_matricula": "Grado simple",
+          "asignaturas_matriculadas": [
+            "TI002",
+            "TI001"
+          ],
+          "laboratorios_aprobados": [],
+          "observaciones": "Alumno regular",
+          "fecha_matricula": "2024-09-01",
+          "fecha_actualizacion": "2025-07-07T21:35:11.804701"
+        },
+        "T037": {
+          "codigo": "T037",
+          "nombre": "Alumno GITI 037",
+          "email": "alumno.giti037@alumnos.upm.es",
+          "curso_matriculado": 4,
+          "tipo_matricula": "Grado simple",
+          "asignaturas_matriculadas": [
+            "TI001"
+          ],
+          "laboratorios_aprobados": [
+            "TI001"
+          ],
+          "observaciones": "Alumno regular",
+          "fecha_matricula": "2024-09-01",
+          "fecha_actualizacion": "2025-07-07T21:35:11.804701"
+        },
+        "T038": {
+          "codigo": "T038",
+          "nombre": "Alumno GITI 038",
+          "email": "alumno.giti038@alumnos.upm.es",
+          "curso_matriculado": 3,
+          "tipo_matricula": "Grado simple",
+          "asignaturas_matriculadas": [
+            "TI001",
+            "TI002"
+          ],
+          "laboratorios_aprobados": [],
+          "observaciones": "Alumno regular",
+          "fecha_matricula": "2024-09-01",
+          "fecha_actualizacion": "2025-07-07T21:35:11.804701"
+        },
+        "T039": {
+          "codigo": "T039",
+          "nombre": "Alumno GITI 039",
+          "email": "alumno.giti039@alumnos.upm.es",
+          "curso_matriculado": 2,
+          "tipo_matricula": "Grado simple",
+          "asignaturas_matriculadas": [
+            "TI002",
+            "TI001"
+          ],
+          "laboratorios_aprobados": [
+            "TI001"
+          ],
+          "observaciones": "Alumno regular",
+          "fecha_matricula": "2024-09-01",
+          "fecha_actualizacion": "2025-07-07T21:35:11.804701"
+        },
+        "T040": {
+          "codigo": "T040",
+          "nombre": "Alumno GITI 040",
+          "email": "alumno.giti040@alumnos.upm.es",
+          "curso_matriculado": 2,
+          "tipo_matricula": "Grado simple",
+          "asignaturas_matriculadas": [
+            "TI002"
+          ],
+          "laboratorios_aprobados": [
+            "TI001"
+          ],
+          "observaciones": "Alumno regular",
+          "fecha_matricula": "2024-09-01",
+          "fecha_actualizacion": "2025-07-07T21:35:11.805702"
+        },
+        "T041": {
+          "codigo": "T041",
+          "nombre": "Alumno GITI 041",
+          "email": "alumno.giti041@alumnos.upm.es",
+          "curso_matriculado": 3,
+          "tipo_matricula": "Grado simple",
+          "asignaturas_matriculadas": [
+            "TI002",
+            "TI001"
+          ],
+          "laboratorios_aprobados": [
+            "TI001"
+          ],
+          "observaciones": "Alumno regular",
+          "fecha_matricula": "2024-09-01",
+          "fecha_actualizacion": "2025-07-07T21:35:11.805702"
+        },
+        "T042": {
+          "codigo": "T042",
+          "nombre": "Alumno GITI 042",
+          "email": "alumno.giti042@alumnos.upm.es",
+          "curso_matriculado": 2,
+          "tipo_matricula": "Grado simple",
+          "asignaturas_matriculadas": [
+            "TI002"
+          ],
+          "laboratorios_aprobados": [
+            "TI001"
+          ],
+          "observaciones": "Alumno regular",
+          "fecha_matricula": "2024-09-01",
+          "fecha_actualizacion": "2025-07-07T21:35:11.805702"
+        },
+        "T043": {
+          "codigo": "T043",
+          "nombre": "Alumno GITI 043",
+          "email": "alumno.giti043@alumnos.upm.es",
+          "curso_matriculado": 2,
+          "tipo_matricula": "Grado simple",
+          "asignaturas_matriculadas": [
+            "TI001"
+          ],
+          "laboratorios_aprobados": [
+            "TI001"
+          ],
+          "observaciones": "Alumno regular",
+          "fecha_matricula": "2024-09-01",
+          "fecha_actualizacion": "2025-07-07T21:35:11.805702"
+        },
+        "T044": {
+          "codigo": "T044",
+          "nombre": "Alumno GITI 044",
+          "email": "alumno.giti044@alumnos.upm.es",
+          "curso_matriculado": 4,
+          "tipo_matricula": "Grado simple",
+          "asignaturas_matriculadas": [
+            "TI001",
+            "TI002"
+          ],
+          "laboratorios_aprobados": [],
+          "observaciones": "Alumno regular",
+          "fecha_matricula": "2024-09-01",
+          "fecha_actualizacion": "2025-07-07T21:35:11.805702"
+        },
+        "T045": {
+          "codigo": "T045",
+          "nombre": "Alumno GITI 045",
+          "email": "alumno.giti045@alumnos.upm.es",
+          "curso_matriculado": 3,
+          "tipo_matricula": "Grado simple",
+          "asignaturas_matriculadas": [
+            "TI002",
+            "TI001"
+          ],
+          "laboratorios_aprobados": [],
+          "observaciones": "Alumno regular",
+          "fecha_matricula": "2024-09-01",
+          "fecha_actualizacion": "2025-07-07T21:35:11.805702"
+        },
+        "T046": {
+          "codigo": "T046",
+          "nombre": "Alumno GITI 046",
+          "email": "alumno.giti046@alumnos.upm.es",
+          "curso_matriculado": 4,
+          "tipo_matricula": "Grado simple",
+          "asignaturas_matriculadas": [
+            "TI001"
+          ],
+          "laboratorios_aprobados": [],
+          "observaciones": "Alumno regular",
+          "fecha_matricula": "2024-09-01",
+          "fecha_actualizacion": "2025-07-07T21:35:11.805702"
+        },
+        "T047": {
+          "codigo": "T047",
+          "nombre": "Alumno GITI 047",
+          "email": "alumno.giti047@alumnos.upm.es",
+          "curso_matriculado": 3,
+          "tipo_matricula": "Grado simple",
+          "asignaturas_matriculadas": [
+            "TI001",
+            "TI002"
+          ],
+          "laboratorios_aprobados": [],
+          "observaciones": "Alumno regular",
+          "fecha_matricula": "2024-09-01",
+          "fecha_actualizacion": "2025-07-07T21:35:11.805702"
+        },
+        "T048": {
+          "codigo": "T048",
+          "nombre": "Alumno GITI 048",
+          "email": "alumno.giti048@alumnos.upm.es",
+          "curso_matriculado": 2,
+          "tipo_matricula": "Grado simple",
+          "asignaturas_matriculadas": [
+            "TI002"
+          ],
+          "laboratorios_aprobados": [],
+          "observaciones": "Alumno regular",
+          "fecha_matricula": "2024-09-01",
+          "fecha_actualizacion": "2025-07-07T21:35:11.805702"
+        },
+        "T049": {
+          "codigo": "T049",
+          "nombre": "Alumno GITI 049",
+          "email": "alumno.giti049@alumnos.upm.es",
+          "curso_matriculado": 2,
+          "tipo_matricula": "Grado simple",
+          "asignaturas_matriculadas": [
+            "TI001"
+          ],
+          "laboratorios_aprobados": [],
+          "observaciones": "Alumno regular",
+          "fecha_matricula": "2024-09-01",
+          "fecha_actualizacion": "2025-07-07T21:35:11.805702"
+        },
+        "T050": {
+          "codigo": "T050",
+          "nombre": "Alumno GITI 050",
+          "email": "alumno.giti050@alumnos.upm.es",
+          "curso_matriculado": 4,
+          "tipo_matricula": "Grado simple",
+          "asignaturas_matriculadas": [
+            "TI002"
+          ],
+          "laboratorios_aprobados": [],
+          "observaciones": "Alumno regular",
+          "fecha_matricula": "2024-09-01",
+          "fecha_actualizacion": "2025-07-07T21:35:11.805702"
+        },
+        "T051": {
+          "codigo": "T051",
+          "nombre": "Alumno GITI 051",
+          "email": "alumno.giti051@alumnos.upm.es",
+          "curso_matriculado": 2,
+          "tipo_matricula": "Grado simple",
+          "asignaturas_matriculadas": [
+            "TI001"
+          ],
+          "laboratorios_aprobados": [],
+          "observaciones": "Alumno regular",
+          "fecha_matricula": "2024-09-01",
+          "fecha_actualizacion": "2025-07-07T21:35:11.805702"
+        },
+        "T052": {
+          "codigo": "T052",
+          "nombre": "Alumno GITI 052",
+          "email": "alumno.giti052@alumnos.upm.es",
+          "curso_matriculado": 3,
+          "tipo_matricula": "Grado simple",
+          "asignaturas_matriculadas": [
+            "TI001"
+          ],
+          "laboratorios_aprobados": [],
+          "observaciones": "Alumno regular",
+          "fecha_matricula": "2024-09-01",
+          "fecha_actualizacion": "2025-07-07T21:35:11.805702"
+        },
+        "T053": {
+          "codigo": "T053",
+          "nombre": "Alumno GITI 053",
+          "email": "alumno.giti053@alumnos.upm.es",
+          "curso_matriculado": 2,
+          "tipo_matricula": "Grado simple",
+          "asignaturas_matriculadas": [
+            "TI001",
+            "TI002"
+          ],
+          "laboratorios_aprobados": [
+            "TI001"
+          ],
+          "observaciones": "Alumno regular",
+          "fecha_matricula": "2024-09-01",
+          "fecha_actualizacion": "2025-07-07T21:35:11.805702"
+        },
+        "T054": {
+          "codigo": "T054",
+          "nombre": "Alumno GITI 054",
+          "email": "alumno.giti054@alumnos.upm.es",
+          "curso_matriculado": 4,
+          "tipo_matricula": "Grado simple",
+          "asignaturas_matriculadas": [
+            "TI002",
+            "TI001"
+          ],
+          "laboratorios_aprobados": [
+            "TI001"
+          ],
+          "observaciones": "Alumno regular",
+          "fecha_matricula": "2024-09-01",
+          "fecha_actualizacion": "2025-07-07T21:35:11.805702"
+        },
+        "T055": {
+          "codigo": "T055",
+          "nombre": "Alumno GITI 055",
+          "email": "alumno.giti055@alumnos.upm.es",
+          "curso_matriculado": 3,
+          "tipo_matricula": "Grado simple",
+          "asignaturas_matriculadas": [
+            "TI002"
+          ],
+          "laboratorios_aprobados": [
+            "TI001"
+          ],
+          "observaciones": "Alumno regular",
+          "fecha_matricula": "2024-09-01",
+          "fecha_actualizacion": "2025-07-07T21:35:11.805702"
+        },
+        "T056": {
+          "codigo": "T056",
+          "nombre": "Alumno GITI 056",
+          "email": "alumno.giti056@alumnos.upm.es",
+          "curso_matriculado": 4,
+          "tipo_matricula": "Grado simple",
+          "asignaturas_matriculadas": [
+            "TI001"
+          ],
+          "laboratorios_aprobados": [
+            "TI001"
+          ],
+          "observaciones": "Alumno regular",
+          "fecha_matricula": "2024-09-01",
+          "fecha_actualizacion": "2025-07-07T21:35:11.805702"
+        },
+        "T057": {
+          "codigo": "T057",
+          "nombre": "Alumno GITI 057",
+          "email": "alumno.giti057@alumnos.upm.es",
+          "curso_matriculado": 2,
+          "tipo_matricula": "Grado simple",
+          "asignaturas_matriculadas": [
+            "TI002",
+            "TI001"
+          ],
+          "laboratorios_aprobados": [],
+          "observaciones": "Alumno regular",
+          "fecha_matricula": "2024-09-01",
+          "fecha_actualizacion": "2025-07-07T21:35:11.805702"
+        },
+        "T058": {
+          "codigo": "T058",
+          "nombre": "Alumno GITI 058",
+          "email": "alumno.giti058@alumnos.upm.es",
+          "curso_matriculado": 3,
+          "tipo_matricula": "Grado simple",
+          "asignaturas_matriculadas": [
+            "TI001",
+            "TI002"
+          ],
+          "laboratorios_aprobados": [],
+          "observaciones": "Alumno regular",
+          "fecha_matricula": "2024-09-01",
+          "fecha_actualizacion": "2025-07-07T21:35:11.805702"
+        },
+        "T059": {
+          "codigo": "T059",
+          "nombre": "Alumno GITI 059",
+          "email": "alumno.giti059@alumnos.upm.es",
+          "curso_matriculado": 2,
+          "tipo_matricula": "Grado simple",
+          "asignaturas_matriculadas": [
+            "TI002"
+          ],
+          "laboratorios_aprobados": [],
+          "observaciones": "Alumno regular",
+          "fecha_matricula": "2024-09-01",
+          "fecha_actualizacion": "2025-07-07T21:35:11.805702"
+        },
+        "T060": {
+          "codigo": "T060",
+          "nombre": "Alumno GITI 060",
+          "email": "alumno.giti060@alumnos.upm.es",
+          "curso_matriculado": 2,
+          "tipo_matricula": "Grado simple",
+          "asignaturas_matriculadas": [
+            "TI001"
+          ],
+          "laboratorios_aprobados": [
+            "TI001"
+          ],
+          "observaciones": "Alumno regular",
+          "fecha_matricula": "2024-09-01",
+          "fecha_actualizacion": "2025-07-07T21:35:11.805702"
+        },
+        "T061": {
+          "codigo": "T061",
+          "nombre": "Alumno GITI 061",
+          "email": "alumno.giti061@alumnos.upm.es",
+          "curso_matriculado": 4,
+          "tipo_matricula": "Grado simple",
+          "asignaturas_matriculadas": [
+            "TI002",
+            "TI001"
+          ],
+          "laboratorios_aprobados": [
+            "TI001"
+          ],
+          "observaciones": "Alumno regular",
+          "fecha_matricula": "2024-09-01",
+          "fecha_actualizacion": "2025-07-07T21:35:11.805702"
+        },
+        "T062": {
+          "codigo": "T062",
+          "nombre": "Alumno GITI 062",
+          "email": "alumno.giti062@alumnos.upm.es",
+          "curso_matriculado": 2,
+          "tipo_matricula": "Grado simple",
+          "asignaturas_matriculadas": [
+            "TI001",
+            "TI002"
+          ],
+          "laboratorios_aprobados": [],
+          "observaciones": "Alumno regular",
+          "fecha_matricula": "2024-09-01",
+          "fecha_actualizacion": "2025-07-07T21:35:11.805702"
+        },
+        "T063": {
+          "codigo": "T063",
+          "nombre": "Alumno GITI 063",
+          "email": "alumno.giti063@alumnos.upm.es",
+          "curso_matriculado": 3,
+          "tipo_matricula": "Grado simple",
+          "asignaturas_matriculadas": [
+            "TI002"
+          ],
+          "laboratorios_aprobados": [],
+          "observaciones": "Alumno regular",
+          "fecha_matricula": "2024-09-01",
+          "fecha_actualizacion": "2025-07-07T21:35:11.805702"
+        },
+        "T064": {
+          "codigo": "T064",
+          "nombre": "Alumno GITI 064",
+          "email": "alumno.giti064@alumnos.upm.es",
+          "curso_matriculado": 3,
+          "tipo_matricula": "Grado simple",
+          "asignaturas_matriculadas": [
+            "TI002",
+            "TI001"
+          ],
+          "laboratorios_aprobados": [
+            "TI001"
+          ],
+          "observaciones": "Alumno regular",
+          "fecha_matricula": "2024-09-01",
+          "fecha_actualizacion": "2025-07-07T21:35:11.805702"
+        },
+        "T065": {
+          "codigo": "T065",
+          "nombre": "Alumno GITI 065",
+          "email": "alumno.giti065@alumnos.upm.es",
+          "curso_matriculado": 2,
+          "tipo_matricula": "Grado simple",
+          "asignaturas_matriculadas": [
+            "TI002",
+            "TI001"
+          ],
+          "laboratorios_aprobados": [],
+          "observaciones": "Alumno regular",
+          "fecha_matricula": "2024-09-01",
+          "fecha_actualizacion": "2025-07-07T21:35:11.805702"
+        },
+        "T066": {
+          "codigo": "T066",
+          "nombre": "Alumno GITI 066",
+          "email": "alumno.giti066@alumnos.upm.es",
+          "curso_matriculado": 3,
+          "tipo_matricula": "Grado simple",
+          "asignaturas_matriculadas": [
+            "TI002",
+            "TI001"
+          ],
+          "laboratorios_aprobados": [],
+          "observaciones": "Alumno regular",
+          "fecha_matricula": "2024-09-01",
+          "fecha_actualizacion": "2025-07-07T21:35:11.805702"
+        },
+        "T067": {
+          "codigo": "T067",
+          "nombre": "Alumno GITI 067",
+          "email": "alumno.giti067@alumnos.upm.es",
+          "curso_matriculado": 2,
+          "tipo_matricula": "Grado simple",
+          "asignaturas_matriculadas": [
+            "TI001",
+            "TI002"
+          ],
+          "laboratorios_aprobados": [
+            "TI001"
+          ],
+          "observaciones": "Alumno regular",
+          "fecha_matricula": "2024-09-01",
+          "fecha_actualizacion": "2025-07-07T21:35:11.805702"
+        },
+        "T068": {
+          "codigo": "T068",
+          "nombre": "Alumno GITI 068",
+          "email": "alumno.giti068@alumnos.upm.es",
+          "curso_matriculado": 3,
+          "tipo_matricula": "Grado simple",
+          "asignaturas_matriculadas": [
+            "TI002"
+          ],
+          "laboratorios_aprobados": [
+            "TI001"
+          ],
+          "observaciones": "Alumno regular",
+          "fecha_matricula": "2024-09-01",
+          "fecha_actualizacion": "2025-07-07T21:35:11.805702"
+        },
+        "T069": {
+          "codigo": "T069",
+          "nombre": "Alumno GITI 069",
+          "email": "alumno.giti069@alumnos.upm.es",
+          "curso_matriculado": 4,
+          "tipo_matricula": "Grado simple",
+          "asignaturas_matriculadas": [
+            "TI002"
+          ],
+          "laboratorios_aprobados": [
+            "TI001"
+          ],
+          "observaciones": "Alumno regular",
+          "fecha_matricula": "2024-09-01",
+          "fecha_actualizacion": "2025-07-07T21:35:11.805702"
+        },
+        "T070": {
+          "codigo": "T070",
+          "nombre": "Alumno GITI 070",
+          "email": "alumno.giti070@alumnos.upm.es",
+          "curso_matriculado": 3,
+          "tipo_matricula": "Grado simple",
+          "asignaturas_matriculadas": [
+            "TI001",
+            "TI002"
+          ],
+          "laboratorios_aprobados": [],
+          "observaciones": "Alumno regular",
+          "fecha_matricula": "2024-09-01",
+          "fecha_actualizacion": "2025-07-07T21:35:11.805702"
+        },
+        "T071": {
+          "codigo": "T071",
+          "nombre": "Alumno GITI 071",
+          "email": "alumno.giti071@alumnos.upm.es",
+          "curso_matriculado": 3,
+          "tipo_matricula": "Grado simple",
+          "asignaturas_matriculadas": [
+            "TI001"
+          ],
+          "laboratorios_aprobados": [
+            "TI001"
+          ],
+          "observaciones": "Alumno regular",
+          "fecha_matricula": "2024-09-01",
+          "fecha_actualizacion": "2025-07-07T21:35:11.805702"
+        },
+        "T072": {
+          "codigo": "T072",
+          "nombre": "Alumno GITI 072",
+          "email": "alumno.giti072@alumnos.upm.es",
+          "curso_matriculado": 2,
+          "tipo_matricula": "Grado simple",
+          "asignaturas_matriculadas": [
+            "TI002",
+            "TI001"
+          ],
+          "laboratorios_aprobados": [
+            "TI001"
+          ],
+          "observaciones": "Alumno regular",
+          "fecha_matricula": "2024-09-01",
+          "fecha_actualizacion": "2025-07-07T21:35:11.805702"
+        },
+        "T073": {
+          "codigo": "T073",
+          "nombre": "Alumno GITI 073",
+          "email": "alumno.giti073@alumnos.upm.es",
+          "curso_matriculado": 4,
+          "tipo_matricula": "Grado simple",
+          "asignaturas_matriculadas": [
+            "TI001"
+          ],
+          "laboratorios_aprobados": [],
+          "observaciones": "Alumno regular",
+          "fecha_matricula": "2024-09-01",
+          "fecha_actualizacion": "2025-07-07T21:35:11.805702"
+        },
+        "T074": {
+          "codigo": "T074",
+          "nombre": "Alumno GITI 074",
+          "email": "alumno.giti074@alumnos.upm.es",
+          "curso_matriculado": 3,
+          "tipo_matricula": "Grado simple",
+          "asignaturas_matriculadas": [
+            "TI002"
+          ],
+          "laboratorios_aprobados": [],
+          "observaciones": "Alumno regular",
+          "fecha_matricula": "2024-09-01",
+          "fecha_actualizacion": "2025-07-07T21:35:11.805702"
+        },
+        "T075": {
+          "codigo": "T075",
+          "nombre": "Alumno GITI 075",
+          "email": "alumno.giti075@alumnos.upm.es",
+          "curso_matriculado": 3,
+          "tipo_matricula": "Grado simple",
+          "asignaturas_matriculadas": [
+            "TI001"
+          ],
+          "laboratorios_aprobados": [
+            "TI001"
+          ],
+          "observaciones": "Alumno regular",
+          "fecha_matricula": "2024-09-01",
+          "fecha_actualizacion": "2025-07-07T21:35:11.805702"
+        },
+        "T076": {
+          "codigo": "T076",
+          "nombre": "Alumno GITI 076",
+          "email": "alumno.giti076@alumnos.upm.es",
+          "curso_matriculado": 4,
+          "tipo_matricula": "Grado simple",
+          "asignaturas_matriculadas": [
+            "TI001",
+            "TI002"
+          ],
+          "laboratorios_aprobados": [
+            "TI001"
+          ],
+          "observaciones": "Alumno regular",
+          "fecha_matricula": "2024-09-01",
+          "fecha_actualizacion": "2025-07-07T21:35:11.805702"
+        },
+        "T077": {
+          "codigo": "T077",
+          "nombre": "Alumno GITI 077",
+          "email": "alumno.giti077@alumnos.upm.es",
+          "curso_matriculado": 3,
+          "tipo_matricula": "Grado simple",
+          "asignaturas_matriculadas": [
+            "TI002"
+          ],
+          "laboratorios_aprobados": [],
+          "observaciones": "Alumno regular",
+          "fecha_matricula": "2024-09-01",
+          "fecha_actualizacion": "2025-07-07T21:35:11.805702"
+        },
+        "T078": {
+          "codigo": "T078",
+          "nombre": "Alumno GITI 078",
+          "email": "alumno.giti078@alumnos.upm.es",
+          "curso_matriculado": 3,
+          "tipo_matricula": "Grado simple",
+          "asignaturas_matriculadas": [
+            "TI002"
+          ],
+          "laboratorios_aprobados": [
+            "TI001"
+          ],
+          "observaciones": "Alumno regular",
+          "fecha_matricula": "2024-09-01",
+          "fecha_actualizacion": "2025-07-07T21:35:11.805702"
+        },
+        "EE001": {
+          "codigo": "EE001",
+          "nombre": "Alumno Doble 001",
+          "email": "alumno.doble001@alumnos.upm.es",
+          "curso_matriculado": 5,
+          "tipo_matricula": "Doble grado",
+          "asignaturas_matriculadas": [
+            "TI001",
+            "IE002",
+            "TI002",
+            "IE003"
+          ],
+          "laboratorios_aprobados": [
+            "IE001",
+            "TI001"
+          ],
+          "observaciones": "Programa de excelencia académica",
+          "fecha_matricula": "2024-09-01",
+          "fecha_actualizacion": "2025-07-07T21:35:11.805702"
+        },
+        "EE002": {
+          "codigo": "EE002",
+          "nombre": "Alumno Doble 002",
+          "email": "alumno.doble002@alumnos.upm.es",
+          "curso_matriculado": 4,
+          "tipo_matricula": "Doble grado",
+          "asignaturas_matriculadas": [
+            "IE002",
+            "TI002"
+          ],
+          "laboratorios_aprobados": [
+            "TI001",
+            "IE001"
+          ],
+          "observaciones": "Programa de excelencia académica",
+          "fecha_matricula": "2024-09-01",
+          "fecha_actualizacion": "2025-07-07T21:35:11.805702"
+        },
+        "EE003": {
+          "codigo": "EE003",
+          "nombre": "Alumno Doble 003",
+          "email": "alumno.doble003@alumnos.upm.es",
+          "curso_matriculado": 4,
+          "tipo_matricula": "Doble grado",
+          "asignaturas_matriculadas": [
+            "TI001",
+            "IE003",
+            "IE002",
+            "IE001"
+          ],
+          "laboratorios_aprobados": [
+            "IE001",
+            "TI001"
+          ],
+          "observaciones": "Programa de excelencia académica",
+          "fecha_matricula": "2024-09-01",
+          "fecha_actualizacion": "2025-07-07T21:35:11.805702"
+        },
+        "EE004": {
+          "codigo": "EE004",
+          "nombre": "Alumno Doble 004",
+          "email": "alumno.doble004@alumnos.upm.es",
+          "curso_matriculado": 5,
+          "tipo_matricula": "Doble grado",
+          "asignaturas_matriculadas": [
+            "IE001",
+            "IE003"
+          ],
+          "laboratorios_aprobados": [],
+          "observaciones": "Programa de excelencia académica",
+          "fecha_matricula": "2024-09-01",
+          "fecha_actualizacion": "2025-07-07T21:35:11.805702"
+        },
+        "EE005": {
+          "codigo": "EE005",
+          "nombre": "Alumno Doble 005",
+          "email": "alumno.doble005@alumnos.upm.es",
+          "curso_matriculado": 4,
+          "tipo_matricula": "Doble grado",
+          "asignaturas_matriculadas": [
+            "IE002",
+            "IE001",
+            "IE003",
+            "TI001"
+          ],
+          "laboratorios_aprobados": [
+            "IE001"
+          ],
+          "observaciones": "Programa de excelencia académica",
+          "fecha_matricula": "2024-09-01",
+          "fecha_actualizacion": "2025-07-07T21:35:11.805702"
+        },
+        "EE006": {
+          "codigo": "EE006",
+          "nombre": "Alumno Doble 006",
+          "email": "alumno.doble006@alumnos.upm.es",
+          "curso_matriculado": 3,
+          "tipo_matricula": "Doble grado",
+          "asignaturas_matriculadas": [
+            "TI002",
+            "IE003",
+            "IE001",
+            "IE002"
+          ],
+          "laboratorios_aprobados": [
+            "TI001",
+            "IE001"
+          ],
+          "observaciones": "Programa de excelencia académica",
+          "fecha_matricula": "2024-09-01",
+          "fecha_actualizacion": "2025-07-07T21:35:11.805702"
+        },
+        "EE007": {
+          "codigo": "EE007",
+          "nombre": "Alumno Doble 007",
+          "email": "alumno.doble007@alumnos.upm.es",
+          "curso_matriculado": 5,
+          "tipo_matricula": "Doble grado",
+          "asignaturas_matriculadas": [
+            "IE003",
+            "TI002",
+            "IE001"
+          ],
+          "laboratorios_aprobados": [
+            "IE001",
+            "TI001"
+          ],
+          "observaciones": "Programa de excelencia académica",
+          "fecha_matricula": "2024-09-01",
+          "fecha_actualizacion": "2025-07-07T21:35:11.805702"
+        },
+        "EE008": {
+          "codigo": "EE008",
+          "nombre": "Alumno Doble 008",
+          "email": "alumno.doble008@alumnos.upm.es",
+          "curso_matriculado": 4,
+          "tipo_matricula": "Doble grado",
+          "asignaturas_matriculadas": [
+            "IE002",
+            "TI002",
+            "TI001",
+            "IE003"
+          ],
+          "laboratorios_aprobados": [],
+          "observaciones": "Programa de excelencia académica",
+          "fecha_matricula": "2024-09-01",
+          "fecha_actualizacion": "2025-07-07T21:35:11.805702"
+        },
+        "EE009": {
+          "codigo": "EE009",
+          "nombre": "Alumno Doble 009",
+          "email": "alumno.doble009@alumnos.upm.es",
+          "curso_matriculado": 4,
+          "tipo_matricula": "Doble grado",
+          "asignaturas_matriculadas": [
+            "IE002",
+            "TI002"
+          ],
+          "laboratorios_aprobados": [
+            "IE001",
+            "TI001"
+          ],
+          "observaciones": "Programa de excelencia académica",
+          "fecha_matricula": "2024-09-01",
+          "fecha_actualizacion": "2025-07-07T21:35:11.805702"
+        },
+        "EE010": {
+          "codigo": "EE010",
+          "nombre": "Alumno Doble 010",
+          "email": "alumno.doble010@alumnos.upm.es",
+          "curso_matriculado": 5,
+          "tipo_matricula": "Doble grado",
+          "asignaturas_matriculadas": [
+            "IE002",
+            "TI001"
+          ],
+          "laboratorios_aprobados": [],
+          "observaciones": "Programa de excelencia académica",
+          "fecha_matricula": "2024-09-01",
+          "fecha_actualizacion": "2025-07-07T21:35:11.805702"
+        },
+        "EE011": {
+          "codigo": "EE011",
+          "nombre": "Alumno Doble 011",
+          "email": "alumno.doble011@alumnos.upm.es",
+          "curso_matriculado": 5,
+          "tipo_matricula": "Doble grado",
+          "asignaturas_matriculadas": [
+            "TI002",
+            "TI001"
+          ],
+          "laboratorios_aprobados": [
+            "TI001"
+          ],
+          "observaciones": "Programa de excelencia académica",
+          "fecha_matricula": "2024-09-01",
+          "fecha_actualizacion": "2025-07-07T21:35:11.805702"
+        },
+        "EE012": {
+          "codigo": "EE012",
+          "nombre": "Alumno Doble 012",
+          "email": "alumno.doble012@alumnos.upm.es",
+          "curso_matriculado": 5,
+          "tipo_matricula": "Doble grado",
+          "asignaturas_matriculadas": [
+            "IE003",
+            "IE002"
+          ],
+          "laboratorios_aprobados": [],
+          "observaciones": "Programa de excelencia académica",
+          "fecha_matricula": "2024-09-01",
+          "fecha_actualizacion": "2025-07-07T21:35:11.805702"
+        },
+        "EE013": {
+          "codigo": "EE013",
+          "nombre": "Alumno Doble 013",
+          "email": "alumno.doble013@alumnos.upm.es",
+          "curso_matriculado": 3,
+          "tipo_matricula": "Doble grado",
+          "asignaturas_matriculadas": [
+            "IE002",
+            "IE003",
+            "IE001"
+          ],
+          "laboratorios_aprobados": [],
+          "observaciones": "Programa de excelencia académica",
+          "fecha_matricula": "2024-09-01",
+          "fecha_actualizacion": "2025-07-07T21:35:11.805702"
+        },
+        "EE014": {
+          "codigo": "EE014",
+          "nombre": "Alumno Doble 014",
+          "email": "alumno.doble014@alumnos.upm.es",
+          "curso_matriculado": 4,
+          "tipo_matricula": "Doble grado",
+          "asignaturas_matriculadas": [
+            "IE001",
+            "IE003",
+            "TI002",
+            "TI001"
+          ],
+          "laboratorios_aprobados": [
+            "TI001",
+            "IE001"
+          ],
+          "observaciones": "Programa de excelencia académica",
+          "fecha_matricula": "2024-09-01",
+          "fecha_actualizacion": "2025-07-07T21:35:11.805702"
+        },
+        "EE015": {
+          "codigo": "EE015",
+          "nombre": "Alumno Doble 015",
+          "email": "alumno.doble015@alumnos.upm.es",
+          "curso_matriculado": 3,
+          "tipo_matricula": "Doble grado",
+          "asignaturas_matriculadas": [
+            "IE001",
+            "IE003",
+            "IE002",
+            "TI002"
+          ],
+          "laboratorios_aprobados": [],
+          "observaciones": "Programa de excelencia académica",
+          "fecha_matricula": "2024-09-01",
+          "fecha_actualizacion": "2025-07-07T21:35:11.805702"
+        },
+        "EE016": {
+          "codigo": "EE016",
+          "nombre": "Alumno Doble 016",
+          "email": "alumno.doble016@alumnos.upm.es",
+          "curso_matriculado": 3,
+          "tipo_matricula": "Doble grado",
+          "asignaturas_matriculadas": [
+            "IE002",
+            "TI001",
+            "IE003",
+            "TI002"
+          ],
+          "laboratorios_aprobados": [
+            "TI001",
+            "IE001"
+          ],
+          "observaciones": "Programa de excelencia académica",
+          "fecha_matricula": "2024-09-01",
+          "fecha_actualizacion": "2025-07-07T21:35:11.805702"
+        },
+        "EE017": {
+          "codigo": "EE017",
+          "nombre": "Alumno Doble 017",
+          "email": "alumno.doble017@alumnos.upm.es",
+          "curso_matriculado": 5,
+          "tipo_matricula": "Doble grado",
+          "asignaturas_matriculadas": [
+            "IE001",
+            "IE003",
+            "TI001"
+          ],
+          "laboratorios_aprobados": [
+            "TI001",
+            "IE001"
+          ],
+          "observaciones": "Programa de excelencia académica",
+          "fecha_matricula": "2024-09-01",
+          "fecha_actualizacion": "2025-07-07T21:35:11.805702"
+        },
+        "EE018": {
+          "codigo": "EE018",
+          "nombre": "Alumno Doble 018",
+          "email": "alumno.doble018@alumnos.upm.es",
+          "curso_matriculado": 3,
+          "tipo_matricula": "Doble grado",
+          "asignaturas_matriculadas": [
+            "IE003",
+            "IE002"
+          ],
+          "laboratorios_aprobados": [],
+          "observaciones": "Programa de excelencia académica",
+          "fecha_matricula": "2024-09-01",
+          "fecha_actualizacion": "2025-07-07T21:35:11.805702"
+        },
+        "EE019": {
+          "codigo": "EE019",
+          "nombre": "Alumno Doble 019",
+          "email": "alumno.doble019@alumnos.upm.es",
+          "curso_matriculado": 3,
+          "tipo_matricula": "Doble grado",
+          "asignaturas_matriculadas": [
+            "TI001",
+            "IE002"
+          ],
+          "laboratorios_aprobados": [
+            "IE001",
+            "TI001"
+          ],
+          "observaciones": "Programa de excelencia académica",
+          "fecha_matricula": "2024-09-01",
+          "fecha_actualizacion": "2025-07-07T21:35:11.805702"
+        },
+        "EE020": {
+          "codigo": "EE020",
+          "nombre": "Alumno Doble 020",
+          "email": "alumno.doble020@alumnos.upm.es",
+          "curso_matriculado": 5,
+          "tipo_matricula": "Doble grado",
+          "asignaturas_matriculadas": [
+            "TI001",
+            "TI002",
+            "IE002",
+            "IE001"
+          ],
+          "laboratorios_aprobados": [
+            "IE001",
+            "TI001"
+          ],
+          "observaciones": "Programa de excelencia académica",
+          "fecha_matricula": "2024-09-01",
+          "fecha_actualizacion": "2025-07-07T21:35:11.805702"
+        },
+        "EE021": {
+          "codigo": "EE021",
+          "nombre": "Alumno Doble 021",
+          "email": "alumno.doble021@alumnos.upm.es",
+          "curso_matriculado": 4,
+          "tipo_matricula": "Doble grado",
+          "asignaturas_matriculadas": [
+            "IE002",
+            "IE003"
+          ],
+          "laboratorios_aprobados": [],
+          "observaciones": "Programa de excelencia académica",
+          "fecha_matricula": "2024-09-01",
+          "fecha_actualizacion": "2025-07-07T21:35:11.805702"
+        },
+        "EE022": {
+          "codigo": "EE022",
+          "nombre": "Alumno Doble 022",
+          "email": "alumno.doble022@alumnos.upm.es",
+          "curso_matriculado": 3,
+          "tipo_matricula": "Doble grado",
+          "asignaturas_matriculadas": [
+            "TI001",
+            "IE002"
+          ],
+          "laboratorios_aprobados": [
+            "IE001"
+          ],
+          "observaciones": "Programa de excelencia académica",
+          "fecha_matricula": "2024-09-01",
+          "fecha_actualizacion": "2025-07-07T21:35:11.805702"
+        },
+        "EE023": {
+          "codigo": "EE023",
+          "nombre": "Alumno Doble 023",
+          "email": "alumno.doble023@alumnos.upm.es",
+          "curso_matriculado": 5,
+          "tipo_matricula": "Doble grado",
+          "asignaturas_matriculadas": [
+            "IE002",
+            "TI002"
+          ],
+          "laboratorios_aprobados": [],
+          "observaciones": "Programa de excelencia académica",
+          "fecha_matricula": "2024-09-01",
+          "fecha_actualizacion": "2025-07-07T21:35:11.805702"
+        },
+        "EE024": {
+          "codigo": "EE024",
+          "nombre": "Alumno Doble 024",
+          "email": "alumno.doble024@alumnos.upm.es",
+          "curso_matriculado": 4,
+          "tipo_matricula": "Doble grado",
+          "asignaturas_matriculadas": [
+            "TI002",
+            "IE002"
+          ],
+          "laboratorios_aprobados": [
+            "IE001"
+          ],
+          "observaciones": "Programa de excelencia académica",
+          "fecha_matricula": "2024-09-01",
+          "fecha_actualizacion": "2025-07-07T21:35:11.805702"
+        },
+        "EE025": {
+          "codigo": "EE025",
+          "nombre": "Alumno Doble 025",
+          "email": "alumno.doble025@alumnos.upm.es",
+          "curso_matriculado": 4,
+          "tipo_matricula": "Doble grado",
+          "asignaturas_matriculadas": [
+            "IE001",
+            "TI002",
+            "IE003"
+          ],
+          "laboratorios_aprobados": [
+            "TI001",
+            "IE001"
+          ],
+          "observaciones": "Programa de excelencia académica",
+          "fecha_matricula": "2024-09-01",
+          "fecha_actualizacion": "2025-07-07T21:35:11.805702"
+        },
+        "EE026": {
+          "codigo": "EE026",
+          "nombre": "Alumno Doble 026",
+          "email": "alumno.doble026@alumnos.upm.es",
+          "curso_matriculado": 5,
+          "tipo_matricula": "Doble grado",
+          "asignaturas_matriculadas": [
+            "TI002",
+            "IE002"
+          ],
+          "laboratorios_aprobados": [],
+          "observaciones": "Programa de excelencia académica",
+          "fecha_matricula": "2024-09-01",
+          "fecha_actualizacion": "2025-07-07T21:35:11.805702"
+        },
+        "EE027": {
+          "codigo": "EE027",
+          "nombre": "Alumno Doble 027",
+          "email": "alumno.doble027@alumnos.upm.es",
+          "curso_matriculado": 5,
+          "tipo_matricula": "Doble grado",
+          "asignaturas_matriculadas": [
+            "IE001",
+            "TI002",
+            "TI001"
+          ],
+          "laboratorios_aprobados": [
+            "IE001",
+            "TI001"
+          ],
+          "observaciones": "Programa de excelencia académica",
+          "fecha_matricula": "2024-09-01",
+          "fecha_actualizacion": "2025-07-07T21:35:11.805702"
+        },
+        "EE028": {
+          "codigo": "EE028",
+          "nombre": "Alumno Doble 028",
+          "email": "alumno.doble028@alumnos.upm.es",
+          "curso_matriculado": 3,
+          "tipo_matricula": "Doble grado",
+          "asignaturas_matriculadas": [
+            "TI002",
+            "IE001",
+            "IE002"
+          ],
+          "laboratorios_aprobados": [],
+          "observaciones": "Programa de excelencia académica",
+          "fecha_matricula": "2024-09-01",
+          "fecha_actualizacion": "2025-07-07T21:35:11.805702"
+        },
+        "EE029": {
+          "codigo": "EE029",
+          "nombre": "Alumno Doble 029",
+          "email": "alumno.doble029@alumnos.upm.es",
+          "curso_matriculado": 3,
+          "tipo_matricula": "Doble grado",
+          "asignaturas_matriculadas": [
+            "IE003",
+            "TI001"
+          ],
+          "laboratorios_aprobados": [
+            "IE001",
+            "TI001"
+          ],
+          "observaciones": "Programa de excelencia académica",
+          "fecha_matricula": "2024-09-01",
+          "fecha_actualizacion": "2025-07-07T21:35:11.805702"
+        },
+        "EE030": {
+          "codigo": "EE030",
+          "nombre": "Alumno Doble 030",
+          "email": "alumno.doble030@alumnos.upm.es",
+          "curso_matriculado": 5,
+          "tipo_matricula": "Doble grado",
+          "asignaturas_matriculadas": [
+            "TI001",
+            "TI002",
+            "IE002",
+            "IE003"
+          ],
+          "laboratorios_aprobados": [
+            "IE001",
+            "TI001"
+          ],
+          "observaciones": "Programa de excelencia académica",
+          "fecha_matricula": "2024-09-01",
+          "fecha_actualizacion": "2025-07-07T21:35:11.805702"
+        },
+        "EE031": {
+          "codigo": "EE031",
+          "nombre": "Alumno Doble 031",
+          "email": "alumno.doble031@alumnos.upm.es",
+          "curso_matriculado": 3,
+          "tipo_matricula": "Doble grado",
+          "asignaturas_matriculadas": [
+            "IE002",
+            "IE003"
+          ],
+          "laboratorios_aprobados": [
+            "TI001"
+          ],
+          "observaciones": "Programa de excelencia académica",
+          "fecha_matricula": "2024-09-01",
+          "fecha_actualizacion": "2025-07-07T21:35:11.805702"
+        },
+        "EE032": {
+          "codigo": "EE032",
+          "nombre": "Alumno Doble 032",
+          "email": "alumno.doble032@alumnos.upm.es",
+          "curso_matriculado": 5,
+          "tipo_matricula": "Doble grado",
+          "asignaturas_matriculadas": [
+            "IE002",
+            "IE001",
+            "IE003"
+          ],
+          "laboratorios_aprobados": [
+            "TI001"
+          ],
+          "observaciones": "Programa de excelencia académica",
+          "fecha_matricula": "2024-09-01",
+          "fecha_actualizacion": "2025-07-07T21:35:11.805702"
+        },
+        "EE033": {
+          "codigo": "EE033",
+          "nombre": "Alumno Doble 033",
+          "email": "alumno.doble033@alumnos.upm.es",
+          "curso_matriculado": 3,
+          "tipo_matricula": "Doble grado",
+          "asignaturas_matriculadas": [
+            "TI001",
+            "IE003"
+          ],
+          "laboratorios_aprobados": [
+            "TI001",
+            "IE001"
+          ],
+          "observaciones": "Programa de excelencia académica",
+          "fecha_matricula": "2024-09-01",
+          "fecha_actualizacion": "2025-07-07T21:35:11.805702"
+        },
+        "EE034": {
+          "codigo": "EE034",
+          "nombre": "Alumno Doble 034",
+          "email": "alumno.doble034@alumnos.upm.es",
+          "curso_matriculado": 5,
+          "tipo_matricula": "Doble grado",
+          "asignaturas_matriculadas": [
+            "TI001",
+            "TI002",
+            "IE001"
+          ],
+          "laboratorios_aprobados": [],
+          "observaciones": "Programa de excelencia académica",
+          "fecha_matricula": "2024-09-01",
+          "fecha_actualizacion": "2025-07-07T21:35:11.805702"
+        },
+        "EE035": {
+          "codigo": "EE035",
+          "nombre": "Alumno Doble 035",
+          "email": "alumno.doble035@alumnos.upm.es",
+          "curso_matriculado": 3,
+          "tipo_matricula": "Doble grado",
+          "asignaturas_matriculadas": [
+            "IE001",
+            "IE002"
+          ],
+          "laboratorios_aprobados": [
+            "IE001"
+          ],
+          "observaciones": "Programa de excelencia académica",
+          "fecha_matricula": "2024-09-01",
+          "fecha_actualizacion": "2025-07-07T21:35:11.805702"
+        }
+      },
+      "total": 228,
+      "fecha_actualizacion": "2025-07-07T21:35:11.805702"
+    }
+  },
+  "parametros_organizacion": {
+    "preferir_grupos_pares": true,
+    "peso_equilibrio_grupos": 25,
+    "peso_grupos_pares": 20,
+    "peso_horas_tempranas": 40,
+    "peso_doble_grado": 30,
+    "peso_conflictos_alumnos": 15,
+    "peso_utilizacion_aulas": 25,
+    "peso_distribucion_profesores": 20,
+    "diferencia_maxima_grupos": 1,
+    "utilizacion_aula_optima": 85,
+    "restricciones_duras": {
+      "profesor_simultaneo": true,
+      "aula_simultanea": true,
+      "capacidad_absoluta": true,
+      "dias_no_disponibles_profesores": true,
+      "dias_no_disponibles_aulas": true,
+      "compatibilidad_aulas": true,
+      "profesores_asignatura": true,
+      "numero_laboratorios_semestre": true,
+      "intercambio_automatico": true,
+      "excluir_aprobados": true,
+      "horarios_especificos": true
+    },
+    "timestamp": "2025-07-07T21:35:11.805702",
+    "preset_aplicado": "equilibrado"
+  }
+}

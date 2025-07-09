@@ -354,12 +354,35 @@ class GestionCursoDialog(QDialog):
                                     "Configure primero las asignaturas en el sistema.")
             return
 
+        # Obtener asignaturas ya agregadas
+        asignaturas_ya_agregadas = set()
+        for i in range(self.list_asignaturas_dialog.count()):
+            item = self.list_asignaturas_dialog.item(i)
+            asignaturas_ya_agregadas.add(item.data(Qt.ItemDataRole.UserRole))
+
         # Crear lista de asignaturas disponibles
         asignaturas_disponibles = []
         for codigo, datos in self.asignaturas_disponibles.items():
+            # Saltar si ya está agregada
+            if codigo in asignaturas_ya_agregadas:
+                continue
+
             nombre = datos.get('nombre', codigo)
             semestre = datos.get('semestre', 'Sin semestre')
             asignaturas_disponibles.append(f"{codigo} - {nombre} ({semestre})")
+
+        # Verificar si quedan asignaturas disponibles
+        if not asignaturas_disponibles:
+            total_asignaturas = len(self.asignaturas_disponibles)
+            asignaturas_agregadas = len(asignaturas_ya_agregadas)
+
+            QMessageBox.information(self, "Sin Asignaturas Disponibles",
+                                    f"No hay asignaturas disponibles para agregar.\n\n"
+                                    f"📊 Estado actual:\n"
+                                    f"• Total de asignaturas en el sistema: {total_asignaturas}\n"
+                                    f"• Asignaturas ya asociadas a este curso: {asignaturas_agregadas}\n\n"
+                                    f"✅ Todas las asignaturas disponibles ya están asociadas a este curso.")
+            return
 
         asignatura, ok = QInputDialog.getItem(
             self, "Añadir Asignatura",
@@ -403,9 +426,19 @@ class GestionCursoDialog(QDialog):
                                     "No hay asignaturas disponibles para cambiar.")
             return
 
+        # Obtener asignaturas ya agregadas
+        asignaturas_ya_agregadas = set()
+        for i in range(self.list_asignaturas_dialog.count()):
+            item = self.list_asignaturas_dialog.item(i)
+            asignaturas_ya_agregadas.add(item.data(Qt.ItemDataRole.UserRole))
+
         # Crear lista de asignaturas disponibles
         asignaturas_disponibles = []
         for codigo, datos in self.asignaturas_disponibles.items():
+            # Saltar si ya está agregada
+            if codigo in asignaturas_ya_agregadas:
+                continue
+
             nombre = datos.get('nombre', codigo)
             semestre = datos.get('semestre', 'Sin semestre')
             asignaturas_disponibles.append(f"{codigo} - {nombre} ({semestre})")
@@ -599,6 +632,14 @@ class ConfigurarCursos(QMainWindow):
         self.asignaturas_disponibles = self.obtener_asignaturas_del_sistema()
         self.alumnos_disponibles = self.obtener_alumnos_del_sistema()
         self.horarios_disponibles = self.obtener_horarios_del_sistema()
+
+        # Sistema de cambios pendientes para eliminación en cascada
+        self.cambios_pendientes = {
+            "cursos_eliminados": [],
+            "profesores_eliminados": [],
+            "aulas_eliminadas": [],
+            "asignaturas_eliminadas": []
+        }
 
         # Estructura de datos principal
         if datos_existentes:
@@ -1249,7 +1290,7 @@ class ConfigurarCursos(QMainWindow):
             QMessageBox.information(self, "Éxito", f"Curso actualizado correctamente")
 
     def eliminar_curso_seleccionado(self):
-        """Eliminar curso seleccionado - CON SINCRONIZACIÓN"""
+        """Marcar curso seleccionado para eliminación en cascada al guardar"""
         if not self.curso_actual:
             QMessageBox.warning(self, "Advertencia", "Seleccione un curso para eliminar")
             return
@@ -1261,31 +1302,260 @@ class ConfigurarCursos(QMainWindow):
         mensaje = f"¿Está seguro de eliminar el curso '{self.curso_actual} - {nombre}'?\n\n"
         if asignaturas_asociadas:
             mensaje += f"ADVERTENCIA: Este curso tiene {len(asignaturas_asociadas)} asignaturas asociadas.\n"
-        mensaje += "Esta acción no se puede deshacer."
+            mensaje += f"Se eliminará automáticamente de:\n"
+            mensaje += f"  • Todas las asignaturas asociadas\n"
+            mensaje += f"  • Todos los alumnos matriculados\n"
+            mensaje += f"  • Todos los horarios programados\n\n"
+        mensaje += "La eliminación se aplicará al guardar en el sistema."
 
         # Confirmar eliminación
         respuesta = QMessageBox.question(self, "Confirmar Eliminación",
-                                         f"¿Está seguro de eliminar el curso '{self.curso_actual}'?",
+                                         mensaje,
                                          QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No)
 
         if respuesta == QMessageBox.StandardButton.Yes:
-            # SINCRONIZACIÓN: Eliminar curso de todas las asignaturas
-            if asignaturas_asociadas:
-                self.sincronizar_con_asignaturas(self.curso_actual, [], asignaturas_asociadas)
+            curso_codigo = self.curso_actual
 
-            # Eliminar curso
-            del self.datos_configuracion[self.curso_actual]
+            # Marcar para eliminación en cascada
+            if curso_codigo not in self.cambios_pendientes["cursos_eliminados"]:
+                self.cambios_pendientes["cursos_eliminados"].append(curso_codigo)
+
+            # Marcar visualmente como eliminado en la tabla
+            self.marcar_curso_eliminado_en_tabla(curso_codigo)
+
+            # Deshabilitar selección del curso eliminado
             self.curso_actual = None
-
-            # Actualizar interfaz
-            self.cargar_lista_cursos()
-            self.label_curso_actual.setText("Seleccione un curso")
-            self.info_curso.setText("ℹ️ Seleccione un curso para ver sus detalles")
+            self.label_curso_actual.setText("Curso marcado para eliminación")
+            self.info_curso.setText("⚠️ Este curso será eliminado al guardar en el sistema")
             self.btn_duplicar.setEnabled(False)
             self.btn_validar_asignaturas.setEnabled(False)
             self.marcar_cambio_realizado()
 
-            QMessageBox.information(self, "Éxito", "Curso eliminado correctamente")
+            self.log_mensaje(f"📝 Curso {curso_codigo} marcado para eliminación al guardar", "info")
+            QMessageBox.information(self, "Marcado para Eliminación",
+                                    f"Curso '{curso_codigo}' marcado para eliminación.\n\nLa eliminación se aplicará al guardar en el sistema.")
+
+    def marcar_curso_eliminado_en_tabla(self, curso_codigo):
+        """Marcar curso como eliminado visualmente en la tabla"""
+        try:
+            for row in range(self.list_cursos.count()):
+                item = self.list_cursos.item(row)
+                if item and item.data(Qt.ItemDataRole.UserRole) == curso_codigo:
+                    # Obtener texto actual y modificarlo
+                    texto_actual = item.text()
+                    if not texto_actual.startswith("🗑️"):
+                        texto_eliminado = f"🗑️ {texto_actual} (ELIMINADO)"
+                        item.setText(texto_eliminado)
+
+                    # Cambiar estilo visual
+                    item.setBackground(QColor(220, 220, 220))  # Gris claro
+                    item.setForeground(QColor(100, 100, 100))  # Texto gris
+
+                    # Deshabilitar selección
+                    item.setFlags(Qt.ItemFlag.NoItemFlags)
+                    break
+
+        except Exception as e:
+            self.log_mensaje(f"⚠️ Error marcando curso en tabla: {e}", "warning")
+
+    def eliminar_curso_real_completo(self, curso_codigo):
+        """Eliminar curso realmente del sistema completo en cascada"""
+        try:
+            if not self.parent_window:
+                self.log_mensaje(f"⚠️ No se puede eliminar {curso_codigo}: sin parent_window", "warning")
+                return
+
+            # Obtener datos del curso antes de eliminar
+            datos_curso = self.datos_configuracion.get(curso_codigo)
+            if not datos_curso:
+                self.log_mensaje(f"⚠️ Curso {curso_codigo} no encontrado en configuración", "warning")
+                return
+
+            asignaturas_asociadas = datos_curso.get('asignaturas_asociadas', [])
+
+            self.log_mensaje(f"🗑️ Eliminando curso {curso_codigo} del sistema completo...", "info")
+
+            # 1. Eliminar de asignaturas
+            if asignaturas_asociadas:
+                self.eliminar_curso_de_asignaturas_sistema(curso_codigo, asignaturas_asociadas)
+
+            # 2. Eliminar de alumnos
+            self.eliminar_curso_de_alumnos_sistema(curso_codigo)
+
+            # 3. Eliminar de horarios
+            self.eliminar_curso_de_horarios_sistema(curso_codigo)
+
+            # 5. Eliminar de configuración de cursos
+            self.eliminar_curso_de_cursos_sistema(curso_codigo)
+
+            # 6. Eliminar de la configuración local
+            if curso_codigo in self.datos_configuracion:
+                del self.datos_configuracion[curso_codigo]
+
+            self.log_mensaje(f"✅ Curso {curso_codigo} eliminado completamente del sistema", "success")
+
+        except Exception as e:
+            self.log_mensaje(f"❌ Error en eliminación completa de curso {curso_codigo}: {e}", "error")
+
+    def eliminar_curso_de_asignaturas_sistema(self, curso_codigo, asignaturas_asociadas):
+        """Eliminar curso del sistema de asignaturas"""
+        try:
+            config_asignaturas = self.parent_window.configuracion["configuracion"].get("asignaturas", {})
+            if not config_asignaturas.get("configurado") or not config_asignaturas.get("datos"):
+                return
+
+            datos_asignaturas = config_asignaturas["datos"]
+            cambios_realizados = False
+
+            for asignatura_codigo in asignaturas_asociadas:
+                if asignatura_codigo in datos_asignaturas:
+                    cursos_actuales = datos_asignaturas[asignatura_codigo].get("cursos_que_cursan", [])
+                    if curso_codigo in cursos_actuales:
+                        cursos_actuales.remove(curso_codigo)
+                        datos_asignaturas[asignatura_codigo]["cursos_que_cursan"] = sorted(cursos_actuales)
+                        cambios_realizados = True
+
+            if cambios_realizados:
+                self.parent_window.configuracion["configuracion"]["asignaturas"][
+                    "fecha_actualizacion"] = datetime.now().isoformat()
+                self.log_mensaje(f"🔄 Curso {curso_codigo} eliminado del módulo de asignaturas", "info")
+
+        except Exception as e:
+            self.log_mensaje(f"⚠️ Error eliminando curso de asignaturas: {e}", "warning")
+
+    def eliminar_curso_de_alumnos_sistema(self, curso_codigo):
+        """Eliminar curso del sistema de alumnos"""
+        try:
+            config_alumnos = self.parent_window.configuracion["configuracion"].get("alumnos", {})
+            if not config_alumnos.get("configurado") or not config_alumnos.get("datos"):
+                return
+
+            datos_alumnos = config_alumnos["datos"]
+            cambios_realizados = False
+
+            for alumno_codigo, alumno_data in datos_alumnos.items():
+                cursos_matriculados = alumno_data.get("cursos_matriculado", [])
+                if curso_codigo in cursos_matriculados:
+                    cursos_matriculados.remove(curso_codigo)
+                    alumno_data["cursos_matriculado"] = cursos_matriculados
+                    cambios_realizados = True
+
+            if cambios_realizados:
+                self.parent_window.configuracion["configuracion"]["alumnos"][
+                    "fecha_actualizacion"] = datetime.now().isoformat()
+                self.log_mensaje(f"🔄 Curso {curso_codigo} eliminado del módulo de alumnos", "info")
+
+        except Exception as e:
+            self.log_mensaje(f"⚠️ Error eliminando curso de alumnos: {e}", "warning")
+
+    def eliminar_curso_de_horarios_sistema(self, curso_codigo):
+        """Eliminar curso del sistema de horarios con limpieza de días y franjas vacías"""
+        try:
+            config_horarios = self.parent_window.configuracion["configuracion"].get("horarios", {})
+            if not config_horarios.get("configurado") or not config_horarios.get("datos"):
+                return
+
+            datos_horarios = config_horarios["datos"]
+            cambios_realizados = False
+
+            for semestre in ["1", "2"]:
+                if semestre in datos_horarios:
+                    asignaturas_semestre = datos_horarios[semestre]
+                    for asignatura_codigo, asignatura_data in asignaturas_semestre.items():
+
+                        # Eliminar de cursos principales
+                        cursos = asignatura_data.get("cursos", [])
+                        if curso_codigo in cursos:
+                            cursos.remove(curso_codigo)
+                            asignatura_data["cursos"] = cursos
+                            cambios_realizados = True
+                            self.log_mensaje(f"🔄 Curso {curso_codigo} eliminado de {asignatura_codigo}.cursos", "info")
+
+                        # Eliminar de horarios_grid con limpieza automática
+                        horarios_grid = asignatura_data.get("horarios_grid", {})
+                        franjas_a_eliminar = []
+
+                        for franja, dias_data in horarios_grid.items():
+                            dias_a_eliminar = []
+
+                            # Procesar cada día de la franja
+                            for dia, lista_cursos in dias_data.items():
+                                if isinstance(lista_cursos, list) and curso_codigo in lista_cursos:
+                                    lista_cursos.remove(curso_codigo)
+                                    cambios_realizados = True
+                                    self.log_mensaje(
+                                        f"🔄 Curso {curso_codigo} eliminado de {asignatura_codigo}.{franja}.{dia}",
+                                        "info")
+
+                                    # Si la lista del día quedó vacía, marcar día para eliminar
+                                    if len(lista_cursos) == 0:
+                                        dias_a_eliminar.append(dia)
+
+                            # Eliminar días que quedaron vacíos
+                            for dia in dias_a_eliminar:
+                                del dias_data[dia]
+                                self.log_mensaje(
+                                    f"🗑️ Día {dia} eliminado de {asignatura_codigo}.{franja} (quedó vacío)", "info")
+
+                            # Si la franja quedó sin días, marcar franja para eliminar
+                            if len(dias_data) == 0:
+                                franjas_a_eliminar.append(franja)
+
+                        # Eliminar franjas que quedaron vacías
+                        for franja in franjas_a_eliminar:
+                            del horarios_grid[franja]
+                            self.log_mensaje(f"🗑️ Franja {franja} eliminada de {asignatura_codigo} (quedó vacía)",
+                                             "info")
+
+            if cambios_realizados:
+                self.parent_window.configuracion["configuracion"]["horarios"][
+                    "fecha_actualizacion"] = datetime.now().isoformat()
+                self.log_mensaje(f"✅ Curso {curso_codigo} eliminado del módulo de horarios con limpieza automática",
+                                 "success")
+
+        except Exception as e:
+            self.log_mensaje(f"⚠️ Error eliminando curso de horarios: {e}", "warning")
+
+    def eliminar_curso_de_cursos_sistema(self, curso_codigo):
+        """Eliminar curso del sistema de cursos"""
+        try:
+            config_cursos = self.parent_window.configuracion["configuracion"].get("cursos", {})
+            if config_cursos.get("configurado") and config_cursos.get("datos"):
+                datos_cursos = config_cursos["datos"]
+                if curso_codigo in datos_cursos:
+                    del datos_cursos[curso_codigo]
+                    self.parent_window.configuracion["configuracion"]["cursos"][
+                        "fecha_actualizacion"] = datetime.now().isoformat()
+                    self.log_mensaje(f"🗑️ Curso {curso_codigo} eliminado del módulo de cursos", "info")
+
+        except Exception as e:
+            self.log_mensaje(f"⚠️ Error eliminando curso de cursos: {e}", "warning")
+
+    def _actualizar_estadisticas_horarios(self):
+        """Recalcular estadísticas de horarios después de modificaciones"""
+        try:
+            config_horarios = self.parent_window.configuracion["configuracion"]["horarios"]
+            datos_horarios = config_horarios.get("datos", {})
+
+            total_asignaturas = 0
+            total_franjas = 0
+
+            for semestre, asignaturas in datos_horarios.items():
+                if isinstance(asignaturas, dict):
+                    total_asignaturas += len(asignaturas)
+                    for asignatura_data in asignaturas.values():
+                        horarios_grid = asignatura_data.get("horarios_grid", {})
+                        total_franjas += len(horarios_grid)
+
+            # Actualizar estadísticas
+            config_horarios["total_asignaturas"] = total_asignaturas
+            config_horarios["total_franjas"] = total_franjas
+
+            self.log_mensaje(f"📊 Estadísticas actualizadas: {total_asignaturas} asignaturas, {total_franjas} franjas",
+                             "info")
+
+        except Exception as e:
+            self.log_mensaje(f"⚠️ Error actualizando estadísticas de horarios: {e}", "warning")
 
     def duplicar_curso_seleccionado(self):
         """Duplicar curso seleccionado"""
@@ -1869,26 +2139,37 @@ class ConfigurarCursos(QMainWindow):
             QMessageBox.critical(self, "Error", f"Error al guardar configuración:\n{str(e)}")
 
     def guardar_en_sistema(self):
-        """Guardar configuración en el sistema principal"""
+        """Guardar configuración en el sistema principal aplicando eliminaciones pendientes"""
         try:
-            if not self.datos_configuracion:
+            if not self.datos_configuracion and not self.cambios_pendientes["cursos_eliminados"]:
                 QMessageBox.warning(self, "Sin Datos", "No hay cursos configurados para guardar.")
                 return
 
             total_cursos = len(self.datos_configuracion)
             cursos_activos = sum(1 for datos in self.datos_configuracion.values() if datos.get('activo', True))
+            cursos_a_eliminar = len(self.cambios_pendientes["cursos_eliminados"])
+
+            mensaje_confirmacion = f"¿Guardar configuración en el sistema y cerrar?\n\n"
+            mensaje_confirmacion += f"📊 Resumen:\n"
+            mensaje_confirmacion += f"• {total_cursos} cursos configurados\n"
+            mensaje_confirmacion += f"• {cursos_activos} cursos activos\n"
+
+            if cursos_a_eliminar > 0:
+                mensaje_confirmacion += f"• {cursos_a_eliminar} cursos serán eliminados en cascada\n"
+
+            mensaje_confirmacion += f"\nLa configuración se integrará con OPTIM y la ventana se cerrará."
 
             respuesta = QMessageBox.question(
                 self, "Guardar y Cerrar",
-                f"¿Guardar configuración en el sistema y cerrar?\n\n"
-                f"📊 Resumen:\n"
-                f"• {total_cursos} cursos configurados\n"
-                f"• {cursos_activos} cursos activos\n\n"
-                f"La configuración se integrará con OPTIM y la ventana se cerrará.",
+                mensaje_confirmacion,
                 QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No
             )
 
             if respuesta == QMessageBox.StandardButton.Yes:
+                # Aplicar eliminaciones pendientes antes de guardar
+                if cursos_a_eliminar > 0:
+                    self.aplicar_eliminaciones_pendientes()
+
                 # Enviar señal al sistema principal
                 self.configuracion_actualizada.emit(self.datos_configuracion)
 
@@ -1901,6 +2182,28 @@ class ConfigurarCursos(QMainWindow):
 
         except Exception as e:
             QMessageBox.critical(self, "Error", f"Error al guardar en el sistema:\n{str(e)}")
+
+    def aplicar_eliminaciones_pendientes(self):
+        """Aplicar todas las eliminaciones marcadas en cascada"""
+        try:
+            cursos_eliminados = self.cambios_pendientes["cursos_eliminados"].copy()
+
+            if not cursos_eliminados:
+                return
+
+            self.log_mensaje(f"🗑️ Aplicando eliminación en cascada de {len(cursos_eliminados)} cursos...", "info")
+
+            # Eliminar cada curso marcado
+            for curso_codigo in cursos_eliminados:
+                self.eliminar_curso_real_completo(curso_codigo)
+
+            # Limpiar lista de eliminaciones pendientes
+            self.cambios_pendientes["cursos_eliminados"].clear()
+
+            self.log_mensaje(f"✅ Eliminación en cascada completada para {len(cursos_eliminados)} cursos", "success")
+
+        except Exception as e:
+            self.log_mensaje(f"⚠️ Error aplicando eliminaciones pendientes: {e}", "warning")
 
     def limpiar_todos_cursos(self):
         """Limpiar todos los cursos configurados"""
@@ -1983,7 +2286,7 @@ class ConfigurarCursos(QMainWindow):
             print(f"{icono} {mensaje}")
 
     def closeEvent(self, event):
-        """Manejar cierre de ventana"""
+        """Manejar cierre de ventana cancelando eliminaciones pendientes si es necesario"""
         if not self.hay_cambios_sin_guardar():
             self.log_mensaje("🔚 Cerrando configuración de cursos", "info")
             event.accept()
@@ -1999,6 +2302,8 @@ class ConfigurarCursos(QMainWindow):
         )
 
         if respuesta == QMessageBox.StandardButton.Yes:
+            # Cancelar eliminaciones pendientes y restaurar vista
+            self.cancelar_eliminaciones_pendientes()
             self.cancelar_cambios_en_sistema()
             self.log_mensaje("🔚 Cerrando sin guardar cambios", "warning")
             event.accept()
@@ -2028,6 +2333,22 @@ class ConfigurarCursos(QMainWindow):
 
         except Exception as e:
             self.log_mensaje(f"⚠️ Error cancelando cambios: {e}", "warning")
+
+    def cancelar_eliminaciones_pendientes(self):
+        """Cancelar eliminaciones marcadas y restaurar vista"""
+        try:
+            cursos_cancelados = len(self.cambios_pendientes["cursos_eliminados"])
+
+            if cursos_cancelados > 0:
+                self.cambios_pendientes["cursos_eliminados"].clear()
+
+                # Recargar tabla para quitar marcas visuales
+                self.cargar_lista_cursos()
+
+                self.log_mensaje(f"↩️ {cursos_cancelados} eliminaciones canceladas", "info")
+
+        except Exception as e:
+            self.log_mensaje(f"⚠️ Error cancelando eliminaciones: {e}", "warning")
 
 
 def main():

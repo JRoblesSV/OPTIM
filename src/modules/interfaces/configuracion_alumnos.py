@@ -1053,14 +1053,9 @@ class ConfigurarAlumnos(QMainWindow):
                         else:
                             semestre = "1"  # Por defecto
 
-                        # CLAVE: Usar NOMBRE como key pero incluir CÓDIGO en los datos
-                        if nombre:  # Solo si tiene nombre
-                            asignaturas_transformadas[semestre][nombre] = {
-                                "codigo": codigo,  # INCLUIR CÓDIGO
-                                "nombre": nombre,
-                                "semestre": semestre_str,
-                                **asig_data  # Incluir todos los datos originales
-                            }
+                        # Se usa CÓDIGO como key
+                        if nombre and codigo:  # Solo si tiene nombre y código
+                            asignaturas_transformadas[semestre][codigo] = asig_data
 
                     return asignaturas_transformadas
 
@@ -1361,12 +1356,14 @@ class ConfigurarAlumnos(QMainWindow):
         sem2 = self.asignaturas_disponibles.get("2", {})
 
         if sem1:
-            for asignatura in sorted(sem1.keys()):
-                self.combo_filtro_asignatura.addItem(f"1º - {asignatura}")
+            for codigo_asig in sorted(sem1.keys()):
+                nombre_asig = sem1[codigo_asig].get('nombre', codigo_asig)
+                self.combo_filtro_asignatura.addItem(f"1º - ({codigo_asig}) - {nombre_asig}")
 
         if sem2:
-            for asignatura in sorted(sem2.keys()):
-                self.combo_filtro_asignatura.addItem(f"2º - {asignatura}")
+            for codigo_asig in sorted(sem2.keys()):
+                nombre_asig = sem2[codigo_asig].get('nombre', codigo_asig)
+                self.combo_filtro_asignatura.addItem(f"2º - ({codigo_asig}) - {nombre_asig}")
 
     def crear_boton_accion(self, icono, color, tooltip):
         """Crear botón de acción con estilo consistente"""
@@ -1537,29 +1534,33 @@ class ConfigurarAlumnos(QMainWindow):
         for dni, datos in self.datos_configuracion.items():
             asignaturas_matriculadas = datos.get('asignaturas_matriculadas', {})
 
-            # FILTRO POR ASIGNATURA PRIMERO
+            # Filtro por asignatura primero
             incluir_por_asignatura = False
 
             if filtro_texto == "Todas las asignaturas":
                 # Si está matriculado en cualquier asignatura
                 incluir_por_asignatura = bool(asignaturas_matriculadas)
             else:
-                # Extraer semestre y asignatura del filtro "1º - Fisica"
+                # Extraer código de asignatura del filtro "1º - (FIS1) - Física I"
                 if " - " in filtro_texto:
-                    sem, asig = filtro_texto.split(" - ", 1)
-                    sem_num = sem[0]  # "1º" -> "1"
-                    asig_key = f"{sem_num}_{asig}"
+                    # Formato: "1º - (FIS1) - Física I"
+                    partes = filtro_texto.split(" - ")
+                    if len(partes) >= 2:
+                        # Extraer código entre paréntesis: "(FIS1)" -> "FIS1"
+                        codigo_parte = partes[1].strip()
+                        if codigo_parte.startswith("(") and codigo_parte.endswith(")"):
+                            codigo_asignatura = codigo_parte[1:-1]  # Quitar paréntesis
 
-                    # Verificar si está matriculado en esta asignatura específica
-                    if asig_key in asignaturas_matriculadas and asignaturas_matriculadas[asig_key].get('matriculado',
-                                                                                                       False):
-                        incluir_por_asignatura = True
+                            # Verificar si está matriculado en esta asignatura específica
+                            if codigo_asignatura in asignaturas_matriculadas and asignaturas_matriculadas[
+                                codigo_asignatura].get('matriculado', False):
+                                incluir_por_asignatura = True
 
             # Si no pasa el filtro de asignatura, saltar
             if not incluir_por_asignatura:
                 continue
 
-            # FILTRO POR EXPERIENCIA CONTEXTUAL
+            # Filtro sin lab aprobado
             if solo_sin_lab:
                 if filtro_texto == "Todas las asignaturas":
                     # LÓGICA GLOBAL: Mostrar solo si tiene AL MENOS una asignatura sin lab anterior
@@ -1572,15 +1573,17 @@ class ConfigurarAlumnos(QMainWindow):
                         continue
                 else:
                     # LÓGICA ESPECÍFICA: Solo mirar la asignatura filtrada
-                    sem, asig = filtro_texto.split(" - ", 1)
-                    sem_num = sem[0]
-                    asig_key = f"{sem_num}_{asig}"
+                    partes = filtro_texto.split(" - ")
+                    if len(partes) >= 2:
+                        codigo_parte = partes[1].strip()
+                        if codigo_parte.startswith("(") and codigo_parte.endswith(")"):
+                            codigo_asignatura = codigo_parte[1:-1]
 
-                    # Si tiene lab aprobado EN ESTA asignatura específica, filtrarlo
-                    if asig_key in asignaturas_matriculadas:
-                        asig_info = asignaturas_matriculadas[asig_key]
-                        if asig_info.get('lab_aprobado', False):
-                            continue
+                            # Si tiene lab aprobado EN ESTA asignatura específica, filtrarlo
+                            if codigo_asignatura in asignaturas_matriculadas:
+                                asig_info = asignaturas_matriculadas[codigo_asignatura]
+                                if asig_info.get('lab_aprobado', False):
+                                    continue
 
             # Si llegó hasta aquí, incluir en resultados
             alumnos_filtrados.append((dni, datos))
@@ -1610,12 +1613,14 @@ class ConfigurarAlumnos(QMainWindow):
                 )
             else:
                 # Experiencia específica de la asignatura filtrada
-                sem, asig = filtro_texto.split(" - ", 1)
-                sem_num = sem[0]
-                asig_key = f"{sem_num}_{asig}"
+                partes = filtro_texto.split(" - ")
                 tiene_experiencia = False
-                if asig_key in asignaturas_matriculadas:
-                    tiene_experiencia = asignaturas_matriculadas[asig_key].get('lab_aprobado', False)
+                if len(partes) >= 2:
+                    codigo_parte = partes[1].strip()
+                    if codigo_parte.startswith("(") and codigo_parte.endswith(")"):
+                        codigo_asignatura = codigo_parte[1:-1]
+                        if codigo_asignatura in asignaturas_matriculadas:
+                            tiene_experiencia = asignaturas_matriculadas[codigo_asignatura].get('lab_aprobado', False)
 
             experiencia = "🎓" if tiene_experiencia else "📝"
             num_asignaturas = len(asignaturas_matriculadas)

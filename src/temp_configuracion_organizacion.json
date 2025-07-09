@@ -1,7 +1,7 @@
 {
   "metadata": {
     "version": "1.0",
-    "timestamp": "2025-07-09T22:23:32.708167",
+    "timestamp": "2025-07-09T18:12:39.416449",
     "semestre_actual": 1
   },
   "configuracion": {
@@ -11,30 +11,25 @@
         "1": {
           "FIS1": {
             "cursos": [
-              "A302",
-              "D301"
+              "A302"
             ],
             "horarios_grid": {
               "11:30-13:30": {
+                "Viernes": [],
                 "Martes": [
                   "A302"
-                ],
-                "Lunes": [
-                  "D301"
                 ]
               },
               "15:30-17:30": {
-                "Martes": [
-                  "A302"
-                ],
                 "Miércoles": [
                   "A302"
                 ],
-                "Lunes": [
-                  "D301"
+                "Martes": [
+                  "A302"
                 ]
               },
               "9:30-11:30": {
+                "Lunes": [],
                 "Martes": [
                   "A302"
                 ]
@@ -67,10 +62,10 @@
         "2": {}
       },
       "archivo": "horarios_integrados.json",
-      "timestamp": "2025-07-09T19:20:03.991953",
+      "timestamp": "2025-07-09T18:10:44.266785",
       "semestre_actual": "1",
-      "total_asignaturas": 2,
-      "total_franjas": 9
+      "total_asignaturas": 8,
+      "total_franjas": 17
     },
     "calendario": {
       "configurado": true,
@@ -1276,14 +1271,49 @@
             "25/07/2025"
           ],
           "observaciones": "Especialista en electrónica",
-          "fecha_creacion": "2025-07-09T18:13:04.494023"
+          "fecha_creacion": "2025-07-09T17:53:44.390285"
+        },
+        "55e70093-1685-47fc-896b-70ceda1e7590": {
+          "id": "55e70093-1685-47fc-896b-70ceda1e7590",
+          "nombre": "Miguel (copia)",
+          "apellidos": "Fernández Castro",
+          "asignaturas_imparte": [
+            "FIS1"
+          ],
+          "dias_trabajo": [
+            "Lunes",
+            "Martes",
+            "Miércoles",
+            "Jueves",
+            "Viernes"
+          ],
+          "horarios_bloqueados": {
+            "Lunes": {
+              "11:30-13:30": "tutoria"
+            },
+            "Martes": {
+              "11:30-13:30": "tutoria"
+            },
+            "Miércoles": {
+              "11:30-13:30": "tutoria"
+            },
+            "Jueves": {
+              "11:30-13:30": "tutoria"
+            }
+          },
+          "fechas_no_disponibles": [
+            "22/07/2025",
+            "25/07/2025"
+          ],
+          "observaciones": "Especialista en electrónica",
+          "fecha_creacion": "2025-07-09T17:53:38.058870"
         },
         "prof_001": {
           "id": "prof_001",
           "nombre": "Antonio",
           "apellidos": "García López",
           "asignaturas_imparte": [
-            "FIS1"
+            "SII"
           ],
           "dias_trabajo": [
             "Lunes",
@@ -1295,11 +1325,30 @@
           "horarios_bloqueados": {},
           "fechas_no_disponibles": [],
           "observaciones": "Especialista en física experimental",
-          "fecha_creacion": "2025-07-09T18:13:00.396168"
+          "fecha_creacion": "2025-07-09T17:53:49.480404"
+        },
+        "ee3683aa-56e9-4a5f-9640-0d291ae53d77": {
+          "id": "ee3683aa-56e9-4a5f-9640-0d291ae53d77",
+          "nombre": "Antonio (copia)",
+          "apellidos": "García López",
+          "asignaturas_imparte": [
+            "SII"
+          ],
+          "dias_trabajo": [
+            "Lunes",
+            "Martes",
+            "Miércoles",
+            "Jueves",
+            "Viernes"
+          ],
+          "horarios_bloqueados": {},
+          "fechas_no_disponibles": [],
+          "observaciones": "Especialista en física experimental",
+          "fecha_creacion": "2025-07-09T17:53:59.654756"
         }
       },
-      "total": 2,
-      "fecha_actualizacion": "2025-07-09T18:13:06.864898"
+      "total": 4,
+      "fecha_actualizacion": "2025-07-09T17:54:02.014188"
     },
     "alumnos": {
       "configurado": true,
@@ -1311,11 +1360,14 @@
           "email": "samir.ahouch@alumnos.upm.es",
           "matricula": "56247",
           "cursos_matriculado": [
-            "A302",
-            "D301"
+            "A302"
           ],
           "asignaturas_matriculadas": {
             "FIS1": {
+              "matriculado": true,
+              "lab_aprobado": false
+            },
+            "SII": {
               "matriculado": true,
               "lab_aprobado": false
             }
@@ -1323,1634 +1375,1946 @@
           "exp_centro": "56247",
           "exp_agora": "322513",
           "observaciones": "Importado desde Excel - FIS1 - Curso A302",
-          "fecha_creacion": "2025-07-09T19:19:54.461323"
+          "fecha_creacion": "2025-07-09T17:49:13.068869"
         },
         "6719214": {
+          "dni": "6719214",
+          "nombre": "ABDULRAHMAN",
           "apellidos": "AL KOLAIBI AL GHOULI",
-          "asignaturas_matriculadas": {
-            "FIS1": {
-              "lab_aprobado": false,
-              "matriculado": true
-            }
-          },
+          "email": "a.aalkolaibi@alumnos.upm.es",
+          "matricula": "53327",
           "cursos_matriculado": [
             "A302"
           ],
-          "dni": "6719214",
-          "email": "a.aalkolaibi@alumnos.upm.es",
-          "exp_agora": "321611",
+          "asignaturas_matriculadas": {
+            "FIS1": {
+              "matriculado": true,
+              "lab_aprobado": false
+            },
+            "SII": {
+              "matriculado": true,
+              "lab_aprobado": false
+            }
+          },
           "exp_centro": "53327",
-          "fecha_creacion": "2025-07-09T18:13:25.252913",
-          "matricula": "53327",
-          "nombre": "ABDULRAHMAN",
-          "observaciones": "Importado desde Excel - FIS1 - Curso A302"
+          "exp_agora": "321611",
+          "observaciones": "Importado desde Excel - FIS1 - Curso A302",
+          "fecha_creacion": "2025-07-09T17:49:13.068869"
         },
         "21115643": {
+          "dni": "21115643",
+          "nombre": "CARLOS",
           "apellidos": "ALFONSO LOMBA",
-          "asignaturas_matriculadas": {
-            "FIS1": {
-              "lab_aprobado": false,
-              "matriculado": true
-            }
-          },
+          "email": "carlos.alfonso@alumnos.upm.es",
+          "matricula": "56338",
           "cursos_matriculado": [
             "A302"
           ],
-          "dni": "21115643",
-          "email": "carlos.alfonso@alumnos.upm.es",
-          "exp_agora": "322565",
+          "asignaturas_matriculadas": {
+            "FIS1": {
+              "matriculado": true,
+              "lab_aprobado": false
+            },
+            "SII": {
+              "matriculado": true,
+              "lab_aprobado": false
+            }
+          },
           "exp_centro": "56338",
-          "fecha_creacion": "2025-07-09T18:13:25.252913",
-          "matricula": "56338",
-          "nombre": "CARLOS",
-          "observaciones": "Importado desde Excel - FIS1 - Curso A302"
+          "exp_agora": "322565",
+          "observaciones": "Importado desde Excel - FIS1 - Curso A302",
+          "fecha_creacion": "2025-07-09T17:49:13.068869"
         },
         "51191346": {
+          "dni": "51191346",
+          "nombre": "CÉSAR",
           "apellidos": "ALONSO ROMERO",
-          "asignaturas_matriculadas": {
-            "FIS1": {
-              "lab_aprobado": false,
-              "matriculado": true
-            }
-          },
+          "email": "cesar.alonso.romero@alumnos.upm.es",
+          "matricula": "56255",
           "cursos_matriculado": [
             "A302"
           ],
-          "dni": "51191346",
-          "email": "cesar.alonso.romero@alumnos.upm.es",
-          "exp_agora": "322418",
+          "asignaturas_matriculadas": {
+            "FIS1": {
+              "matriculado": true,
+              "lab_aprobado": false
+            },
+            "SII": {
+              "matriculado": true,
+              "lab_aprobado": false
+            }
+          },
           "exp_centro": "56255",
-          "fecha_creacion": "2025-07-09T18:13:25.252913",
-          "matricula": "56255",
-          "nombre": "CÉSAR",
-          "observaciones": "Importado desde Excel - FIS1 - Curso A302"
+          "exp_agora": "322418",
+          "observaciones": "Importado desde Excel - FIS1 - Curso A302",
+          "fecha_creacion": "2025-07-09T17:49:13.068869"
         },
         "53980770": {
+          "dni": "53980770",
+          "nombre": "RODRIGO",
           "apellidos": "ARJONILLA DIAZ",
-          "asignaturas_matriculadas": {
-            "FIS1": {
-              "lab_aprobado": false,
-              "matriculado": true
-            }
-          },
+          "email": "rodrigo.adiaz@alumnos.upm.es",
+          "matricula": "55557",
           "cursos_matriculado": [
             "A302"
           ],
-          "dni": "53980770",
-          "email": "rodrigo.adiaz@alumnos.upm.es",
-          "exp_agora": "322206",
+          "asignaturas_matriculadas": {
+            "FIS1": {
+              "matriculado": true,
+              "lab_aprobado": false
+            },
+            "SII": {
+              "matriculado": true,
+              "lab_aprobado": false
+            }
+          },
           "exp_centro": "55557",
-          "fecha_creacion": "2025-07-09T18:13:25.253912",
-          "matricula": "55557",
-          "nombre": "RODRIGO",
-          "observaciones": "Importado desde Excel - FIS1 - Curso A302"
+          "exp_agora": "322206",
+          "observaciones": "Importado desde Excel - FIS1 - Curso A302",
+          "fecha_creacion": "2025-07-09T17:49:13.068869"
         },
         "53846408": {
+          "dni": "53846408",
+          "nombre": "ALEJANDRO",
           "apellidos": "ARROYO GÓMEZ SALAS",
-          "asignaturas_matriculadas": {
-            "FIS1": {
-              "lab_aprobado": false,
-              "matriculado": true
-            }
-          },
+          "email": "alejandro.arroyo@alumnos.upm.es",
+          "matricula": "56269",
           "cursos_matriculado": [
             "A302"
           ],
-          "dni": "53846408",
-          "email": "alejandro.arroyo@alumnos.upm.es",
-          "exp_agora": "322416",
+          "asignaturas_matriculadas": {
+            "FIS1": {
+              "matriculado": true,
+              "lab_aprobado": false
+            },
+            "SII": {
+              "matriculado": true,
+              "lab_aprobado": false
+            }
+          },
           "exp_centro": "56269",
-          "fecha_creacion": "2025-07-09T18:13:25.253912",
-          "matricula": "56269",
-          "nombre": "ALEJANDRO",
-          "observaciones": "Importado desde Excel - FIS1 - Curso A302"
+          "exp_agora": "322416",
+          "observaciones": "Importado desde Excel - FIS1 - Curso A302",
+          "fecha_creacion": "2025-07-09T17:49:13.068869"
         },
         "79059925": {
+          "dni": "79059925",
+          "nombre": "NICOLAS",
           "apellidos": "BALLESTER ASESIO",
-          "asignaturas_matriculadas": {
-            "FIS1": {
-              "lab_aprobado": false,
-              "matriculado": true
-            }
-          },
+          "email": "n.ballester@alumnos.upm.es",
+          "matricula": "56277",
           "cursos_matriculado": [
             "A302"
           ],
-          "dni": "79059925",
-          "email": "n.ballester@alumnos.upm.es",
-          "exp_agora": "322504",
+          "asignaturas_matriculadas": {
+            "FIS1": {
+              "matriculado": true,
+              "lab_aprobado": false
+            },
+            "SII": {
+              "matriculado": true,
+              "lab_aprobado": false
+            }
+          },
           "exp_centro": "56277",
-          "fecha_creacion": "2025-07-09T18:13:25.253912",
-          "matricula": "56277",
-          "nombre": "NICOLAS",
-          "observaciones": "Importado desde Excel - FIS1 - Curso A302"
+          "exp_agora": "322504",
+          "observaciones": "Importado desde Excel - FIS1 - Curso A302",
+          "fecha_creacion": "2025-07-09T17:49:13.068869"
         },
         "3941450": {
+          "dni": "3941450",
+          "nombre": "SERGIO",
           "apellidos": "BALLESTEROS PALOMO",
-          "asignaturas_matriculadas": {
-            "FIS1": {
-              "lab_aprobado": false,
-              "matriculado": true
-            }
-          },
+          "email": "sergio.ballesteros@alumnos.upm.es",
+          "matricula": "55736",
           "cursos_matriculado": [
             "A302"
           ],
-          "dni": "3941450",
-          "email": "sergio.ballesteros@alumnos.upm.es",
-          "exp_agora": "322228",
+          "asignaturas_matriculadas": {
+            "FIS1": {
+              "matriculado": true,
+              "lab_aprobado": false
+            },
+            "SII": {
+              "matriculado": true,
+              "lab_aprobado": false
+            }
+          },
           "exp_centro": "55736",
-          "fecha_creacion": "2025-07-09T18:13:25.253912",
-          "matricula": "55736",
-          "nombre": "SERGIO",
-          "observaciones": "Importado desde Excel - FIS1 - Curso A302"
+          "exp_agora": "322228",
+          "observaciones": "Importado desde Excel - FIS1 - Curso A302",
+          "fecha_creacion": "2025-07-09T17:49:13.068869"
         },
         "3031410": {
+          "dni": "3031410",
+          "nombre": "JOAN",
           "apellidos": "BELLIDO INES",
-          "asignaturas_matriculadas": {
-            "FIS1": {
-              "lab_aprobado": false,
-              "matriculado": true
-            }
-          },
+          "email": "joan.bellido.ines@alumnos.upm.es",
+          "matricula": "55745",
           "cursos_matriculado": [
             "A302"
           ],
-          "dni": "3031410",
-          "email": "joan.bellido.ines@alumnos.upm.es",
-          "exp_agora": "322258",
+          "asignaturas_matriculadas": {
+            "FIS1": {
+              "matriculado": true,
+              "lab_aprobado": false
+            },
+            "SII": {
+              "matriculado": true,
+              "lab_aprobado": false
+            }
+          },
           "exp_centro": "55745",
-          "fecha_creacion": "2025-07-09T18:13:25.253912",
-          "matricula": "55745",
-          "nombre": "JOAN",
-          "observaciones": "Importado desde Excel - FIS1 - Curso A302"
+          "exp_agora": "322258",
+          "observaciones": "Importado desde Excel - FIS1 - Curso A302",
+          "fecha_creacion": "2025-07-09T17:49:13.068869"
         },
         "43470571": {
+          "dni": "43470571",
+          "nombre": "CRISTINA",
           "apellidos": "BONED JUNCAL",
-          "asignaturas_matriculadas": {
-            "FIS1": {
-              "lab_aprobado": false,
-              "matriculado": true
-            }
-          },
+          "email": "c.boned@alumnos.upm.es",
+          "matricula": "55755",
           "cursos_matriculado": [
             "A302"
           ],
-          "dni": "43470571",
-          "email": "c.boned@alumnos.upm.es",
-          "exp_agora": "322244",
+          "asignaturas_matriculadas": {
+            "FIS1": {
+              "matriculado": true,
+              "lab_aprobado": false
+            },
+            "SII": {
+              "matriculado": true,
+              "lab_aprobado": false
+            }
+          },
           "exp_centro": "55755",
-          "fecha_creacion": "2025-07-09T18:13:25.253912",
-          "matricula": "55755",
-          "nombre": "CRISTINA",
-          "observaciones": "Importado desde Excel - FIS1 - Curso A302"
+          "exp_agora": "322244",
+          "observaciones": "Importado desde Excel - FIS1 - Curso A302",
+          "fecha_creacion": "2025-07-09T17:49:13.068869"
         },
         "49155207": {
+          "dni": "49155207",
+          "nombre": "ALEJANDRO",
           "apellidos": "BONILLA HERVÁS",
-          "asignaturas_matriculadas": {
-            "FIS1": {
-              "lab_aprobado": false,
-              "matriculado": true
-            }
-          },
+          "email": "alejandro.bonilla@alumnos.upm.es",
+          "matricula": "55756",
           "cursos_matriculado": [
             "A302"
           ],
-          "dni": "49155207",
-          "email": "alejandro.bonilla@alumnos.upm.es",
-          "exp_agora": "322372",
+          "asignaturas_matriculadas": {
+            "FIS1": {
+              "matriculado": true,
+              "lab_aprobado": false
+            },
+            "SII": {
+              "matriculado": true,
+              "lab_aprobado": false
+            }
+          },
           "exp_centro": "55756",
-          "fecha_creacion": "2025-07-09T18:13:25.253912",
-          "matricula": "55756",
-          "nombre": "ALEJANDRO",
-          "observaciones": "Importado desde Excel - FIS1 - Curso A302"
+          "exp_agora": "322372",
+          "observaciones": "Importado desde Excel - FIS1 - Curso A302",
+          "fecha_creacion": "2025-07-09T17:49:13.068869"
         },
         "72326962": {
+          "dni": "72326962",
+          "nombre": "VICTOR",
           "apellidos": "BRESSY SANZ",
-          "asignaturas_matriculadas": {
-            "FIS1": {
-              "lab_aprobado": false,
-              "matriculado": true
-            }
-          },
+          "email": "victor.bressy@alumnos.upm.es",
+          "matricula": "56292",
           "cursos_matriculado": [
             "A302"
           ],
-          "dni": "72326962",
-          "email": "victor.bressy@alumnos.upm.es",
-          "exp_agora": "322521",
+          "asignaturas_matriculadas": {
+            "FIS1": {
+              "matriculado": true,
+              "lab_aprobado": false
+            },
+            "SII": {
+              "matriculado": true,
+              "lab_aprobado": false
+            }
+          },
           "exp_centro": "56292",
-          "fecha_creacion": "2025-07-09T18:13:25.253912",
-          "matricula": "56292",
-          "nombre": "VICTOR",
-          "observaciones": "Importado desde Excel - FIS1 - Curso A302"
+          "exp_agora": "322521",
+          "observaciones": "Importado desde Excel - FIS1 - Curso A302",
+          "fecha_creacion": "2025-07-09T17:49:13.069869"
         },
         "49365019": {
+          "dni": "49365019",
+          "nombre": "SILVIA",
           "apellidos": "BUENO HERNANDEZ",
-          "asignaturas_matriculadas": {
-            "FIS1": {
-              "lab_aprobado": false,
-              "matriculado": true
-            }
-          },
+          "email": "si.bueno@alumnos.upm.es",
+          "matricula": "56294",
           "cursos_matriculado": [
             "A302"
           ],
-          "dni": "49365019",
-          "email": "si.bueno@alumnos.upm.es",
-          "exp_agora": "322515",
+          "asignaturas_matriculadas": {
+            "FIS1": {
+              "matriculado": true,
+              "lab_aprobado": false
+            },
+            "SII": {
+              "matriculado": true,
+              "lab_aprobado": false
+            }
+          },
           "exp_centro": "56294",
-          "fecha_creacion": "2025-07-09T18:13:25.253912",
-          "matricula": "56294",
-          "nombre": "SILVIA",
-          "observaciones": "Importado desde Excel - FIS1 - Curso A302"
+          "exp_agora": "322515",
+          "observaciones": "Importado desde Excel - FIS1 - Curso A302",
+          "fecha_creacion": "2025-07-09T17:49:13.069869"
         },
         "50502125": {
+          "dni": "50502125",
+          "nombre": "IGNACIO ANTONIO",
           "apellidos": "CABALLERO MARTEL",
-          "asignaturas_matriculadas": {
-            "FIS1": {
-              "lab_aprobado": false,
-              "matriculado": true
-            }
-          },
+          "email": "ignacio.caballero@alumnos.upm.es",
+          "matricula": "56911",
           "cursos_matriculado": [
             "A302"
           ],
-          "dni": "50502125",
-          "email": "ignacio.caballero@alumnos.upm.es",
-          "exp_agora": "322670",
+          "asignaturas_matriculadas": {
+            "FIS1": {
+              "matriculado": true,
+              "lab_aprobado": false
+            },
+            "SII": {
+              "matriculado": true,
+              "lab_aprobado": false
+            }
+          },
           "exp_centro": "56911",
-          "fecha_creacion": "2025-07-09T18:13:25.253912",
-          "matricula": "56911",
-          "nombre": "IGNACIO ANTONIO",
-          "observaciones": "Importado desde Excel - FIS1 - Curso A302"
+          "exp_agora": "322670",
+          "observaciones": "Importado desde Excel - FIS1 - Curso A302",
+          "fecha_creacion": "2025-07-09T17:49:13.069869"
         },
         "71371894": {
+          "dni": "71371894",
+          "nombre": "PEDRO",
           "apellidos": "CABAÑAS LAGUNA",
-          "asignaturas_matriculadas": {
-            "FIS1": {
-              "lab_aprobado": false,
-              "matriculado": true
-            }
-          },
+          "email": "pedro.claguna@alumnos.upm.es",
+          "matricula": "55760",
           "cursos_matriculado": [
             "A302"
           ],
-          "dni": "71371894",
-          "email": "pedro.claguna@alumnos.upm.es",
-          "exp_agora": "322224",
+          "asignaturas_matriculadas": {
+            "FIS1": {
+              "matriculado": true,
+              "lab_aprobado": false
+            },
+            "SII": {
+              "matriculado": true,
+              "lab_aprobado": false
+            }
+          },
           "exp_centro": "55760",
-          "fecha_creacion": "2025-07-09T18:13:25.253912",
-          "matricula": "55760",
-          "nombre": "PEDRO",
-          "observaciones": "Importado desde Excel - FIS1 - Curso A302"
+          "exp_agora": "322224",
+          "observaciones": "Importado desde Excel - FIS1 - Curso A302",
+          "fecha_creacion": "2025-07-09T17:49:13.069869"
         },
         "51762439": {
+          "dni": "51762439",
+          "nombre": "JAVIER",
           "apellidos": "CALDERÓN DE ANTONIO",
-          "asignaturas_matriculadas": {
-            "FIS1": {
-              "lab_aprobado": false,
-              "matriculado": true
-            }
-          },
+          "email": "ja.calderon@alumnos.upm.es",
+          "matricula": "56301",
           "cursos_matriculado": [
             "A302"
           ],
-          "dni": "51762439",
-          "email": "ja.calderon@alumnos.upm.es",
-          "exp_agora": "322512",
+          "asignaturas_matriculadas": {
+            "FIS1": {
+              "matriculado": true,
+              "lab_aprobado": false
+            },
+            "SII": {
+              "matriculado": true,
+              "lab_aprobado": false
+            }
+          },
           "exp_centro": "56301",
-          "fecha_creacion": "2025-07-09T18:13:25.253912",
-          "matricula": "56301",
-          "nombre": "JAVIER",
-          "observaciones": "Importado desde Excel - FIS1 - Curso A302"
+          "exp_agora": "322512",
+          "observaciones": "Importado desde Excel - FIS1 - Curso A302",
+          "fecha_creacion": "2025-07-09T17:49:13.069869"
         },
         "2743818": {
+          "dni": "2743818",
+          "nombre": "DANIEL",
           "apellidos": "CALDERÓN GÓMEZ",
-          "asignaturas_matriculadas": {
-            "FIS1": {
-              "lab_aprobado": false,
-              "matriculado": true
-            }
-          },
+          "email": "daniel.calderong@alumnos.upm.es",
+          "matricula": "56912",
           "cursos_matriculado": [
             "A302"
           ],
-          "dni": "2743818",
-          "email": "daniel.calderong@alumnos.upm.es",
-          "exp_agora": "322669",
+          "asignaturas_matriculadas": {
+            "FIS1": {
+              "matriculado": true,
+              "lab_aprobado": false
+            },
+            "SII": {
+              "matriculado": true,
+              "lab_aprobado": false
+            }
+          },
           "exp_centro": "56912",
-          "fecha_creacion": "2025-07-09T18:13:25.253912",
-          "matricula": "56912",
-          "nombre": "DANIEL",
-          "observaciones": "Importado desde Excel - FIS1 - Curso A302"
+          "exp_agora": "322669",
+          "observaciones": "Importado desde Excel - FIS1 - Curso A302",
+          "fecha_creacion": "2025-07-09T17:49:13.069869"
         },
         "54976306": {
+          "dni": "54976306",
+          "nombre": "ARIEL",
           "apellidos": "CAMPOS MAULEÓN",
-          "asignaturas_matriculadas": {
-            "FIS1": {
-              "lab_aprobado": false,
-              "matriculado": true
-            }
-          },
+          "email": "ariel.campos@alumnos.upm.es",
+          "matricula": "56913",
           "cursos_matriculado": [
             "A302"
           ],
-          "dni": "54976306",
-          "email": "ariel.campos@alumnos.upm.es",
-          "exp_agora": "322762",
+          "asignaturas_matriculadas": {
+            "FIS1": {
+              "matriculado": true,
+              "lab_aprobado": false
+            },
+            "SII": {
+              "matriculado": true,
+              "lab_aprobado": false
+            }
+          },
           "exp_centro": "56913",
-          "fecha_creacion": "2025-07-09T18:13:25.253912",
-          "matricula": "56913",
-          "nombre": "ARIEL",
-          "observaciones": "Importado desde Excel - FIS1 - Curso A302"
+          "exp_agora": "322762",
+          "observaciones": "Importado desde Excel - FIS1 - Curso A302",
+          "fecha_creacion": "2025-07-09T17:49:13.069869"
         },
         "53850991": {
+          "dni": "53850991",
+          "nombre": "RODRIGO",
           "apellidos": "CANCELA PEÑA",
-          "asignaturas_matriculadas": {
-            "FIS1": {
-              "lab_aprobado": false,
-              "matriculado": true
-            }
-          },
+          "email": "rodrigo.cancela@alumnos.upm.es",
+          "matricula": "55766",
           "cursos_matriculado": [
             "A302"
           ],
-          "dni": "53850991",
-          "email": "rodrigo.cancela@alumnos.upm.es",
-          "exp_agora": "322301",
+          "asignaturas_matriculadas": {
+            "FIS1": {
+              "matriculado": true,
+              "lab_aprobado": false
+            },
+            "SII": {
+              "matriculado": true,
+              "lab_aprobado": false
+            }
+          },
           "exp_centro": "55766",
-          "fecha_creacion": "2025-07-09T18:13:25.253912",
-          "matricula": "55766",
-          "nombre": "RODRIGO",
-          "observaciones": "Importado desde Excel - FIS1 - Curso A302"
+          "exp_agora": "322301",
+          "observaciones": "Importado desde Excel - FIS1 - Curso A302",
+          "fecha_creacion": "2025-07-09T17:49:13.069869"
         },
         "35719895": {
+          "dni": "35719895",
+          "nombre": "VÍCTOR HUMBERTO",
           "apellidos": "CASANOVA BERNAL",
-          "asignaturas_matriculadas": {
-            "FIS1": {
-              "lab_aprobado": false,
-              "matriculado": true
-            }
-          },
+          "email": "victor.casanova@alumnos.upm.es",
+          "matricula": "56917",
           "cursos_matriculado": [
             "A302"
           ],
-          "dni": "35719895",
-          "email": "victor.casanova@alumnos.upm.es",
-          "exp_agora": "322650",
+          "asignaturas_matriculadas": {
+            "FIS1": {
+              "matriculado": true,
+              "lab_aprobado": false
+            },
+            "SII": {
+              "matriculado": true,
+              "lab_aprobado": false
+            }
+          },
           "exp_centro": "56917",
-          "fecha_creacion": "2025-07-09T18:13:25.253912",
-          "matricula": "56917",
-          "nombre": "VÍCTOR HUMBERTO",
-          "observaciones": "Importado desde Excel - FIS1 - Curso A302"
+          "exp_agora": "322650",
+          "observaciones": "Importado desde Excel - FIS1 - Curso A302",
+          "fecha_creacion": "2025-07-09T17:49:13.069869"
         },
         "54363023": {
+          "dni": "54363023",
+          "nombre": "MARÍA",
           "apellidos": "CASTRO DE LA VILLA",
-          "asignaturas_matriculadas": {
-            "FIS1": {
-              "lab_aprobado": false,
-              "matriculado": true
-            }
-          },
+          "email": "maria.castrod@alumnos.upm.es",
+          "matricula": "55544",
           "cursos_matriculado": [
             "A302"
           ],
-          "dni": "54363023",
-          "email": "maria.castrod@alumnos.upm.es",
-          "exp_agora": "322208",
+          "asignaturas_matriculadas": {
+            "FIS1": {
+              "matriculado": true,
+              "lab_aprobado": false
+            },
+            "SII": {
+              "matriculado": true,
+              "lab_aprobado": false
+            }
+          },
           "exp_centro": "55544",
-          "fecha_creacion": "2025-07-09T18:13:25.253912",
-          "matricula": "55544",
-          "nombre": "MARÍA",
-          "observaciones": "Importado desde Excel - FIS1 - Curso A302"
+          "exp_agora": "322208",
+          "observaciones": "Importado desde Excel - FIS1 - Curso A302",
+          "fecha_creacion": "2025-07-09T17:49:13.069869"
         },
         "76061803": {
+          "dni": "76061803",
+          "nombre": "JOSÉ JUAN",
           "apellidos": "CERRO MARTÍN",
-          "asignaturas_matriculadas": {
-            "FIS1": {
-              "lab_aprobado": false,
-              "matriculado": true
-            }
-          },
+          "email": "juan.cerro@alumnos.upm.es",
+          "matricula": "56888",
           "cursos_matriculado": [
             "A302"
           ],
-          "dni": "76061803",
-          "email": "juan.cerro@alumnos.upm.es",
-          "exp_agora": "322708",
+          "asignaturas_matriculadas": {
+            "FIS1": {
+              "matriculado": true,
+              "lab_aprobado": false
+            },
+            "SII": {
+              "matriculado": true,
+              "lab_aprobado": false
+            }
+          },
           "exp_centro": "56888",
-          "fecha_creacion": "2025-07-09T18:13:25.253912",
-          "matricula": "56888",
-          "nombre": "JOSÉ JUAN",
-          "observaciones": "Importado desde Excel - FIS1 - Curso A302"
+          "exp_agora": "322708",
+          "observaciones": "Importado desde Excel - FIS1 - Curso A302",
+          "fecha_creacion": "2025-07-09T17:49:13.069869"
         },
         "4240321": {
+          "dni": "4240321",
+          "nombre": "YUHAO",
           "apellidos": "CHEN YANG",
-          "asignaturas_matriculadas": {
-            "FIS1": {
-              "lab_aprobado": false,
-              "matriculado": true
-            }
-          },
+          "email": "yuhao.chen@alumnos.upm.es",
+          "matricula": "56311",
           "cursos_matriculado": [
             "A302"
           ],
-          "dni": "4240321",
-          "email": "yuhao.chen@alumnos.upm.es",
-          "exp_agora": "322502",
+          "asignaturas_matriculadas": {
+            "FIS1": {
+              "matriculado": true,
+              "lab_aprobado": false
+            },
+            "SII": {
+              "matriculado": true,
+              "lab_aprobado": false
+            }
+          },
           "exp_centro": "56311",
-          "fecha_creacion": "2025-07-09T18:13:25.253912",
-          "matricula": "56311",
-          "nombre": "YUHAO",
-          "observaciones": "Importado desde Excel - FIS1 - Curso A302"
+          "exp_agora": "322502",
+          "observaciones": "Importado desde Excel - FIS1 - Curso A302",
+          "fecha_creacion": "2025-07-09T17:49:13.069869"
         },
         "50771036": {
+          "dni": "50771036",
+          "nombre": "ROSA MARIA",
           "apellidos": "COLLADO GONZALEZ",
-          "asignaturas_matriculadas": {
-            "FIS1": {
-              "lab_aprobado": false,
-              "matriculado": true
-            }
-          },
+          "email": "rosamaria.collado.gonzalez@alumnos.upm.es",
+          "matricula": "50168",
           "cursos_matriculado": [
             "A302"
           ],
-          "dni": "50771036",
-          "email": "rosamaria.collado.gonzalez@alumnos.upm.es",
-          "exp_agora": "320709",
+          "asignaturas_matriculadas": {
+            "FIS1": {
+              "matriculado": true,
+              "lab_aprobado": false
+            },
+            "SII": {
+              "matriculado": true,
+              "lab_aprobado": false
+            }
+          },
           "exp_centro": "50168",
-          "fecha_creacion": "2025-07-09T18:13:25.253912",
-          "matricula": "50168",
-          "nombre": "ROSA MARIA",
-          "observaciones": "Importado desde Excel - FIS1 - Curso A302"
+          "exp_agora": "320709",
+          "observaciones": "Importado desde Excel - FIS1 - Curso A302",
+          "fecha_creacion": "2025-07-09T17:49:13.069869"
         },
         "78228827": {
+          "dni": "78228827",
+          "nombre": "BELÉN",
           "apellidos": "CORVILLO GUERRA",
-          "asignaturas_matriculadas": {
-            "FIS1": {
-              "lab_aprobado": false,
-              "matriculado": true
-            }
-          },
+          "email": "belen.corvillo@alumnos.upm.es",
+          "matricula": "56926",
           "cursos_matriculado": [
             "A302"
           ],
-          "dni": "78228827",
-          "email": "belen.corvillo@alumnos.upm.es",
-          "exp_agora": "322616",
+          "asignaturas_matriculadas": {
+            "FIS1": {
+              "matriculado": true,
+              "lab_aprobado": false
+            },
+            "SII": {
+              "matriculado": true,
+              "lab_aprobado": false
+            }
+          },
           "exp_centro": "56926",
-          "fecha_creacion": "2025-07-09T18:13:25.254916",
-          "matricula": "56926",
-          "nombre": "BELÉN",
-          "observaciones": "Importado desde Excel - FIS1 - Curso A302"
+          "exp_agora": "322616",
+          "observaciones": "Importado desde Excel - FIS1 - Curso A302",
+          "fecha_creacion": "2025-07-09T17:49:13.069869"
         },
         "49229398": {
+          "dni": "49229398",
+          "nombre": "PABLO",
           "apellidos": "CRESPO CASTELLANOS",
-          "asignaturas_matriculadas": {
-            "FIS1": {
-              "lab_aprobado": false,
-              "matriculado": true
-            }
-          },
+          "email": "pablo.crespo@alumnos.upm.es",
+          "matricula": "55806",
           "cursos_matriculado": [
             "A302"
           ],
-          "dni": "49229398",
-          "email": "pablo.crespo@alumnos.upm.es",
-          "exp_agora": "322239",
+          "asignaturas_matriculadas": {
+            "FIS1": {
+              "matriculado": true,
+              "lab_aprobado": false
+            },
+            "SII": {
+              "matriculado": true,
+              "lab_aprobado": false
+            }
+          },
           "exp_centro": "55806",
-          "fecha_creacion": "2025-07-09T18:13:25.254916",
-          "matricula": "55806",
-          "nombre": "PABLO",
-          "observaciones": "Importado desde Excel - FIS1 - Curso A302"
+          "exp_agora": "322239",
+          "observaciones": "Importado desde Excel - FIS1 - Curso A302",
+          "fecha_creacion": "2025-07-09T17:49:13.069869"
         },
         "9104694": {
+          "dni": "9104694",
+          "nombre": "JORGE",
           "apellidos": "CRESPO GINER",
-          "asignaturas_matriculadas": {
-            "FIS1": {
-              "lab_aprobado": false,
-              "matriculado": true
-            }
-          },
+          "email": "jorge.crespo@alumnos.upm.es",
+          "matricula": "56927",
           "cursos_matriculado": [
             "A302"
           ],
-          "dni": "9104694",
-          "email": "jorge.crespo@alumnos.upm.es",
-          "exp_agora": "322682",
+          "asignaturas_matriculadas": {
+            "FIS1": {
+              "matriculado": true,
+              "lab_aprobado": false
+            },
+            "SII": {
+              "matriculado": true,
+              "lab_aprobado": false
+            }
+          },
           "exp_centro": "56927",
-          "fecha_creacion": "2025-07-09T18:13:25.254916",
-          "matricula": "56927",
-          "nombre": "JORGE",
-          "observaciones": "Importado desde Excel - FIS1 - Curso A302"
+          "exp_agora": "322682",
+          "observaciones": "Importado desde Excel - FIS1 - Curso A302",
+          "fecha_creacion": "2025-07-09T17:49:13.069869"
         },
         "6632059": {
+          "dni": "6632059",
+          "nombre": "MARTA",
           "apellidos": "CUÉLLAR AMORES",
-          "asignaturas_matriculadas": {
-            "FIS1": {
-              "lab_aprobado": false,
-              "matriculado": true
-            }
-          },
+          "email": "marta.cuellar@alumnos.upm.es",
+          "matricula": "56327",
           "cursos_matriculado": [
             "A302"
           ],
-          "dni": "6632059",
-          "email": "marta.cuellar@alumnos.upm.es",
-          "exp_agora": "322452",
+          "asignaturas_matriculadas": {
+            "FIS1": {
+              "matriculado": true,
+              "lab_aprobado": false
+            },
+            "SII": {
+              "matriculado": true,
+              "lab_aprobado": false
+            }
+          },
           "exp_centro": "56327",
-          "fecha_creacion": "2025-07-09T18:13:25.254916",
-          "matricula": "56327",
-          "nombre": "MARTA",
-          "observaciones": "Importado desde Excel - FIS1 - Curso A302"
+          "exp_agora": "322452",
+          "observaciones": "Importado desde Excel - FIS1 - Curso A302",
+          "fecha_creacion": "2025-07-09T17:49:13.069869"
         },
         "70068948": {
+          "dni": "70068948",
+          "nombre": "ALBERTO",
           "apellidos": "CÁMARA LÓPEZ",
-          "asignaturas_matriculadas": {
-            "FIS1": {
-              "lab_aprobado": false,
-              "matriculado": true
-            }
-          },
+          "email": "alberto.camara@alumnos.upm.es",
+          "matricula": "55763",
           "cursos_matriculado": [
             "A302"
           ],
-          "dni": "70068948",
-          "email": "alberto.camara@alumnos.upm.es",
-          "exp_agora": "322253",
+          "asignaturas_matriculadas": {
+            "FIS1": {
+              "matriculado": true,
+              "lab_aprobado": false
+            },
+            "SII": {
+              "matriculado": true,
+              "lab_aprobado": false
+            }
+          },
           "exp_centro": "55763",
-          "fecha_creacion": "2025-07-09T18:13:25.253912",
-          "matricula": "55763",
-          "nombre": "ALBERTO",
-          "observaciones": "Importado desde Excel - FIS1 - Curso A302"
+          "exp_agora": "322253",
+          "observaciones": "Importado desde Excel - FIS1 - Curso A302",
+          "fecha_creacion": "2025-07-09T17:49:13.069869"
         },
         "2334400": {
+          "dni": "2334400",
+          "nombre": "FERNANDO",
           "apellidos": "CÓRDOBA ARACIL",
-          "asignaturas_matriculadas": {
-            "FIS1": {
-              "lab_aprobado": false,
-              "matriculado": true
-            }
-          },
+          "email": "fernando.cordoba@alumnos.upm.es",
+          "matricula": "56319",
           "cursos_matriculado": [
             "A302"
           ],
-          "dni": "2334400",
-          "email": "fernando.cordoba@alumnos.upm.es",
-          "exp_agora": "322570",
+          "asignaturas_matriculadas": {
+            "FIS1": {
+              "matriculado": true,
+              "lab_aprobado": false
+            },
+            "SII": {
+              "matriculado": true,
+              "lab_aprobado": false
+            }
+          },
           "exp_centro": "56319",
-          "fecha_creacion": "2025-07-09T18:13:25.253912",
-          "matricula": "56319",
-          "nombre": "FERNANDO",
-          "observaciones": "Importado desde Excel - FIS1 - Curso A302"
+          "exp_agora": "322570",
+          "observaciones": "Importado desde Excel - FIS1 - Curso A302",
+          "fecha_creacion": "2025-07-09T17:49:13.069869"
         },
         "9149386": {
+          "dni": "9149386",
+          "nombre": "ANDREA",
           "apellidos": "DE LA FLOR GALLEGO",
-          "asignaturas_matriculadas": {
-            "FIS1": {
-              "lab_aprobado": false,
-              "matriculado": true
-            }
-          },
+          "email": "andrea.delaflor@alumnos.upm.es",
+          "matricula": "56332",
           "cursos_matriculado": [
             "A302"
           ],
-          "dni": "9149386",
-          "email": "andrea.delaflor@alumnos.upm.es",
-          "exp_agora": "322503",
+          "asignaturas_matriculadas": {
+            "FIS1": {
+              "matriculado": true,
+              "lab_aprobado": false
+            },
+            "SII": {
+              "matriculado": true,
+              "lab_aprobado": false
+            }
+          },
           "exp_centro": "56332",
-          "fecha_creacion": "2025-07-09T18:13:25.254916",
-          "matricula": "56332",
-          "nombre": "ANDREA",
-          "observaciones": "Importado desde Excel - FIS1 - Curso A302"
+          "exp_agora": "322503",
+          "observaciones": "Importado desde Excel - FIS1 - Curso A302",
+          "fecha_creacion": "2025-07-09T17:49:13.069869"
         },
         "55022198": {
+          "dni": "55022198",
+          "nombre": "PABLO",
           "apellidos": "DINIS MARTÍN",
-          "asignaturas_matriculadas": {
-            "FIS1": {
-              "lab_aprobado": false,
-              "matriculado": true
-            }
-          },
+          "email": "pablo.dinis@alumnos.upm.es",
+          "matricula": "56930",
           "cursos_matriculado": [
             "A302"
           ],
-          "dni": "55022198",
-          "email": "pablo.dinis@alumnos.upm.es",
-          "exp_agora": "322630",
+          "asignaturas_matriculadas": {
+            "FIS1": {
+              "matriculado": true,
+              "lab_aprobado": false
+            },
+            "SII": {
+              "matriculado": true,
+              "lab_aprobado": false
+            }
+          },
           "exp_centro": "56930",
-          "fecha_creacion": "2025-07-09T18:13:25.254916",
-          "matricula": "56930",
-          "nombre": "PABLO",
-          "observaciones": "Importado desde Excel - FIS1 - Curso A302"
+          "exp_agora": "322630",
+          "observaciones": "Importado desde Excel - FIS1 - Curso A302",
+          "fecha_creacion": "2025-07-09T17:49:13.069869"
         },
         "51760419": {
+          "dni": "51760419",
+          "nombre": "CARLOS",
           "apellidos": "DOMINGUEZ LOPEZ-BARRANCO",
-          "asignaturas_matriculadas": {
-            "FIS1": {
-              "lab_aprobado": false,
-              "matriculado": true
-            }
-          },
+          "email": "carlos.dominguez.lopez-barranco@alumnos.upm.es",
+          "matricula": "55825",
           "cursos_matriculado": [
             "A302"
           ],
-          "dni": "51760419",
-          "email": "carlos.dominguez.lopez-barranco@alumnos.upm.es",
-          "exp_agora": "322388",
+          "asignaturas_matriculadas": {
+            "FIS1": {
+              "matriculado": true,
+              "lab_aprobado": false
+            },
+            "SII": {
+              "matriculado": true,
+              "lab_aprobado": false
+            }
+          },
           "exp_centro": "55825",
-          "fecha_creacion": "2025-07-09T18:13:25.254916",
-          "matricula": "55825",
-          "nombre": "CARLOS",
-          "observaciones": "Importado desde Excel - FIS1 - Curso A302"
+          "exp_agora": "322388",
+          "observaciones": "Importado desde Excel - FIS1 - Curso A302",
+          "fecha_creacion": "2025-07-09T17:49:13.069869"
         },
         "51550083": {
+          "dni": "51550083",
+          "nombre": "MARCOS",
           "apellidos": "ESPINOZA PINO",
-          "asignaturas_matriculadas": {
-            "FIS1": {
-              "lab_aprobado": false,
-              "matriculado": true
-            }
-          },
+          "email": "marcos.espinoza@alumnos.upm.es",
+          "matricula": "56351",
           "cursos_matriculado": [
             "A302"
           ],
-          "dni": "51550083",
-          "email": "marcos.espinoza@alumnos.upm.es",
-          "exp_agora": "322422",
+          "asignaturas_matriculadas": {
+            "FIS1": {
+              "matriculado": true,
+              "lab_aprobado": false
+            },
+            "SII": {
+              "matriculado": true,
+              "lab_aprobado": false
+            }
+          },
           "exp_centro": "56351",
-          "fecha_creacion": "2025-07-09T18:13:25.254916",
-          "matricula": "56351",
-          "nombre": "MARCOS",
-          "observaciones": "Importado desde Excel - FIS1 - Curso A302"
+          "exp_agora": "322422",
+          "observaciones": "Importado desde Excel - FIS1 - Curso A302",
+          "fecha_creacion": "2025-07-09T17:49:13.070869"
         },
         "51542960": {
+          "dni": "51542960",
+          "nombre": "MARIO",
           "apellidos": "FERNÁNDEZ LIÉTOR",
-          "asignaturas_matriculadas": {
-            "FIS1": {
-              "lab_aprobado": false,
-              "matriculado": true
-            }
-          },
+          "email": "mario.fernandez.lietor@alumnos.upm.es",
+          "matricula": "55839",
           "cursos_matriculado": [
             "A302"
           ],
-          "dni": "51542960",
-          "email": "mario.fernandez.lietor@alumnos.upm.es",
-          "exp_agora": "322389",
+          "asignaturas_matriculadas": {
+            "FIS1": {
+              "matriculado": true,
+              "lab_aprobado": false
+            },
+            "SII": {
+              "matriculado": true,
+              "lab_aprobado": false
+            }
+          },
           "exp_centro": "55839",
-          "fecha_creacion": "2025-07-09T18:13:25.254916",
-          "matricula": "55839",
-          "nombre": "MARIO",
-          "observaciones": "Importado desde Excel - FIS1 - Curso A302"
+          "exp_agora": "322389",
+          "observaciones": "Importado desde Excel - FIS1 - Curso A302",
+          "fecha_creacion": "2025-07-09T17:49:13.070869"
         },
         "53472377": {
+          "dni": "53472377",
+          "nombre": "OMAR",
           "apellidos": "FTOUH LABROUZI",
-          "asignaturas_matriculadas": {
-            "FIS1": {
-              "lab_aprobado": false,
-              "matriculado": true
-            }
-          },
+          "email": "omar.ftouh@alumnos.upm.es",
+          "matricula": "55848",
           "cursos_matriculado": [
             "A302"
           ],
-          "dni": "53472377",
-          "email": "omar.ftouh@alumnos.upm.es",
-          "exp_agora": "322346",
+          "asignaturas_matriculadas": {
+            "FIS1": {
+              "matriculado": true,
+              "lab_aprobado": false
+            },
+            "SII": {
+              "matriculado": true,
+              "lab_aprobado": false
+            }
+          },
           "exp_centro": "55848",
-          "fecha_creacion": "2025-07-09T18:13:25.254916",
-          "matricula": "55848",
-          "nombre": "OMAR",
-          "observaciones": "Importado desde Excel - FIS1 - Curso A302"
+          "exp_agora": "322346",
+          "observaciones": "Importado desde Excel - FIS1 - Curso A302",
+          "fecha_creacion": "2025-07-09T17:49:13.070869"
         },
         "53993128": {
+          "dni": "53993128",
+          "nombre": "DANIEL",
           "apellidos": "FUERTES GONZÁLEZ",
-          "asignaturas_matriculadas": {
-            "FIS1": {
-              "lab_aprobado": false,
-              "matriculado": true
-            }
-          },
+          "email": "daniel.fuertes@alumnos.upm.es",
+          "matricula": "55849",
           "cursos_matriculado": [
             "A302"
           ],
-          "dni": "53993128",
-          "email": "daniel.fuertes@alumnos.upm.es",
-          "exp_agora": "322351",
+          "asignaturas_matriculadas": {
+            "FIS1": {
+              "matriculado": true,
+              "lab_aprobado": false
+            },
+            "SII": {
+              "matriculado": true,
+              "lab_aprobado": false
+            }
+          },
           "exp_centro": "55849",
-          "fecha_creacion": "2025-07-09T18:13:25.254916",
-          "matricula": "55849",
-          "nombre": "DANIEL",
-          "observaciones": "Importado desde Excel - FIS1 - Curso A302"
+          "exp_agora": "322351",
+          "observaciones": "Importado desde Excel - FIS1 - Curso A302",
+          "fecha_creacion": "2025-07-09T17:49:13.070869"
         },
         "54838914": {
+          "dni": "54838914",
+          "nombre": "ANDRÉS",
           "apellidos": "GALINDO GORDÓN",
-          "asignaturas_matriculadas": {
-            "FIS1": {
-              "lab_aprobado": false,
-              "matriculado": true
-            }
-          },
+          "email": "andres.ggordon@alumnos.upm.es",
+          "matricula": "56939",
           "cursos_matriculado": [
             "A302"
           ],
-          "dni": "54838914",
-          "email": "andres.ggordon@alumnos.upm.es",
-          "exp_agora": "322692",
+          "asignaturas_matriculadas": {
+            "FIS1": {
+              "matriculado": true,
+              "lab_aprobado": false
+            },
+            "SII": {
+              "matriculado": true,
+              "lab_aprobado": false
+            }
+          },
           "exp_centro": "56939",
-          "fecha_creacion": "2025-07-09T18:13:25.257917",
-          "matricula": "56939",
-          "nombre": "ANDRÉS",
-          "observaciones": "Importado desde Excel - FIS1 - Curso A302"
+          "exp_agora": "322692",
+          "observaciones": "Importado desde Excel - FIS1 - Curso A302",
+          "fecha_creacion": "2025-07-09T17:49:13.070869"
         },
         "5956642": {
+          "dni": "5956642",
+          "nombre": "DAVID",
           "apellidos": "GALLEGO MARTINEZ",
-          "asignaturas_matriculadas": {
-            "FIS1": {
-              "lab_aprobado": false,
-              "matriculado": true
-            }
-          },
+          "email": "david.gallego@alumnos.upm.es",
+          "matricula": "55851",
           "cursos_matriculado": [
             "A302"
           ],
-          "dni": "5956642",
-          "email": "david.gallego@alumnos.upm.es",
-          "exp_agora": "322390",
+          "asignaturas_matriculadas": {
+            "FIS1": {
+              "matriculado": true,
+              "lab_aprobado": false
+            },
+            "SII": {
+              "matriculado": true,
+              "lab_aprobado": false
+            }
+          },
           "exp_centro": "55851",
-          "fecha_creacion": "2025-07-09T18:13:25.258918",
-          "matricula": "55851",
-          "nombre": "DAVID",
-          "observaciones": "Importado desde Excel - FIS1 - Curso A302"
+          "exp_agora": "322390",
+          "observaciones": "Importado desde Excel - FIS1 - Curso A302",
+          "fecha_creacion": "2025-07-09T17:49:13.070869"
         },
         "5950735": {
+          "dni": "5950735",
+          "nombre": "ALEJANDRO",
           "apellidos": "GARCÍA FÉLIZ",
-          "asignaturas_matriculadas": {
-            "FIS1": {
-              "lab_aprobado": false,
-              "matriculado": true
-            }
-          },
+          "email": "alejandro.garcia.feliz@alumnos.upm.es",
+          "matricula": "55256",
           "cursos_matriculado": [
             "A302"
           ],
-          "dni": "5950735",
-          "email": "alejandro.garcia.feliz@alumnos.upm.es",
-          "exp_agora": "322111",
+          "asignaturas_matriculadas": {
+            "FIS1": {
+              "matriculado": true,
+              "lab_aprobado": false
+            },
+            "SII": {
+              "matriculado": true,
+              "lab_aprobado": false
+            }
+          },
           "exp_centro": "55256",
-          "fecha_creacion": "2025-07-09T18:13:25.258918",
-          "matricula": "55256",
-          "nombre": "ALEJANDRO",
-          "observaciones": "Importado desde Excel - FIS1 - Curso A302"
+          "exp_agora": "322111",
+          "observaciones": "Importado desde Excel - FIS1 - Curso A302",
+          "fecha_creacion": "2025-07-09T17:49:13.070869"
         },
         "2776786": {
+          "dni": "2776786",
+          "nombre": "SERGIO",
           "apellidos": "GARCÍA RAMOS",
-          "asignaturas_matriculadas": {
-            "FIS1": {
-              "lab_aprobado": false,
-              "matriculado": true
-            }
-          },
+          "email": "sergio.garcia.ramos@alumnos.upm.es",
+          "matricula": "56942",
           "cursos_matriculado": [
             "A302"
           ],
-          "dni": "2776786",
-          "email": "sergio.garcia.ramos@alumnos.upm.es",
-          "exp_agora": "322709",
+          "asignaturas_matriculadas": {
+            "FIS1": {
+              "matriculado": true,
+              "lab_aprobado": false
+            },
+            "SII": {
+              "matriculado": true,
+              "lab_aprobado": false
+            }
+          },
           "exp_centro": "56942",
-          "fecha_creacion": "2025-07-09T18:13:25.258918",
-          "matricula": "56942",
-          "nombre": "SERGIO",
-          "observaciones": "Importado desde Excel - FIS1 - Curso A302"
+          "exp_agora": "322709",
+          "observaciones": "Importado desde Excel - FIS1 - Curso A302",
+          "fecha_creacion": "2025-07-09T17:49:13.070869"
         },
         "54721161": {
+          "dni": "54721161",
+          "nombre": "GONZALO",
           "apellidos": "GARRIDO CALVO",
-          "asignaturas_matriculadas": {
-            "FIS1": {
-              "lab_aprobado": false,
-              "matriculado": true
-            }
-          },
+          "email": "gonzalo.garrido@alumnos.upm.es",
+          "matricula": "56730",
           "cursos_matriculado": [
             "A302"
           ],
-          "dni": "54721161",
-          "email": "gonzalo.garrido@alumnos.upm.es",
-          "exp_agora": "322578",
+          "asignaturas_matriculadas": {
+            "FIS1": {
+              "matriculado": true,
+              "lab_aprobado": false
+            },
+            "SII": {
+              "matriculado": true,
+              "lab_aprobado": false
+            }
+          },
           "exp_centro": "56730",
-          "fecha_creacion": "2025-07-09T18:13:25.258918",
-          "matricula": "56730",
-          "nombre": "GONZALO",
-          "observaciones": "Importado desde Excel - FIS1 - Curso A302"
+          "exp_agora": "322578",
+          "observaciones": "Importado desde Excel - FIS1 - Curso A302",
+          "fecha_creacion": "2025-07-09T17:49:13.070869"
         },
         "2775904": {
+          "dni": "2775904",
+          "nombre": "NURIA",
           "apellidos": "GARRIDO GIMENEZ",
-          "asignaturas_matriculadas": {
-            "FIS1": {
-              "lab_aprobado": false,
-              "matriculado": true
-            }
-          },
+          "email": "nuria.garrido.gimenez@alumnos.upm.es",
+          "matricula": "55868",
           "cursos_matriculado": [
             "A302"
           ],
-          "dni": "2775904",
-          "email": "nuria.garrido.gimenez@alumnos.upm.es",
-          "exp_agora": "322282",
+          "asignaturas_matriculadas": {
+            "FIS1": {
+              "matriculado": true,
+              "lab_aprobado": false
+            },
+            "SII": {
+              "matriculado": true,
+              "lab_aprobado": false
+            }
+          },
           "exp_centro": "55868",
-          "fecha_creacion": "2025-07-09T18:13:25.258918",
-          "matricula": "55868",
-          "nombre": "NURIA",
-          "observaciones": "Importado desde Excel - FIS1 - Curso A302"
+          "exp_agora": "322282",
+          "observaciones": "Importado desde Excel - FIS1 - Curso A302",
+          "fecha_creacion": "2025-07-09T17:49:13.070869"
         },
         "3208393": {
+          "dni": "3208393",
+          "nombre": "JAVIER",
           "apellidos": "GASCO GARCÍA",
-          "asignaturas_matriculadas": {
-            "FIS1": {
-              "lab_aprobado": false,
-              "matriculado": true
-            }
-          },
+          "email": "j.gasco@alumnos.upm.es",
+          "matricula": "55871",
           "cursos_matriculado": [
             "A302"
           ],
-          "dni": "3208393",
-          "email": "j.gasco@alumnos.upm.es",
-          "exp_agora": "322263",
+          "asignaturas_matriculadas": {
+            "FIS1": {
+              "matriculado": true,
+              "lab_aprobado": false
+            },
+            "SII": {
+              "matriculado": true,
+              "lab_aprobado": false
+            }
+          },
           "exp_centro": "55871",
-          "fecha_creacion": "2025-07-09T18:13:25.258918",
-          "matricula": "55871",
-          "nombre": "JAVIER",
-          "observaciones": "Importado desde Excel - FIS1 - Curso A302"
+          "exp_agora": "322263",
+          "observaciones": "Importado desde Excel - FIS1 - Curso A302",
+          "fecha_creacion": "2025-07-09T17:49:13.070869"
         },
         "5964566": {
+          "dni": "5964566",
+          "nombre": "IKER",
           "apellidos": "GIRALDEZ FERNANDEZ",
-          "asignaturas_matriculadas": {
-            "FIS1": {
-              "lab_aprobado": false,
-              "matriculado": true
-            }
-          },
+          "email": "iker.giraldez.fernandez@alumnos.upm.es",
+          "matricula": "55879",
           "cursos_matriculado": [
             "A302"
           ],
-          "dni": "5964566",
-          "email": "iker.giraldez.fernandez@alumnos.upm.es",
-          "exp_agora": "322310",
+          "asignaturas_matriculadas": {
+            "FIS1": {
+              "matriculado": true,
+              "lab_aprobado": false
+            },
+            "SII": {
+              "matriculado": true,
+              "lab_aprobado": false
+            }
+          },
           "exp_centro": "55879",
-          "fecha_creacion": "2025-07-09T18:13:25.258918",
-          "matricula": "55879",
-          "nombre": "IKER",
-          "observaciones": "Importado desde Excel - FIS1 - Curso A302"
+          "exp_agora": "322310",
+          "observaciones": "Importado desde Excel - FIS1 - Curso A302",
+          "fecha_creacion": "2025-07-09T17:49:13.070869"
         },
         "5954984": {
+          "dni": "5954984",
+          "nombre": "OSCAR FELIPE",
           "apellidos": "GONZÁLEZ GONZÁLEZ",
-          "asignaturas_matriculadas": {
-            "FIS1": {
-              "lab_aprobado": false,
-              "matriculado": true
-            }
-          },
+          "email": "oscar.ggonzalez@alumnos.upm.es",
+          "matricula": "56399",
           "cursos_matriculado": [
             "A302"
           ],
-          "dni": "5954984",
-          "email": "oscar.ggonzalez@alumnos.upm.es",
-          "exp_agora": "322534",
+          "asignaturas_matriculadas": {
+            "FIS1": {
+              "matriculado": true,
+              "lab_aprobado": false
+            },
+            "SII": {
+              "matriculado": true,
+              "lab_aprobado": false
+            }
+          },
           "exp_centro": "56399",
-          "fecha_creacion": "2025-07-09T18:13:25.258918",
-          "matricula": "56399",
-          "nombre": "OSCAR FELIPE",
-          "observaciones": "Importado desde Excel - FIS1 - Curso A302"
+          "exp_agora": "322534",
+          "observaciones": "Importado desde Excel - FIS1 - Curso A302",
+          "fecha_creacion": "2025-07-09T17:49:13.070869"
         },
         "Y6971297": {
+          "dni": "Y6971297",
+          "nombre": "FRANCESCO",
           "apellidos": "GRIECO TELLERIA",
-          "asignaturas_matriculadas": {
-            "FIS1": {
-              "lab_aprobado": false,
-              "matriculado": true
-            }
-          },
+          "email": "f.grieco@alumnos.upm.es",
+          "matricula": "56946",
           "cursos_matriculado": [
             "A302"
           ],
-          "dni": "Y6971297",
-          "email": "f.grieco@alumnos.upm.es",
-          "exp_agora": "322643",
+          "asignaturas_matriculadas": {
+            "FIS1": {
+              "matriculado": true,
+              "lab_aprobado": false
+            },
+            "SII": {
+              "matriculado": true,
+              "lab_aprobado": false
+            }
+          },
           "exp_centro": "56946",
-          "fecha_creacion": "2025-07-09T18:13:25.258918",
-          "matricula": "56946",
-          "nombre": "FRANCESCO",
-          "observaciones": "Importado desde Excel - FIS1 - Curso A302"
+          "exp_agora": "322643",
+          "observaciones": "Importado desde Excel - FIS1 - Curso A302",
+          "fecha_creacion": "2025-07-09T17:49:13.070869"
         },
         "50572716": {
+          "dni": "50572716",
+          "nombre": "MANUEL",
           "apellidos": "GUTIÉRREZ HUERTA",
-          "asignaturas_matriculadas": {
-            "FIS1": {
-              "lab_aprobado": false,
-              "matriculado": true
-            }
-          },
+          "email": "manuel.gutierrez.huerta@alumnos.upm.es",
+          "matricula": "55908",
           "cursos_matriculado": [
             "A302"
           ],
-          "dni": "50572716",
-          "email": "manuel.gutierrez.huerta@alumnos.upm.es",
-          "exp_agora": "322386",
+          "asignaturas_matriculadas": {
+            "FIS1": {
+              "matriculado": true,
+              "lab_aprobado": false
+            },
+            "SII": {
+              "matriculado": true,
+              "lab_aprobado": false
+            }
+          },
           "exp_centro": "55908",
-          "fecha_creacion": "2025-07-09T18:13:25.258918",
-          "matricula": "55908",
-          "nombre": "MANUEL",
-          "observaciones": "Importado desde Excel - FIS1 - Curso A302"
+          "exp_agora": "322386",
+          "observaciones": "Importado desde Excel - FIS1 - Curso A302",
+          "fecha_creacion": "2025-07-09T17:49:13.070869"
         },
         "51476600": {
+          "dni": "51476600",
+          "nombre": "TANIA",
           "apellidos": "GUZMÁN POLO",
-          "asignaturas_matriculadas": {
-            "FIS1": {
-              "lab_aprobado": false,
-              "matriculado": true
-            }
-          },
+          "email": "t.guzman@alumnos.upm.es",
+          "matricula": "56409",
           "cursos_matriculado": [
             "A302"
           ],
-          "dni": "51476600",
-          "email": "t.guzman@alumnos.upm.es",
-          "exp_agora": "322443",
+          "asignaturas_matriculadas": {
+            "FIS1": {
+              "matriculado": true,
+              "lab_aprobado": false
+            },
+            "SII": {
+              "matriculado": true,
+              "lab_aprobado": false
+            }
+          },
           "exp_centro": "56409",
-          "fecha_creacion": "2025-07-09T18:13:25.258918",
-          "matricula": "56409",
-          "nombre": "TANIA",
-          "observaciones": "Importado desde Excel - FIS1 - Curso A302"
+          "exp_agora": "322443",
+          "observaciones": "Importado desde Excel - FIS1 - Curso A302",
+          "fecha_creacion": "2025-07-09T17:49:13.070869"
         },
         "51131833": {
+          "dni": "51131833",
+          "nombre": "LAURA LUCÍA",
           "apellidos": "HERNÁNDEZ CAMPOS",
-          "asignaturas_matriculadas": {
-            "FIS1": {
-              "lab_aprobado": false,
-              "matriculado": true
-            }
-          },
+          "email": "laura.hcampos@alumnos.upm.es",
+          "matricula": "55289",
           "cursos_matriculado": [
             "A302"
           ],
-          "dni": "51131833",
-          "email": "laura.hcampos@alumnos.upm.es",
-          "exp_agora": "322119",
+          "asignaturas_matriculadas": {
+            "FIS1": {
+              "matriculado": true,
+              "lab_aprobado": false
+            },
+            "SII": {
+              "matriculado": true,
+              "lab_aprobado": false
+            }
+          },
           "exp_centro": "55289",
-          "fecha_creacion": "2025-07-09T18:13:25.258918",
-          "matricula": "55289",
-          "nombre": "LAURA LUCÍA",
-          "observaciones": "Importado desde Excel - FIS1 - Curso A302"
+          "exp_agora": "322119",
+          "observaciones": "Importado desde Excel - FIS1 - Curso A302",
+          "fecha_creacion": "2025-07-09T17:49:13.070869"
         },
         "6024289": {
+          "dni": "6024289",
+          "nombre": "MANUEL",
           "apellidos": "HUESO BEJAR",
-          "asignaturas_matriculadas": {
-            "FIS1": {
-              "lab_aprobado": false,
-              "matriculado": true
-            }
-          },
+          "email": "manuel.hueso.bejar@alumnos.upm.es",
+          "matricula": "56176",
           "cursos_matriculado": [
             "A302"
           ],
-          "dni": "6024289",
-          "email": "manuel.hueso.bejar@alumnos.upm.es",
-          "exp_agora": "322410",
+          "asignaturas_matriculadas": {
+            "FIS1": {
+              "matriculado": true,
+              "lab_aprobado": false
+            },
+            "SII": {
+              "matriculado": true,
+              "lab_aprobado": false
+            }
+          },
           "exp_centro": "56176",
-          "fecha_creacion": "2025-07-09T18:13:25.258918",
-          "matricula": "56176",
-          "nombre": "MANUEL",
-          "observaciones": "Importado desde Excel - FIS1 - Curso A302"
+          "exp_agora": "322410",
+          "observaciones": "Importado desde Excel - FIS1 - Curso A302",
+          "fecha_creacion": "2025-07-09T17:49:13.070869"
         },
         "4631384": {
+          "dni": "4631384",
+          "nombre": "JAVIER",
           "apellidos": "LERÍN ALONSO",
-          "asignaturas_matriculadas": {
-            "FIS1": {
-              "lab_aprobado": false,
-              "matriculado": true
-            }
-          },
+          "email": "javier.lerin.alonso@alumnos.upm.es",
+          "matricula": "55946",
           "cursos_matriculado": [
             "A302"
           ],
-          "dni": "4631384",
-          "email": "javier.lerin.alonso@alumnos.upm.es",
-          "exp_agora": "322286",
+          "asignaturas_matriculadas": {
+            "FIS1": {
+              "matriculado": true,
+              "lab_aprobado": false
+            },
+            "SII": {
+              "matriculado": true,
+              "lab_aprobado": false
+            }
+          },
           "exp_centro": "55946",
-          "fecha_creacion": "2025-07-09T18:13:25.258918",
-          "matricula": "55946",
-          "nombre": "JAVIER",
-          "observaciones": "Importado desde Excel - FIS1 - Curso A302"
+          "exp_agora": "322286",
+          "observaciones": "Importado desde Excel - FIS1 - Curso A302",
+          "fecha_creacion": "2025-07-09T17:49:13.070869"
         },
         "Y0864835": {
+          "dni": "Y0864835",
+          "nombre": "ZEQI",
           "apellidos": "LIN",
-          "asignaturas_matriculadas": {
-            "FIS1": {
-              "lab_aprobado": false,
-              "matriculado": true
-            }
-          },
+          "email": "zeqi.lin@alumnos.upm.es",
+          "matricula": "54694",
           "cursos_matriculado": [
             "A302"
           ],
-          "dni": "Y0864835",
-          "email": "zeqi.lin@alumnos.upm.es",
-          "exp_agora": "321995",
+          "asignaturas_matriculadas": {
+            "FIS1": {
+              "matriculado": true,
+              "lab_aprobado": false
+            },
+            "SII": {
+              "matriculado": true,
+              "lab_aprobado": false
+            }
+          },
           "exp_centro": "54694",
-          "fecha_creacion": "2025-07-09T18:13:25.258918",
-          "matricula": "54694",
-          "nombre": "ZEQI",
-          "observaciones": "Importado desde Excel - FIS1 - Curso A302"
+          "exp_agora": "321995",
+          "observaciones": "Importado desde Excel - FIS1 - Curso A302",
+          "fecha_creacion": "2025-07-09T17:49:13.070869"
         },
         "70420909": {
+          "dni": "70420909",
+          "nombre": "SERGIO",
           "apellidos": "LLANA AYEN",
-          "asignaturas_matriculadas": {
-            "FIS1": {
-              "lab_aprobado": false,
-              "matriculado": true
-            }
-          },
+          "email": "sergio.llana@alumnos.upm.es",
+          "matricula": "56950",
           "cursos_matriculado": [
             "A302"
           ],
-          "dni": "70420909",
-          "email": "sergio.llana@alumnos.upm.es",
-          "exp_agora": "322639",
+          "asignaturas_matriculadas": {
+            "FIS1": {
+              "matriculado": true,
+              "lab_aprobado": false
+            },
+            "SII": {
+              "matriculado": true,
+              "lab_aprobado": false
+            }
+          },
           "exp_centro": "56950",
-          "fecha_creacion": "2025-07-09T18:13:25.258918",
-          "matricula": "56950",
-          "nombre": "SERGIO",
-          "observaciones": "Importado desde Excel - FIS1 - Curso A302"
+          "exp_agora": "322639",
+          "observaciones": "Importado desde Excel - FIS1 - Curso A302",
+          "fecha_creacion": "2025-07-09T17:49:13.070869"
         },
         "53851901": {
+          "dni": "53851901",
+          "nombre": "DANIEL",
           "apellidos": "LOBERA RODRIGUEZ",
-          "asignaturas_matriculadas": {
-            "FIS1": {
-              "lab_aprobado": false,
-              "matriculado": true
-            }
-          },
+          "email": "daniel.lobera@alumnos.upm.es",
+          "matricula": "56951",
           "cursos_matriculado": [
             "A302"
           ],
-          "dni": "53851901",
-          "email": "daniel.lobera@alumnos.upm.es",
-          "exp_agora": "322719",
+          "asignaturas_matriculadas": {
+            "FIS1": {
+              "matriculado": true,
+              "lab_aprobado": false
+            },
+            "SII": {
+              "matriculado": true,
+              "lab_aprobado": false
+            }
+          },
           "exp_centro": "56951",
-          "fecha_creacion": "2025-07-09T18:13:25.258918",
-          "matricula": "56951",
-          "nombre": "DANIEL",
-          "observaciones": "Importado desde Excel - FIS1 - Curso A302"
+          "exp_agora": "322719",
+          "observaciones": "Importado desde Excel - FIS1 - Curso A302",
+          "fecha_creacion": "2025-07-09T17:49:13.071872"
         },
         "77481076": {
+          "dni": "77481076",
+          "nombre": "ALONSO",
           "apellidos": "LOPEZ CARBALLAL",
-          "asignaturas_matriculadas": {
-            "FIS1": {
-              "lab_aprobado": false,
-              "matriculado": true
-            }
-          },
+          "email": "alonso.lopez.carballal@alumnos.upm.es",
+          "matricula": "54275",
           "cursos_matriculado": [
             "A302"
           ],
-          "dni": "77481076",
-          "email": "alonso.lopez.carballal@alumnos.upm.es",
-          "exp_agora": "321837",
+          "asignaturas_matriculadas": {
+            "FIS1": {
+              "matriculado": true,
+              "lab_aprobado": false
+            },
+            "SII": {
+              "matriculado": true,
+              "lab_aprobado": false
+            }
+          },
           "exp_centro": "54275",
-          "fecha_creacion": "2025-07-09T18:13:25.258918",
-          "matricula": "54275",
-          "nombre": "ALONSO",
-          "observaciones": "Importado desde Excel - FIS1 - Curso A302"
+          "exp_agora": "321837",
+          "observaciones": "Importado desde Excel - FIS1 - Curso A302",
+          "fecha_creacion": "2025-07-09T17:49:13.071872"
         },
         "50479157": {
+          "dni": "50479157",
+          "nombre": "NEREA",
           "apellidos": "LOPEZ FELIPE",
-          "asignaturas_matriculadas": {
-            "FIS1": {
-              "lab_aprobado": false,
-              "matriculado": true
-            }
-          },
+          "email": "nerea.lfelipe@alumnos.upm.es",
+          "matricula": "54040",
           "cursos_matriculado": [
             "A302"
           ],
-          "dni": "50479157",
-          "email": "nerea.lfelipe@alumnos.upm.es",
-          "exp_agora": "321764",
+          "asignaturas_matriculadas": {
+            "FIS1": {
+              "matriculado": true,
+              "lab_aprobado": false
+            },
+            "SII": {
+              "matriculado": true,
+              "lab_aprobado": false
+            }
+          },
           "exp_centro": "54040",
-          "fecha_creacion": "2025-07-09T18:13:25.258918",
-          "matricula": "54040",
-          "nombre": "NEREA",
-          "observaciones": "Importado desde Excel - FIS1 - Curso A302"
+          "exp_agora": "321764",
+          "observaciones": "Importado desde Excel - FIS1 - Curso A302",
+          "fecha_creacion": "2025-07-09T17:49:13.071872"
         },
         "51999937": {
+          "dni": "51999937",
+          "nombre": "CARMEN",
           "apellidos": "MARIN ROLDAN",
-          "asignaturas_matriculadas": {
-            "FIS1": {
-              "lab_aprobado": false,
-              "matriculado": true
-            }
-          },
+          "email": "carmen.marinr@alumnos.upm.es",
+          "matricula": "49593",
           "cursos_matriculado": [
             "A302"
           ],
-          "dni": "51999937",
-          "email": "carmen.marinr@alumnos.upm.es",
-          "exp_agora": "320592",
+          "asignaturas_matriculadas": {
+            "FIS1": {
+              "matriculado": true,
+              "lab_aprobado": false
+            },
+            "SII": {
+              "matriculado": true,
+              "lab_aprobado": false
+            }
+          },
           "exp_centro": "49593",
-          "fecha_creacion": "2025-07-09T18:13:25.259918",
-          "matricula": "49593",
-          "nombre": "CARMEN",
-          "observaciones": "Importado desde Excel - FIS1 - Curso A302"
+          "exp_agora": "320592",
+          "observaciones": "Importado desde Excel - FIS1 - Curso A302",
+          "fecha_creacion": "2025-07-09T17:49:13.071872"
         },
         "3238317": {
+          "dni": "3238317",
+          "nombre": "ANDREA",
           "apellidos": "MARRÓN ROSADO",
-          "asignaturas_matriculadas": {
-            "FIS1": {
-              "lab_aprobado": false,
-              "matriculado": true
-            }
-          },
+          "email": "a.marron@alumnos.upm.es",
+          "matricula": "55335",
           "cursos_matriculado": [
             "A302"
           ],
-          "dni": "3238317",
-          "email": "a.marron@alumnos.upm.es",
-          "exp_agora": "322102",
+          "asignaturas_matriculadas": {
+            "FIS1": {
+              "matriculado": true,
+              "lab_aprobado": false
+            },
+            "SII": {
+              "matriculado": true,
+              "lab_aprobado": false
+            }
+          },
           "exp_centro": "55335",
-          "fecha_creacion": "2025-07-09T18:13:25.259918",
-          "matricula": "55335",
-          "nombre": "ANDREA",
-          "observaciones": "Importado desde Excel - FIS1 - Curso A302"
+          "exp_agora": "322102",
+          "observaciones": "Importado desde Excel - FIS1 - Curso A302",
+          "fecha_creacion": "2025-07-09T17:49:13.071872"
         },
         "49104167": {
+          "dni": "49104167",
+          "nombre": "UBERTO ALEJANDRO",
           "apellidos": "MARTINEZ RODRIGUEZ",
-          "asignaturas_matriculadas": {
-            "FIS1": {
-              "lab_aprobado": false,
-              "matriculado": true
-            }
-          },
+          "email": "u.martinezr@alumnos.upm.es",
+          "matricula": "55351",
           "cursos_matriculado": [
             "A302"
           ],
-          "dni": "49104167",
-          "email": "u.martinezr@alumnos.upm.es",
-          "exp_agora": "322076",
+          "asignaturas_matriculadas": {
+            "FIS1": {
+              "matriculado": true,
+              "lab_aprobado": false
+            },
+            "SII": {
+              "matriculado": true,
+              "lab_aprobado": false
+            }
+          },
           "exp_centro": "55351",
-          "fecha_creacion": "2025-07-09T18:13:25.259918",
-          "matricula": "55351",
-          "nombre": "UBERTO ALEJANDRO",
-          "observaciones": "Importado desde Excel - FIS1 - Curso A302"
+          "exp_agora": "322076",
+          "observaciones": "Importado desde Excel - FIS1 - Curso A302",
+          "fecha_creacion": "2025-07-09T17:49:13.071872"
         },
         "54025803": {
+          "dni": "54025803",
+          "nombre": "IVÁN",
           "apellidos": "MARTÍN IVANOVA",
-          "asignaturas_matriculadas": {
-            "FIS1": {
-              "lab_aprobado": false,
-              "matriculado": true
-            }
-          },
+          "email": "ivan.martin.ivanova@alumnos.upm.es",
+          "matricula": "56959",
           "cursos_matriculado": [
             "A302"
           ],
-          "dni": "54025803",
-          "email": "ivan.martin.ivanova@alumnos.upm.es",
-          "exp_agora": "322735",
+          "asignaturas_matriculadas": {
+            "FIS1": {
+              "matriculado": true,
+              "lab_aprobado": false
+            },
+            "SII": {
+              "matriculado": true,
+              "lab_aprobado": false
+            }
+          },
           "exp_centro": "56959",
-          "fecha_creacion": "2025-07-09T18:13:25.259918",
-          "matricula": "56959",
-          "nombre": "IVÁN",
-          "observaciones": "Importado desde Excel - FIS1 - Curso A302"
+          "exp_agora": "322735",
+          "observaciones": "Importado desde Excel - FIS1 - Curso A302",
+          "fecha_creacion": "2025-07-09T17:49:13.071872"
         },
         "11896544": {
+          "dni": "11896544",
+          "nombre": "MARINA",
           "apellidos": "MORENO HERNÁNDEZ",
-          "asignaturas_matriculadas": {
-            "FIS1": {
-              "lab_aprobado": false,
-              "matriculado": true
-            }
-          },
+          "email": "marina.moreno@alumnos.upm.es",
+          "matricula": "56969",
           "cursos_matriculado": [
             "A302"
           ],
-          "dni": "11896544",
-          "email": "marina.moreno@alumnos.upm.es",
-          "exp_agora": "322736",
+          "asignaturas_matriculadas": {
+            "FIS1": {
+              "matriculado": true,
+              "lab_aprobado": false
+            },
+            "SII": {
+              "matriculado": true,
+              "lab_aprobado": false
+            }
+          },
           "exp_centro": "56969",
-          "fecha_creacion": "2025-07-09T18:13:25.259918",
-          "matricula": "56969",
-          "nombre": "MARINA",
-          "observaciones": "Importado desde Excel - FIS1 - Curso A302"
+          "exp_agora": "322736",
+          "observaciones": "Importado desde Excel - FIS1 - Curso A302",
+          "fecha_creacion": "2025-07-09T17:49:13.071872"
         },
         "54197397": {
+          "dni": "54197397",
+          "nombre": "IKER",
           "apellidos": "MUÑOZ ARRIERO",
-          "asignaturas_matriculadas": {
-            "FIS1": {
-              "lab_aprobado": false,
-              "matriculado": true
-            }
-          },
+          "email": "iker.munoz@alumnos.upm.es",
+          "matricula": "56972",
           "cursos_matriculado": [
             "A302"
           ],
-          "dni": "54197397",
-          "email": "iker.munoz@alumnos.upm.es",
-          "exp_agora": "322729",
+          "asignaturas_matriculadas": {
+            "FIS1": {
+              "matriculado": true,
+              "lab_aprobado": false
+            },
+            "SII": {
+              "matriculado": true,
+              "lab_aprobado": false
+            }
+          },
           "exp_centro": "56972",
-          "fecha_creacion": "2025-07-09T18:13:25.259918",
-          "matricula": "56972",
-          "nombre": "IKER",
-          "observaciones": "Importado desde Excel - FIS1 - Curso A302"
+          "exp_agora": "322729",
+          "observaciones": "Importado desde Excel - FIS1 - Curso A302",
+          "fecha_creacion": "2025-07-09T17:49:13.071872"
         },
         "47291937": {
+          "dni": "47291937",
+          "nombre": "DAVID FABIÁN",
           "apellidos": "MÉNDEZ VELÁSQUEZ",
-          "asignaturas_matriculadas": {
-            "FIS1": {
-              "lab_aprobado": false,
-              "matriculado": true
-            }
-          },
+          "email": "david.mendez@alumnos.upm.es",
+          "matricula": "56481",
           "cursos_matriculado": [
             "A302"
           ],
-          "dni": "47291937",
-          "email": "david.mendez@alumnos.upm.es",
-          "exp_agora": "322485",
+          "asignaturas_matriculadas": {
+            "FIS1": {
+              "matriculado": true,
+              "lab_aprobado": false
+            },
+            "SII": {
+              "matriculado": true,
+              "lab_aprobado": false
+            }
+          },
           "exp_centro": "56481",
-          "fecha_creacion": "2025-07-09T18:13:25.259918",
-          "matricula": "56481",
-          "nombre": "DAVID FABIÁN",
-          "observaciones": "Importado desde Excel - FIS1 - Curso A302"
+          "exp_agora": "322485",
+          "observaciones": "Importado desde Excel - FIS1 - Curso A302",
+          "fecha_creacion": "2025-07-09T17:49:13.071872"
         },
         "6595225": {
+          "dni": "6595225",
+          "nombre": "JORGE",
           "apellidos": "NAVARRO RODRÍGUEZ",
-          "asignaturas_matriculadas": {
-            "FIS1": {
-              "lab_aprobado": false,
-              "matriculado": true
-            }
-          },
+          "email": "jo.navarro@alumnos.upm.es",
+          "matricula": "56975",
           "cursos_matriculado": [
             "A302"
           ],
-          "dni": "6595225",
-          "email": "jo.navarro@alumnos.upm.es",
-          "exp_agora": "322722",
+          "asignaturas_matriculadas": {
+            "FIS1": {
+              "matriculado": true,
+              "lab_aprobado": false
+            },
+            "SII": {
+              "matriculado": true,
+              "lab_aprobado": false
+            }
+          },
           "exp_centro": "56975",
-          "fecha_creacion": "2025-07-09T18:13:25.259918",
-          "matricula": "56975",
-          "nombre": "JORGE",
-          "observaciones": "Importado desde Excel - FIS1 - Curso A302"
+          "exp_agora": "322722",
+          "observaciones": "Importado desde Excel - FIS1 - Curso A302",
+          "fecha_creacion": "2025-07-09T17:49:13.071872"
         },
         "YC8350549": {
+          "dni": "YC8350549",
+          "nombre": "LEONARDO",
           "apellidos": "NICO",
-          "asignaturas_matriculadas": {
-            "FIS1": {
-              "lab_aprobado": false,
-              "matriculado": true
-            }
-          },
+          "email": "leonardo.nico@alumnos.upm.es",
+          "matricula": "58443",
           "cursos_matriculado": [
             "A302"
           ],
-          "dni": "YC8350549",
-          "email": "leonardo.nico@alumnos.upm.es",
-          "exp_agora": "730",
+          "asignaturas_matriculadas": {
+            "FIS1": {
+              "matriculado": true,
+              "lab_aprobado": false
+            },
+            "SII": {
+              "matriculado": true,
+              "lab_aprobado": false
+            }
+          },
           "exp_centro": "58443",
-          "fecha_creacion": "2025-07-09T18:13:25.259918",
-          "matricula": "58443",
-          "nombre": "LEONARDO",
-          "observaciones": "Importado desde Excel - FIS1 - Curso A302"
+          "exp_agora": "730",
+          "observaciones": "Importado desde Excel - FIS1 - Curso A302",
+          "fecha_creacion": "2025-07-09T17:49:13.071872"
         },
         "Y2460702": {
+          "dni": "Y2460702",
+          "nombre": "TUDOR ADRIAN",
           "apellidos": "NICORICI",
-          "asignaturas_matriculadas": {
-            "FIS1": {
-              "lab_aprobado": false,
-              "matriculado": true
-            }
-          },
+          "email": "tudor.nicorici@alumnos.upm.es",
+          "matricula": "56977",
           "cursos_matriculado": [
             "A302"
           ],
-          "dni": "Y2460702",
-          "email": "tudor.nicorici@alumnos.upm.es",
-          "exp_agora": "322687",
+          "asignaturas_matriculadas": {
+            "FIS1": {
+              "matriculado": true,
+              "lab_aprobado": false
+            },
+            "SII": {
+              "matriculado": true,
+              "lab_aprobado": false
+            }
+          },
           "exp_centro": "56977",
-          "fecha_creacion": "2025-07-09T18:13:25.259918",
-          "matricula": "56977",
-          "nombre": "TUDOR ADRIAN",
-          "observaciones": "Importado desde Excel - FIS1 - Curso A302"
+          "exp_agora": "322687",
+          "observaciones": "Importado desde Excel - FIS1 - Curso A302",
+          "fecha_creacion": "2025-07-09T17:49:13.071872"
         },
         "11100471": {
+          "dni": "11100471",
+          "nombre": "MIGUEL",
           "apellidos": "OLALLA TALADRIZ",
-          "asignaturas_matriculadas": {
-            "FIS1": {
-              "lab_aprobado": false,
-              "matriculado": true
-            }
-          },
+          "email": "miguel.olalla@alumnos.upm.es",
+          "matricula": "56978",
           "cursos_matriculado": [
             "EE302"
           ],
-          "dni": "11100471",
-          "email": "miguel.olalla@alumnos.upm.es",
-          "exp_agora": "322724",
+          "asignaturas_matriculadas": {
+            "FIS1": {
+              "matriculado": true,
+              "lab_aprobado": false
+            },
+            "SII": {
+              "matriculado": true,
+              "lab_aprobado": false
+            }
+          },
           "exp_centro": "56978",
-          "fecha_creacion": "2025-07-09T18:13:25.259918",
-          "matricula": "56978",
-          "nombre": "MIGUEL",
-          "observaciones": "Importado desde Excel - FIS1 - Curso EE302"
+          "exp_agora": "322724",
+          "observaciones": "Importado desde Excel - FIS1 - Curso EE302",
+          "fecha_creacion": "2025-07-09T17:49:13.071872"
         },
         "54157689": {
+          "dni": "54157689",
+          "nombre": "JORGE",
           "apellidos": "PACIO MÍGUEZ",
-          "asignaturas_matriculadas": {
-            "FIS1": {
-              "lab_aprobado": false,
-              "matriculado": true
-            }
-          },
+          "email": "j.pacio@alumnos.upm.es",
+          "matricula": "55390",
           "cursos_matriculado": [
             "EE302"
           ],
-          "dni": "54157689",
-          "email": "j.pacio@alumnos.upm.es",
-          "exp_agora": "322123",
+          "asignaturas_matriculadas": {
+            "FIS1": {
+              "matriculado": true,
+              "lab_aprobado": false
+            },
+            "SII": {
+              "matriculado": true,
+              "lab_aprobado": false
+            }
+          },
           "exp_centro": "55390",
-          "fecha_creacion": "2025-07-09T18:13:25.259918",
-          "matricula": "55390",
-          "nombre": "JORGE",
-          "observaciones": "Importado desde Excel - FIS1 - Curso EE302"
+          "exp_agora": "322123",
+          "observaciones": "Importado desde Excel - FIS1 - Curso EE302",
+          "fecha_creacion": "2025-07-09T17:49:13.071872"
         },
         "51199324": {
+          "dni": "51199324",
+          "nombre": "ADRIÁN",
           "apellidos": "PAINO TENA",
-          "asignaturas_matriculadas": {
-            "FIS1": {
-              "lab_aprobado": false,
-              "matriculado": true
-            }
-          },
+          "email": "adrian.paino@alumnos.upm.es",
+          "matricula": "56531",
           "cursos_matriculado": [
             "EE302"
           ],
-          "dni": "51199324",
-          "email": "adrian.paino@alumnos.upm.es",
-          "exp_agora": "322517",
+          "asignaturas_matriculadas": {
+            "FIS1": {
+              "matriculado": true,
+              "lab_aprobado": false
+            },
+            "SII": {
+              "matriculado": true,
+              "lab_aprobado": false
+            }
+          },
           "exp_centro": "56531",
-          "fecha_creacion": "2025-07-09T18:13:25.259918",
-          "matricula": "56531",
-          "nombre": "ADRIÁN",
-          "observaciones": "Importado desde Excel - FIS1 - Curso EE302"
+          "exp_agora": "322517",
+          "observaciones": "Importado desde Excel - FIS1 - Curso EE302",
+          "fecha_creacion": "2025-07-09T17:49:13.071872"
         },
         "3487476": {
+          "dni": "3487476",
+          "nombre": "MARIO",
           "apellidos": "PENIN FERNÁNDEZ",
-          "asignaturas_matriculadas": {
-            "FIS1": {
-              "lab_aprobado": false,
-              "matriculado": true
-            }
-          },
+          "email": "m.penin@alumnos.upm.es",
+          "matricula": "56980",
           "cursos_matriculado": [
             "EE302"
           ],
-          "dni": "3487476",
-          "email": "m.penin@alumnos.upm.es",
-          "exp_agora": "322648",
+          "asignaturas_matriculadas": {
+            "FIS1": {
+              "matriculado": true,
+              "lab_aprobado": false
+            },
+            "SII": {
+              "matriculado": true,
+              "lab_aprobado": false
+            }
+          },
           "exp_centro": "56980",
-          "fecha_creacion": "2025-07-09T18:13:25.259918",
-          "matricula": "56980",
-          "nombre": "MARIO",
-          "observaciones": "Importado desde Excel - FIS1 - Curso EE302"
+          "exp_agora": "322648",
+          "observaciones": "Importado desde Excel - FIS1 - Curso EE302",
+          "fecha_creacion": "2025-07-09T17:49:13.071872"
         },
         "DCP547868": {
+          "dni": "DCP547868",
+          "nombre": "WIKTOR",
           "apellidos": "POZARZYCKI",
-          "asignaturas_matriculadas": {
-            "FIS1": {
-              "lab_aprobado": false,
-              "matriculado": true
-            }
-          },
+          "email": "wiktor.pozarzycki@alumnos.upm.es",
+          "matricula": "58341",
           "cursos_matriculado": [
             "EE302"
           ],
-          "dni": "DCP547868",
-          "email": "wiktor.pozarzycki@alumnos.upm.es",
-          "exp_agora": "682",
+          "asignaturas_matriculadas": {
+            "FIS1": {
+              "matriculado": true,
+              "lab_aprobado": false
+            },
+            "SII": {
+              "matriculado": true,
+              "lab_aprobado": false
+            }
+          },
           "exp_centro": "58341",
-          "fecha_creacion": "2025-07-09T18:13:25.259918",
-          "matricula": "58341",
-          "nombre": "WIKTOR",
-          "observaciones": "Importado desde Excel - FIS1 - Curso EE302"
+          "exp_agora": "682",
+          "observaciones": "Importado desde Excel - FIS1 - Curso EE302",
+          "fecha_creacion": "2025-07-09T17:49:13.071872"
         },
         "6008748": {
+          "dni": "6008748",
+          "nombre": "JOSÉ",
           "apellidos": "PÉREZ BERMÚDEZ",
-          "asignaturas_matriculadas": {
-            "FIS1": {
-              "lab_aprobado": false,
-              "matriculado": true
-            }
-          },
+          "email": "jose.perez.bermudez@alumnos.upm.es",
+          "matricula": "56539",
           "cursos_matriculado": [
             "EE302"
           ],
-          "dni": "6008748",
-          "email": "jose.perez.bermudez@alumnos.upm.es",
-          "exp_agora": "322526",
+          "asignaturas_matriculadas": {
+            "FIS1": {
+              "matriculado": true,
+              "lab_aprobado": false
+            },
+            "SII": {
+              "matriculado": true,
+              "lab_aprobado": false
+            }
+          },
           "exp_centro": "56539",
-          "fecha_creacion": "2025-07-09T18:13:25.259918",
-          "matricula": "56539",
-          "nombre": "JOSÉ",
-          "observaciones": "Importado desde Excel - FIS1 - Curso EE302"
+          "exp_agora": "322526",
+          "observaciones": "Importado desde Excel - FIS1 - Curso EE302",
+          "fecha_creacion": "2025-07-09T17:49:13.071872"
         },
         "51515956": {
+          "dni": "51515956",
+          "nombre": "MARTA",
           "apellidos": "REDONDO PEREZ",
-          "asignaturas_matriculadas": {
-            "FIS1": {
-              "lab_aprobado": false,
-              "matriculado": true
-            }
-          },
+          "email": "marta.redondo.perez@alumnos.upm.es",
+          "matricula": "56984",
           "cursos_matriculado": [
             "EE302"
           ],
-          "dni": "51515956",
-          "email": "marta.redondo.perez@alumnos.upm.es",
-          "exp_agora": "322603",
+          "asignaturas_matriculadas": {
+            "FIS1": {
+              "matriculado": true,
+              "lab_aprobado": false
+            },
+            "SII": {
+              "matriculado": true,
+              "lab_aprobado": false
+            }
+          },
           "exp_centro": "56984",
-          "fecha_creacion": "2025-07-09T18:13:25.259918",
-          "matricula": "56984",
-          "nombre": "MARTA",
-          "observaciones": "Importado desde Excel - FIS1 - Curso EE302"
+          "exp_agora": "322603",
+          "observaciones": "Importado desde Excel - FIS1 - Curso EE302",
+          "fecha_creacion": "2025-07-09T17:49:13.071872"
         },
         "70833659": {
+          "dni": "70833659",
+          "nombre": "LAURA",
           "apellidos": "ROLLÓN HERNÁNDEZ",
-          "asignaturas_matriculadas": {
-            "FIS1": {
-              "lab_aprobado": false,
-              "matriculado": true
-            }
-          },
+          "email": "l.rollon@alumnos.upm.es",
+          "matricula": "56579",
           "cursos_matriculado": [
             "EE302"
           ],
-          "dni": "70833659",
-          "email": "l.rollon@alumnos.upm.es",
-          "exp_agora": "322587",
+          "asignaturas_matriculadas": {
+            "FIS1": {
+              "matriculado": true,
+              "lab_aprobado": false
+            },
+            "SII": {
+              "matriculado": true,
+              "lab_aprobado": false
+            }
+          },
           "exp_centro": "56579",
-          "fecha_creacion": "2025-07-09T18:13:25.259918",
-          "matricula": "56579",
-          "nombre": "LAURA",
-          "observaciones": "Importado desde Excel - FIS1 - Curso EE302"
+          "exp_agora": "322587",
+          "observaciones": "Importado desde Excel - FIS1 - Curso EE302",
+          "fecha_creacion": "2025-07-09T17:49:13.071872"
         },
         "6286184": {
+          "dni": "6286184",
+          "nombre": "ISRAEL",
           "apellidos": "SOLANO PLATA",
-          "asignaturas_matriculadas": {
-            "FIS1": {
-              "lab_aprobado": false,
-              "matriculado": true
-            }
-          },
+          "email": "israel.solano.plata@alumnos.upm.es",
+          "matricula": "53436",
           "cursos_matriculado": [
             "EE302"
           ],
-          "dni": "6286184",
-          "email": "israel.solano.plata@alumnos.upm.es",
-          "exp_agora": "321552",
+          "asignaturas_matriculadas": {
+            "FIS1": {
+              "matriculado": true,
+              "lab_aprobado": false
+            },
+            "SII": {
+              "matriculado": true,
+              "lab_aprobado": false
+            }
+          },
           "exp_centro": "53436",
-          "fecha_creacion": "2025-07-09T18:13:25.259918",
-          "matricula": "53436",
-          "nombre": "ISRAEL",
-          "observaciones": "Importado desde Excel - FIS1 - Curso EE302"
+          "exp_agora": "321552",
+          "observaciones": "Importado desde Excel - FIS1 - Curso EE302",
+          "fecha_creacion": "2025-07-09T17:49:13.071872"
         },
         "3953512": {
+          "dni": "3953512",
+          "nombre": "LAURA",
           "apellidos": "SÁNCHEZ MUÑOZ",
-          "asignaturas_matriculadas": {
-            "FIS1": {
-              "lab_aprobado": false,
-              "matriculado": true
-            }
-          },
+          "email": "laura.sanchez.munoz@alumnos.upm.es",
+          "matricula": "56992",
           "cursos_matriculado": [
             "EE302"
           ],
-          "dni": "3953512",
-          "email": "laura.sanchez.munoz@alumnos.upm.es",
-          "exp_agora": "322665",
+          "asignaturas_matriculadas": {
+            "FIS1": {
+              "matriculado": true,
+              "lab_aprobado": false
+            },
+            "SII": {
+              "matriculado": true,
+              "lab_aprobado": false
+            }
+          },
           "exp_centro": "56992",
-          "fecha_creacion": "2025-07-09T18:13:25.259918",
-          "matricula": "56992",
-          "nombre": "LAURA",
-          "observaciones": "Importado desde Excel - FIS1 - Curso EE302"
+          "exp_agora": "322665",
+          "observaciones": "Importado desde Excel - FIS1 - Curso EE302",
+          "fecha_creacion": "2025-07-09T17:49:13.071872"
         },
         "50632038": {
+          "dni": "50632038",
+          "nombre": "CELIA",
           "apellidos": "TORRECILLAS BARBA",
-          "asignaturas_matriculadas": {
-            "FIS1": {
-              "lab_aprobado": false,
-              "matriculado": true
-            }
-          },
+          "email": "celia.torrecillas@alumnos.upm.es",
+          "matricula": "56124",
           "cursos_matriculado": [
             "EE302"
           ],
-          "dni": "50632038",
-          "email": "celia.torrecillas@alumnos.upm.es",
-          "exp_agora": "322300",
+          "asignaturas_matriculadas": {
+            "FIS1": {
+              "matriculado": true,
+              "lab_aprobado": false
+            },
+            "SII": {
+              "matriculado": true,
+              "lab_aprobado": false
+            }
+          },
           "exp_centro": "56124",
-          "fecha_creacion": "2025-07-09T18:13:25.259918",
-          "matricula": "56124",
-          "nombre": "CELIA",
-          "observaciones": "Importado desde Excel - FIS1 - Curso EE302"
+          "exp_agora": "322300",
+          "observaciones": "Importado desde Excel - FIS1 - Curso EE302",
+          "fecha_creacion": "2025-07-09T17:49:13.072870"
         },
         "49391665": {
+          "dni": "49391665",
+          "nombre": "OSCAR ANTONIO",
           "apellidos": "VAQUERO MONTALVO",
-          "asignaturas_matriculadas": {
-            "FIS1": {
-              "lab_aprobado": false,
-              "matriculado": true
-            }
-          },
+          "email": "oscar.vaquero@alumnos.upm.es",
+          "matricula": "56997",
           "cursos_matriculado": [
             "EE302"
           ],
-          "dni": "49391665",
-          "email": "oscar.vaquero@alumnos.upm.es",
-          "exp_agora": "322623",
+          "asignaturas_matriculadas": {
+            "FIS1": {
+              "matriculado": true,
+              "lab_aprobado": false
+            },
+            "SII": {
+              "matriculado": true,
+              "lab_aprobado": false
+            }
+          },
           "exp_centro": "56997",
-          "fecha_creacion": "2025-07-09T18:13:25.259918",
-          "matricula": "56997",
-          "nombre": "OSCAR ANTONIO",
-          "observaciones": "Importado desde Excel - FIS1 - Curso EE302"
+          "exp_agora": "322623",
+          "observaciones": "Importado desde Excel - FIS1 - Curso EE302",
+          "fecha_creacion": "2025-07-09T17:49:13.072870"
         },
         "Y7958755": {
+          "dni": "Y7958755",
+          "nombre": "ÁNGEL GABRIEL",
           "apellidos": "VILLAMAR ZAMBRANO",
-          "asignaturas_matriculadas": {
-            "FIS1": {
-              "lab_aprobado": false,
-              "matriculado": true
-            }
-          },
+          "email": "ag.villamar@alumnos.upm.es",
+          "matricula": "56727",
           "cursos_matriculado": [
             "EE302"
           ],
-          "dni": "Y7958755",
-          "email": "ag.villamar@alumnos.upm.es",
-          "exp_agora": "322598",
-          "exp_centro": "56727",
-          "fecha_creacion": "2025-07-09T18:13:25.259918",
-          "matricula": "56727",
-          "nombre": "ÁNGEL GABRIEL",
-          "observaciones": "Importado desde Excel - FIS1 - Curso EE302"
-        },
-        "70069877": {
-          "apellidos": "ÁLVAREZ CALLEJA",
           "asignaturas_matriculadas": {
             "FIS1": {
-              "lab_aprobado": false,
-              "matriculado": true
+              "matriculado": true,
+              "lab_aprobado": false
+            },
+            "SII": {
+              "matriculado": true,
+              "lab_aprobado": false
             }
           },
+          "exp_centro": "56727",
+          "exp_agora": "322598",
+          "observaciones": "Importado desde Excel - FIS1 - Curso EE302",
+          "fecha_creacion": "2025-07-09T17:49:13.072870"
+        },
+        "70069877": {
+          "dni": "70069877",
+          "nombre": "JACOBO",
+          "apellidos": "ÁLVAREZ CALLEJA",
+          "email": "jacobo.alvarez@alumnos.upm.es",
+          "matricula": "56258",
           "cursos_matriculado": [
             "A302"
           ],
-          "dni": "70069877",
-          "email": "jacobo.alvarez@alumnos.upm.es",
-          "exp_agora": "322496",
+          "asignaturas_matriculadas": {
+            "FIS1": {
+              "matriculado": true,
+              "lab_aprobado": false
+            },
+            "SII": {
+              "matriculado": true,
+              "lab_aprobado": false
+            }
+          },
           "exp_centro": "56258",
-          "fecha_creacion": "2025-07-09T18:13:25.252913",
-          "matricula": "56258",
-          "nombre": "JACOBO",
-          "observaciones": "Importado desde Excel - FIS1 - Curso A302"
+          "exp_agora": "322496",
+          "observaciones": "Importado desde Excel - FIS1 - Curso A302",
+          "fecha_creacion": "2025-07-09T17:49:13.068869"
         }
       },
       "total": 81,
-      "fecha_actualizacion": "2025-07-09T19:19:56.527164"
+      "fecha_actualizacion": "2025-07-09T17:49:28.852175"
     },
     "asignaturas": {
       "configurado": true,
       "datos": {
         "FIS1": {
           "codigo": "FIS1",
-          "nombre": "Física I",
-          "semestre": "1º Semestre",
-          "curso": "3º Curso",
-          "tipo": "Laboratorio",
-          "descripcion": "Física experimental básica",
-          "cursos_que_cursan": [
-            "A302",
-            "D301"
-          ],
           "configuracion_laboratorio": {
             "horas_por_sesion": 2,
             "minutos_por_sesion": 0
           },
-          "planificacion": {
-            "grupos_previstos": 6,
-            "clases_año": 2
-          },
+          "curso": "3º Curso",
+          "cursos_que_cursan": [
+            "A302"
+          ],
+          "descripcion": "Física experimental básica",
           "estadisticas_calculadas": {
             "con_lab_anterior": 0,
             "grupos_recomendados": 1,
@@ -2958,11 +3322,18 @@
             "total_matriculados": 2,
             "ultima_actualizacion": "2025-07-05T12:00:00.000000"
           },
-          "fecha_creacion": "2025-07-09T19:19:45.228887"
+          "fecha_creacion": "2025-07-09T17:55:59.720362",
+          "nombre": "Física I",
+          "planificacion": {
+            "clases_año": 2,
+            "grupos_previstos": 6
+          },
+          "semestre": "1º Semestre",
+          "tipo": "Laboratorio"
         }
       },
       "total": 1,
-      "fecha_actualizacion": "2025-07-09T19:19:47.182920"
+      "fecha_actualizacion": "2025-07-09T18:12:39.416449"
     },
     "cursos": {
       "configurado": true,
@@ -2984,43 +3355,26 @@
           "observaciones": "Curso con alta demanda",
           "plazas": 60
         },
-        "D301": {
-          "activo": true,
-          "asignaturas_asociadas": [
-            "FIS1"
-          ],
-          "codigo": "D301",
-          "coordinador": "Dr. Fernández Castro",
-          "creditos_totales": 240,
-          "curso_actual": "3º Curso",
-          "departamento": "Ingeniería Electrónica",
-          "estudiantes_matriculados": 0,
-          "fecha_creacion": "2025-07-09T19:02:06.211268",
-          "horario_tipo": "Tarde",
-          "nombre": "adfgaergdf",
-          "observaciones": "Curso con alta demanda",
-          "plazas": 60
-        },
         "EE302": {
+          "codigo": "EE302",
+          "nombre": "Grado en doble",
+          "curso_actual": "3º Curso",
+          "coordinador": "Dr. Fernández Castro",
+          "departamento": "Ingeniería Electrónica",
+          "creditos_totales": 240,
+          "plazas": 60,
+          "estudiantes_matriculados": 70,
+          "horario_tipo": "Tarde",
+          "observaciones": "Curso con alta demanda",
+          "fecha_creacion": "2025-07-09T17:43:51.955366",
           "activo": true,
           "asignaturas_asociadas": [
             "FIS1"
-          ],
-          "codigo": "EE302",
-          "coordinador": "Dr. Fernández Castro",
-          "creditos_totales": 240,
-          "curso_actual": "3º Curso",
-          "departamento": "Ingeniería Electrónica",
-          "estudiantes_matriculados": 70,
-          "fecha_creacion": "2025-07-09T17:43:51.955366",
-          "horario_tipo": "Tarde",
-          "nombre": "Grado en doble",
-          "observaciones": "Curso con alta demanda",
-          "plazas": 60
+          ]
         }
       },
-      "total": 3,
-      "fecha_actualizacion": "2025-07-09T22:23:32.708167"
+      "total": 2,
+      "fecha_actualizacion": "2025-07-09T18:12:21.399351"
     }
   },
   "parametros_organizacion": {

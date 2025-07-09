@@ -1488,12 +1488,12 @@ class ConfigurarProfesores(QMainWindow):
         if sem1:
             for codigo_asig in sorted(sem1.keys()):
                 nombre_asig = sem1[codigo_asig].get('nombre', codigo_asig)
-                self.combo_filtro_asignatura.addItem(f"1º - {nombre_asig} ({codigo_asig})")
+                self.combo_filtro_asignatura.addItem(f"1º - ({codigo_asig}) - {nombre_asig} ")
 
         if sem2:
             for codigo_asig in sorted(sem2.keys()):
                 nombre_asig = sem2[codigo_asig].get('nombre', codigo_asig)
-                self.combo_filtro_asignatura.addItem(f"2º - {nombre_asig} ({codigo_asig})")
+                self.combo_filtro_asignatura.addItem(f"2º - ({codigo_asig}) - {nombre_asig}")
 
     def crear_boton_accion(self, icono, color, tooltip):
         """Crear botón de acción con estilo consistente"""

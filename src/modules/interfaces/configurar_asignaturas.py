@@ -361,7 +361,7 @@ class GestionAsignaturaDialog(QDialog):
         cursos_ya_agregados = set()
         for i in range(self.list_cursos_dialog.count()):
             item = self.list_cursos_dialog.item(i)
-            cursos_ya_agregados.add(item.text())
+            cursos_ya_agregados.add(item.data(Qt.ItemDataRole.UserRole))
 
         # Filtrar cursos que coincidan con el patrón
         cursos_filtrados = []
@@ -413,8 +413,9 @@ class GestionAsignaturaDialog(QDialog):
         cursos_ya_agregados = set()
         for i in range(self.list_cursos_dialog.count()):
             item = self.list_cursos_dialog.item(i)
-            if item.text() != curso_a_excluir:
-                cursos_ya_agregados.add(item.text())
+            codigo_item = item.data(Qt.ItemDataRole.UserRole)
+            if codigo_item != curso_a_excluir:
+                cursos_ya_agregados.add(codigo_item)
 
         # Filtrar cursos que coincidan con el patrón
         cursos_filtrados = []
@@ -545,12 +546,19 @@ class GestionAsignaturaDialog(QDialog):
 
             # Verificar si ya existe
             for i in range(self.list_cursos_dialog.count()):
-                if self.list_cursos_dialog.item(i).text() == codigo_curso:
+                if self.list_cursos_dialog.item(i).data(Qt.ItemDataRole.UserRole) == codigo_curso:
                     QMessageBox.warning(self, "Error", "Este curso ya existe en la asignatura")
                     return
 
+            # Buscar nombre del curso para mostrar texto completo
+            nombre_curso = codigo_curso
+            if self.cursos_disponibles and codigo_curso in self.cursos_disponibles:
+                nombre_curso = self.cursos_disponibles[codigo_curso].get('nombre', codigo_curso)
+
+            texto_display = f"{codigo_curso} - {nombre_curso}"
+
             # Añadir a la lista
-            item = QListWidgetItem(codigo_curso)
+            item = QListWidgetItem(texto_display)
             item.setData(Qt.ItemDataRole.UserRole, codigo_curso)
             self.list_cursos_dialog.addItem(item)
 
@@ -638,16 +646,18 @@ class GestionAsignaturaDialog(QDialog):
 
     def ordenar_cursos_lista(self):
         """Ordenar cursos alfabéticamente en la lista"""
-        cursos = []
+        cursos_data = []
         for i in range(self.list_cursos_dialog.count()):
             item = self.list_cursos_dialog.item(i)
-            cursos.append(item.text())
+            codigo = item.data(Qt.ItemDataRole.UserRole)
+            texto = item.text()
+            cursos_data.append((codigo, texto))
 
         # Limpiar y recargar ordenado
         self.list_cursos_dialog.clear()
-        for curso in sorted(cursos):
-            item = QListWidgetItem(curso)
-            item.setData(Qt.ItemDataRole.UserRole, curso)
+        for codigo, texto in sorted(cursos_data):
+            item = QListWidgetItem(texto)  # Mostrar texto completo
+            item.setData(Qt.ItemDataRole.UserRole, codigo)
             self.list_cursos_dialog.addItem(item)
 
     def get_cursos_seleccionados(self):
@@ -655,14 +665,14 @@ class GestionAsignaturaDialog(QDialog):
         cursos = []
         for i in range(self.list_cursos_dialog.count()):
             item = self.list_cursos_dialog.item(i)
-            cursos.append(item.text())
+            cursos.append(item.data(Qt.ItemDataRole.UserRole))
         return sorted(cursos)
 
     def auto_seleccionar_curso_dialog(self, curso):
         """Auto-seleccionar curso en el dialog"""
         for i in range(self.list_cursos_dialog.count()):
             item = self.list_cursos_dialog.item(i)
-            if item.text() == curso:
+            if item.data(Qt.ItemDataRole.UserRole) == curso:
                 self.list_cursos_dialog.setCurrentItem(item)
                 break
 
@@ -2038,7 +2048,7 @@ class ConfigurarAsignaturas(QMainWindow):
                 # Enviar señal al sistema principal
                 self.configuracion_actualizada.emit(self.datos_configuracion)
 
-                # NUEVO: Notificar a horarios DESPUÉS de guardar
+                # Notificar a horarios DESPUÉS de guardar
                 self.notificar_cambios_a_horarios()
 
                 # Marcar como guardado
