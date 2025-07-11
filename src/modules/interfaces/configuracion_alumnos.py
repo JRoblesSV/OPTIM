@@ -6,7 +6,7 @@ Desarrollado por SoftVier para ETSIDI (UPM)
 
 FUNCIONALIDADES IMPLEMENTADAS:
 1. Gestión completa de alumnos matriculados por DNI
-2. Sistema de cursos matriculados con validación dinámica
+2. Sistema de grupos matriculados con validación dinámica
 3. Asignaturas matriculadas con estado de laboratorio previo
 4. Filtros avanzados por asignatura y experiencia previa
 5. Estadísticas automáticas de matriculación por asignatura
@@ -73,7 +73,7 @@ class GestionAlumnoDialog(QDialog):
         super().__init__(parent)
         self.alumno_existente = alumno_existente
         self.asignaturas_disponibles = asignaturas_disponibles or {"1": {}, "2": {}}
-        self.cursos_disponibles = self.obtener_cursos_del_sistema()
+        self.grupos_disponibles = self.obtener_grupos_del_sistema()
         self.setWindowTitle("Editar Alumno" if alumno_existente else "Nuevo Alumno")
         self.setModal(True)
 
@@ -85,6 +85,11 @@ class GestionAlumnoDialog(QDialog):
 
         self.setup_ui()
         self.apply_dark_theme()
+
+        # Forzar tamaños iguales de ok/cancel
+        QTimer.singleShot(50, self.igualar_tamanos_botones_ok_cancel)
+
+        self.setAttribute(Qt.WidgetAttribute.WA_AlwaysShowToolTips, True)
 
         if self.alumno_existente:
             self.cargar_datos_existentes()
@@ -173,19 +178,19 @@ class GestionAlumnoDialog(QDialog):
         datos_academicos_group.setLayout(datos_academicos_layout)
         layout.addWidget(datos_academicos_group)
 
-        # 🎓📚 CURSOS Y ASIGNATURAS (LADO A LADO)
-        cursos_asignaturas_group = QGroupBox("🎓📚 CURSOS Y ASIGNATURAS MATRICULADAS")
-        cursos_asignaturas_main_layout = QHBoxLayout()  # Layout horizontal principal
-        cursos_asignaturas_main_layout.setSpacing(15)
+        # 🎓📚 GRUPOS Y ASIGNATURAS (LADO A LADO)
+        grupos_asignaturas_group = QGroupBox("🎓📚 GRUPOS Y ASIGNATURAS MATRICULADAS")
+        grupos_asignaturas_main_layout = QHBoxLayout()  # Layout horizontal principal
+        grupos_asignaturas_main_layout.setSpacing(15)
 
-        # COLUMNA IZQUIERDA: CURSOS MATRICULADOS
-        cursos_container = QWidget()
-        cursos_main_layout = QVBoxLayout(cursos_container)
-        cursos_main_layout.setSpacing(8)
-        cursos_main_layout.setContentsMargins(0, 0, 0, 0)
+        # COLUMNA IZQUIERDA: GRUPOS MATRICULADOS
+        grupos_container = QWidget()
+        grupos_main_layout = QVBoxLayout(grupos_container)
+        grupos_main_layout.setSpacing(8)
+        grupos_main_layout.setContentsMargins(0, 0, 0, 0)
 
-        cursos_title = QLabel("🎓 CURSOS MATRICULADOS")
-        cursos_title.setStyleSheet("""
+        grupos_title = QLabel("🎓 GRUPOS MATRICULADOS")
+        grupos_title.setStyleSheet("""
             color: #4a9eff; 
             font-weight: bold; 
             font-size: 14px; 
@@ -193,58 +198,58 @@ class GestionAlumnoDialog(QDialog):
             padding: 6px;
             border-bottom: 2px solid #4a9eff;
         """)
-        cursos_title.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        cursos_main_layout.addWidget(cursos_title)
+        grupos_title.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        grupos_main_layout.addWidget(grupos_title)
 
-        if self.cursos_disponibles:
-            info_cursos = QLabel("Selecciona los cursos matriculados:")
-            info_cursos.setStyleSheet("color: #cccccc; font-size: 11px; margin-bottom: 6px;")
-            cursos_main_layout.addWidget(info_cursos)
+        if self.grupos_disponibles:
+            info_grupos = QLabel("Selecciona los grupos matriculados:")
+            info_grupos.setStyleSheet("color: #cccccc; font-size: 11px; margin-bottom: 6px;")
+            grupos_main_layout.addWidget(info_grupos)
 
-            # SCROLL AREA PARA CURSOS
-            self.cursos_scroll = QScrollArea()
-            self.cursos_scroll.setWidgetResizable(True)
-            self.cursos_scroll.setFixedHeight(300)
-            self.cursos_scroll.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
-            self.cursos_scroll.setVerticalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAsNeeded)
-            self.cursos_scroll.setFrameStyle(QFrame.Shape.Box)
-            self.cursos_scroll.setLineWidth(1)
+            # SCROLL AREA PARA GRUPOS
+            self.grupos_scroll = QScrollArea()
+            self.grupos_scroll.setWidgetResizable(True)
+            self.grupos_scroll.setFixedHeight(300)
+            self.grupos_scroll.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
+            self.grupos_scroll.setVerticalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAsNeeded)
+            self.grupos_scroll.setFrameStyle(QFrame.Shape.Box)
+            self.grupos_scroll.setLineWidth(1)
 
-            # Widget scrollable para cursos
-            self.cursos_scroll_widget = QWidget()
-            self.cursos_scroll_layout = QVBoxLayout(self.cursos_scroll_widget)
-            self.cursos_scroll_layout.setContentsMargins(10, 10, 10, 10)
-            self.cursos_scroll_layout.setSpacing(8)
-            self.cursos_scroll_layout.setAlignment(Qt.AlignmentFlag.AlignTop)
+            # Widget scrollable para grupos
+            self.grupos_scroll_widget = QWidget()
+            self.grupos_scroll_layout = QVBoxLayout(self.grupos_scroll_widget)
+            self.grupos_scroll_layout.setContentsMargins(10, 10, 10, 10)
+            self.grupos_scroll_layout.setSpacing(8)
+            self.grupos_scroll_layout.setAlignment(Qt.AlignmentFlag.AlignTop)
 
-            # Crear checkboxes por cursos del sistema
-            self.checks_cursos = {}
-            for codigo, curso_data in sorted(self.cursos_disponibles.items()):
-                nombre = curso_data.get("nombre", codigo)
-                curso_actual = curso_data.get("curso_actual", "")
+            # Crear checkboxes por grupos del sistema
+            self.checks_grupos = {}
+            for codigo, grupo_data in sorted(self.grupos_disponibles.items()):
+                nombre = grupo_data.get("nombre", codigo)
+                grupo_actual = grupo_data.get("grupo_actual", "")
 
-                # Mostrar: "A102 - Grado en Ingeniería en Tecnologías Industriales (1º Curso)"
+                # Mostrar: "A102 - Grado en Ingeniería en Tecnologías Industriales (1º Grupo)"
                 texto_completo = f"{codigo} - {nombre}"
-                if curso_actual:
-                    texto_completo += f" ({curso_actual})"
+                if grupo_actual:
+                    texto_completo += f" ({grupo_actual})"
 
-                check_curso = QCheckBox(texto_completo)
-                check_curso.setStyleSheet(self.estilo_checkbox_comun)
-                check_curso.toggled.connect(self.filtrar_asignaturas_por_cursos)
-                self.checks_cursos[codigo] = check_curso  # USAR CÓDIGO COMO KEY
-                self.cursos_scroll_layout.addWidget(check_curso)
+                check_grupo = QCheckBox(texto_completo)
+                check_grupo.setStyleSheet(self.estilo_checkbox_comun)
+                check_grupo.toggled.connect(self.filtrar_asignaturas_por_grupos)
+                self.checks_grupos[codigo] = check_grupo  # USAR CÓDIGO COMO KEY
+                self.grupos_scroll_layout.addWidget(check_grupo)
 
             # Añadir stretch al final
-            self.cursos_scroll_layout.addStretch()
+            self.grupos_scroll_layout.addStretch()
 
             # Configurar el scroll area
-            self.cursos_scroll.setWidget(self.cursos_scroll_widget)
-            cursos_main_layout.addWidget(self.cursos_scroll)
+            self.grupos_scroll.setWidget(self.grupos_scroll_widget)
+            grupos_main_layout.addWidget(self.grupos_scroll)
         else:
-            no_cursos_label = QLabel("⚠️ No hay cursos configurados en el sistema.")
-            no_cursos_label.setStyleSheet("color: #ffaa00; font-style: italic; padding: 20px; font-size: 12px;")
-            cursos_main_layout.addWidget(no_cursos_label)
-            self.checks_cursos = {}
+            no_grupos_label = QLabel("⚠️ No hay grupos configurados en el sistema.")
+            no_grupos_label.setStyleSheet("color: #ffaa00; font-style: italic; padding: 20px; font-size: 12px;")
+            grupos_main_layout.addWidget(no_grupos_label)
+            self.checks_grupos = {}
 
         # COLUMNA DERECHA: ASIGNATURAS MATRICULADAS
         asignaturas_container = QWidget()
@@ -290,7 +295,7 @@ class GestionAlumnoDialog(QDialog):
         self.asignaturas_scroll_layout.setContentsMargins(10, 10, 10, 10)
         self.asignaturas_scroll_layout.setSpacing(6)
 
-        # IMPORTANTE: Configurar el layout en el widget
+        # Configurar el layout en el widget
         self.asignaturas_scroll_widget.setLayout(self.asignaturas_scroll_layout)
 
         # Diccionarios para checkboxes
@@ -298,18 +303,18 @@ class GestionAlumnoDialog(QDialog):
         self.checks_lab_aprobado = {}
 
         # INICIALIZAR CON MENSAJE
-        self.mostrar_mensaje_seleccionar_cursos()
+        self.mostrar_mensaje_seleccionar_grupos()
 
         # CONFIGURAR EL SCROLL AREA - DESPUÉS de configurar el layout
         self.asignaturas_scroll.setWidget(self.asignaturas_scroll_widget)
         asignaturas_main_layout.addWidget(self.asignaturas_scroll)
 
         # Añadir las dos columnas al layout principal
-        cursos_asignaturas_main_layout.addWidget(cursos_container, 1)  # 50% del ancho
-        cursos_asignaturas_main_layout.addWidget(asignaturas_container, 1)  # 50% del ancho
+        grupos_asignaturas_main_layout.addWidget(grupos_container, 1)  # 50% del ancho
+        grupos_asignaturas_main_layout.addWidget(asignaturas_container, 1)  # 50% del ancho
 
-        cursos_asignaturas_group.setLayout(cursos_asignaturas_main_layout)
-        layout.addWidget(cursos_asignaturas_group)
+        grupos_asignaturas_group.setLayout(grupos_asignaturas_main_layout)
+        layout.addWidget(grupos_asignaturas_group)
 
         # 📋 EXPEDIENTES
         expedientes_group = QGroupBox("📋 EXPEDIENTES")
@@ -349,13 +354,13 @@ class GestionAlumnoDialog(QDialog):
 
         self.setLayout(layout)
 
-    def mostrar_mensaje_seleccionar_cursos(self):
-        """Mostrar mensaje inicial para seleccionar cursos"""
+    def mostrar_mensaje_seleccionar_grupos(self):
+        """Mostrar mensaje inicial para seleccionar grupos"""
         # Limpiar layout
         self.limpiar_layout_asignaturas()
 
         # Mensaje inicial
-        mensaje_label = QLabel("⚠️ Selecciona primero los cursos para ver las asignaturas disponibles.")
+        mensaje_label = QLabel("⚠️ Selecciona primero los grupos para ver las asignaturas disponibles.")
         mensaje_label.setStyleSheet("""
             color: #ffaa00; 
             font-style: italic; 
@@ -389,40 +394,40 @@ class GestionAlumnoDialog(QDialog):
                 widget.setParent(None)  # CRÍTICO: desconectar del padre
                 widget.deleteLater()
 
-        # IMPORTANTE: Procesar eventos pendientes para que se eliminen los widgets
+        # Procesar eventos pendientes para que se eliminen los widgets
         QApplication.processEvents()
 
         # FORZAR ACTUALIZACIÓN FINAL
         self.asignaturas_scroll_widget.updateGeometry()
         self.asignaturas_scroll.updateGeometry()
 
-    def obtener_cursos_del_sistema(self):
-        """Obtener códigos de cursos disponibles desde el sistema global"""
+    def obtener_grupos_del_sistema(self):
+        """Obtener códigos de grupos disponibles desde el sistema global"""
         try:
             if self.parent() and hasattr(self.parent(), 'parent_window'):
                 parent_window = self.parent().parent_window
                 if parent_window and hasattr(parent_window, 'configuracion'):
-                    config_cursos = parent_window.configuracion["configuracion"]["cursos"]
-                    if config_cursos.get("configurado") and config_cursos.get("datos"):
-                        cursos_disponibles = {}
-                        for codigo, curso_data in config_cursos["datos"].items():
-                            nombre = curso_data.get("nombre", codigo)
-                            cursos_disponibles[codigo] = {
+                    config_grupos = parent_window.configuracion["configuracion"]["grupos"]
+                    if config_grupos.get("configurado") and config_grupos.get("datos"):
+                        grupos_disponibles = {}
+                        for codigo, grupo_data in config_grupos["datos"].items():
+                            nombre = grupo_data.get("nombre", codigo)
+                            grupos_disponibles[codigo] = {
                                 "codigo": codigo,
                                 "nombre": nombre,
-                                "curso_actual": curso_data.get("curso_actual", ""),
-                                "asignaturas_asociadas": curso_data.get("asignaturas_asociadas", [])
+                                "grupo_actual": grupo_data.get("grupo_actual", ""),
+                                "asignaturas_asociadas": grupo_data.get("asignaturas_asociadas", [])
                             }
-                        return cursos_disponibles
+                        return grupos_disponibles
             return {}
         except Exception as e:
-            print(f"Error obteniendo códigos de cursos: {e}")
+            print(f"Error obteniendo códigos de grupos: {e}")
             return {}
 
-    def filtrar_asignaturas_por_cursos(self):
-        """Filtrar asignaturas disponibles según cursos seleccionados"""
-        # Obtener códigos de cursos seleccionados
-        cursos_seleccionados = [codigo for codigo, check in self.checks_cursos.items() if check.isChecked()]
+    def filtrar_asignaturas_por_grupos(self):
+        """Filtrar asignaturas disponibles según grupos seleccionados"""
+        # Obtener códigos de grupos seleccionados
+        grupos_seleccionados = [codigo for codigo, check in self.checks_grupos.items() if check.isChecked()]
 
         # Guardar estado actual de asignaturas antes de limpiar
         estado_asignaturas_previo = {}
@@ -440,9 +445,9 @@ class GestionAlumnoDialog(QDialog):
         # Limpiar asignaturas actuales
         self.limpiar_layout_asignaturas()
 
-        if not cursos_seleccionados:
-            # Si no hay cursos seleccionados, mostrar mensaje
-            self.mostrar_mensaje_seleccionar_cursos()
+        if not grupos_seleccionados:
+            # Si no hay grupos seleccionados, mostrar mensaje
+            self.mostrar_mensaje_seleccionar_grupos()
             return
 
         # Obtener asignaturas desde el sistema
@@ -457,7 +462,7 @@ class GestionAlumnoDialog(QDialog):
                         for codigo_asig, asig_data in config_asignaturas["datos"].items():
                             nombre_asig = asig_data.get("nombre", codigo_asig)
                             semestre_str = asig_data.get("semestre", "1º Semestre")
-                            cursos_que_cursan = asig_data.get("cursos_que_cursan", [])
+                            grupos_asociados = asig_data.get("grupos_asociados", [])
 
                             # Detectar semestre
                             if "1º" in semestre_str or "primer" in semestre_str.lower():
@@ -467,8 +472,8 @@ class GestionAlumnoDialog(QDialog):
                             else:
                                 semestre = "1"
 
-                            # Si la asignatura es cursada por algún curso seleccionado
-                            if any(curso in cursos_que_cursan for curso in cursos_seleccionados):
+                            # Si la asignatura es cursada por algún grupo seleccionado
+                            if any(grupo in grupos_asociados for grupo in grupos_seleccionados):
                                 asignaturas_filtradas[semestre][codigo_asig] = {
                                     "codigo": codigo_asig,
                                     "nombre": nombre_asig,
@@ -476,7 +481,7 @@ class GestionAlumnoDialog(QDialog):
                                 }
 
         except Exception as e:
-            print(f"Error filtrando asignaturas por cursos: {e}")
+            print(f"Error filtrando asignaturas por grupos: {e}")
 
         # Recrear checkboxes de asignaturas
         self.crear_asignaturas_filtradas(asignaturas_filtradas)
@@ -503,8 +508,8 @@ class GestionAlumnoDialog(QDialog):
     def crear_asignaturas_filtradas(self, asignaturas_data):
         """Crear checkboxes de asignaturas filtradas"""
         if not asignaturas_data.get("1") and not asignaturas_data.get("2"):
-            # No hay asignaturas para los cursos seleccionados
-            no_asig_label = QLabel("⚠️ No hay asignaturas configuradas para los cursos seleccionados.")
+            # No hay asignaturas para los grupos seleccionados
+            no_asig_label = QLabel("⚠️ No hay asignaturas configuradas para los grupos seleccionados.")
             no_asig_label.setStyleSheet("""
                 color: #ffaa00; 
                 font-style: italic; 
@@ -563,7 +568,7 @@ class GestionAlumnoDialog(QDialog):
                 texto_completo = f"{codigo_asignatura} - {nombre}"
                 self.crear_fila_asignatura_con_texto(codigo_asignatura, texto_completo)
 
-        # IMPORTANTE: Añadir stretch al final
+        # Añadir stretch al final
         self.asignaturas_scroll_layout.addStretch()
 
         # Forzar actualización completa del scroll
@@ -751,13 +756,13 @@ class GestionAlumnoDialog(QDialog):
         # Añadir la fila al layout del scroll
         self.asignaturas_scroll_layout.addWidget(fila_widget)
 
-    def extraer_curso_de_curso(self, curso):
-        """Extraer curso del código de curso (ej: A102 -> '1', EE309 -> '3')"""
-        # Buscar patrón LLXNN donde L=letras, X=primer dígito del curso, NN=resto
-        match = re.search(r'[A-Z]+(\d)', curso)
+    def extraer_grupo_de_grupo(self, grupo):
+        """Extraer grupo del código de grupo (ej: A102 -> '1', EE309 -> '3')"""
+        # Buscar patrón LLXNN donde L=letras, X=primer dígito del grupo, NN=resto
+        match = re.search(r'[A-Z]+(\d)', grupo)
         if match:
             return match.group(1)  # Primer dígito
-        return "1"  # Por defecto 1º curso
+        return "1"  # Por defecto 1º grupo
 
     def tiene_asignaturas_disponibles(self):
         """Verificar si hay asignaturas disponibles"""
@@ -788,25 +793,25 @@ class GestionAlumnoDialog(QDialog):
         # Observaciones
         self.edit_observaciones.setText(datos.get('observaciones', ''))
 
-        # CURSOS MATRICULADOS - VERIFICAR EXISTENCIA PRIMERO
-        grupos_matriculado = datos.get('cursos_matriculado', [])
+        # GRUPOS MATRICULADOS - VERIFICAR EXISTENCIA PRIMERO
+        grupos_matriculado = datos.get('grupos_matriculado', [])
 
         # LIMPIAR SELECCIÓN PREVIA
-        for check in self.checks_cursos.values():
+        for check in self.checks_grupos.values():
             check.setChecked(False)
 
-        # MARCAR CURSOS EXISTENTES
+        # MARCAR GRUPOS EXISTENTES
         for grupo in grupos_matriculado:
-            if grupo in self.checks_cursos:
-                self.checks_cursos[grupo].setChecked(True)
+            if grupo in self.checks_grupos:
+                self.checks_grupos[grupo].setChecked(True)
 
-        # IMPORTANTE: Filtrar asignaturas DESPUÉS de marcar cursos
+        # Filtrar asignaturas DESPUÉS de marcar grupos
         if grupos_matriculado:
             # LIMPIAR PRIMERO
             self.limpiar_layout_asignaturas()
 
             # FILTRAR ASIGNATURAS
-            self.filtrar_asignaturas_por_cursos()
+            self.filtrar_asignaturas_por_grupos()
 
             # Procesar eventos pendientes para que se aplique el filtrado
             QApplication.processEvents()
@@ -843,8 +848,8 @@ class GestionAlumnoDialog(QDialog):
             # Actualizar scroll final
             self.actualizar_scroll_asignaturas()
         else:
-            # Si no hay cursos, mostrar mensaje inicial
-            self.mostrar_mensaje_seleccionar_cursos()
+            # Si no hay grupos, mostrar mensaje inicial
+            self.mostrar_mensaje_seleccionar_grupos()
 
     def validar_y_aceptar(self):
         """Validar datos antes de aceptar con nueva estructura"""
@@ -898,7 +903,7 @@ class GestionAlumnoDialog(QDialog):
 
             # Datos académicos
             'matricula': self.edit_matricula.text().strip(),
-            'cursos_matriculado': [grupo for grupo, check in self.checks_cursos.items() if check.isChecked()],
+            'grupos_matriculado': [grupo for grupo, check in self.checks_grupos.items() if check.isChecked()],
 
             # Asignaturas
             'asignaturas_matriculadas': asignaturas_matriculadas,
@@ -914,8 +919,81 @@ class GestionAlumnoDialog(QDialog):
             'fecha_creacion': datetime.now().isoformat()
         }
 
+    def igualar_tamanos_botones_ok_cancel(self):
+        """Forzar que OK y Cancel tengan exactamente el mismo tamaño"""
+        try:
+            button_box = self.findChild(QDialogButtonBox)
+            if button_box:
+                ok_button = button_box.button(QDialogButtonBox.StandardButton.Ok)
+                cancel_button = button_box.button(QDialogButtonBox.StandardButton.Cancel)
+
+                if ok_button and cancel_button:
+                    # Calcular el tamaño más grande y aplicarlo a ambos
+                    width = max(ok_button.sizeHint().width(), cancel_button.sizeHint().width(), 60)
+                    height = 35
+
+                    ok_button.setFixedSize(width, height)
+                    cancel_button.setFixedSize(width, height)
+
+        except Exception as e:
+            print(f"Error igualando tamaños: {e}")
+
+    def configurar_botones_uniformes(self):
+        """Configurar estilos uniformes para botones OK/Cancel - SIN CAMBIAR TEXTO"""
+        try:
+            # Buscar el QDialogButtonBox
+            button_box = self.findChild(QDialogButtonBox)
+            if button_box:
+                # Obtener botones específicos
+                ok_button = button_box.button(QDialogButtonBox.StandardButton.Ok)
+                cancel_button = button_box.button(QDialogButtonBox.StandardButton.Cancel)
+
+                # ✅ ESTILO UNIFORME PARA AMBOS BOTONES - MISMO COLOR DE FONDO
+                estilo_uniforme = """
+                    QPushButton {
+                        background-color: #4a4a4a;
+                        color: #ffffff;
+                        border: 1px solid #666666;
+                        border-radius: 5px;
+                        padding: 8px 20px;
+                        font-weight: bold;
+                        font-size: 12px;
+                        min-width: 80px;
+                        min-height: 35px;
+                        margin: 2px;
+                    }
+                    QPushButton:hover {
+                        background-color: #5a5a5a;
+                        border-color: #4a9eff;
+                    }
+                    QPushButton:pressed {
+                        background-color: #3a3a3a;
+                    }
+                    QPushButton:default {
+                        background-color: #4a9eff;
+                        border-color: #4a9eff;
+                    }
+                    QPushButton:default:hover {
+                        background-color: #5ab7ff;
+                    }
+                    QPushButton:default:pressed {
+                        background-color: #3a8adf;
+                    }
+                """
+
+                if ok_button:
+                    ok_button.setText("OK")
+                    ok_button.setStyleSheet(estilo_uniforme)
+
+                if cancel_button:
+                    cancel_button.setText("Cancel")
+                    cancel_button.setStyleSheet(estilo_uniforme)
+
+        except Exception as e:
+            print(f"Error configurando botones: {e}")
+
     def apply_dark_theme(self):
-        """Aplicar tema oscuro idéntico al sistema"""
+        """Aplicar tema oscuro con botones OK/Cancel uniformes"""
         self.setStyleSheet("""
             QDialog {
                 background-color: #2b2b2b;
@@ -937,14 +1015,14 @@ class GestionAlumnoDialog(QDialog):
             QLabel {
                 color: #ffffff;
             }
-            QLineEdit, QTextEdit {
+            QLineEdit, QComboBox, QSpinBox, QTextEdit {
                 background-color: #3c3c3c;
                 color: #ffffff;
                 border: 1px solid #555555;
                 border-radius: 3px;
                 padding: 5px;
             }
-            QLineEdit:focus, QTextEdit:focus {
+            QLineEdit:focus, QComboBox:focus, QSpinBox:focus, QTextEdit:focus {
                 border-color: #4a9eff;
             }
             QCheckBox {
@@ -958,34 +1036,67 @@ class GestionAlumnoDialog(QDialog):
             }
             QCheckBox::indicator:unchecked {
                 background-color: #3c3c3c;
-                border: 2px solid #666666;
+                border: 2px solid #555555;
                 border-radius: 3px;
             }
-            QCheckBox::indicator:unchecked:hover {
-                border-color: #4a9eff;
-                background-color: #4a4a4a;
-            }
-            QScrollArea {
-                background-color: #3c3c3c;
-                border: 1px solid #555555;
-                border-radius: 5px;
-            }
-            QScrollBar:vertical {
-                background-color: #3c3c3c;
-                width: 12px;
-                border-radius: 6px;
-            }
-            QScrollBar::handle:vertical {
-                background-color: #666666;
-                border-radius: 6px;
-                min-height: 20px;
-            }
-            QScrollBar::handle:vertical:hover {
+            QCheckBox::indicator:checked {
                 background-color: #4a9eff;
+                border: 2px solid #4a9eff;
+                border-radius: 3px;
             }
-            QScrollBar::add-line:vertical, QScrollBar::sub-line:vertical {
+            QToolTip {
+                background-color: #2b2b2b;
+                color: #ffffff;
+                border: 1px solid #4a9eff;
+                border-radius: 4px;
+                padding: 4px 8px;
+                font-size: 11px;
+                font-weight: normal;
+            }
+
+            /* BOTONES OK/CANCEL */
+            QDialogButtonBox {
+                background-color: transparent;
                 border: none;
-                background: none;
+                margin-top: 10px;
+            }
+
+            QDialogButtonBox QPushButton {
+                background-color: #4a4a4a;
+                color: #ffffff;
+                border: 1px solid #666666;
+                border-radius: 5px;
+                padding: 8px 16px;
+                font-weight: bold;
+                font-size: 12px;
+                min-width: 90px;
+                min-height: 35px;
+                max-height: 35px;
+                margin: 3px;
+            }
+
+            QDialogButtonBox QPushButton:hover {
+                background-color: #5a5a5a;
+                border-color: #4a9eff;
+            }
+
+            QDialogButtonBox QPushButton:pressed {
+                background-color: #3a3a3a;
+            }
+
+            /* ANULAR DIFERENCIAS ENTRE OK Y CANCEL */
+            QDialogButtonBox QPushButton:default {
+                background-color: #4a4a4a;
+                border-color: #666666;
+            }
+
+            QDialogButtonBox QPushButton:default:hover {
+                background-color: #5a5a5a;
+                border-color: #4a9eff;
+            }
+
+            QDialogButtonBox QPushButton:default:pressed {
+                background-color: #3a3a3a;
             }
         """)
 
@@ -1594,7 +1705,7 @@ class ConfigurarAlumnos(QMainWindow):
         # Añadir a la lista
         for dni, datos in alumnos_filtrados:
             nombre_completo = f"{datos.get('apellidos', '')} {datos.get('nombre', '')}"
-            grupos_matriculado = datos.get('cursos_matriculado', [])
+            grupos_matriculado = datos.get('grupos_matriculado', [])
             if grupos_matriculado:
                 grupos_str = ', '.join(grupos_matriculado[:2])
                 if len(grupos_matriculado) > 2:
@@ -1665,7 +1776,7 @@ class ConfigurarAlumnos(QMainWindow):
         info += f"🆔 DNI: {datos.get('dni', 'No definido')}\n"
         info += f"📧 Email: {datos.get('email', 'No definido')}\n"
         info += f"📋 Matrícula: {datos.get('expediente', 'No definido')}\n"
-        grupos_matriculado = datos.get('cursos_matriculado', [])
+        grupos_matriculado = datos.get('grupos_matriculado', [])
         if grupos_matriculado:
             info += f"👥 Grupos: {', '.join(grupos_matriculado)}\n\n"
         else:
@@ -1686,12 +1797,13 @@ class ConfigurarAlumnos(QMainWindow):
                     codigo_asignatura = asig_key
                     nombre_asignatura = asig_key  # Por defecto, si no se encuentra
 
-                    # Buscar en asignaturas disponibles
+                    # Buscar en asignaturas disponibles correctamente
                     for sem in ["1", "2"]:
-                        for nombre, asig_data in self.asignaturas_disponibles.get(sem, {}).items():
-                            if asig_data.get('codigo') == asig_key:
-                                codigo_asignatura = asig_key
-                                nombre_asignatura = nombre
+                        # CAMBIO: codigo es la clave, nombre_real está en asig_data
+                        for codigo, asig_data in self.asignaturas_disponibles.get(sem, {}).items():
+                            if codigo == asig_key:  # Comparar directamente las claves
+                                codigo_asignatura = codigo
+                                nombre_asignatura = asig_data.get('nombre', codigo)  # NOMBRE REAL
                                 break
                         if nombre_asignatura != asig_key:
                             break
@@ -1937,19 +2049,19 @@ class ConfigurarAlumnos(QMainWindow):
                                     f"Columnas disponibles: {', '.join(df.columns)}")
                 return
 
-            # Obtener cursos disponibles del sistema
-            cursos_disponibles = self.obtener_cursos_del_sistema()
-            if not cursos_disponibles:
-                QMessageBox.warning(self, "Sin Cursos",
-                                    "No hay cursos configurados en el sistema.\n"
-                                    "Configure primero los cursos antes de importar alumnos.")
+            # Obtener grupos disponibles del sistema
+            grupos_disponibles = self.obtener_grupos_del_sistema()
+            if not grupos_disponibles:
+                QMessageBox.warning(self, "Sin Grupos",
+                                    "No hay grupos configurados en el sistema.\n"
+                                    "Configure primero los grupos antes de importar alumnos.")
                 return
 
             # Procesar datos
             alumnos_importados = 0
             alumnos_actualizados = 0
             errores = []
-            cursos_faltantes = set()
+            grupos_faltantes = set()
             asignaturas_no_asociadas = set()
 
             for index, row in df.iterrows():
@@ -1966,31 +2078,31 @@ class ConfigurarAlumnos(QMainWindow):
                         errores.append(f"Fila {index + 2}: Nombre o apellidos vacíos")
                         continue
 
-                    # EXTRAER CÓDIGO DE CURSO del campo grupo
+                    # EXTRAER CÓDIGO DE GRUPO del campo grupo
                     grupo_completo = str(row[columnas_detectadas['grupo']]).strip()
-                    codigo_curso = self._extraer_codigo_curso(grupo_completo)
+                    codigo_grupo = self._extraer_codigo_grupo(grupo_completo)
 
-                    if not codigo_curso:
-                        errores.append(f"Fila {index + 2}: No se pudo extraer código de curso de '{grupo_completo}'")
+                    if not codigo_grupo:
+                        errores.append(f"Fila {index + 2}: No se pudo extraer código de grupo de '{grupo_completo}'")
                         continue
 
-                    # VALIDAR que el curso existe
-                    if codigo_curso not in cursos_disponibles:
-                        cursos_faltantes.add(codigo_curso)
-                        errores.append(f"Fila {index + 2}: Curso '{codigo_curso}' no existe en el sistema")
+                    # VALIDAR que el grupo existe
+                    if codigo_grupo not in grupos_disponibles:
+                        grupos_faltantes.add(codigo_grupo)
+                        errores.append(f"Fila {index + 2}: Grupo '{codigo_grupo}' no existe en el sistema")
                         continue
 
-                    # VALIDAR que la asignatura está asociada al curso
-                    curso_data = cursos_disponibles[codigo_curso]
-                    asignaturas_del_curso = curso_data.get("asignaturas_asociadas", [])
+                    # VALIDAR que la asignatura está asociada al grupo
+                    grupo_data = grupos_disponibles[codigo_grupo]
+                    asignaturas_del_grupo = grupo_data.get("asignaturas_asociadas", [])
 
                     # Buscar por CÓDIGO DE ASIGNATURA
                     codigo_asignatura = asignatura_info['codigo']
-                    if codigo_asignatura not in asignaturas_del_curso:
+                    if codigo_asignatura not in asignaturas_del_grupo:
                         asignaturas_no_asociadas.add(
-                            f"{codigo_asignatura} ({asignatura_info['nombre']}) → {codigo_curso}")
+                            f"{codigo_asignatura} ({asignatura_info['nombre']}) → {codigo_grupo}")
                         errores.append(
-                            f"Fila {index + 2}: Asignatura '{codigo_asignatura}' no está asociada al curso '{codigo_curso}'")
+                            f"Fila {index + 2}: Asignatura '{codigo_asignatura}' no está asociada al grupo '{codigo_grupo}'")
                         continue
 
                     # Datos opcionales
@@ -2014,7 +2126,7 @@ class ConfigurarAlumnos(QMainWindow):
 
                     # Preparar datos del alumno
                     if dni in self.datos_configuracion:
-                        # ACTUALIZAR ALUMNO EXISTENTE - AGREGAR CURSO Y ASIGNATURA
+                        # ACTUALIZAR ALUMNO EXISTENTE - AGREGAR GRUPO Y ASIGNATURA
                         alumno_datos = self.datos_configuracion[dni]
                         cambios_realizados = False
 
@@ -2035,11 +2147,11 @@ class ConfigurarAlumnos(QMainWindow):
                             alumno_datos['exp_agora'] = exp_agora
                             cambios_realizados = True
 
-                        # AGREGAR CURSO si no lo tiene
-                        cursos_actuales = alumno_datos.get('cursos_matriculado', [])
-                        if codigo_curso not in cursos_actuales:
-                            cursos_actuales.append(codigo_curso)
-                            alumno_datos['cursos_matriculado'] = cursos_actuales
+                        # AGREGAR GRUPO si no lo tiene
+                        grupos_actuales = alumno_datos.get('grupos_matriculado', [])
+                        if codigo_grupo not in grupos_actuales:
+                            grupos_actuales.append(codigo_grupo)
+                            alumno_datos['grupos_matriculado'] = grupos_actuales
                             cambios_realizados = True
 
                         # AGREGAR ASIGNATURA si no la tiene
@@ -2065,7 +2177,7 @@ class ConfigurarAlumnos(QMainWindow):
                             'apellidos': apellidos,
                             'email': email,
                             'matricula': exp_centro if exp_centro else dni,
-                            'cursos_matriculado': [codigo_curso],
+                            'grupos_matriculado': [codigo_grupo],
                             'asignaturas_matriculadas': {
                                 asignatura_info['key']: {
                                     "matriculado": True,
@@ -2074,7 +2186,7 @@ class ConfigurarAlumnos(QMainWindow):
                             },
                             'exp_centro': exp_centro,
                             'exp_agora': exp_agora,
-                            'observaciones': f"Importado desde Excel - {asignatura_info['nombre']} - Curso {codigo_curso}",
+                            'observaciones': f"Importado desde Excel - {asignatura_info['nombre']} - Grupo {codigo_grupo}",
                             'fecha_creacion': datetime.now().isoformat()
                         }
                         alumnos_importados += 1
@@ -2097,19 +2209,19 @@ class ConfigurarAlumnos(QMainWindow):
             if errores:
                 mensaje += f"• {len(errores)} errores\n\n"
 
-                # Mostrar cursos faltantes
-                if cursos_faltantes:
-                    mensaje += f"⚠️ CURSOS FALTANTES:\n"
-                    for curso in sorted(cursos_faltantes):
-                        mensaje += f"  • {curso}\n"
-                    mensaje += "→ Crear en: Configurar Cursos\n\n"
+                # Mostrar grupos faltantes
+                if grupos_faltantes:
+                    mensaje += f"⚠️ GRUPOS FALTANTES:\n"
+                    for grupo in sorted(grupos_faltantes):
+                        mensaje += f"  • {grupo}\n"
+                    mensaje += "→ Crear en: Configurar Grupos\n\n"
 
                 # Mostrar asignaturas no asociadas
                 if asignaturas_no_asociadas:
                     mensaje += f"⚠️ ASIGNATURAS NO ASOCIADAS:\n"
                     for asoc in sorted(asignaturas_no_asociadas):
                         mensaje += f"  • {asoc}\n"
-                    mensaje += "→ Editar en: Configurar Asignaturas o Configurar Cursos\n\n"
+                    mensaje += "→ Editar en: Configurar Asignaturas o Configurar Grupos\n\n"
 
                 # Mostrar algunos errores
                 if errores and len(errores) <= 5:
@@ -2118,10 +2230,10 @@ class ConfigurarAlumnos(QMainWindow):
                     mensaje += f"Primeros errores:\n" + "\n".join(errores[:3]) + f"\n... y {len(errores) - 3} más"
 
                 # Mensaje final con instrucciones
-                if cursos_faltantes or asignaturas_no_asociadas:
+                if grupos_faltantes or asignaturas_no_asociadas:
                     mensaje += f"\n\n💡 SOLUCIÓN:\n"
-                    mensaje += f"1. Ir a 'Configurar Cursos' para crear cursos faltantes\n"
-                    mensaje += f"2. Ir a 'Configurar Asignaturas' para asociar asignaturas a cursos\n"
+                    mensaje += f"1. Ir a 'Configurar Grupos' para crear grupos faltantes\n"
+                    mensaje += f"2. Ir a 'Configurar Asignaturas' para asociar asignaturas a grupos\n"
                     mensaje += f"3. Volver a importar el archivo Excel"
 
             QMessageBox.information(self, "Importación Completada", mensaje)
@@ -2286,8 +2398,8 @@ class ConfigurarAlumnos(QMainWindow):
                                  f"Error al procesar archivo:\n{str(e)}")
             self.log_mensaje(f"❌ Error marcando aprobados: {e}", "error")
 
-    def _extraer_codigo_curso(self, grupo_completo):
-        """Extraer código de curso de 'Grupo de Matricula (A302)' → 'A302'"""
+    def _extraer_codigo_grupo(self, grupo_completo):
+        """Extraer código de grupo de 'Grupo de Matricula (A302)' → 'A302'"""
        # Buscar texto entre paréntesis
         match = re.search(r'\(([^)]+)\)', grupo_completo)
         if match:
@@ -2301,16 +2413,16 @@ class ConfigurarAlumnos(QMainWindow):
 
         return None
 
-    def obtener_cursos_del_sistema(self):
-        """Obtener cursos disponibles desde el sistema global"""
+    def obtener_grupos_del_sistema(self):
+        """Obtener grupos disponibles desde el sistema global"""
         try:
             if self.parent_window and hasattr(self.parent_window, 'configuracion'):
-                config_cursos = self.parent_window.configuracion["configuracion"]["cursos"]
-                if config_cursos.get("configurado") and config_cursos.get("datos"):
-                    return config_cursos["datos"]
+                config_grupos = self.parent_window.configuracion["configuracion"]["grupos"]
+                if config_grupos.get("configurado") and config_grupos.get("datos"):
+                    return config_grupos["datos"]
             return {}
         except Exception as e:
-            self.log_mensaje(f"⚠️ Error obteniendo cursos del sistema: {e}", "warning")
+            self.log_mensaje(f"⚠️ Error obteniendo grupos del sistema: {e}", "warning")
             return {}
 
     def _leer_excel_universal(self, archivo):
@@ -2435,7 +2547,7 @@ class ConfigurarAlumnos(QMainWindow):
                                 f"✅ Asignaturas sincronizadas:\n"
                                 f"• 1º Semestre: {sem1_count} asignaturas\n"
                                 f"• 2º Semestre: {sem2_count} asignaturas\n\n"
-                                f"💡 Los cursos se actualizarán automáticamente al crear/editar alumnos")
+                                f"💡 Los grupos se actualizarán automáticamente al crear/editar alumnos")
 
     def actualizar_estadisticas(self):
         """Actualizar estadísticas por asignatura con nueva estructura"""
@@ -3015,11 +3127,12 @@ class SelectorAsignaturaDialog(QDialog):
             item_sep1.setBackground(QColor(74, 158, 255, 30))
             self.list_asignaturas.addItem(item_sep1)
 
-            for nombre, asig_data in sorted(sem1.items()):
-                codigo = asig_data.get("codigo", nombre)  # USAR CÓDIGO
+            # codigo es la clave, nombre_real está en asig_data
+            for codigo, asig_data in sorted(sem1.items()):
+                nombre_real = asig_data.get("nombre", codigo)
                 # MOSTRAR: "FIS1 - Física I"
-                item = QListWidgetItem(f"  {codigo} - {nombre}")
-                item.setData(Qt.ItemDataRole.UserRole, ("1", codigo, nombre))
+                item = QListWidgetItem(f"  {codigo} - {nombre_real}")
+                item.setData(Qt.ItemDataRole.UserRole, ("1", codigo, nombre_real))
                 self.list_asignaturas.addItem(item)
 
         if sem2:
@@ -3029,11 +3142,12 @@ class SelectorAsignaturaDialog(QDialog):
             item_sep2.setBackground(QColor(74, 158, 255, 30))
             self.list_asignaturas.addItem(item_sep2)
 
-            for nombre, asig_data in sorted(sem2.items()):
-                codigo = asig_data.get("codigo", nombre)  # USAR CÓDIGO
+            # codigo es la clave, nombre_real está en asig_data
+            for codigo, asig_data in sorted(sem2.items()):
+                nombre_real = asig_data.get("nombre", codigo)  # NOMBRE REAL desde asig_data
                 # MOSTRAR: "EANA - Electrónica Analógica"
-                item = QListWidgetItem(f"  {codigo} - {nombre}")
-                item.setData(Qt.ItemDataRole.UserRole, ("2", codigo, nombre))
+                item = QListWidgetItem(f"  {codigo} - {nombre_real}")
+                item.setData(Qt.ItemDataRole.UserRole, ("2", codigo, nombre_real))
                 self.list_asignaturas.addItem(item)
 
         if not sem1 and not sem2:
@@ -3124,7 +3238,7 @@ def main():
             "apellidos": "García López",
             "email": "juan.garcia@alumnos.upm.es",
             "matricula": "2024000123",
-            "cursos_matriculado": ["A202", "B204"],
+            "grupos_matriculado": ["A202", "B204"],
             "asignaturas_matriculadas": {
                 "1_Fisica I": {"matriculado": True, "lab_aprobado": False},
                 "2_Quimica Organica": {"matriculado": True, "lab_aprobado": True}

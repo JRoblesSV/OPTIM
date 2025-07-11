@@ -75,7 +75,7 @@ class FranjaProfesorWidget(QFrame):
         super().__init__(parent)
         self.dia = dia
         self.horario = horario
-        self.estado = 'disponible'  # 'disponible', 'tutoria', 'otros', 'deshabilitado'
+        self.estado = 'disponible'  # 'disponible', 'tutoria', 'no disponible', 'deshabilitado'
         self.parent_dialog = parent
 
         self.setFixedSize(100, 60)
@@ -133,9 +133,9 @@ class FranjaProfesorWidget(QFrame):
                 }
                 QLabel { color: #ffffff; background: transparent; }
             """)
-        elif self.estado == 'otros':
+        elif self.estado == 'no disponible':
             self.icono_label.setText("❌")
-            self.estado_label.setText("OCUPADO")
+            self.estado_label.setText("NO DISPONIBLE")
             self.setStyleSheet("""
                 FranjaProfesorWidget {
                     background-color: #4a0000;
@@ -193,6 +193,11 @@ class GestionProfesorDialog(QDialog):
 
         self.setup_ui()
         self.apply_dark_theme()
+
+        # Forzar tamaños iguales de ok/cancel
+        QTimer.singleShot(50, self.igualar_tamanos_botones_ok_cancel)
+
+        self.setAttribute(Qt.WidgetAttribute.WA_AlwaysShowToolTips, True)
 
         if self.profesor_existente:
             self.cargar_datos_existentes()
@@ -360,9 +365,9 @@ class GestionProfesorDialog(QDialog):
         self.btn_modo_tutoria.setChecked(True)
         self.btn_modo_tutoria.clicked.connect(lambda: self.cambiar_modo_marcado('tutoria'))
 
-        self.btn_modo_otros = QPushButton("❌ Otros")
-        self.btn_modo_otros.setCheckable(True)
-        self.btn_modo_otros.clicked.connect(lambda: self.cambiar_modo_marcado('otros'))
+        self.btn_modo_no_disp = QPushButton("❌ No Disponible")
+        self.btn_modo_no_disp.setCheckable(True)
+        self.btn_modo_no_disp.clicked.connect(lambda: self.cambiar_modo_marcado('no disponible'))
 
         self.btn_limpiar_todo = QPushButton("🔄 Limpiar Todo")
         self.btn_limpiar_todo.clicked.connect(self.limpiar_todo_grid)
@@ -390,7 +395,7 @@ class GestionProfesorDialog(QDialog):
         """
 
         self.btn_modo_tutoria.setStyleSheet(estilo_modo)
-        self.btn_modo_otros.setStyleSheet(estilo_modo)
+        self.btn_modo_no_disp.setStyleSheet(estilo_modo)
         self.btn_limpiar_todo.setStyleSheet("""
             QPushButton {
                 font-size: 12px;
@@ -408,7 +413,7 @@ class GestionProfesorDialog(QDialog):
         """)
 
         modo_layout.addWidget(self.btn_modo_tutoria)
-        modo_layout.addWidget(self.btn_modo_otros)
+        modo_layout.addWidget(self.btn_modo_no_disp)
         modo_layout.addWidget(self.btn_limpiar_todo)
         modo_layout.addStretch()
 
@@ -771,12 +776,12 @@ class GestionProfesorDialog(QDialog):
                 franja.actualizar_estado('deshabilitado')
 
     def cambiar_modo_marcado(self, nuevo_modo):
-        """Cambia el modo de marcado entre tutoría y otros"""
+        """Cambia el modo de marcado entre tutoría y no disponible"""
         self.modo_marcado_actual = nuevo_modo
 
         # Actualizar botones
         self.btn_modo_tutoria.setChecked(nuevo_modo == 'tutoria')
-        self.btn_modo_otros.setChecked(nuevo_modo == 'otros')
+        self.btn_modo_no_disp.setChecked(nuevo_modo == 'no disponible')
 
     def limpiar_todo_grid(self):
         """Limpia todas las franjas del grid"""
@@ -799,7 +804,7 @@ class GestionProfesorDialog(QDialog):
             return
 
         # Contar estados SOLO en días marcados como laborables
-        stats = {'disponible': 0, 'tutoria': 0, 'otros': 0}
+        stats = {'disponible': 0, 'tutoria': 0, 'no disponible': 0}
 
         for (franja_dia, franja_horario), franja in self.franjas_widgets.items():
             # SOLO contar franjas de días laborables
@@ -809,12 +814,12 @@ class GestionProfesorDialog(QDialog):
         # Log del cambio
         tipo_cambio = {
             'tutoria': '🎓 TUTORÍA',
-            'otros': '❌ OCUPADO',
-            'disponible': '✅ LIBERADO'
+            'no disponible': '❌ NO DISPONIBLE',
+            'disponible': '✅ DISPONIBLE'
         }.get(estado, estado)
 
         print(f"{tipo_cambio}: {dia} {horario}")
-        print(f"📊 Disponibles: {stats['disponible']}, Tutorías: {stats['tutoria']}, Ocupados: {stats['otros']}")
+        print(f"📊 Disponibles: {stats['disponible']}, Tutorías: {stats['tutoria']}, Ocupados: {stats['no disponible']}")
 
         # Calcular total de franjas posibles en días laborables
         total_franjas_posibles = len(dias_marcados) * len(self.horarios_fijos)
@@ -966,7 +971,7 @@ class GestionProfesorDialog(QDialog):
         # Obtener horarios bloqueados
         horarios_bloqueados = {}
         for (dia, horario), franja in self.franjas_widgets.items():
-            if franja.estado in ['tutoria', 'otros']:
+            if franja.estado in ['tutoria', 'No Disponoble']:
                 if dia not in horarios_bloqueados:
                     horarios_bloqueados[dia] = {}
                 horarios_bloqueados[dia][horario] = franja.estado
@@ -998,8 +1003,81 @@ class GestionProfesorDialog(QDialog):
             'fecha_creacion': datetime.now().isoformat()
         }
 
+    def igualar_tamanos_botones_ok_cancel(self):
+        """Forzar que OK y Cancel tengan exactamente el mismo tamaño"""
+        try:
+            button_box = self.findChild(QDialogButtonBox)
+            if button_box:
+                ok_button = button_box.button(QDialogButtonBox.StandardButton.Ok)
+                cancel_button = button_box.button(QDialogButtonBox.StandardButton.Cancel)
+
+                if ok_button and cancel_button:
+                    # Calcular el tamaño más grande y aplicarlo a ambos
+                    width = max(ok_button.sizeHint().width(), cancel_button.sizeHint().width(), 60)
+                    height = 35
+
+                    ok_button.setFixedSize(width, height)
+                    cancel_button.setFixedSize(width, height)
+
+        except Exception as e:
+            print(f"Error igualando tamaños: {e}")
+
+    def configurar_botones_uniformes(self):
+        """Configurar estilos uniformes para botones OK/Cancel - SIN CAMBIAR TEXTO"""
+        try:
+            # Buscar el QDialogButtonBox
+            button_box = self.findChild(QDialogButtonBox)
+            if button_box:
+                # Obtener botones específicos
+                ok_button = button_box.button(QDialogButtonBox.StandardButton.Ok)
+                cancel_button = button_box.button(QDialogButtonBox.StandardButton.Cancel)
+
+                # ✅ ESTILO UNIFORME PARA AMBOS BOTONES - MISMO COLOR DE FONDO
+                estilo_uniforme = """
+                    QPushButton {
+                        background-color: #4a4a4a;
+                        color: #ffffff;
+                        border: 1px solid #666666;
+                        border-radius: 5px;
+                        padding: 8px 20px;
+                        font-weight: bold;
+                        font-size: 12px;
+                        min-width: 80px;
+                        min-height: 35px;
+                        margin: 2px;
+                    }
+                    QPushButton:hover {
+                        background-color: #5a5a5a;
+                        border-color: #4a9eff;
+                    }
+                    QPushButton:pressed {
+                        background-color: #3a3a3a;
+                    }
+                    QPushButton:default {
+                        background-color: #4a9eff;
+                        border-color: #4a9eff;
+                    }
+                    QPushButton:default:hover {
+                        background-color: #5ab7ff;
+                    }
+                    QPushButton:default:pressed {
+                        background-color: #3a8adf;
+                    }
+                """
+
+                if ok_button:
+                    ok_button.setText("OK")
+                    ok_button.setStyleSheet(estilo_uniforme)
+
+                if cancel_button:
+                    cancel_button.setText("Cancel")
+                    cancel_button.setStyleSheet(estilo_uniforme)
+
+        except Exception as e:
+            print(f"Error configurando botones: {e}")
+
     def apply_dark_theme(self):
-        """Aplicar tema oscuro idéntico al sistema"""
+        """Aplicar tema oscuro con botones OK/Cancel uniformes"""
         self.setStyleSheet("""
             QDialog {
                 background-color: #2b2b2b;
@@ -1021,14 +1099,14 @@ class GestionProfesorDialog(QDialog):
             QLabel {
                 color: #ffffff;
             }
-            QLineEdit, QTextEdit {
+            QLineEdit, QComboBox, QSpinBox, QTextEdit {
                 background-color: #3c3c3c;
                 color: #ffffff;
                 border: 1px solid #555555;
                 border-radius: 3px;
                 padding: 5px;
             }
-            QLineEdit:focus, QTextEdit:focus {
+            QLineEdit:focus, QComboBox:focus, QSpinBox:focus, QTextEdit:focus {
                 border-color: #4a9eff;
             }
             QCheckBox {
@@ -1042,80 +1120,67 @@ class GestionProfesorDialog(QDialog):
             }
             QCheckBox::indicator:unchecked {
                 background-color: #3c3c3c;
-                border: 2px solid #666666;
+                border: 2px solid #555555;
                 border-radius: 3px;
             }
-            QCheckBox::indicator:unchecked:hover {
-                border-color: #4a9eff;
-                background-color: #4a4a4a;
-            }
-            QScrollArea {
-                background-color: #3c3c3c;
-                border: 1px solid #555555;
-                border-radius: 5px;
-            }
-            QScrollBar:vertical {
-                background-color: #3c3c3c;
-                width: 12px;
-                border-radius: 6px;
-            }
-            QScrollBar::handle:vertical {
-                background-color: #666666;
-                border-radius: 6px;
-                min-height: 20px;
-            }
-            QScrollBar::handle:vertical:hover {
+            QCheckBox::indicator:checked {
                 background-color: #4a9eff;
-            }
-            QScrollBar::add-line:vertical, QScrollBar::sub-line:vertical {
-                border: none;
-                background: none;
-            }
-            QCalendarWidget {
-                background-color: #3c3c3c;
-                color: #ffffff;
-                border: 1px solid #555555;
-                border-radius: 5px;
-            }
-            QListWidget {
-                background-color: #3c3c3c;
-                color: #ffffff;
-                border: 1px solid #555555;
-                border-radius: 5px;
-                padding: 5px;
-            }
-            QListWidget::item {
-                padding: 5px;
+                border: 2px solid #4a9eff;
                 border-radius: 3px;
-                margin: 1px;
             }
-            QListWidget::item:selected {
-                background-color: #4a9eff;
-                color: #ffffff;
-            }
-            QListWidget::item:hover {
-                background-color: #4a4a4a;
-            }
-            QTabWidget::pane {
-                border: 1px solid #4a4a4a;
+            QToolTip {
                 background-color: #2b2b2b;
+                color: #ffffff;
+                border: 1px solid #4a9eff;
+                border-radius: 4px;
+                padding: 4px 8px;
+                font-size: 11px;
+                font-weight: normal;
             }
-            QTabWidget::tab-bar {
-                alignment: center;
+
+            /* BOTONES OK/CANCEL */
+            QDialogButtonBox {
+                background-color: transparent;
+                border: none;
+                margin-top: 10px;
             }
-            QTabBar::tab {
+
+            QDialogButtonBox QPushButton {
                 background-color: #4a4a4a;
                 color: #ffffff;
-                padding: 8px 20px;
-                margin: 2px;
-                border-radius: 4px;
+                border: 1px solid #666666;
+                border-radius: 5px;
+                padding: 8px 16px;
+                font-weight: bold;
+                font-size: 12px;
+                min-width: 90px;
+                min-height: 35px;
+                max-height: 35px;
+                margin: 3px;
             }
-            QTabBar::tab:selected {
-                background-color: #4a9eff;
-                color: #ffffff;
-            }
-            QTabBar::tab:hover {
+
+            QDialogButtonBox QPushButton:hover {
                 background-color: #5a5a5a;
+                border-color: #4a9eff;
+            }
+
+            QDialogButtonBox QPushButton:pressed {
+                background-color: #3a3a3a;
+            }
+
+            /* ANULAR DIFERENCIAS ENTRE OK Y CANCEL */
+            QDialogButtonBox QPushButton:default {
+                background-color: #4a4a4a;
+                border-color: #666666;
+            }
+
+            QDialogButtonBox QPushButton:default:hover {
+                background-color: #5a5a5a;
+                border-color: #4a9eff;
+            }
+
+            QDialogButtonBox QPushButton:default:pressed {
+                background-color: #3a3a3a;
             }
         """)
 

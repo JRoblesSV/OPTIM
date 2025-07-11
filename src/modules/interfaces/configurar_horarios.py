@@ -851,7 +851,7 @@ class ConfigurarHorarios(QMainWindow):
                             for codigo, datos in asignaturas_datos.items():
                                 if datos.get('semestre') == semestre_texto:
                                     nombre = datos.get('nombre', codigo)
-                                    cursos = datos.get('cursos_que_cursan', [])
+                                    cursos = datos.get('grupos_asociados', [])
 
                                     # USAR CÓDIGO EN LUGAR DE NOMBRE para compatibilidad
                                     clave_asignatura = codigo
@@ -1076,7 +1076,7 @@ class ConfigurarHorarios(QMainWindow):
                         for codigo, datos in asignaturas_datos.items():
                             nombre_asig = datos.get('nombre', '')
                             if nombre_asig == asignatura or codigo == asignatura:
-                                cursos_codigos = datos.get('cursos_que_cursan', [])
+                                cursos_codigos = datos.get('grupos_asociados', [])
                                 if cursos_codigos:
                                     # Crear diccionario código: nombre
                                     cursos_con_nombres = {}
