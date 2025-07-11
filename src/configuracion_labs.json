@@ -1,2947 +1,27 @@
 {
   "metadata": {
     "version": "1.0",
-    "timestamp": "2025-07-09T22:23:32.708167",
+    "timestamp": "2025-07-11T21:08:41.892483",
     "semestre_actual": 1
   },
   "configuracion": {
-    "horarios": {
-      "configurado": true,
-      "datos": {
-        "1": {
-          "FIS1": {
-            "cursos": [
-              "A302",
-              "D301"
-            ],
-            "horarios_grid": {
-              "11:30-13:30": {
-                "Martes": [
-                  "A302"
-                ],
-                "Lunes": [
-                  "D301"
-                ]
-              },
-              "15:30-17:30": {
-                "Martes": [
-                  "A302"
-                ],
-                "Miércoles": [
-                  "A302"
-                ],
-                "Lunes": [
-                  "D301"
-                ]
-              },
-              "9:30-11:30": {
-                "Martes": [
-                  "A302"
-                ]
-              }
-            }
-          },
-          "SII": {
-            "cursos": [
-              "A302",
-              "EE302"
-            ],
-            "horarios_grid": {
-              "11:30-13:30": {
-                "Martes": [
-                  "A302",
-                  "EE302"
-                ]
-              },
-              "15:30-17:30": {
-                "Lunes": [
-                  "A302"
-                ],
-                "Martes": [
-                  "A302"
-                ]
-              }
-            }
-          }
-        },
-        "2": {}
-      },
-      "archivo": "horarios_integrados.json",
-      "timestamp": "2025-07-09T19:20:03.991953",
-      "semestre_actual": "1",
-      "total_asignaturas": 2,
-      "total_franjas": 9
-    },
-    "calendario": {
-      "configurado": true,
-      "datos": {
-        "anio_academico": "2024-2025",
-        "semestre_1": {
-          "2024-09-02": {
-            "fecha": "2024-09-02",
-            "dia_real": "Lunes",
-            "horario_asignado": "Lunes",
-            "motivo": "",
-            "es_especial": false,
-            "es_fin_semana": false
-          },
-          "2024-09-03": {
-            "fecha": "2024-09-03",
-            "dia_real": "Martes",
-            "horario_asignado": "Martes",
-            "motivo": "",
-            "es_especial": false,
-            "es_fin_semana": false
-          },
-          "2024-09-04": {
-            "fecha": "2024-09-04",
-            "dia_real": "Miércoles",
-            "horario_asignado": "Miércoles",
-            "motivo": "",
-            "es_especial": false,
-            "es_fin_semana": false
-          },
-          "2024-09-05": {
-            "fecha": "2024-09-05",
-            "dia_real": "Jueves",
-            "horario_asignado": "Jueves",
-            "motivo": "",
-            "es_especial": false,
-            "es_fin_semana": false
-          },
-          "2024-09-06": {
-            "fecha": "2024-09-06",
-            "dia_real": "Viernes",
-            "horario_asignado": "Viernes",
-            "motivo": "",
-            "es_especial": false,
-            "es_fin_semana": false
-          },
-          "2024-09-09": {
-            "fecha": "2024-09-09",
-            "dia_real": "Lunes",
-            "horario_asignado": "Lunes",
-            "motivo": "",
-            "es_especial": false,
-            "es_fin_semana": false
-          },
-          "2024-09-10": {
-            "fecha": "2024-09-10",
-            "dia_real": "Martes",
-            "horario_asignado": "Martes",
-            "motivo": "",
-            "es_especial": false,
-            "es_fin_semana": false
-          },
-          "2024-09-11": {
-            "fecha": "2024-09-11",
-            "dia_real": "Miércoles",
-            "horario_asignado": "Miércoles",
-            "motivo": "",
-            "es_especial": false,
-            "es_fin_semana": false
-          },
-          "2024-09-12": {
-            "fecha": "2024-09-12",
-            "dia_real": "Jueves",
-            "horario_asignado": "Jueves",
-            "motivo": "",
-            "es_especial": false,
-            "es_fin_semana": false
-          },
-          "2024-09-13": {
-            "fecha": "2024-09-13",
-            "dia_real": "Viernes",
-            "horario_asignado": "Viernes",
-            "motivo": "",
-            "es_especial": false,
-            "es_fin_semana": false
-          },
-          "2024-09-16": {
-            "fecha": "2024-09-16",
-            "dia_real": "Lunes",
-            "horario_asignado": "Lunes",
-            "motivo": "",
-            "es_especial": false,
-            "es_fin_semana": false
-          },
-          "2024-09-17": {
-            "fecha": "2024-09-17",
-            "dia_real": "Martes",
-            "horario_asignado": "Martes",
-            "motivo": "",
-            "es_especial": false,
-            "es_fin_semana": false
-          },
-          "2024-09-18": {
-            "fecha": "2024-09-18",
-            "dia_real": "Miércoles",
-            "horario_asignado": "Miércoles",
-            "motivo": "",
-            "es_especial": false,
-            "es_fin_semana": false
-          },
-          "2024-09-19": {
-            "fecha": "2024-09-19",
-            "dia_real": "Jueves",
-            "horario_asignado": "Jueves",
-            "motivo": "",
-            "es_especial": false,
-            "es_fin_semana": false
-          },
-          "2024-09-20": {
-            "fecha": "2024-09-20",
-            "dia_real": "Viernes",
-            "horario_asignado": "Viernes",
-            "motivo": "",
-            "es_especial": false,
-            "es_fin_semana": false
-          },
-          "2024-09-23": {
-            "fecha": "2024-09-23",
-            "dia_real": "Lunes",
-            "horario_asignado": "Lunes",
-            "motivo": "",
-            "es_especial": false,
-            "es_fin_semana": false
-          },
-          "2024-09-24": {
-            "fecha": "2024-09-24",
-            "dia_real": "Martes",
-            "horario_asignado": "Martes",
-            "motivo": "",
-            "es_especial": false,
-            "es_fin_semana": false
-          },
-          "2024-09-25": {
-            "fecha": "2024-09-25",
-            "dia_real": "Miércoles",
-            "horario_asignado": "Miércoles",
-            "motivo": "",
-            "es_especial": false,
-            "es_fin_semana": false
-          },
-          "2024-09-26": {
-            "fecha": "2024-09-26",
-            "dia_real": "Jueves",
-            "horario_asignado": "Jueves",
-            "motivo": "",
-            "es_especial": false,
-            "es_fin_semana": false
-          },
-          "2024-09-27": {
-            "fecha": "2024-09-27",
-            "dia_real": "Viernes",
-            "horario_asignado": "Viernes",
-            "motivo": "",
-            "es_especial": false,
-            "es_fin_semana": false
-          },
-          "2024-09-30": {
-            "fecha": "2024-09-30",
-            "dia_real": "Lunes",
-            "horario_asignado": "Lunes",
-            "motivo": "",
-            "es_especial": false,
-            "es_fin_semana": false
-          },
-          "2024-10-01": {
-            "fecha": "2024-10-01",
-            "dia_real": "Martes",
-            "horario_asignado": "Martes",
-            "motivo": "",
-            "es_especial": false,
-            "es_fin_semana": false
-          },
-          "2024-10-02": {
-            "fecha": "2024-10-02",
-            "dia_real": "Miércoles",
-            "horario_asignado": "Miércoles",
-            "motivo": "",
-            "es_especial": false,
-            "es_fin_semana": false
-          },
-          "2024-10-03": {
-            "fecha": "2024-10-03",
-            "dia_real": "Jueves",
-            "horario_asignado": "Jueves",
-            "motivo": "",
-            "es_especial": false,
-            "es_fin_semana": false
-          },
-          "2024-10-04": {
-            "fecha": "2024-10-04",
-            "dia_real": "Viernes",
-            "horario_asignado": "Viernes",
-            "motivo": "",
-            "es_especial": false,
-            "es_fin_semana": false
-          },
-          "2024-10-07": {
-            "fecha": "2024-10-07",
-            "dia_real": "Lunes",
-            "horario_asignado": "Lunes",
-            "motivo": "",
-            "es_especial": false,
-            "es_fin_semana": false
-          },
-          "2024-10-08": {
-            "fecha": "2024-10-08",
-            "dia_real": "Martes",
-            "horario_asignado": "Martes",
-            "motivo": "",
-            "es_especial": false,
-            "es_fin_semana": false
-          },
-          "2024-10-09": {
-            "fecha": "2024-10-09",
-            "dia_real": "Miércoles",
-            "horario_asignado": "Miércoles",
-            "motivo": "",
-            "es_especial": false,
-            "es_fin_semana": false
-          },
-          "2024-10-10": {
-            "fecha": "2024-10-10",
-            "dia_real": "Jueves",
-            "horario_asignado": "Jueves",
-            "motivo": "",
-            "es_especial": false,
-            "es_fin_semana": false
-          },
-          "2024-10-11": {
-            "fecha": "2024-10-11",
-            "dia_real": "Viernes",
-            "horario_asignado": "Viernes",
-            "motivo": "",
-            "es_especial": false,
-            "es_fin_semana": false
-          },
-          "2024-10-14": {
-            "fecha": "2024-10-14",
-            "dia_real": "Lunes",
-            "horario_asignado": "Lunes",
-            "motivo": "",
-            "es_especial": false,
-            "es_fin_semana": false
-          },
-          "2024-10-15": {
-            "fecha": "2024-10-15",
-            "dia_real": "Martes",
-            "horario_asignado": "Martes",
-            "motivo": "",
-            "es_especial": false,
-            "es_fin_semana": false
-          },
-          "2024-10-16": {
-            "fecha": "2024-10-16",
-            "dia_real": "Miércoles",
-            "horario_asignado": "Miércoles",
-            "motivo": "",
-            "es_especial": false,
-            "es_fin_semana": false
-          },
-          "2024-10-17": {
-            "fecha": "2024-10-17",
-            "dia_real": "Jueves",
-            "horario_asignado": "Jueves",
-            "motivo": "",
-            "es_especial": false,
-            "es_fin_semana": false
-          },
-          "2024-10-18": {
-            "fecha": "2024-10-18",
-            "dia_real": "Viernes",
-            "horario_asignado": "Viernes",
-            "motivo": "",
-            "es_especial": false,
-            "es_fin_semana": false
-          },
-          "2024-10-21": {
-            "fecha": "2024-10-21",
-            "dia_real": "Lunes",
-            "horario_asignado": "Lunes",
-            "motivo": "",
-            "es_especial": false,
-            "es_fin_semana": false
-          },
-          "2024-10-22": {
-            "fecha": "2024-10-22",
-            "dia_real": "Martes",
-            "horario_asignado": "Martes",
-            "motivo": "",
-            "es_especial": false,
-            "es_fin_semana": false
-          },
-          "2024-10-23": {
-            "fecha": "2024-10-23",
-            "dia_real": "Miércoles",
-            "horario_asignado": "Miércoles",
-            "motivo": "",
-            "es_especial": false,
-            "es_fin_semana": false
-          },
-          "2024-10-24": {
-            "fecha": "2024-10-24",
-            "dia_real": "Jueves",
-            "horario_asignado": "Jueves",
-            "motivo": "",
-            "es_especial": false,
-            "es_fin_semana": false
-          },
-          "2024-10-25": {
-            "fecha": "2024-10-25",
-            "dia_real": "Viernes",
-            "horario_asignado": "Viernes",
-            "motivo": "",
-            "es_especial": false,
-            "es_fin_semana": false
-          },
-          "2024-10-28": {
-            "fecha": "2024-10-28",
-            "dia_real": "Lunes",
-            "horario_asignado": "Lunes",
-            "motivo": "",
-            "es_especial": false,
-            "es_fin_semana": false
-          },
-          "2024-10-29": {
-            "fecha": "2024-10-29",
-            "dia_real": "Martes",
-            "horario_asignado": "Martes",
-            "motivo": "",
-            "es_especial": false,
-            "es_fin_semana": false
-          },
-          "2024-10-30": {
-            "fecha": "2024-10-30",
-            "dia_real": "Miércoles",
-            "horario_asignado": "Miércoles",
-            "motivo": "",
-            "es_especial": false,
-            "es_fin_semana": false
-          },
-          "2024-10-31": {
-            "fecha": "2024-10-31",
-            "dia_real": "Jueves",
-            "horario_asignado": "Jueves",
-            "motivo": "",
-            "es_especial": false,
-            "es_fin_semana": false
-          },
-          "2024-11-04": {
-            "fecha": "2024-11-04",
-            "dia_real": "Lunes",
-            "horario_asignado": "Lunes",
-            "motivo": "",
-            "es_especial": false,
-            "es_fin_semana": false
-          },
-          "2024-11-05": {
-            "fecha": "2024-11-05",
-            "dia_real": "Martes",
-            "horario_asignado": "Martes",
-            "motivo": "",
-            "es_especial": false,
-            "es_fin_semana": false
-          },
-          "2024-11-06": {
-            "fecha": "2024-11-06",
-            "dia_real": "Miércoles",
-            "horario_asignado": "Miércoles",
-            "motivo": "",
-            "es_especial": false,
-            "es_fin_semana": false
-          },
-          "2024-11-07": {
-            "fecha": "2024-11-07",
-            "dia_real": "Jueves",
-            "horario_asignado": "Jueves",
-            "motivo": "",
-            "es_especial": false,
-            "es_fin_semana": false
-          },
-          "2024-11-08": {
-            "fecha": "2024-11-08",
-            "dia_real": "Viernes",
-            "horario_asignado": "Viernes",
-            "motivo": "",
-            "es_especial": false,
-            "es_fin_semana": false
-          },
-          "2024-11-11": {
-            "fecha": "2024-11-11",
-            "dia_real": "Lunes",
-            "horario_asignado": "Lunes",
-            "motivo": "",
-            "es_especial": false,
-            "es_fin_semana": false
-          },
-          "2024-11-12": {
-            "fecha": "2024-11-12",
-            "dia_real": "Martes",
-            "horario_asignado": "Martes",
-            "motivo": "",
-            "es_especial": false,
-            "es_fin_semana": false
-          },
-          "2024-11-13": {
-            "fecha": "2024-11-13",
-            "dia_real": "Miércoles",
-            "horario_asignado": "Miércoles",
-            "motivo": "",
-            "es_especial": false,
-            "es_fin_semana": false
-          },
-          "2024-11-14": {
-            "fecha": "2024-11-14",
-            "dia_real": "Jueves",
-            "horario_asignado": "Jueves",
-            "motivo": "",
-            "es_especial": false,
-            "es_fin_semana": false
-          },
-          "2024-11-15": {
-            "fecha": "2024-11-15",
-            "dia_real": "Viernes",
-            "horario_asignado": "Viernes",
-            "motivo": "",
-            "es_especial": false,
-            "es_fin_semana": false
-          },
-          "2024-11-18": {
-            "fecha": "2024-11-18",
-            "dia_real": "Lunes",
-            "horario_asignado": "Lunes",
-            "motivo": "",
-            "es_especial": false,
-            "es_fin_semana": false
-          },
-          "2024-11-19": {
-            "fecha": "2024-11-19",
-            "dia_real": "Martes",
-            "horario_asignado": "Martes",
-            "motivo": "",
-            "es_especial": false,
-            "es_fin_semana": false
-          },
-          "2024-11-20": {
-            "fecha": "2024-11-20",
-            "dia_real": "Miércoles",
-            "horario_asignado": "Miércoles",
-            "motivo": "",
-            "es_especial": false,
-            "es_fin_semana": false
-          },
-          "2024-11-21": {
-            "fecha": "2024-11-21",
-            "dia_real": "Jueves",
-            "horario_asignado": "Jueves",
-            "motivo": "",
-            "es_especial": false,
-            "es_fin_semana": false
-          },
-          "2024-11-22": {
-            "fecha": "2024-11-22",
-            "dia_real": "Viernes",
-            "horario_asignado": "Viernes",
-            "motivo": "",
-            "es_especial": false,
-            "es_fin_semana": false
-          },
-          "2024-11-25": {
-            "fecha": "2024-11-25",
-            "dia_real": "Lunes",
-            "horario_asignado": "Lunes",
-            "motivo": "",
-            "es_especial": false,
-            "es_fin_semana": false
-          },
-          "2024-11-26": {
-            "fecha": "2024-11-26",
-            "dia_real": "Martes",
-            "horario_asignado": "Martes",
-            "motivo": "",
-            "es_especial": false,
-            "es_fin_semana": false
-          },
-          "2024-11-27": {
-            "fecha": "2024-11-27",
-            "dia_real": "Miércoles",
-            "horario_asignado": "Miércoles",
-            "motivo": "",
-            "es_especial": false,
-            "es_fin_semana": false
-          },
-          "2024-11-28": {
-            "fecha": "2024-11-28",
-            "dia_real": "Jueves",
-            "horario_asignado": "Jueves",
-            "motivo": "",
-            "es_especial": false,
-            "es_fin_semana": false
-          },
-          "2024-11-29": {
-            "fecha": "2024-11-29",
-            "dia_real": "Viernes",
-            "horario_asignado": "Viernes",
-            "motivo": "",
-            "es_especial": false,
-            "es_fin_semana": false
-          },
-          "2024-12-02": {
-            "fecha": "2024-12-02",
-            "dia_real": "Lunes",
-            "horario_asignado": "Lunes",
-            "motivo": "",
-            "es_especial": false,
-            "es_fin_semana": false
-          },
-          "2024-12-03": {
-            "fecha": "2024-12-03",
-            "dia_real": "Martes",
-            "horario_asignado": "Martes",
-            "motivo": "",
-            "es_especial": false,
-            "es_fin_semana": false
-          },
-          "2024-12-04": {
-            "fecha": "2024-12-04",
-            "dia_real": "Miércoles",
-            "horario_asignado": "Miércoles",
-            "motivo": "",
-            "es_especial": false,
-            "es_fin_semana": false
-          },
-          "2024-12-05": {
-            "fecha": "2024-12-05",
-            "dia_real": "Jueves",
-            "horario_asignado": "Jueves",
-            "motivo": "",
-            "es_especial": false,
-            "es_fin_semana": false
-          },
-          "2024-12-13": {
-            "fecha": "2024-12-13",
-            "dia_real": "Viernes",
-            "horario_asignado": "Viernes",
-            "motivo": "",
-            "es_especial": false,
-            "es_fin_semana": false
-          },
-          "2024-12-20": {
-            "fecha": "2024-12-20",
-            "dia_real": "Viernes",
-            "horario_asignado": "Viernes",
-            "motivo": "",
-            "es_especial": false,
-            "es_fin_semana": false
-          }
-        },
-        "semestre_2": {
-          "2025-02-03": {
-            "fecha": "2025-02-03",
-            "dia_real": "Lunes",
-            "horario_asignado": "Lunes",
-            "motivo": "",
-            "es_especial": false,
-            "es_fin_semana": false
-          },
-          "2025-02-04": {
-            "fecha": "2025-02-04",
-            "dia_real": "Martes",
-            "horario_asignado": "Martes",
-            "motivo": "",
-            "es_especial": false,
-            "es_fin_semana": false
-          },
-          "2025-02-05": {
-            "fecha": "2025-02-05",
-            "dia_real": "Miércoles",
-            "horario_asignado": "Miércoles",
-            "motivo": "",
-            "es_especial": false,
-            "es_fin_semana": false
-          },
-          "2025-02-06": {
-            "fecha": "2025-02-06",
-            "dia_real": "Jueves",
-            "horario_asignado": "Jueves",
-            "motivo": "",
-            "es_especial": false,
-            "es_fin_semana": false
-          },
-          "2025-02-07": {
-            "fecha": "2025-02-07",
-            "dia_real": "Viernes",
-            "horario_asignado": "Viernes",
-            "motivo": "",
-            "es_especial": false,
-            "es_fin_semana": false
-          },
-          "2025-02-10": {
-            "fecha": "2025-02-10",
-            "dia_real": "Lunes",
-            "horario_asignado": "Lunes",
-            "motivo": "",
-            "es_especial": false,
-            "es_fin_semana": false
-          },
-          "2025-02-11": {
-            "fecha": "2025-02-11",
-            "dia_real": "Martes",
-            "horario_asignado": "Martes",
-            "motivo": "",
-            "es_especial": false,
-            "es_fin_semana": false
-          },
-          "2025-02-12": {
-            "fecha": "2025-02-12",
-            "dia_real": "Miércoles",
-            "horario_asignado": "Miércoles",
-            "motivo": "",
-            "es_especial": false,
-            "es_fin_semana": false
-          },
-          "2025-02-13": {
-            "fecha": "2025-02-13",
-            "dia_real": "Jueves",
-            "horario_asignado": "Jueves",
-            "motivo": "",
-            "es_especial": false,
-            "es_fin_semana": false
-          },
-          "2025-02-14": {
-            "fecha": "2025-02-14",
-            "dia_real": "Viernes",
-            "horario_asignado": "Viernes",
-            "motivo": "",
-            "es_especial": false,
-            "es_fin_semana": false
-          },
-          "2025-02-17": {
-            "fecha": "2025-02-17",
-            "dia_real": "Lunes",
-            "horario_asignado": "Lunes",
-            "motivo": "",
-            "es_especial": false,
-            "es_fin_semana": false
-          },
-          "2025-02-18": {
-            "fecha": "2025-02-18",
-            "dia_real": "Martes",
-            "horario_asignado": "Martes",
-            "motivo": "",
-            "es_especial": false,
-            "es_fin_semana": false
-          },
-          "2025-02-19": {
-            "fecha": "2025-02-19",
-            "dia_real": "Miércoles",
-            "horario_asignado": "Miércoles",
-            "motivo": "",
-            "es_especial": false,
-            "es_fin_semana": false
-          },
-          "2025-02-20": {
-            "fecha": "2025-02-20",
-            "dia_real": "Jueves",
-            "horario_asignado": "Jueves",
-            "motivo": "",
-            "es_especial": false,
-            "es_fin_semana": false
-          },
-          "2025-02-21": {
-            "fecha": "2025-02-21",
-            "dia_real": "Viernes",
-            "horario_asignado": "Viernes",
-            "motivo": "",
-            "es_especial": false,
-            "es_fin_semana": false
-          },
-          "2025-02-24": {
-            "fecha": "2025-02-24",
-            "dia_real": "Lunes",
-            "horario_asignado": "Lunes",
-            "motivo": "",
-            "es_especial": false,
-            "es_fin_semana": false
-          },
-          "2025-02-25": {
-            "fecha": "2025-02-25",
-            "dia_real": "Martes",
-            "horario_asignado": "Martes",
-            "motivo": "",
-            "es_especial": false,
-            "es_fin_semana": false
-          },
-          "2025-02-26": {
-            "fecha": "2025-02-26",
-            "dia_real": "Miércoles",
-            "horario_asignado": "Miércoles",
-            "motivo": "",
-            "es_especial": false,
-            "es_fin_semana": false
-          },
-          "2025-02-27": {
-            "fecha": "2025-02-27",
-            "dia_real": "Jueves",
-            "horario_asignado": "Jueves",
-            "motivo": "",
-            "es_especial": false,
-            "es_fin_semana": false
-          },
-          "2025-02-28": {
-            "fecha": "2025-02-28",
-            "dia_real": "Viernes",
-            "horario_asignado": "Viernes",
-            "motivo": "",
-            "es_especial": false,
-            "es_fin_semana": false
-          },
-          "2025-03-03": {
-            "fecha": "2025-03-03",
-            "dia_real": "Lunes",
-            "horario_asignado": "Lunes",
-            "motivo": "",
-            "es_especial": false,
-            "es_fin_semana": false
-          },
-          "2025-03-04": {
-            "fecha": "2025-03-04",
-            "dia_real": "Martes",
-            "horario_asignado": "Martes",
-            "motivo": "",
-            "es_especial": false,
-            "es_fin_semana": false
-          },
-          "2025-03-05": {
-            "fecha": "2025-03-05",
-            "dia_real": "Miércoles",
-            "horario_asignado": "Miércoles",
-            "motivo": "",
-            "es_especial": false,
-            "es_fin_semana": false
-          },
-          "2025-03-06": {
-            "fecha": "2025-03-06",
-            "dia_real": "Jueves",
-            "horario_asignado": "Jueves",
-            "motivo": "",
-            "es_especial": false,
-            "es_fin_semana": false
-          },
-          "2025-03-07": {
-            "fecha": "2025-03-07",
-            "dia_real": "Viernes",
-            "horario_asignado": "Viernes",
-            "motivo": "",
-            "es_especial": false,
-            "es_fin_semana": false
-          },
-          "2025-03-10": {
-            "fecha": "2025-03-10",
-            "dia_real": "Lunes",
-            "horario_asignado": "Lunes",
-            "motivo": "",
-            "es_especial": false,
-            "es_fin_semana": false
-          },
-          "2025-03-11": {
-            "fecha": "2025-03-11",
-            "dia_real": "Martes",
-            "horario_asignado": "Martes",
-            "motivo": "",
-            "es_especial": false,
-            "es_fin_semana": false
-          },
-          "2025-03-12": {
-            "fecha": "2025-03-12",
-            "dia_real": "Miércoles",
-            "horario_asignado": "Miércoles",
-            "motivo": "",
-            "es_especial": false,
-            "es_fin_semana": false
-          },
-          "2025-03-13": {
-            "fecha": "2025-03-13",
-            "dia_real": "Jueves",
-            "horario_asignado": "Jueves",
-            "motivo": "",
-            "es_especial": false,
-            "es_fin_semana": false
-          },
-          "2025-03-14": {
-            "fecha": "2025-03-14",
-            "dia_real": "Viernes",
-            "horario_asignado": "Viernes",
-            "motivo": "",
-            "es_especial": false,
-            "es_fin_semana": false
-          },
-          "2025-03-17": {
-            "fecha": "2025-03-17",
-            "dia_real": "Lunes",
-            "horario_asignado": "Lunes",
-            "motivo": "",
-            "es_especial": false,
-            "es_fin_semana": false
-          },
-          "2025-03-18": {
-            "fecha": "2025-03-18",
-            "dia_real": "Martes",
-            "horario_asignado": "Martes",
-            "motivo": "",
-            "es_especial": false,
-            "es_fin_semana": false
-          },
-          "2025-03-19": {
-            "fecha": "2025-03-19",
-            "dia_real": "Miércoles",
-            "horario_asignado": "Miércoles",
-            "motivo": "",
-            "es_especial": false,
-            "es_fin_semana": false
-          },
-          "2025-03-20": {
-            "fecha": "2025-03-20",
-            "dia_real": "Jueves",
-            "horario_asignado": "Jueves",
-            "motivo": "",
-            "es_especial": false,
-            "es_fin_semana": false
-          },
-          "2025-03-21": {
-            "fecha": "2025-03-21",
-            "dia_real": "Viernes",
-            "horario_asignado": "Viernes",
-            "motivo": "",
-            "es_especial": false,
-            "es_fin_semana": false
-          },
-          "2025-03-24": {
-            "fecha": "2025-03-24",
-            "dia_real": "Lunes",
-            "horario_asignado": "Lunes",
-            "motivo": "",
-            "es_especial": false,
-            "es_fin_semana": false
-          },
-          "2025-03-25": {
-            "fecha": "2025-03-25",
-            "dia_real": "Martes",
-            "horario_asignado": "Martes",
-            "motivo": "",
-            "es_especial": false,
-            "es_fin_semana": false
-          },
-          "2025-03-26": {
-            "fecha": "2025-03-26",
-            "dia_real": "Miércoles",
-            "horario_asignado": "Miércoles",
-            "motivo": "",
-            "es_especial": false,
-            "es_fin_semana": false
-          },
-          "2025-03-27": {
-            "fecha": "2025-03-27",
-            "dia_real": "Jueves",
-            "horario_asignado": "Jueves",
-            "motivo": "",
-            "es_especial": false,
-            "es_fin_semana": false
-          },
-          "2025-03-28": {
-            "fecha": "2025-03-28",
-            "dia_real": "Viernes",
-            "horario_asignado": "Viernes",
-            "motivo": "",
-            "es_especial": false,
-            "es_fin_semana": false
-          },
-          "2025-03-31": {
-            "fecha": "2025-03-31",
-            "dia_real": "Lunes",
-            "horario_asignado": "Lunes",
-            "motivo": "",
-            "es_especial": false,
-            "es_fin_semana": false
-          },
-          "2025-04-01": {
-            "fecha": "2025-04-01",
-            "dia_real": "Martes",
-            "horario_asignado": "Martes",
-            "motivo": "",
-            "es_especial": false,
-            "es_fin_semana": false
-          },
-          "2025-04-02": {
-            "fecha": "2025-04-02",
-            "dia_real": "Miércoles",
-            "horario_asignado": "Miércoles",
-            "motivo": "",
-            "es_especial": false,
-            "es_fin_semana": false
-          },
-          "2025-04-03": {
-            "fecha": "2025-04-03",
-            "dia_real": "Jueves",
-            "horario_asignado": "Jueves",
-            "motivo": "",
-            "es_especial": false,
-            "es_fin_semana": false
-          },
-          "2025-04-04": {
-            "fecha": "2025-04-04",
-            "dia_real": "Viernes",
-            "horario_asignado": "Viernes",
-            "motivo": "",
-            "es_especial": false,
-            "es_fin_semana": false
-          },
-          "2025-04-07": {
-            "fecha": "2025-04-07",
-            "dia_real": "Lunes",
-            "horario_asignado": "Lunes",
-            "motivo": "",
-            "es_especial": false,
-            "es_fin_semana": false
-          },
-          "2025-04-08": {
-            "fecha": "2025-04-08",
-            "dia_real": "Martes",
-            "horario_asignado": "Martes",
-            "motivo": "",
-            "es_especial": false,
-            "es_fin_semana": false
-          },
-          "2025-04-09": {
-            "fecha": "2025-04-09",
-            "dia_real": "Miércoles",
-            "horario_asignado": "Miércoles",
-            "motivo": "",
-            "es_especial": false,
-            "es_fin_semana": false
-          },
-          "2025-04-10": {
-            "fecha": "2025-04-10",
-            "dia_real": "Jueves",
-            "horario_asignado": "Jueves",
-            "motivo": "",
-            "es_especial": false,
-            "es_fin_semana": false
-          },
-          "2025-04-11": {
-            "fecha": "2025-04-11",
-            "dia_real": "Viernes",
-            "horario_asignado": "Viernes",
-            "motivo": "",
-            "es_especial": false,
-            "es_fin_semana": false
-          },
-          "2025-04-14": {
-            "fecha": "2025-04-14",
-            "dia_real": "Lunes",
-            "horario_asignado": "Lunes",
-            "motivo": "",
-            "es_especial": false,
-            "es_fin_semana": false
-          },
-          "2025-04-15": {
-            "fecha": "2025-04-15",
-            "dia_real": "Martes",
-            "horario_asignado": "Martes",
-            "motivo": "",
-            "es_especial": false,
-            "es_fin_semana": false
-          },
-          "2025-04-16": {
-            "fecha": "2025-04-16",
-            "dia_real": "Miércoles",
-            "horario_asignado": "Miércoles",
-            "motivo": "",
-            "es_especial": false,
-            "es_fin_semana": false
-          },
-          "2025-04-17": {
-            "fecha": "2025-04-17",
-            "dia_real": "Jueves",
-            "horario_asignado": "Jueves",
-            "motivo": "",
-            "es_especial": false,
-            "es_fin_semana": false
-          },
-          "2025-04-18": {
-            "fecha": "2025-04-18",
-            "dia_real": "Viernes",
-            "horario_asignado": "Viernes",
-            "motivo": "",
-            "es_especial": false,
-            "es_fin_semana": false
-          },
-          "2025-04-21": {
-            "fecha": "2025-04-21",
-            "dia_real": "Lunes",
-            "horario_asignado": "Lunes",
-            "motivo": "",
-            "es_especial": false,
-            "es_fin_semana": false
-          },
-          "2025-04-22": {
-            "fecha": "2025-04-22",
-            "dia_real": "Martes",
-            "horario_asignado": "Martes",
-            "motivo": "",
-            "es_especial": false,
-            "es_fin_semana": false
-          },
-          "2025-04-23": {
-            "fecha": "2025-04-23",
-            "dia_real": "Miércoles",
-            "horario_asignado": "Miércoles",
-            "motivo": "",
-            "es_especial": false,
-            "es_fin_semana": false
-          },
-          "2025-04-24": {
-            "fecha": "2025-04-24",
-            "dia_real": "Jueves",
-            "horario_asignado": "Jueves",
-            "motivo": "",
-            "es_especial": false,
-            "es_fin_semana": false
-          },
-          "2025-04-25": {
-            "fecha": "2025-04-25",
-            "dia_real": "Viernes",
-            "horario_asignado": "Viernes",
-            "motivo": "",
-            "es_especial": false,
-            "es_fin_semana": false
-          },
-          "2025-04-28": {
-            "fecha": "2025-04-28",
-            "dia_real": "Lunes",
-            "horario_asignado": "Lunes",
-            "motivo": "",
-            "es_especial": false,
-            "es_fin_semana": false
-          },
-          "2025-04-29": {
-            "fecha": "2025-04-29",
-            "dia_real": "Martes",
-            "horario_asignado": "Martes",
-            "motivo": "",
-            "es_especial": false,
-            "es_fin_semana": false
-          },
-          "2025-04-30": {
-            "fecha": "2025-04-30",
-            "dia_real": "Miércoles",
-            "horario_asignado": "Miércoles",
-            "motivo": "",
-            "es_especial": false,
-            "es_fin_semana": false
-          },
-          "2025-05-01": {
-            "fecha": "2025-05-01",
-            "dia_real": "Jueves",
-            "horario_asignado": "Jueves",
-            "motivo": "",
-            "es_especial": false,
-            "es_fin_semana": false
-          },
-          "2025-05-02": {
-            "fecha": "2025-05-02",
-            "dia_real": "Viernes",
-            "horario_asignado": "Viernes",
-            "motivo": "",
-            "es_especial": false,
-            "es_fin_semana": false
-          },
-          "2025-05-05": {
-            "fecha": "2025-05-05",
-            "dia_real": "Lunes",
-            "horario_asignado": "Lunes",
-            "motivo": "",
-            "es_especial": false,
-            "es_fin_semana": false
-          },
-          "2025-05-06": {
-            "fecha": "2025-05-06",
-            "dia_real": "Martes",
-            "horario_asignado": "Martes",
-            "motivo": "",
-            "es_especial": false,
-            "es_fin_semana": false
-          },
-          "2025-05-07": {
-            "fecha": "2025-05-07",
-            "dia_real": "Miércoles",
-            "horario_asignado": "Miércoles",
-            "motivo": "",
-            "es_especial": false,
-            "es_fin_semana": false
-          },
-          "2025-05-08": {
-            "fecha": "2025-05-08",
-            "dia_real": "Jueves",
-            "horario_asignado": "Jueves",
-            "motivo": "",
-            "es_especial": false,
-            "es_fin_semana": false
-          },
-          "2025-05-09": {
-            "fecha": "2025-05-09",
-            "dia_real": "Viernes",
-            "horario_asignado": "Viernes",
-            "motivo": "",
-            "es_especial": false,
-            "es_fin_semana": false
-          }
-        }
-      },
-      "semanas_total": 28,
-      "dias_semestre_1": 70,
-      "dias_semestre_2": 70,
-      "fecha_actualizacion": "2025-07-09T17:51:49.278419"
-    },
-    "aulas": {
-      "configurado": true,
-      "datos": {
-        "Laboratorio A": {
-          "nombre": "Laboratorio A",
-          "capacidad": 26,
-          "equipamiento": "Osciloscopios, Generadores",
-          "edificio": "Edificio A",
-          "planta": "1ª Planta",
-          "disponible": true,
-          "asignaturas_asociadas": [
-            "SII"
-          ],
-          "fechas_no_disponibles": [
-            "09/07/2025",
-            "17/07/2025"
-          ]
-        },
-        "Laboratorio D": {
-          "nombre": "Laboratorio D",
-          "capacidad": 26,
-          "equipamiento": "Ordenadores, IDEs de desarrollo",
-          "edificio": "Edificio D",
-          "planta": "2ª Planta",
-          "disponible": true,
-          "asignaturas_asociadas": [
-            "FIS1"
-          ],
-          "fechas_no_disponibles": []
-        }
-      },
-      "total_aulas": 2,
-      "fecha_actualizacion": "2025-07-09T17:52:48.816786"
-    },
-    "profesores": {
-      "configurado": true,
-      "datos": {
-        "prof_003": {
-          "id": "prof_003",
-          "nombre": "Miguel",
-          "apellidos": "Fernández Castro",
-          "asignaturas_imparte": [
-            "FIS1"
-          ],
-          "dias_trabajo": [
-            "Lunes",
-            "Martes",
-            "Miércoles",
-            "Jueves",
-            "Viernes"
-          ],
-          "horarios_bloqueados": {
-            "Lunes": {
-              "11:30-13:30": "tutoria"
-            },
-            "Martes": {
-              "11:30-13:30": "tutoria"
-            },
-            "Miércoles": {
-              "11:30-13:30": "tutoria"
-            },
-            "Jueves": {
-              "11:30-13:30": "tutoria"
-            }
-          },
-          "fechas_no_disponibles": [
-            "22/07/2025",
-            "25/07/2025"
-          ],
-          "observaciones": "Especialista en electrónica",
-          "fecha_creacion": "2025-07-09T18:13:04.494023"
-        },
-        "prof_001": {
-          "id": "prof_001",
-          "nombre": "Antonio",
-          "apellidos": "García López",
-          "asignaturas_imparte": [
-            "FIS1"
-          ],
-          "dias_trabajo": [
-            "Lunes",
-            "Martes",
-            "Miércoles",
-            "Jueves",
-            "Viernes"
-          ],
-          "horarios_bloqueados": {},
-          "fechas_no_disponibles": [],
-          "observaciones": "Especialista en física experimental",
-          "fecha_creacion": "2025-07-09T18:13:00.396168"
-        }
-      },
-      "total": 2,
-      "fecha_actualizacion": "2025-07-09T18:13:06.864898"
-    },
-    "alumnos": {
-      "configurado": true,
-      "datos": {
-        "2322249": {
-          "dni": "2322249",
-          "nombre": "SAMIR",
-          "apellidos": "AHOUCH EL KASSIMI",
-          "email": "samir.ahouch@alumnos.upm.es",
-          "matricula": "56247",
-          "cursos_matriculado": [
-            "A302",
-            "D301"
-          ],
-          "asignaturas_matriculadas": {
-            "FIS1": {
-              "matriculado": true,
-              "lab_aprobado": false
-            }
-          },
-          "exp_centro": "56247",
-          "exp_agora": "322513",
-          "observaciones": "Importado desde Excel - FIS1 - Curso A302",
-          "fecha_creacion": "2025-07-09T19:19:54.461323"
-        },
-        "6719214": {
-          "apellidos": "AL KOLAIBI AL GHOULI",
-          "asignaturas_matriculadas": {
-            "FIS1": {
-              "lab_aprobado": false,
-              "matriculado": true
-            }
-          },
-          "cursos_matriculado": [
-            "A302"
-          ],
-          "dni": "6719214",
-          "email": "a.aalkolaibi@alumnos.upm.es",
-          "exp_agora": "321611",
-          "exp_centro": "53327",
-          "fecha_creacion": "2025-07-09T18:13:25.252913",
-          "matricula": "53327",
-          "nombre": "ABDULRAHMAN",
-          "observaciones": "Importado desde Excel - FIS1 - Curso A302"
-        },
-        "21115643": {
-          "apellidos": "ALFONSO LOMBA",
-          "asignaturas_matriculadas": {
-            "FIS1": {
-              "lab_aprobado": false,
-              "matriculado": true
-            }
-          },
-          "cursos_matriculado": [
-            "A302"
-          ],
-          "dni": "21115643",
-          "email": "carlos.alfonso@alumnos.upm.es",
-          "exp_agora": "322565",
-          "exp_centro": "56338",
-          "fecha_creacion": "2025-07-09T18:13:25.252913",
-          "matricula": "56338",
-          "nombre": "CARLOS",
-          "observaciones": "Importado desde Excel - FIS1 - Curso A302"
-        },
-        "51191346": {
-          "apellidos": "ALONSO ROMERO",
-          "asignaturas_matriculadas": {
-            "FIS1": {
-              "lab_aprobado": false,
-              "matriculado": true
-            }
-          },
-          "cursos_matriculado": [
-            "A302"
-          ],
-          "dni": "51191346",
-          "email": "cesar.alonso.romero@alumnos.upm.es",
-          "exp_agora": "322418",
-          "exp_centro": "56255",
-          "fecha_creacion": "2025-07-09T18:13:25.252913",
-          "matricula": "56255",
-          "nombre": "CÉSAR",
-          "observaciones": "Importado desde Excel - FIS1 - Curso A302"
-        },
-        "53980770": {
-          "apellidos": "ARJONILLA DIAZ",
-          "asignaturas_matriculadas": {
-            "FIS1": {
-              "lab_aprobado": false,
-              "matriculado": true
-            }
-          },
-          "cursos_matriculado": [
-            "A302"
-          ],
-          "dni": "53980770",
-          "email": "rodrigo.adiaz@alumnos.upm.es",
-          "exp_agora": "322206",
-          "exp_centro": "55557",
-          "fecha_creacion": "2025-07-09T18:13:25.253912",
-          "matricula": "55557",
-          "nombre": "RODRIGO",
-          "observaciones": "Importado desde Excel - FIS1 - Curso A302"
-        },
-        "53846408": {
-          "apellidos": "ARROYO GÓMEZ SALAS",
-          "asignaturas_matriculadas": {
-            "FIS1": {
-              "lab_aprobado": false,
-              "matriculado": true
-            }
-          },
-          "cursos_matriculado": [
-            "A302"
-          ],
-          "dni": "53846408",
-          "email": "alejandro.arroyo@alumnos.upm.es",
-          "exp_agora": "322416",
-          "exp_centro": "56269",
-          "fecha_creacion": "2025-07-09T18:13:25.253912",
-          "matricula": "56269",
-          "nombre": "ALEJANDRO",
-          "observaciones": "Importado desde Excel - FIS1 - Curso A302"
-        },
-        "79059925": {
-          "apellidos": "BALLESTER ASESIO",
-          "asignaturas_matriculadas": {
-            "FIS1": {
-              "lab_aprobado": false,
-              "matriculado": true
-            }
-          },
-          "cursos_matriculado": [
-            "A302"
-          ],
-          "dni": "79059925",
-          "email": "n.ballester@alumnos.upm.es",
-          "exp_agora": "322504",
-          "exp_centro": "56277",
-          "fecha_creacion": "2025-07-09T18:13:25.253912",
-          "matricula": "56277",
-          "nombre": "NICOLAS",
-          "observaciones": "Importado desde Excel - FIS1 - Curso A302"
-        },
-        "3941450": {
-          "apellidos": "BALLESTEROS PALOMO",
-          "asignaturas_matriculadas": {
-            "FIS1": {
-              "lab_aprobado": false,
-              "matriculado": true
-            }
-          },
-          "cursos_matriculado": [
-            "A302"
-          ],
-          "dni": "3941450",
-          "email": "sergio.ballesteros@alumnos.upm.es",
-          "exp_agora": "322228",
-          "exp_centro": "55736",
-          "fecha_creacion": "2025-07-09T18:13:25.253912",
-          "matricula": "55736",
-          "nombre": "SERGIO",
-          "observaciones": "Importado desde Excel - FIS1 - Curso A302"
-        },
-        "3031410": {
-          "apellidos": "BELLIDO INES",
-          "asignaturas_matriculadas": {
-            "FIS1": {
-              "lab_aprobado": false,
-              "matriculado": true
-            }
-          },
-          "cursos_matriculado": [
-            "A302"
-          ],
-          "dni": "3031410",
-          "email": "joan.bellido.ines@alumnos.upm.es",
-          "exp_agora": "322258",
-          "exp_centro": "55745",
-          "fecha_creacion": "2025-07-09T18:13:25.253912",
-          "matricula": "55745",
-          "nombre": "JOAN",
-          "observaciones": "Importado desde Excel - FIS1 - Curso A302"
-        },
-        "43470571": {
-          "apellidos": "BONED JUNCAL",
-          "asignaturas_matriculadas": {
-            "FIS1": {
-              "lab_aprobado": false,
-              "matriculado": true
-            }
-          },
-          "cursos_matriculado": [
-            "A302"
-          ],
-          "dni": "43470571",
-          "email": "c.boned@alumnos.upm.es",
-          "exp_agora": "322244",
-          "exp_centro": "55755",
-          "fecha_creacion": "2025-07-09T18:13:25.253912",
-          "matricula": "55755",
-          "nombre": "CRISTINA",
-          "observaciones": "Importado desde Excel - FIS1 - Curso A302"
-        },
-        "49155207": {
-          "apellidos": "BONILLA HERVÁS",
-          "asignaturas_matriculadas": {
-            "FIS1": {
-              "lab_aprobado": false,
-              "matriculado": true
-            }
-          },
-          "cursos_matriculado": [
-            "A302"
-          ],
-          "dni": "49155207",
-          "email": "alejandro.bonilla@alumnos.upm.es",
-          "exp_agora": "322372",
-          "exp_centro": "55756",
-          "fecha_creacion": "2025-07-09T18:13:25.253912",
-          "matricula": "55756",
-          "nombre": "ALEJANDRO",
-          "observaciones": "Importado desde Excel - FIS1 - Curso A302"
-        },
-        "72326962": {
-          "apellidos": "BRESSY SANZ",
-          "asignaturas_matriculadas": {
-            "FIS1": {
-              "lab_aprobado": false,
-              "matriculado": true
-            }
-          },
-          "cursos_matriculado": [
-            "A302"
-          ],
-          "dni": "72326962",
-          "email": "victor.bressy@alumnos.upm.es",
-          "exp_agora": "322521",
-          "exp_centro": "56292",
-          "fecha_creacion": "2025-07-09T18:13:25.253912",
-          "matricula": "56292",
-          "nombre": "VICTOR",
-          "observaciones": "Importado desde Excel - FIS1 - Curso A302"
-        },
-        "49365019": {
-          "apellidos": "BUENO HERNANDEZ",
-          "asignaturas_matriculadas": {
-            "FIS1": {
-              "lab_aprobado": false,
-              "matriculado": true
-            }
-          },
-          "cursos_matriculado": [
-            "A302"
-          ],
-          "dni": "49365019",
-          "email": "si.bueno@alumnos.upm.es",
-          "exp_agora": "322515",
-          "exp_centro": "56294",
-          "fecha_creacion": "2025-07-09T18:13:25.253912",
-          "matricula": "56294",
-          "nombre": "SILVIA",
-          "observaciones": "Importado desde Excel - FIS1 - Curso A302"
-        },
-        "50502125": {
-          "apellidos": "CABALLERO MARTEL",
-          "asignaturas_matriculadas": {
-            "FIS1": {
-              "lab_aprobado": false,
-              "matriculado": true
-            }
-          },
-          "cursos_matriculado": [
-            "A302"
-          ],
-          "dni": "50502125",
-          "email": "ignacio.caballero@alumnos.upm.es",
-          "exp_agora": "322670",
-          "exp_centro": "56911",
-          "fecha_creacion": "2025-07-09T18:13:25.253912",
-          "matricula": "56911",
-          "nombre": "IGNACIO ANTONIO",
-          "observaciones": "Importado desde Excel - FIS1 - Curso A302"
-        },
-        "71371894": {
-          "apellidos": "CABAÑAS LAGUNA",
-          "asignaturas_matriculadas": {
-            "FIS1": {
-              "lab_aprobado": false,
-              "matriculado": true
-            }
-          },
-          "cursos_matriculado": [
-            "A302"
-          ],
-          "dni": "71371894",
-          "email": "pedro.claguna@alumnos.upm.es",
-          "exp_agora": "322224",
-          "exp_centro": "55760",
-          "fecha_creacion": "2025-07-09T18:13:25.253912",
-          "matricula": "55760",
-          "nombre": "PEDRO",
-          "observaciones": "Importado desde Excel - FIS1 - Curso A302"
-        },
-        "51762439": {
-          "apellidos": "CALDERÓN DE ANTONIO",
-          "asignaturas_matriculadas": {
-            "FIS1": {
-              "lab_aprobado": false,
-              "matriculado": true
-            }
-          },
-          "cursos_matriculado": [
-            "A302"
-          ],
-          "dni": "51762439",
-          "email": "ja.calderon@alumnos.upm.es",
-          "exp_agora": "322512",
-          "exp_centro": "56301",
-          "fecha_creacion": "2025-07-09T18:13:25.253912",
-          "matricula": "56301",
-          "nombre": "JAVIER",
-          "observaciones": "Importado desde Excel - FIS1 - Curso A302"
-        },
-        "2743818": {
-          "apellidos": "CALDERÓN GÓMEZ",
-          "asignaturas_matriculadas": {
-            "FIS1": {
-              "lab_aprobado": false,
-              "matriculado": true
-            }
-          },
-          "cursos_matriculado": [
-            "A302"
-          ],
-          "dni": "2743818",
-          "email": "daniel.calderong@alumnos.upm.es",
-          "exp_agora": "322669",
-          "exp_centro": "56912",
-          "fecha_creacion": "2025-07-09T18:13:25.253912",
-          "matricula": "56912",
-          "nombre": "DANIEL",
-          "observaciones": "Importado desde Excel - FIS1 - Curso A302"
-        },
-        "54976306": {
-          "apellidos": "CAMPOS MAULEÓN",
-          "asignaturas_matriculadas": {
-            "FIS1": {
-              "lab_aprobado": false,
-              "matriculado": true
-            }
-          },
-          "cursos_matriculado": [
-            "A302"
-          ],
-          "dni": "54976306",
-          "email": "ariel.campos@alumnos.upm.es",
-          "exp_agora": "322762",
-          "exp_centro": "56913",
-          "fecha_creacion": "2025-07-09T18:13:25.253912",
-          "matricula": "56913",
-          "nombre": "ARIEL",
-          "observaciones": "Importado desde Excel - FIS1 - Curso A302"
-        },
-        "53850991": {
-          "apellidos": "CANCELA PEÑA",
-          "asignaturas_matriculadas": {
-            "FIS1": {
-              "lab_aprobado": false,
-              "matriculado": true
-            }
-          },
-          "cursos_matriculado": [
-            "A302"
-          ],
-          "dni": "53850991",
-          "email": "rodrigo.cancela@alumnos.upm.es",
-          "exp_agora": "322301",
-          "exp_centro": "55766",
-          "fecha_creacion": "2025-07-09T18:13:25.253912",
-          "matricula": "55766",
-          "nombre": "RODRIGO",
-          "observaciones": "Importado desde Excel - FIS1 - Curso A302"
-        },
-        "35719895": {
-          "apellidos": "CASANOVA BERNAL",
-          "asignaturas_matriculadas": {
-            "FIS1": {
-              "lab_aprobado": false,
-              "matriculado": true
-            }
-          },
-          "cursos_matriculado": [
-            "A302"
-          ],
-          "dni": "35719895",
-          "email": "victor.casanova@alumnos.upm.es",
-          "exp_agora": "322650",
-          "exp_centro": "56917",
-          "fecha_creacion": "2025-07-09T18:13:25.253912",
-          "matricula": "56917",
-          "nombre": "VÍCTOR HUMBERTO",
-          "observaciones": "Importado desde Excel - FIS1 - Curso A302"
-        },
-        "54363023": {
-          "apellidos": "CASTRO DE LA VILLA",
-          "asignaturas_matriculadas": {
-            "FIS1": {
-              "lab_aprobado": false,
-              "matriculado": true
-            }
-          },
-          "cursos_matriculado": [
-            "A302"
-          ],
-          "dni": "54363023",
-          "email": "maria.castrod@alumnos.upm.es",
-          "exp_agora": "322208",
-          "exp_centro": "55544",
-          "fecha_creacion": "2025-07-09T18:13:25.253912",
-          "matricula": "55544",
-          "nombre": "MARÍA",
-          "observaciones": "Importado desde Excel - FIS1 - Curso A302"
-        },
-        "76061803": {
-          "apellidos": "CERRO MARTÍN",
-          "asignaturas_matriculadas": {
-            "FIS1": {
-              "lab_aprobado": false,
-              "matriculado": true
-            }
-          },
-          "cursos_matriculado": [
-            "A302"
-          ],
-          "dni": "76061803",
-          "email": "juan.cerro@alumnos.upm.es",
-          "exp_agora": "322708",
-          "exp_centro": "56888",
-          "fecha_creacion": "2025-07-09T18:13:25.253912",
-          "matricula": "56888",
-          "nombre": "JOSÉ JUAN",
-          "observaciones": "Importado desde Excel - FIS1 - Curso A302"
-        },
-        "4240321": {
-          "apellidos": "CHEN YANG",
-          "asignaturas_matriculadas": {
-            "FIS1": {
-              "lab_aprobado": false,
-              "matriculado": true
-            }
-          },
-          "cursos_matriculado": [
-            "A302"
-          ],
-          "dni": "4240321",
-          "email": "yuhao.chen@alumnos.upm.es",
-          "exp_agora": "322502",
-          "exp_centro": "56311",
-          "fecha_creacion": "2025-07-09T18:13:25.253912",
-          "matricula": "56311",
-          "nombre": "YUHAO",
-          "observaciones": "Importado desde Excel - FIS1 - Curso A302"
-        },
-        "50771036": {
-          "apellidos": "COLLADO GONZALEZ",
-          "asignaturas_matriculadas": {
-            "FIS1": {
-              "lab_aprobado": false,
-              "matriculado": true
-            }
-          },
-          "cursos_matriculado": [
-            "A302"
-          ],
-          "dni": "50771036",
-          "email": "rosamaria.collado.gonzalez@alumnos.upm.es",
-          "exp_agora": "320709",
-          "exp_centro": "50168",
-          "fecha_creacion": "2025-07-09T18:13:25.253912",
-          "matricula": "50168",
-          "nombre": "ROSA MARIA",
-          "observaciones": "Importado desde Excel - FIS1 - Curso A302"
-        },
-        "78228827": {
-          "apellidos": "CORVILLO GUERRA",
-          "asignaturas_matriculadas": {
-            "FIS1": {
-              "lab_aprobado": false,
-              "matriculado": true
-            }
-          },
-          "cursos_matriculado": [
-            "A302"
-          ],
-          "dni": "78228827",
-          "email": "belen.corvillo@alumnos.upm.es",
-          "exp_agora": "322616",
-          "exp_centro": "56926",
-          "fecha_creacion": "2025-07-09T18:13:25.254916",
-          "matricula": "56926",
-          "nombre": "BELÉN",
-          "observaciones": "Importado desde Excel - FIS1 - Curso A302"
-        },
-        "49229398": {
-          "apellidos": "CRESPO CASTELLANOS",
-          "asignaturas_matriculadas": {
-            "FIS1": {
-              "lab_aprobado": false,
-              "matriculado": true
-            }
-          },
-          "cursos_matriculado": [
-            "A302"
-          ],
-          "dni": "49229398",
-          "email": "pablo.crespo@alumnos.upm.es",
-          "exp_agora": "322239",
-          "exp_centro": "55806",
-          "fecha_creacion": "2025-07-09T18:13:25.254916",
-          "matricula": "55806",
-          "nombre": "PABLO",
-          "observaciones": "Importado desde Excel - FIS1 - Curso A302"
-        },
-        "9104694": {
-          "apellidos": "CRESPO GINER",
-          "asignaturas_matriculadas": {
-            "FIS1": {
-              "lab_aprobado": false,
-              "matriculado": true
-            }
-          },
-          "cursos_matriculado": [
-            "A302"
-          ],
-          "dni": "9104694",
-          "email": "jorge.crespo@alumnos.upm.es",
-          "exp_agora": "322682",
-          "exp_centro": "56927",
-          "fecha_creacion": "2025-07-09T18:13:25.254916",
-          "matricula": "56927",
-          "nombre": "JORGE",
-          "observaciones": "Importado desde Excel - FIS1 - Curso A302"
-        },
-        "6632059": {
-          "apellidos": "CUÉLLAR AMORES",
-          "asignaturas_matriculadas": {
-            "FIS1": {
-              "lab_aprobado": false,
-              "matriculado": true
-            }
-          },
-          "cursos_matriculado": [
-            "A302"
-          ],
-          "dni": "6632059",
-          "email": "marta.cuellar@alumnos.upm.es",
-          "exp_agora": "322452",
-          "exp_centro": "56327",
-          "fecha_creacion": "2025-07-09T18:13:25.254916",
-          "matricula": "56327",
-          "nombre": "MARTA",
-          "observaciones": "Importado desde Excel - FIS1 - Curso A302"
-        },
-        "70068948": {
-          "apellidos": "CÁMARA LÓPEZ",
-          "asignaturas_matriculadas": {
-            "FIS1": {
-              "lab_aprobado": false,
-              "matriculado": true
-            }
-          },
-          "cursos_matriculado": [
-            "A302"
-          ],
-          "dni": "70068948",
-          "email": "alberto.camara@alumnos.upm.es",
-          "exp_agora": "322253",
-          "exp_centro": "55763",
-          "fecha_creacion": "2025-07-09T18:13:25.253912",
-          "matricula": "55763",
-          "nombre": "ALBERTO",
-          "observaciones": "Importado desde Excel - FIS1 - Curso A302"
-        },
-        "2334400": {
-          "apellidos": "CÓRDOBA ARACIL",
-          "asignaturas_matriculadas": {
-            "FIS1": {
-              "lab_aprobado": false,
-              "matriculado": true
-            }
-          },
-          "cursos_matriculado": [
-            "A302"
-          ],
-          "dni": "2334400",
-          "email": "fernando.cordoba@alumnos.upm.es",
-          "exp_agora": "322570",
-          "exp_centro": "56319",
-          "fecha_creacion": "2025-07-09T18:13:25.253912",
-          "matricula": "56319",
-          "nombre": "FERNANDO",
-          "observaciones": "Importado desde Excel - FIS1 - Curso A302"
-        },
-        "9149386": {
-          "apellidos": "DE LA FLOR GALLEGO",
-          "asignaturas_matriculadas": {
-            "FIS1": {
-              "lab_aprobado": false,
-              "matriculado": true
-            }
-          },
-          "cursos_matriculado": [
-            "A302"
-          ],
-          "dni": "9149386",
-          "email": "andrea.delaflor@alumnos.upm.es",
-          "exp_agora": "322503",
-          "exp_centro": "56332",
-          "fecha_creacion": "2025-07-09T18:13:25.254916",
-          "matricula": "56332",
-          "nombre": "ANDREA",
-          "observaciones": "Importado desde Excel - FIS1 - Curso A302"
-        },
-        "55022198": {
-          "apellidos": "DINIS MARTÍN",
-          "asignaturas_matriculadas": {
-            "FIS1": {
-              "lab_aprobado": false,
-              "matriculado": true
-            }
-          },
-          "cursos_matriculado": [
-            "A302"
-          ],
-          "dni": "55022198",
-          "email": "pablo.dinis@alumnos.upm.es",
-          "exp_agora": "322630",
-          "exp_centro": "56930",
-          "fecha_creacion": "2025-07-09T18:13:25.254916",
-          "matricula": "56930",
-          "nombre": "PABLO",
-          "observaciones": "Importado desde Excel - FIS1 - Curso A302"
-        },
-        "51760419": {
-          "apellidos": "DOMINGUEZ LOPEZ-BARRANCO",
-          "asignaturas_matriculadas": {
-            "FIS1": {
-              "lab_aprobado": false,
-              "matriculado": true
-            }
-          },
-          "cursos_matriculado": [
-            "A302"
-          ],
-          "dni": "51760419",
-          "email": "carlos.dominguez.lopez-barranco@alumnos.upm.es",
-          "exp_agora": "322388",
-          "exp_centro": "55825",
-          "fecha_creacion": "2025-07-09T18:13:25.254916",
-          "matricula": "55825",
-          "nombre": "CARLOS",
-          "observaciones": "Importado desde Excel - FIS1 - Curso A302"
-        },
-        "51550083": {
-          "apellidos": "ESPINOZA PINO",
-          "asignaturas_matriculadas": {
-            "FIS1": {
-              "lab_aprobado": false,
-              "matriculado": true
-            }
-          },
-          "cursos_matriculado": [
-            "A302"
-          ],
-          "dni": "51550083",
-          "email": "marcos.espinoza@alumnos.upm.es",
-          "exp_agora": "322422",
-          "exp_centro": "56351",
-          "fecha_creacion": "2025-07-09T18:13:25.254916",
-          "matricula": "56351",
-          "nombre": "MARCOS",
-          "observaciones": "Importado desde Excel - FIS1 - Curso A302"
-        },
-        "51542960": {
-          "apellidos": "FERNÁNDEZ LIÉTOR",
-          "asignaturas_matriculadas": {
-            "FIS1": {
-              "lab_aprobado": false,
-              "matriculado": true
-            }
-          },
-          "cursos_matriculado": [
-            "A302"
-          ],
-          "dni": "51542960",
-          "email": "mario.fernandez.lietor@alumnos.upm.es",
-          "exp_agora": "322389",
-          "exp_centro": "55839",
-          "fecha_creacion": "2025-07-09T18:13:25.254916",
-          "matricula": "55839",
-          "nombre": "MARIO",
-          "observaciones": "Importado desde Excel - FIS1 - Curso A302"
-        },
-        "53472377": {
-          "apellidos": "FTOUH LABROUZI",
-          "asignaturas_matriculadas": {
-            "FIS1": {
-              "lab_aprobado": false,
-              "matriculado": true
-            }
-          },
-          "cursos_matriculado": [
-            "A302"
-          ],
-          "dni": "53472377",
-          "email": "omar.ftouh@alumnos.upm.es",
-          "exp_agora": "322346",
-          "exp_centro": "55848",
-          "fecha_creacion": "2025-07-09T18:13:25.254916",
-          "matricula": "55848",
-          "nombre": "OMAR",
-          "observaciones": "Importado desde Excel - FIS1 - Curso A302"
-        },
-        "53993128": {
-          "apellidos": "FUERTES GONZÁLEZ",
-          "asignaturas_matriculadas": {
-            "FIS1": {
-              "lab_aprobado": false,
-              "matriculado": true
-            }
-          },
-          "cursos_matriculado": [
-            "A302"
-          ],
-          "dni": "53993128",
-          "email": "daniel.fuertes@alumnos.upm.es",
-          "exp_agora": "322351",
-          "exp_centro": "55849",
-          "fecha_creacion": "2025-07-09T18:13:25.254916",
-          "matricula": "55849",
-          "nombre": "DANIEL",
-          "observaciones": "Importado desde Excel - FIS1 - Curso A302"
-        },
-        "54838914": {
-          "apellidos": "GALINDO GORDÓN",
-          "asignaturas_matriculadas": {
-            "FIS1": {
-              "lab_aprobado": false,
-              "matriculado": true
-            }
-          },
-          "cursos_matriculado": [
-            "A302"
-          ],
-          "dni": "54838914",
-          "email": "andres.ggordon@alumnos.upm.es",
-          "exp_agora": "322692",
-          "exp_centro": "56939",
-          "fecha_creacion": "2025-07-09T18:13:25.257917",
-          "matricula": "56939",
-          "nombre": "ANDRÉS",
-          "observaciones": "Importado desde Excel - FIS1 - Curso A302"
-        },
-        "5956642": {
-          "apellidos": "GALLEGO MARTINEZ",
-          "asignaturas_matriculadas": {
-            "FIS1": {
-              "lab_aprobado": false,
-              "matriculado": true
-            }
-          },
-          "cursos_matriculado": [
-            "A302"
-          ],
-          "dni": "5956642",
-          "email": "david.gallego@alumnos.upm.es",
-          "exp_agora": "322390",
-          "exp_centro": "55851",
-          "fecha_creacion": "2025-07-09T18:13:25.258918",
-          "matricula": "55851",
-          "nombre": "DAVID",
-          "observaciones": "Importado desde Excel - FIS1 - Curso A302"
-        },
-        "5950735": {
-          "apellidos": "GARCÍA FÉLIZ",
-          "asignaturas_matriculadas": {
-            "FIS1": {
-              "lab_aprobado": false,
-              "matriculado": true
-            }
-          },
-          "cursos_matriculado": [
-            "A302"
-          ],
-          "dni": "5950735",
-          "email": "alejandro.garcia.feliz@alumnos.upm.es",
-          "exp_agora": "322111",
-          "exp_centro": "55256",
-          "fecha_creacion": "2025-07-09T18:13:25.258918",
-          "matricula": "55256",
-          "nombre": "ALEJANDRO",
-          "observaciones": "Importado desde Excel - FIS1 - Curso A302"
-        },
-        "2776786": {
-          "apellidos": "GARCÍA RAMOS",
-          "asignaturas_matriculadas": {
-            "FIS1": {
-              "lab_aprobado": false,
-              "matriculado": true
-            }
-          },
-          "cursos_matriculado": [
-            "A302"
-          ],
-          "dni": "2776786",
-          "email": "sergio.garcia.ramos@alumnos.upm.es",
-          "exp_agora": "322709",
-          "exp_centro": "56942",
-          "fecha_creacion": "2025-07-09T18:13:25.258918",
-          "matricula": "56942",
-          "nombre": "SERGIO",
-          "observaciones": "Importado desde Excel - FIS1 - Curso A302"
-        },
-        "54721161": {
-          "apellidos": "GARRIDO CALVO",
-          "asignaturas_matriculadas": {
-            "FIS1": {
-              "lab_aprobado": false,
-              "matriculado": true
-            }
-          },
-          "cursos_matriculado": [
-            "A302"
-          ],
-          "dni": "54721161",
-          "email": "gonzalo.garrido@alumnos.upm.es",
-          "exp_agora": "322578",
-          "exp_centro": "56730",
-          "fecha_creacion": "2025-07-09T18:13:25.258918",
-          "matricula": "56730",
-          "nombre": "GONZALO",
-          "observaciones": "Importado desde Excel - FIS1 - Curso A302"
-        },
-        "2775904": {
-          "apellidos": "GARRIDO GIMENEZ",
-          "asignaturas_matriculadas": {
-            "FIS1": {
-              "lab_aprobado": false,
-              "matriculado": true
-            }
-          },
-          "cursos_matriculado": [
-            "A302"
-          ],
-          "dni": "2775904",
-          "email": "nuria.garrido.gimenez@alumnos.upm.es",
-          "exp_agora": "322282",
-          "exp_centro": "55868",
-          "fecha_creacion": "2025-07-09T18:13:25.258918",
-          "matricula": "55868",
-          "nombre": "NURIA",
-          "observaciones": "Importado desde Excel - FIS1 - Curso A302"
-        },
-        "3208393": {
-          "apellidos": "GASCO GARCÍA",
-          "asignaturas_matriculadas": {
-            "FIS1": {
-              "lab_aprobado": false,
-              "matriculado": true
-            }
-          },
-          "cursos_matriculado": [
-            "A302"
-          ],
-          "dni": "3208393",
-          "email": "j.gasco@alumnos.upm.es",
-          "exp_agora": "322263",
-          "exp_centro": "55871",
-          "fecha_creacion": "2025-07-09T18:13:25.258918",
-          "matricula": "55871",
-          "nombre": "JAVIER",
-          "observaciones": "Importado desde Excel - FIS1 - Curso A302"
-        },
-        "5964566": {
-          "apellidos": "GIRALDEZ FERNANDEZ",
-          "asignaturas_matriculadas": {
-            "FIS1": {
-              "lab_aprobado": false,
-              "matriculado": true
-            }
-          },
-          "cursos_matriculado": [
-            "A302"
-          ],
-          "dni": "5964566",
-          "email": "iker.giraldez.fernandez@alumnos.upm.es",
-          "exp_agora": "322310",
-          "exp_centro": "55879",
-          "fecha_creacion": "2025-07-09T18:13:25.258918",
-          "matricula": "55879",
-          "nombre": "IKER",
-          "observaciones": "Importado desde Excel - FIS1 - Curso A302"
-        },
-        "5954984": {
-          "apellidos": "GONZÁLEZ GONZÁLEZ",
-          "asignaturas_matriculadas": {
-            "FIS1": {
-              "lab_aprobado": false,
-              "matriculado": true
-            }
-          },
-          "cursos_matriculado": [
-            "A302"
-          ],
-          "dni": "5954984",
-          "email": "oscar.ggonzalez@alumnos.upm.es",
-          "exp_agora": "322534",
-          "exp_centro": "56399",
-          "fecha_creacion": "2025-07-09T18:13:25.258918",
-          "matricula": "56399",
-          "nombre": "OSCAR FELIPE",
-          "observaciones": "Importado desde Excel - FIS1 - Curso A302"
-        },
-        "Y6971297": {
-          "apellidos": "GRIECO TELLERIA",
-          "asignaturas_matriculadas": {
-            "FIS1": {
-              "lab_aprobado": false,
-              "matriculado": true
-            }
-          },
-          "cursos_matriculado": [
-            "A302"
-          ],
-          "dni": "Y6971297",
-          "email": "f.grieco@alumnos.upm.es",
-          "exp_agora": "322643",
-          "exp_centro": "56946",
-          "fecha_creacion": "2025-07-09T18:13:25.258918",
-          "matricula": "56946",
-          "nombre": "FRANCESCO",
-          "observaciones": "Importado desde Excel - FIS1 - Curso A302"
-        },
-        "50572716": {
-          "apellidos": "GUTIÉRREZ HUERTA",
-          "asignaturas_matriculadas": {
-            "FIS1": {
-              "lab_aprobado": false,
-              "matriculado": true
-            }
-          },
-          "cursos_matriculado": [
-            "A302"
-          ],
-          "dni": "50572716",
-          "email": "manuel.gutierrez.huerta@alumnos.upm.es",
-          "exp_agora": "322386",
-          "exp_centro": "55908",
-          "fecha_creacion": "2025-07-09T18:13:25.258918",
-          "matricula": "55908",
-          "nombre": "MANUEL",
-          "observaciones": "Importado desde Excel - FIS1 - Curso A302"
-        },
-        "51476600": {
-          "apellidos": "GUZMÁN POLO",
-          "asignaturas_matriculadas": {
-            "FIS1": {
-              "lab_aprobado": false,
-              "matriculado": true
-            }
-          },
-          "cursos_matriculado": [
-            "A302"
-          ],
-          "dni": "51476600",
-          "email": "t.guzman@alumnos.upm.es",
-          "exp_agora": "322443",
-          "exp_centro": "56409",
-          "fecha_creacion": "2025-07-09T18:13:25.258918",
-          "matricula": "56409",
-          "nombre": "TANIA",
-          "observaciones": "Importado desde Excel - FIS1 - Curso A302"
-        },
-        "51131833": {
-          "apellidos": "HERNÁNDEZ CAMPOS",
-          "asignaturas_matriculadas": {
-            "FIS1": {
-              "lab_aprobado": false,
-              "matriculado": true
-            }
-          },
-          "cursos_matriculado": [
-            "A302"
-          ],
-          "dni": "51131833",
-          "email": "laura.hcampos@alumnos.upm.es",
-          "exp_agora": "322119",
-          "exp_centro": "55289",
-          "fecha_creacion": "2025-07-09T18:13:25.258918",
-          "matricula": "55289",
-          "nombre": "LAURA LUCÍA",
-          "observaciones": "Importado desde Excel - FIS1 - Curso A302"
-        },
-        "6024289": {
-          "apellidos": "HUESO BEJAR",
-          "asignaturas_matriculadas": {
-            "FIS1": {
-              "lab_aprobado": false,
-              "matriculado": true
-            }
-          },
-          "cursos_matriculado": [
-            "A302"
-          ],
-          "dni": "6024289",
-          "email": "manuel.hueso.bejar@alumnos.upm.es",
-          "exp_agora": "322410",
-          "exp_centro": "56176",
-          "fecha_creacion": "2025-07-09T18:13:25.258918",
-          "matricula": "56176",
-          "nombre": "MANUEL",
-          "observaciones": "Importado desde Excel - FIS1 - Curso A302"
-        },
-        "4631384": {
-          "apellidos": "LERÍN ALONSO",
-          "asignaturas_matriculadas": {
-            "FIS1": {
-              "lab_aprobado": false,
-              "matriculado": true
-            }
-          },
-          "cursos_matriculado": [
-            "A302"
-          ],
-          "dni": "4631384",
-          "email": "javier.lerin.alonso@alumnos.upm.es",
-          "exp_agora": "322286",
-          "exp_centro": "55946",
-          "fecha_creacion": "2025-07-09T18:13:25.258918",
-          "matricula": "55946",
-          "nombre": "JAVIER",
-          "observaciones": "Importado desde Excel - FIS1 - Curso A302"
-        },
-        "Y0864835": {
-          "apellidos": "LIN",
-          "asignaturas_matriculadas": {
-            "FIS1": {
-              "lab_aprobado": false,
-              "matriculado": true
-            }
-          },
-          "cursos_matriculado": [
-            "A302"
-          ],
-          "dni": "Y0864835",
-          "email": "zeqi.lin@alumnos.upm.es",
-          "exp_agora": "321995",
-          "exp_centro": "54694",
-          "fecha_creacion": "2025-07-09T18:13:25.258918",
-          "matricula": "54694",
-          "nombre": "ZEQI",
-          "observaciones": "Importado desde Excel - FIS1 - Curso A302"
-        },
-        "70420909": {
-          "apellidos": "LLANA AYEN",
-          "asignaturas_matriculadas": {
-            "FIS1": {
-              "lab_aprobado": false,
-              "matriculado": true
-            }
-          },
-          "cursos_matriculado": [
-            "A302"
-          ],
-          "dni": "70420909",
-          "email": "sergio.llana@alumnos.upm.es",
-          "exp_agora": "322639",
-          "exp_centro": "56950",
-          "fecha_creacion": "2025-07-09T18:13:25.258918",
-          "matricula": "56950",
-          "nombre": "SERGIO",
-          "observaciones": "Importado desde Excel - FIS1 - Curso A302"
-        },
-        "53851901": {
-          "apellidos": "LOBERA RODRIGUEZ",
-          "asignaturas_matriculadas": {
-            "FIS1": {
-              "lab_aprobado": false,
-              "matriculado": true
-            }
-          },
-          "cursos_matriculado": [
-            "A302"
-          ],
-          "dni": "53851901",
-          "email": "daniel.lobera@alumnos.upm.es",
-          "exp_agora": "322719",
-          "exp_centro": "56951",
-          "fecha_creacion": "2025-07-09T18:13:25.258918",
-          "matricula": "56951",
-          "nombre": "DANIEL",
-          "observaciones": "Importado desde Excel - FIS1 - Curso A302"
-        },
-        "77481076": {
-          "apellidos": "LOPEZ CARBALLAL",
-          "asignaturas_matriculadas": {
-            "FIS1": {
-              "lab_aprobado": false,
-              "matriculado": true
-            }
-          },
-          "cursos_matriculado": [
-            "A302"
-          ],
-          "dni": "77481076",
-          "email": "alonso.lopez.carballal@alumnos.upm.es",
-          "exp_agora": "321837",
-          "exp_centro": "54275",
-          "fecha_creacion": "2025-07-09T18:13:25.258918",
-          "matricula": "54275",
-          "nombre": "ALONSO",
-          "observaciones": "Importado desde Excel - FIS1 - Curso A302"
-        },
-        "50479157": {
-          "apellidos": "LOPEZ FELIPE",
-          "asignaturas_matriculadas": {
-            "FIS1": {
-              "lab_aprobado": false,
-              "matriculado": true
-            }
-          },
-          "cursos_matriculado": [
-            "A302"
-          ],
-          "dni": "50479157",
-          "email": "nerea.lfelipe@alumnos.upm.es",
-          "exp_agora": "321764",
-          "exp_centro": "54040",
-          "fecha_creacion": "2025-07-09T18:13:25.258918",
-          "matricula": "54040",
-          "nombre": "NEREA",
-          "observaciones": "Importado desde Excel - FIS1 - Curso A302"
-        },
-        "51999937": {
-          "apellidos": "MARIN ROLDAN",
-          "asignaturas_matriculadas": {
-            "FIS1": {
-              "lab_aprobado": false,
-              "matriculado": true
-            }
-          },
-          "cursos_matriculado": [
-            "A302"
-          ],
-          "dni": "51999937",
-          "email": "carmen.marinr@alumnos.upm.es",
-          "exp_agora": "320592",
-          "exp_centro": "49593",
-          "fecha_creacion": "2025-07-09T18:13:25.259918",
-          "matricula": "49593",
-          "nombre": "CARMEN",
-          "observaciones": "Importado desde Excel - FIS1 - Curso A302"
-        },
-        "3238317": {
-          "apellidos": "MARRÓN ROSADO",
-          "asignaturas_matriculadas": {
-            "FIS1": {
-              "lab_aprobado": false,
-              "matriculado": true
-            }
-          },
-          "cursos_matriculado": [
-            "A302"
-          ],
-          "dni": "3238317",
-          "email": "a.marron@alumnos.upm.es",
-          "exp_agora": "322102",
-          "exp_centro": "55335",
-          "fecha_creacion": "2025-07-09T18:13:25.259918",
-          "matricula": "55335",
-          "nombre": "ANDREA",
-          "observaciones": "Importado desde Excel - FIS1 - Curso A302"
-        },
-        "49104167": {
-          "apellidos": "MARTINEZ RODRIGUEZ",
-          "asignaturas_matriculadas": {
-            "FIS1": {
-              "lab_aprobado": false,
-              "matriculado": true
-            }
-          },
-          "cursos_matriculado": [
-            "A302"
-          ],
-          "dni": "49104167",
-          "email": "u.martinezr@alumnos.upm.es",
-          "exp_agora": "322076",
-          "exp_centro": "55351",
-          "fecha_creacion": "2025-07-09T18:13:25.259918",
-          "matricula": "55351",
-          "nombre": "UBERTO ALEJANDRO",
-          "observaciones": "Importado desde Excel - FIS1 - Curso A302"
-        },
-        "54025803": {
-          "apellidos": "MARTÍN IVANOVA",
-          "asignaturas_matriculadas": {
-            "FIS1": {
-              "lab_aprobado": false,
-              "matriculado": true
-            }
-          },
-          "cursos_matriculado": [
-            "A302"
-          ],
-          "dni": "54025803",
-          "email": "ivan.martin.ivanova@alumnos.upm.es",
-          "exp_agora": "322735",
-          "exp_centro": "56959",
-          "fecha_creacion": "2025-07-09T18:13:25.259918",
-          "matricula": "56959",
-          "nombre": "IVÁN",
-          "observaciones": "Importado desde Excel - FIS1 - Curso A302"
-        },
-        "11896544": {
-          "apellidos": "MORENO HERNÁNDEZ",
-          "asignaturas_matriculadas": {
-            "FIS1": {
-              "lab_aprobado": false,
-              "matriculado": true
-            }
-          },
-          "cursos_matriculado": [
-            "A302"
-          ],
-          "dni": "11896544",
-          "email": "marina.moreno@alumnos.upm.es",
-          "exp_agora": "322736",
-          "exp_centro": "56969",
-          "fecha_creacion": "2025-07-09T18:13:25.259918",
-          "matricula": "56969",
-          "nombre": "MARINA",
-          "observaciones": "Importado desde Excel - FIS1 - Curso A302"
-        },
-        "54197397": {
-          "apellidos": "MUÑOZ ARRIERO",
-          "asignaturas_matriculadas": {
-            "FIS1": {
-              "lab_aprobado": false,
-              "matriculado": true
-            }
-          },
-          "cursos_matriculado": [
-            "A302"
-          ],
-          "dni": "54197397",
-          "email": "iker.munoz@alumnos.upm.es",
-          "exp_agora": "322729",
-          "exp_centro": "56972",
-          "fecha_creacion": "2025-07-09T18:13:25.259918",
-          "matricula": "56972",
-          "nombre": "IKER",
-          "observaciones": "Importado desde Excel - FIS1 - Curso A302"
-        },
-        "47291937": {
-          "apellidos": "MÉNDEZ VELÁSQUEZ",
-          "asignaturas_matriculadas": {
-            "FIS1": {
-              "lab_aprobado": false,
-              "matriculado": true
-            }
-          },
-          "cursos_matriculado": [
-            "A302"
-          ],
-          "dni": "47291937",
-          "email": "david.mendez@alumnos.upm.es",
-          "exp_agora": "322485",
-          "exp_centro": "56481",
-          "fecha_creacion": "2025-07-09T18:13:25.259918",
-          "matricula": "56481",
-          "nombre": "DAVID FABIÁN",
-          "observaciones": "Importado desde Excel - FIS1 - Curso A302"
-        },
-        "6595225": {
-          "apellidos": "NAVARRO RODRÍGUEZ",
-          "asignaturas_matriculadas": {
-            "FIS1": {
-              "lab_aprobado": false,
-              "matriculado": true
-            }
-          },
-          "cursos_matriculado": [
-            "A302"
-          ],
-          "dni": "6595225",
-          "email": "jo.navarro@alumnos.upm.es",
-          "exp_agora": "322722",
-          "exp_centro": "56975",
-          "fecha_creacion": "2025-07-09T18:13:25.259918",
-          "matricula": "56975",
-          "nombre": "JORGE",
-          "observaciones": "Importado desde Excel - FIS1 - Curso A302"
-        },
-        "YC8350549": {
-          "apellidos": "NICO",
-          "asignaturas_matriculadas": {
-            "FIS1": {
-              "lab_aprobado": false,
-              "matriculado": true
-            }
-          },
-          "cursos_matriculado": [
-            "A302"
-          ],
-          "dni": "YC8350549",
-          "email": "leonardo.nico@alumnos.upm.es",
-          "exp_agora": "730",
-          "exp_centro": "58443",
-          "fecha_creacion": "2025-07-09T18:13:25.259918",
-          "matricula": "58443",
-          "nombre": "LEONARDO",
-          "observaciones": "Importado desde Excel - FIS1 - Curso A302"
-        },
-        "Y2460702": {
-          "apellidos": "NICORICI",
-          "asignaturas_matriculadas": {
-            "FIS1": {
-              "lab_aprobado": false,
-              "matriculado": true
-            }
-          },
-          "cursos_matriculado": [
-            "A302"
-          ],
-          "dni": "Y2460702",
-          "email": "tudor.nicorici@alumnos.upm.es",
-          "exp_agora": "322687",
-          "exp_centro": "56977",
-          "fecha_creacion": "2025-07-09T18:13:25.259918",
-          "matricula": "56977",
-          "nombre": "TUDOR ADRIAN",
-          "observaciones": "Importado desde Excel - FIS1 - Curso A302"
-        },
-        "11100471": {
-          "apellidos": "OLALLA TALADRIZ",
-          "asignaturas_matriculadas": {
-            "FIS1": {
-              "lab_aprobado": false,
-              "matriculado": true
-            }
-          },
-          "cursos_matriculado": [
-            "EE302"
-          ],
-          "dni": "11100471",
-          "email": "miguel.olalla@alumnos.upm.es",
-          "exp_agora": "322724",
-          "exp_centro": "56978",
-          "fecha_creacion": "2025-07-09T18:13:25.259918",
-          "matricula": "56978",
-          "nombre": "MIGUEL",
-          "observaciones": "Importado desde Excel - FIS1 - Curso EE302"
-        },
-        "54157689": {
-          "apellidos": "PACIO MÍGUEZ",
-          "asignaturas_matriculadas": {
-            "FIS1": {
-              "lab_aprobado": false,
-              "matriculado": true
-            }
-          },
-          "cursos_matriculado": [
-            "EE302"
-          ],
-          "dni": "54157689",
-          "email": "j.pacio@alumnos.upm.es",
-          "exp_agora": "322123",
-          "exp_centro": "55390",
-          "fecha_creacion": "2025-07-09T18:13:25.259918",
-          "matricula": "55390",
-          "nombre": "JORGE",
-          "observaciones": "Importado desde Excel - FIS1 - Curso EE302"
-        },
-        "51199324": {
-          "apellidos": "PAINO TENA",
-          "asignaturas_matriculadas": {
-            "FIS1": {
-              "lab_aprobado": false,
-              "matriculado": true
-            }
-          },
-          "cursos_matriculado": [
-            "EE302"
-          ],
-          "dni": "51199324",
-          "email": "adrian.paino@alumnos.upm.es",
-          "exp_agora": "322517",
-          "exp_centro": "56531",
-          "fecha_creacion": "2025-07-09T18:13:25.259918",
-          "matricula": "56531",
-          "nombre": "ADRIÁN",
-          "observaciones": "Importado desde Excel - FIS1 - Curso EE302"
-        },
-        "3487476": {
-          "apellidos": "PENIN FERNÁNDEZ",
-          "asignaturas_matriculadas": {
-            "FIS1": {
-              "lab_aprobado": false,
-              "matriculado": true
-            }
-          },
-          "cursos_matriculado": [
-            "EE302"
-          ],
-          "dni": "3487476",
-          "email": "m.penin@alumnos.upm.es",
-          "exp_agora": "322648",
-          "exp_centro": "56980",
-          "fecha_creacion": "2025-07-09T18:13:25.259918",
-          "matricula": "56980",
-          "nombre": "MARIO",
-          "observaciones": "Importado desde Excel - FIS1 - Curso EE302"
-        },
-        "DCP547868": {
-          "apellidos": "POZARZYCKI",
-          "asignaturas_matriculadas": {
-            "FIS1": {
-              "lab_aprobado": false,
-              "matriculado": true
-            }
-          },
-          "cursos_matriculado": [
-            "EE302"
-          ],
-          "dni": "DCP547868",
-          "email": "wiktor.pozarzycki@alumnos.upm.es",
-          "exp_agora": "682",
-          "exp_centro": "58341",
-          "fecha_creacion": "2025-07-09T18:13:25.259918",
-          "matricula": "58341",
-          "nombre": "WIKTOR",
-          "observaciones": "Importado desde Excel - FIS1 - Curso EE302"
-        },
-        "6008748": {
-          "apellidos": "PÉREZ BERMÚDEZ",
-          "asignaturas_matriculadas": {
-            "FIS1": {
-              "lab_aprobado": false,
-              "matriculado": true
-            }
-          },
-          "cursos_matriculado": [
-            "EE302"
-          ],
-          "dni": "6008748",
-          "email": "jose.perez.bermudez@alumnos.upm.es",
-          "exp_agora": "322526",
-          "exp_centro": "56539",
-          "fecha_creacion": "2025-07-09T18:13:25.259918",
-          "matricula": "56539",
-          "nombre": "JOSÉ",
-          "observaciones": "Importado desde Excel - FIS1 - Curso EE302"
-        },
-        "51515956": {
-          "apellidos": "REDONDO PEREZ",
-          "asignaturas_matriculadas": {
-            "FIS1": {
-              "lab_aprobado": false,
-              "matriculado": true
-            }
-          },
-          "cursos_matriculado": [
-            "EE302"
-          ],
-          "dni": "51515956",
-          "email": "marta.redondo.perez@alumnos.upm.es",
-          "exp_agora": "322603",
-          "exp_centro": "56984",
-          "fecha_creacion": "2025-07-09T18:13:25.259918",
-          "matricula": "56984",
-          "nombre": "MARTA",
-          "observaciones": "Importado desde Excel - FIS1 - Curso EE302"
-        },
-        "70833659": {
-          "apellidos": "ROLLÓN HERNÁNDEZ",
-          "asignaturas_matriculadas": {
-            "FIS1": {
-              "lab_aprobado": false,
-              "matriculado": true
-            }
-          },
-          "cursos_matriculado": [
-            "EE302"
-          ],
-          "dni": "70833659",
-          "email": "l.rollon@alumnos.upm.es",
-          "exp_agora": "322587",
-          "exp_centro": "56579",
-          "fecha_creacion": "2025-07-09T18:13:25.259918",
-          "matricula": "56579",
-          "nombre": "LAURA",
-          "observaciones": "Importado desde Excel - FIS1 - Curso EE302"
-        },
-        "6286184": {
-          "apellidos": "SOLANO PLATA",
-          "asignaturas_matriculadas": {
-            "FIS1": {
-              "lab_aprobado": false,
-              "matriculado": true
-            }
-          },
-          "cursos_matriculado": [
-            "EE302"
-          ],
-          "dni": "6286184",
-          "email": "israel.solano.plata@alumnos.upm.es",
-          "exp_agora": "321552",
-          "exp_centro": "53436",
-          "fecha_creacion": "2025-07-09T18:13:25.259918",
-          "matricula": "53436",
-          "nombre": "ISRAEL",
-          "observaciones": "Importado desde Excel - FIS1 - Curso EE302"
-        },
-        "3953512": {
-          "apellidos": "SÁNCHEZ MUÑOZ",
-          "asignaturas_matriculadas": {
-            "FIS1": {
-              "lab_aprobado": false,
-              "matriculado": true
-            }
-          },
-          "cursos_matriculado": [
-            "EE302"
-          ],
-          "dni": "3953512",
-          "email": "laura.sanchez.munoz@alumnos.upm.es",
-          "exp_agora": "322665",
-          "exp_centro": "56992",
-          "fecha_creacion": "2025-07-09T18:13:25.259918",
-          "matricula": "56992",
-          "nombre": "LAURA",
-          "observaciones": "Importado desde Excel - FIS1 - Curso EE302"
-        },
-        "50632038": {
-          "apellidos": "TORRECILLAS BARBA",
-          "asignaturas_matriculadas": {
-            "FIS1": {
-              "lab_aprobado": false,
-              "matriculado": true
-            }
-          },
-          "cursos_matriculado": [
-            "EE302"
-          ],
-          "dni": "50632038",
-          "email": "celia.torrecillas@alumnos.upm.es",
-          "exp_agora": "322300",
-          "exp_centro": "56124",
-          "fecha_creacion": "2025-07-09T18:13:25.259918",
-          "matricula": "56124",
-          "nombre": "CELIA",
-          "observaciones": "Importado desde Excel - FIS1 - Curso EE302"
-        },
-        "49391665": {
-          "apellidos": "VAQUERO MONTALVO",
-          "asignaturas_matriculadas": {
-            "FIS1": {
-              "lab_aprobado": false,
-              "matriculado": true
-            }
-          },
-          "cursos_matriculado": [
-            "EE302"
-          ],
-          "dni": "49391665",
-          "email": "oscar.vaquero@alumnos.upm.es",
-          "exp_agora": "322623",
-          "exp_centro": "56997",
-          "fecha_creacion": "2025-07-09T18:13:25.259918",
-          "matricula": "56997",
-          "nombre": "OSCAR ANTONIO",
-          "observaciones": "Importado desde Excel - FIS1 - Curso EE302"
-        },
-        "Y7958755": {
-          "apellidos": "VILLAMAR ZAMBRANO",
-          "asignaturas_matriculadas": {
-            "FIS1": {
-              "lab_aprobado": false,
-              "matriculado": true
-            }
-          },
-          "cursos_matriculado": [
-            "EE302"
-          ],
-          "dni": "Y7958755",
-          "email": "ag.villamar@alumnos.upm.es",
-          "exp_agora": "322598",
-          "exp_centro": "56727",
-          "fecha_creacion": "2025-07-09T18:13:25.259918",
-          "matricula": "56727",
-          "nombre": "ÁNGEL GABRIEL",
-          "observaciones": "Importado desde Excel - FIS1 - Curso EE302"
-        },
-        "70069877": {
-          "apellidos": "ÁLVAREZ CALLEJA",
-          "asignaturas_matriculadas": {
-            "FIS1": {
-              "lab_aprobado": false,
-              "matriculado": true
-            }
-          },
-          "cursos_matriculado": [
-            "A302"
-          ],
-          "dni": "70069877",
-          "email": "jacobo.alvarez@alumnos.upm.es",
-          "exp_agora": "322496",
-          "exp_centro": "56258",
-          "fecha_creacion": "2025-07-09T18:13:25.252913",
-          "matricula": "56258",
-          "nombre": "JACOBO",
-          "observaciones": "Importado desde Excel - FIS1 - Curso A302"
-        }
-      },
-      "total": 81,
-      "fecha_actualizacion": "2025-07-09T19:19:56.527164"
-    },
+    "horarios": {},
+    "calendario": {},
+    "aulas": {},
+    "profesores": {},
+    "alumnos": {},
     "asignaturas": {
       "configurado": true,
       "datos": {
-        "FIS1": {
-          "codigo": "FIS1",
-          "nombre": "Física I",
+        "SII": {
+          "codigo": "SII",
+          "nombre": "Sistemas Informaticos Industriales",
           "semestre": "1º Semestre",
           "curso": "3º Curso",
           "tipo": "Laboratorio",
-          "descripcion": "Física experimental básica",
-          "cursos_que_cursan": [
-            "A302",
-            "D301"
+          "descripcion": "",
+          "grupos_asociados": [
+            "A302"
           ],
           "configuracion_laboratorio": {
             "horas_por_sesion": 2,
@@ -2949,78 +29,44 @@
           },
           "planificacion": {
             "grupos_previstos": 6,
-            "clases_año": 2
+            "clases_año": 3
           },
           "estadisticas_calculadas": {
+            "total_matriculados": 0,
             "con_lab_anterior": 0,
-            "grupos_recomendados": 1,
-            "sin_lab_anterior": 2,
-            "total_matriculados": 2,
-            "ultima_actualizacion": "2025-07-05T12:00:00.000000"
+            "sin_lab_anterior": 0,
+            "grupos_recomendados": 0,
+            "ultima_actualizacion": "2025-07-11T20:25:15.727015"
           },
-          "fecha_creacion": "2025-07-09T19:19:45.228887"
+          "fecha_creacion": "2025-07-11T20:27:09.283000"
         }
       },
       "total": 1,
-      "fecha_actualizacion": "2025-07-09T19:19:47.182920"
+      "fecha_actualizacion": "2025-07-11T21:08:41.891485"
     },
-    "cursos": {
+    "grupos": {
       "configurado": true,
       "datos": {
         "A302": {
-          "activo": true,
-          "asignaturas_asociadas": [
-            "FIS1"
-          ],
           "codigo": "A302",
-          "coordinador": "Dr. Fernández Castro",
-          "creditos_totales": 240,
+          "nombre": "Grado en auto",
           "curso_actual": "3º Curso",
-          "departamento": "Ingeniería Electrónica",
-          "estudiantes_matriculados": 1,
-          "fecha_creacion": "2025-07-08T22:16:37.974629",
-          "horario_tipo": "Tarde",
-          "nombre": "Grado en Ingeniería Electrónica Industrial",
-          "observaciones": "Curso con alta demanda",
-          "plazas": 60
-        },
-        "D301": {
+          "coordinador": "Don Lopez",
+          "departamento": "Ing ind",
+          "creditos_totales": 240,
+          "plazas": 120,
+          "estudiantes_matriculados": 95,
+          "horario_tipo": "Mañana",
+          "observaciones": "",
+          "fecha_creacion": "2025-07-11T20:25:24.132398",
           "activo": true,
           "asignaturas_asociadas": [
-            "FIS1"
-          ],
-          "codigo": "D301",
-          "coordinador": "Dr. Fernández Castro",
-          "creditos_totales": 240,
-          "curso_actual": "3º Curso",
-          "departamento": "Ingeniería Electrónica",
-          "estudiantes_matriculados": 0,
-          "fecha_creacion": "2025-07-09T19:02:06.211268",
-          "horario_tipo": "Tarde",
-          "nombre": "adfgaergdf",
-          "observaciones": "Curso con alta demanda",
-          "plazas": 60
-        },
-        "EE302": {
-          "activo": true,
-          "asignaturas_asociadas": [
-            "FIS1"
-          ],
-          "codigo": "EE302",
-          "coordinador": "Dr. Fernández Castro",
-          "creditos_totales": 240,
-          "curso_actual": "3º Curso",
-          "departamento": "Ingeniería Electrónica",
-          "estudiantes_matriculados": 70,
-          "fecha_creacion": "2025-07-09T17:43:51.955366",
-          "horario_tipo": "Tarde",
-          "nombre": "Grado en doble",
-          "observaciones": "Curso con alta demanda",
-          "plazas": 60
+            "SII"
+          ]
         }
       },
-      "total": 3,
-      "fecha_actualizacion": "2025-07-09T22:23:32.708167"
+      "total": 1,
+      "fecha_actualizacion": "2025-07-11T21:08:41.892483"
     }
   },
   "parametros_organizacion": {
@@ -3064,109 +110,61 @@
   "resultados_organizacion": {
     "datos_disponibles": true,
     "ultima_ejecucion": {
-      "timestamp": "2025-07-09T17:42:17.950972",
+      "timestamp": "2025-07-11T16:45:14.452443",
       "version": "motor_organizacion_v5.0",
       "estadisticas": {
-        "total_grupos": 7,
-        "grupos_asignados": 6,
-        "porcentaje_exito": 85.71428571428571,
+        "total_grupos": 6,
+        "grupos_asignados": 3,
+        "porcentaje_exito": 50.0,
         "conflictos_detectados": 0,
-        "aulas_utilizadas": 2,
-        "profesores_participantes": 2,
-        "utilizacion_promedio_aulas": 64.61538461538463,
-        "grupos_equilibrados": 2,
-        "horas_tempranas_utilizadas": 83.33333333333334
+        "aulas_utilizadas": 1,
+        "profesores_participantes": 1,
+        "utilizacion_promedio_aulas": 53.84615384615385,
+        "grupos_equilibrados": 1,
+        "horas_tempranas_utilizadas": 66.66666666666666
       },
       "horarios": [
         {
           "asignatura": "FIS1",
-          "grupo": "FIS1_G1",
-          "aula": "Laboratorio A",
-          "profesor": "Miguel Fernández Castro",
-          "profesor_id": "prof_003",
-          "dia": "Lunes",
-          "hora_inicio": "9:30",
-          "hora_fin": "11:30",
-          "num_alumnos": 10,
-          "curso": "A302",
-          "capacidad_aula": 13,
-          "utilizacion_aula": 76.92307692307693,
-          "slot_temporal": "Lunes_9:30-11:30"
-        },
-        {
-          "asignatura": "FIS1",
-          "grupo": "FIS1_G2",
+          "grupo": "A302",
           "aula": "Laboratorio D",
-          "profesor": "Antonio García López",
-          "profesor_id": "prof_001",
-          "dia": "Lunes",
-          "hora_inicio": "9:30",
-          "hora_fin": "11:30",
-          "num_alumnos": 10,
-          "curso": "A302",
-          "capacidad_aula": 25,
-          "utilizacion_aula": 40.0,
-          "slot_temporal": "Lunes_9:30-11:30"
-        },
-        {
-          "asignatura": "FIS1",
-          "grupo": "FIS1_G3",
-          "aula": "Laboratorio A",
           "profesor": "Miguel Fernández Castro",
           "profesor_id": "prof_003",
           "dia": "Martes",
           "hora_inicio": "9:30",
           "hora_fin": "11:30",
-          "num_alumnos": 10,
-          "curso": "A302",
-          "capacidad_aula": 13,
-          "utilizacion_aula": 76.92307692307693,
+          "num_alumnos": 14,
+          "capacidad_aula": 26,
+          "utilizacion_aula": 53.84615384615385,
           "slot_temporal": "Martes_9:30-11:30"
         },
         {
           "asignatura": "FIS1",
-          "grupo": "FIS1_G4",
+          "grupo": "A302",
           "aula": "Laboratorio D",
-          "profesor": "Antonio García López",
-          "profesor_id": "prof_001",
+          "profesor": "Miguel Fernández Castro",
+          "profesor_id": "prof_003",
           "dia": "Martes",
-          "hora_inicio": "9:30",
-          "hora_fin": "11:30",
-          "num_alumnos": 10,
-          "curso": "A302",
-          "capacidad_aula": 25,
-          "utilizacion_aula": 40.0,
-          "slot_temporal": "Martes_9:30-11:30"
-        },
-        {
-          "asignatura": "FIS1",
-          "grupo": "FIS1_G5",
-          "aula": "Laboratorio A",
-          "profesor": "Antonio García López",
-          "profesor_id": "prof_001",
-          "dia": "Viernes",
           "hora_inicio": "11:30",
           "hora_fin": "13:30",
-          "num_alumnos": 10,
-          "curso": "A302",
-          "capacidad_aula": 13,
-          "utilizacion_aula": 76.92307692307693,
-          "slot_temporal": "Viernes_11:30-13:30"
+          "num_alumnos": 14,
+          "capacidad_aula": 26,
+          "utilizacion_aula": 53.84615384615385,
+          "slot_temporal": "Martes_11:30-13:30"
         },
         {
           "asignatura": "FIS1",
-          "grupo": "FIS1_G6",
-          "aula": "Laboratorio A",
+          "grupo": "A302",
+          "aula": "Laboratorio D",
           "profesor": "Miguel Fernández Castro",
           "profesor_id": "prof_003",
-          "dia": "Miércoles",
+          "dia": "Martes",
           "hora_inicio": "15:30",
           "hora_fin": "17:30",
-          "num_alumnos": 10,
-          "curso": "A302",
-          "capacidad_aula": 13,
-          "utilizacion_aula": 76.92307692307693,
-          "slot_temporal": "Miércoles_15:30-17:30"
+          "num_alumnos": 14,
+          "capacidad_aula": 26,
+          "utilizacion_aula": 53.84615384615385,
+          "slot_temporal": "Martes_15:30-17:30"
         }
       ],
       "problemas": [],
@@ -3174,127 +172,130 @@
         "FIS1": [
           {
             "grupo_id": "FIS1_G1",
-            "num_alumnos": 10,
+            "num_alumnos": 14,
             "curso_principal": "A302",
-            "tiene_doble_grado": false,
+            "tiene_doble_grado": true,
             "alumnos": [
-              "12362",
-              "12390",
-              "12351",
-              "12386",
-              "12372",
-              "12363",
-              "12400",
-              "12356",
-              "12396",
-              "12392"
+              "51199324",
+              "3487476",
+              "70833659",
+              "50632038",
+              "6008748",
+              "Y7958755",
+              "6286184",
+              "49391665",
+              "DCP547868",
+              "3953512",
+              "51515956",
+              "54157689",
+              "11100471",
+              "50771036"
             ]
           },
           {
             "grupo_id": "FIS1_G2",
-            "num_alumnos": 10,
+            "num_alumnos": 14,
             "curso_principal": "A302",
             "tiene_doble_grado": false,
             "alumnos": [
-              "12365",
-              "12384",
-              "12354",
-              "12397",
-              "12378",
-              "12360",
-              "12404",
-              "12402",
-              "12395",
-              "12347"
+              "Y2460702",
+              "55022198",
+              "49365019",
+              "78228827",
+              "51762439",
+              "53846408",
+              "47291937",
+              "2775904",
+              "51476600",
+              "70069877",
+              "5954984",
+              "54363023",
+              "Y6971297",
+              "54025803"
             ]
           },
           {
             "grupo_id": "FIS1_G3",
-            "num_alumnos": 10,
+            "num_alumnos": 14,
             "curso_principal": "A302",
             "tiene_doble_grado": false,
             "alumnos": [
-              "12394",
-              "12355",
-              "12376",
-              "12366",
-              "12369",
-              "12401",
-              "12374",
-              "12350",
-              "12379",
-              "12377"
+              "51542960",
+              "53993128",
+              "4631384",
+              "YC8350549",
+              "6595225",
+              "77481076",
+              "76061803",
+              "50572716",
+              "54721161",
+              "49229398",
+              "53850991",
+              "3238317",
+              "6719214",
+              "3031410"
             ]
           },
           {
             "grupo_id": "FIS1_G4",
-            "num_alumnos": 10,
+            "num_alumnos": 13,
             "curso_principal": "A302",
             "tiene_doble_grado": false,
             "alumnos": [
-              "12391",
-              "12364",
-              "12371",
-              "12385",
-              "12375",
-              "12383",
-              "12368",
-              "12403",
-              "12380",
-              "12399"
+              "Y0864835",
+              "51760419",
+              "5964566",
+              "53851901",
+              "2322249",
+              "9149386",
+              "72326962",
+              "11896544",
+              "50502125",
+              "6024289",
+              "49155207",
+              "2743818",
+              "9104694"
             ]
           },
           {
             "grupo_id": "FIS1_G5",
-            "num_alumnos": 10,
+            "num_alumnos": 13,
             "curso_principal": "A302",
             "tiene_doble_grado": false,
             "alumnos": [
-              "12398",
-              "12345",
-              "12348",
-              "12346",
-              "12367",
-              "12352",
-              "12349",
-              "12388",
-              "12370",
-              "12382"
+              "54976306",
+              "70420909",
+              "43470571",
+              "2776786",
+              "50479157",
+              "5950735",
+              "2334400",
+              "35719895",
+              "70068948",
+              "6632059",
+              "3941450",
+              "53980770",
+              "5956642"
             ]
           },
           {
             "grupo_id": "FIS1_G6",
-            "num_alumnos": 10,
+            "num_alumnos": 13,
             "curso_principal": "A302",
             "tiene_doble_grado": false,
             "alumnos": [
-              "12358",
-              "12353",
-              "12373",
-              "12361",
-              "12393",
-              "12357",
-              "12387",
-              "12359",
-              "12389",
-              "12381"
-            ]
-          }
-        ],
-        "SII": [
-          {
-            "grupo_id": "SII_G1",
-            "num_alumnos": 8,
-            "curso_principal": "A302",
-            "tiene_doble_grado": false,
-            "alumnos": [
-              "70069877",
-              "21115643",
-              "16872",
-              "53980770",
-              "53846408",
+              "71371894",
+              "3208393",
               "79059925",
-              "6719214",
+              "54197397",
+              "21115643",
+              "4240321",
+              "54838914",
+              "51550083",
+              "49104167",
+              "51999937",
+              "51131833",
+              "53472377",
               "51191346"
             ]
           }
@@ -3302,105 +303,105 @@
       },
       "estadisticas_detalladas": {
         "generacion_grupos": {
-          "total_grupos_generados": 1,
+          "total_grupos_generados": 6,
           "grupos_equilibrados": 6,
-          "grupos_pares": 0,
-          "alumnos_doble_grado_priorizados": 0,
-          "diferencia_max_encontrada": 0,
-          "timestamp_generacion": "2025-07-09T17:42:17.933971"
+          "grupos_pares": 6,
+          "alumnos_doble_grado_priorizados": 13,
+          "diferencia_max_encontrada": 1,
+          "timestamp_generacion": "2025-07-11T16:45:14.434395"
         },
         "asignacion_recursos": {
           "total_grupos_procesados": 6,
-          "grupos_asignados_exitosamente": 6,
-          "grupos_sin_asignar": 0,
+          "grupos_asignados_exitosamente": 3,
+          "grupos_sin_asignar": 3,
           "intercambios_realizados": 0,
           "conflictos_resueltos": 0,
-          "utilizacion_promedio_aulas": 64.61538461538463,
-          "timestamp_asignacion": "2025-07-09T17:42:17.947948"
+          "utilizacion_promedio_aulas": 53.84615384615385,
+          "timestamp_asignacion": "2025-07-11T16:45:14.449443"
         },
         "optimizacion": {
-          "puntuacion_inicial": 110.09615384615384,
-          "puntuacion_final": 110.09615384615384,
+          "puntuacion_inicial": 219.46153846153845,
+          "puntuacion_final": 219.46153846153845,
           "mejora_porcentual": 0.0,
           "total_intercambios": 0,
           "conflictos_resueltos": 0,
           "optimizaciones_aplicadas": [
             "Horas tempranas: 1 oportunidades identificadas",
-            "Utilización aulas: 4 aulas por optimizar"
+            "Utilización aulas: 3 aulas por optimizar"
           ],
-          "timestamp_optimizacion": "2025-07-09T17:42:17.949965"
+          "timestamp_optimizacion": "2025-07-11T16:45:14.451441"
         }
       },
       "resumen_ejecucion": {
-        "total_asignaturas_procesadas": 2,
-        "total_grupos_generados": 7,
-        "total_asignaciones": 6,
+        "total_asignaturas_procesadas": 1,
+        "total_grupos_generados": 6,
+        "total_asignaciones": 3,
         "total_problemas": 0,
         "total_intercambios": 0,
         "duracion_proceso": "completado"
       }
     },
-    "fecha_actualizacion": "2025-07-09T17:42:17.952238",
+    "fecha_actualizacion": "2025-07-11T16:45:14.454462",
     "resumen": {
-      "total_grupos": 7,
-      "grupos_asignados": 6,
+      "total_grupos": 6,
+      "grupos_asignados": 3,
       "conflictos_detectados": 0,
-      "porcentaje_exito": 85.71428571428571
+      "porcentaje_exito": 50.0
     },
     "historial_ejecuciones": [
       {
-        "timestamp": "2025-07-09T17:10:40.808171",
+        "timestamp": "2025-07-11T15:42:21.536817",
         "resumen": {
-          "total_grupos": 8,
-          "grupos_asignados": 6,
+          "total_grupos": 6,
+          "grupos_asignados": 4,
           "conflictos_detectados": 0,
-          "porcentaje_exito": 75.0
+          "porcentaje_exito": 66.66666666666666
         },
-        "total_horarios": 6,
+        "total_horarios": 4,
         "total_problemas": 0
       },
       {
-        "timestamp": "2025-07-09T17:11:59.767487",
+        "timestamp": "2025-07-11T16:37:21.002293",
         "resumen": {
-          "total_grupos": 7,
-          "grupos_asignados": 6,
+          "total_grupos": 6,
+          "grupos_asignados": 4,
           "conflictos_detectados": 0,
-          "porcentaje_exito": 85.71428571428571
+          "porcentaje_exito": 66.66666666666666
         },
-        "total_horarios": 6,
+        "total_horarios": 4,
         "total_problemas": 0
       },
       {
-        "timestamp": "2025-07-09T17:16:17.383456",
+        "timestamp": "2025-07-11T16:40:57.565687",
         "resumen": {
-          "total_grupos": 7,
-          "grupos_asignados": 6,
+          "total_grupos": 6,
+          "grupos_asignados": 4,
           "conflictos_detectados": 0,
-          "porcentaje_exito": 85.71428571428571
+          "porcentaje_exito": 66.66666666666666
         },
-        "total_horarios": 6,
+        "total_horarios": 4,
         "total_problemas": 0
       },
       {
-        "timestamp": "2025-07-09T17:17:49.372375",
+        "timestamp": "2025-07-11T16:44:09.426754",
         "resumen": {
-          "total_grupos": 8,
-          "grupos_asignados": 6,
+          "total_grupos": 6,
+          "grupos_asignados": 4,
           "conflictos_detectados": 0,
-          "porcentaje_exito": 75.0
+          "porcentaje_exito": 66.66666666666666
         },
-        "total_horarios": 6,
+        "total_horarios": 4,
         "total_problemas": 0
       },
       {
-        "timestamp": "2025-07-09T17:42:17.952238",
+        "timestamp": "2025-07-11T16:45:14.454462",
         "resumen": {
-          "total_grupos": 7,
-          "grupos_asignados": 6,
+          "total_grupos": 6,
+          "grupos_asignados": 3,
           "conflictos_detectados": 0,
-          "porcentaje_exito": 85.71428571428571
+          "porcentaje_exito": 50.0
         },
-        "total_horarios": 6,
+        "total_horarios": 3,
         "total_problemas": 0
       }
     ]

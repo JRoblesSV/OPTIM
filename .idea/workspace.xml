@@ -49,6 +49,7 @@
     "Python.configurar_calendario.executor": "Run",
     "Python.configurar_calendario_funciona.executor": "Run",
     "Python.configurar_cursos.executor": "Run",
+    "Python.configurar_grupos.executor": "Run",
     "Python.configurar_horarios.executor": "Run",
     "Python.configurar_horarios_old.executor": "Run",
     "Python.configurar_parametros.executor": "Run",
@@ -59,21 +60,21 @@
     "RunOnceActivity.OpenProjectViewOnStart": "true",
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "git-widget-placeholder": "main",
-    "last_opened_file_path": "B:/0_TFG_GIT/OPTIM/src/modules/organizador",
+    "last_opened_file_path": "B:/0_TFG_GIT/OPTIM/src/modules/interfaces",
     "settings.editor.selected.configurable": "com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable"
   }
 }]]></component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
+      <recent name="B:\0_TFG_GIT\OPTIM\src\modules\interfaces" />
       <recent name="B:\0_TFG_GIT\OPTIM\src\modules\organizador" />
       <recent name="B:\0_TFG_GIT\OPTIM" />
-      <recent name="B:\0_TFG_GIT\OPTIM\src\modules\interfaces" />
       <recent name="B:\0_TFG_GIT\OPTIM\src\modules" />
       <recent name="B:\0_TFG_GIT\OPTIM\src\iconos" />
     </key>
   </component>
   <component name="RunManager" selected="Python.gui_labs">
-    <configuration name="configurar_parametros" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+    <configuration name="configurar_asignaturas" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="ANEXO_Robles_Molina_Javier" />
       <option name="ENV_FILES" value="" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -83,7 +84,7 @@
       <option name="IS_MODULE_SDK" value="true" />
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/src/modules/interfaces/configurar_parametros.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/src/modules/interfaces/configurar_asignaturas.py" />
       <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
@@ -92,17 +93,17 @@
       <option name="INPUT_FILE" value="" />
       <method v="2" />
     </configuration>
-    <configuration name="ejemplo_uso_optim" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+    <configuration name="configurar_grupos" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="ANEXO_Robles_Molina_Javier" />
       <option name="ENV_FILES" value="" />
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
       <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/src" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/src/modules/interfaces" />
       <option name="IS_MODULE_SDK" value="true" />
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/src/ejemplo_uso_optim.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/src/modules/interfaces/configurar_grupos.py" />
       <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
@@ -157,6 +158,9 @@
       <option name="ENV_FILES" value="" />
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
       <option name="SDK_HOME" value="" />
       <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/src/modules/organizador" />
       <option name="IS_MODULE_SDK" value="true" />
@@ -176,6 +180,9 @@
       <option name="ENV_FILES" value="" />
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
       <option name="SDK_HOME" value="" />
       <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/src/modules/interfaces" />
       <option name="IS_MODULE_SDK" value="true" />
@@ -193,10 +200,10 @@
     <recent_temporary>
       <list>
         <item itemvalue="Python.gui_labs" />
+        <item itemvalue="Python.configurar_grupos" />
+        <item itemvalue="Python.configurar_asignaturas" />
         <item itemvalue="Python.motor_organizacion" />
         <item itemvalue="Python.ver_resultados" />
-        <item itemvalue="Python.configurar_parametros" />
-        <item itemvalue="Python.ejemplo_uso_optim" />
       </list>
     </recent_temporary>
   </component>

@@ -6,7 +6,7 @@ Desarrollado por SoftVier para ETSIDI (UPM)
 
 FUNCIONALIDADES IMPLEMENTADAS:
 1. Gestión integral de asignaturas con datos académicos completos
-2. Configuración dinámica de cursos que cursan cada asignatura
+2. Configuración dinámica de grupos que cursan cada asignatura
 3. Planificación automática de grupos basada en matriculaciones reales
 4. Estadísticas automáticas sincronizadas con datos de alumnos
 5. Configuración detallada de laboratorio y equipamiento requerido
@@ -32,7 +32,7 @@ from PyQt6.QtWidgets import (
     QDialog, QDialogButtonBox, QCheckBox, QFileDialog,
     QLineEdit, QInputDialog, QTextEdit, QFormLayout
 )
-from PyQt6.QtCore import Qt, pyqtSignal
+from PyQt6.QtCore import Qt, pyqtSignal, QTimer
 from PyQt6.QtGui import QFont, QPalette, QColor
 
 
@@ -67,10 +67,10 @@ def center_window_on_screen_immediate(window, width, height):
 class GestionAsignaturaDialog(QDialog):
     """Dialog para añadir/editar asignatura con configuración completa"""
 
-    def __init__(self, asignatura_existente=None, alumnos_disponibles=None, aulas_disponibles=None, cursos_disponibles=None, parent=None):
+    def __init__(self, asignatura_existente=None, alumnos_disponibles=None, aulas_disponibles=None, grupos_disponibles=None, parent=None):
         super().__init__(parent)
         self.asignatura_existente = asignatura_existente
-        self.cursos_disponibles = cursos_disponibles or {}
+        self.grupos_disponibles = grupos_disponibles or {}
         self.alumnos_disponibles = alumnos_disponibles or {}
         self.aulas_disponibles = aulas_disponibles or {}
         self.parent_window = parent
@@ -84,7 +84,10 @@ class GestionAsignaturaDialog(QDialog):
         self.setup_ui()
         self.apply_dark_theme()
 
+        # Forzar tamaños iguales de ok/cancel
+        QTimer.singleShot(50, self.igualar_tamanos_botones_ok_cancel)
 
+        self.setAttribute(Qt.WidgetAttribute.WA_AlwaysShowToolTips, True)
 
         if self.asignatura_existente:
             self.cargar_datos_existentes()
@@ -127,52 +130,52 @@ class GestionAsignaturaDialog(QDialog):
         basicos_group.setLayout(basicos_layout)
         layout.addWidget(basicos_group)
 
-        # Gestión dinámica de cursos (como en configurar_horarios.py)
-        cursos_group = QGroupBox("🎓 CURSOS QUE CURSAN ESTA ASIGNATURA")
-        cursos_layout = QVBoxLayout()
+        # Gestión dinámica de grupos (como en configurar_horarios.py)
+        grupos_group = QGroupBox("🎓 GRUPOS QUE CURSAN ESTA ASIGNATURA")
+        grupos_layout = QVBoxLayout()
 
         # Header con botones de gestión
-        cursos_header = QHBoxLayout()
-        cursos_header.addWidget(QLabel("Cursos:"))
-        cursos_header.addStretch()
+        grupos_header = QHBoxLayout()
+        grupos_header.addWidget(QLabel("Grupos:"))
+        grupos_header.addStretch()
 
-        btn_add_curso = QPushButton("➕")
-        btn_add_curso.setMinimumSize(30, 25)
-        btn_add_curso.setMaximumSize(40, 40)
-        btn_add_curso.setStyleSheet(self.get_button_style("#4CAF50"))
-        btn_add_curso.setToolTip("Añadir nuevo curso")
-        btn_add_curso.clicked.connect(self.anadir_curso)
-        cursos_header.addWidget(btn_add_curso)
+        btn_add_grupo = QPushButton("➕")
+        btn_add_grupo.setMinimumSize(30, 25)
+        btn_add_grupo.setMaximumSize(40, 40)
+        btn_add_grupo.setStyleSheet(self.get_button_style("#4CAF50"))
+        btn_add_grupo.setToolTip("Añadir nuevo grupo")
+        btn_add_grupo.clicked.connect(self.anadir_grupo)
+        grupos_header.addWidget(btn_add_grupo)
 
-        btn_edit_curso = QPushButton("✏️")
-        btn_edit_curso.setMinimumSize(30, 25)
-        btn_edit_curso.setMaximumSize(40, 40)
-        btn_edit_curso.setStyleSheet(self.get_button_style("#2196F3"))
-        btn_edit_curso.setToolTip("Editar curso seleccionado")
-        btn_edit_curso.clicked.connect(self.editar_curso_seleccionado)
-        cursos_header.addWidget(btn_edit_curso)
+        #btn_edit_grupo = QPushButton("✏️")
+        #btn_edit_grupo.setMinimumSize(30, 25)
+        #btn_edit_grupo.setMaximumSize(40, 40)
+        #btn_edit_grupo.setStyleSheet(self.get_button_style("#2196F3"))
+        #btn_edit_grupo.setToolTip("Editar grupo seleccionado")
+        #btn_edit_grupo.clicked.connect(self.editar_grupo_seleccionado)
+        #grupos_header.addWidget(btn_edit_grupo)
 
-        btn_delete_curso = QPushButton("🗑️")
-        btn_delete_curso.setMinimumSize(30, 25)
-        btn_delete_curso.setMaximumSize(40, 40)
-        btn_delete_curso.setStyleSheet(self.get_button_style("#f44336"))
-        btn_delete_curso.setToolTip("Eliminar curso seleccionado")
-        btn_delete_curso.clicked.connect(self.eliminar_curso_seleccionado)
-        cursos_header.addWidget(btn_delete_curso)
+        btn_delete_grupo = QPushButton("🗑️")
+        btn_delete_grupo.setMinimumSize(30, 25)
+        btn_delete_grupo.setMaximumSize(40, 40)
+        btn_delete_grupo.setStyleSheet(self.get_button_style("#f44336"))
+        btn_delete_grupo.setToolTip("Eliminar grupo seleccionado")
+        btn_delete_grupo.clicked.connect(self.eliminar_grupo_seleccionado)
+        grupos_header.addWidget(btn_delete_grupo)
 
-        cursos_layout.addLayout(cursos_header)
+        grupos_layout.addLayout(grupos_header)
 
-        # Lista dinámica de cursos
-        self.list_cursos_dialog = QListWidget()
-        self.list_cursos_dialog.setMaximumHeight(120)
-        cursos_layout.addWidget(self.list_cursos_dialog)
+        # Lista dinámica de grupos
+        self.list_grupos_dialog = QListWidget()
+        self.list_grupos_dialog.setMaximumHeight(120)
+        grupos_layout.addWidget(self.list_grupos_dialog)
 
-        info_cursos = QLabel("💡 Tip: Gestiona los cursos dinámicamente con los botones de arriba")
-        info_cursos.setStyleSheet("color: #cccccc; font-size: 10px; font-style: italic;")
-        cursos_layout.addWidget(info_cursos)
+        info_grupos = QLabel("💡 Tip: Gestiona los grupos dinámicamente con los botones de arriba")
+        info_grupos.setStyleSheet("color: #cccccc; font-size: 10px; font-style: italic;")
+        grupos_layout.addWidget(info_grupos)
 
-        cursos_group.setLayout(cursos_layout)
-        layout.addWidget(cursos_group)
+        grupos_group.setLayout(grupos_layout)
+        layout.addWidget(grupos_group)
 
         # Configuración de laboratorio
         lab_group = QGroupBox("🔬 CONFIGURACIÓN DE LABORATORIO")
@@ -270,19 +273,19 @@ class GestionAsignaturaDialog(QDialog):
 
         self.edit_descripcion.setText(datos.get('descripcion', ''))
 
-        # Cursos (cargar en lista dinámica)
-        cursos = datos.get('cursos_que_cursan', [])
-        self.list_cursos_dialog.clear()
-        for curso in sorted(cursos):
-            # Buscar nombre del curso
-            nombre_curso = curso
-            if self.cursos_disponibles and curso in self.cursos_disponibles:
-                nombre_curso = self.cursos_disponibles[curso].get('nombre', curso)
+        # Grupos (cargar en lista dinámica)
+        grupos = datos.get('grupos_asociados', [])
+        self.list_grupos_dialog.clear()
+        for grupo in sorted(grupos):
+            # Buscar nombre del grupo
+            nombre_grupo = grupo
+            if self.grupos_disponibles and grupo in self.grupos_disponibles:
+                nombre_grupo = self.grupos_disponibles[grupo].get('nombre', grupo)
 
-            texto_display = f"{curso} - {nombre_curso}"
+            texto_display = f"{grupo} - {nombre_grupo}"
             item = QListWidgetItem(texto_display)
-            item.setData(Qt.ItemDataRole.UserRole, curso)
-            self.list_cursos_dialog.addItem(item)
+            item.setData(Qt.ItemDataRole.UserRole, grupo)
+            self.list_grupos_dialog.addItem(item)
 
         # Configuración laboratorio
         config_lab = datos.get('configuracion_laboratorio', {})
@@ -307,11 +310,11 @@ class GestionAsignaturaDialog(QDialog):
             self.edit_nombre.setFocus()
             return
 
-        # Validar que al menos un curso esté seleccionado
-        cursos_seleccionados = self.get_cursos_seleccionados()
-        if not cursos_seleccionados:
-            QMessageBox.warning(self, "Cursos requeridos",
-                                "Debe seleccionar al menos un curso que curse esta asignatura")
+        # Validar que al menos un grupo esté seleccionado
+        grupos_seleccionados = self.get_grupos_seleccionados()
+        if not grupos_seleccionados:
+            QMessageBox.warning(self, "Grupos requeridos",
+                                "Debe seleccionar al menos un grupo que curse esta asignatura")
             return
 
         self.accept()
@@ -319,24 +322,28 @@ class GestionAsignaturaDialog(QDialog):
     def get_button_style(self, color):
         """Generar estilo para botones de acción"""
         return f"""
-            QPushButton {{
-                font-size: 14px;
-                font-weight: bold;
-                border: 2px solid #666;
-                border-radius: 4px;
-                background-color: #444;
-                color: {color};
-                padding: 2px;
-                margin: 0px;
-                text-align: center;
-            }}
-            QPushButton:hover {{
-                background-color: rgba({self.hex_to_rgb(color)}, 0.3);
-                border-color: {color};
-            }}
-            QPushButton:pressed {{
-                background-color: rgba({self.hex_to_rgb(color)}, 0.5);
-            }}
+                QPushButton {{
+                    font-size: 14px;
+                    font-weight: bold;
+                    border: 2px solid #666;
+                    border-radius: 4px;
+                    background-color: #444;
+                    color: {color};
+                    padding: 2px;
+                    margin: 0px;
+                    text-align: center;
+                    min-width: 30px;
+                    min-height: 25px;
+                    max-width: 40px;
+                    max-height: 40px;
+                }}
+                QPushButton:hover {{
+                    background-color: rgba({self.hex_to_rgb(color)}, 0.3);
+                    border-color: {color};
+                }}
+                QPushButton:pressed {{
+                    background-color: rgba({self.hex_to_rgb(color)}, 0.5);
+                }}
         """
 
     def hex_to_rgb(self, hex_color):
@@ -344,37 +351,37 @@ class GestionAsignaturaDialog(QDialog):
         hex_color = hex_color.lstrip('#')
         return ', '.join(str(int(hex_color[i:i + 2], 16)) for i in (0, 2, 4))
 
-    def filtrar_cursos_por_nivel(self):
-        """Filtrar cursos disponibles según el nivel de la asignatura"""
-        if not self.cursos_disponibles:
+    def filtrar_grupos_por_nivel(self):
+        """Filtrar grupos disponibles según el nivel de la asignatura"""
+        if not self.grupos_disponibles:
             return []
 
-        # Obtener el nivel del curso seleccionado
-        curso_seleccionado = self.combo_curso.currentText()
-        if not curso_seleccionado:
+        # Obtener el nivel del grupo seleccionado
+        grupo_seleccionado = self.combo_curso.currentText()
+        if not grupo_seleccionado:
             return []
 
         # Extraer el número del curso (1, 2, 3, 4)
-        numero_curso = curso_seleccionado[0]  # "1º Curso" -> "1"
+        numero_curso = grupo_seleccionado[0]  # "1º Curso" -> "1"
 
-        # Obtener cursos ya agregados
-        cursos_ya_agregados = set()
-        for i in range(self.list_cursos_dialog.count()):
-            item = self.list_cursos_dialog.item(i)
-            cursos_ya_agregados.add(item.data(Qt.ItemDataRole.UserRole))
+        # Obtener grupos ya agregados
+        grupos_ya_agregados = set()
+        for i in range(self.list_grupos_dialog.count()):
+            item = self.list_grupos_dialog.item(i)
+            grupos_ya_agregados.add(item.data(Qt.ItemDataRole.UserRole))
 
-        # Filtrar cursos que coincidan con el patrón
-        cursos_filtrados = []
-        for codigo, datos in self.cursos_disponibles.items():
+        # Filtrar grupos que coincidan con el patrón
+        grupos_filtrados = []
+        for codigo, datos in self.grupos_disponibles.items():
             # Saltar si ya está agregado
-            if codigo in cursos_ya_agregados:
+            if codigo in grupos_ya_agregados:
                 continue
 
             # Verificar que el código tenga al menos 3 caracteres
             if len(codigo) < 3:
                 continue
 
-            # Buscar el número del curso en las posiciones posibles
+            # Buscar el número del grupo en las posiciones posibles
             encontrado = False
 
             # Verificar si es patrón L[numero]NN (1 letra + número + 2 números)
@@ -392,43 +399,43 @@ class GestionAsignaturaDialog(QDialog):
             if encontrado:
                 nombre = datos.get('nombre', codigo)
                 coordinador = datos.get('coordinador', 'Sin coordinador')
-                cursos_filtrados.append((f"{codigo} - {nombre} ({coordinador})", codigo))
+                grupos_filtrados.append((f"{codigo} - {nombre} ({coordinador})", codigo))
 
-        return cursos_filtrados
+        return grupos_filtrados
 
-    def filtrar_cursos_por_nivel_edicion(self, curso_a_excluir):
-        """Filtrar cursos disponibles para edición, excluyendo uno específico"""
-        if not self.cursos_disponibles:
+    def filtrar_grupos_por_nivel_edicion(self, grupo_a_excluir):
+        """Filtrar grupos disponibles para edición, excluyendo uno específico"""
+        if not self.grupos_disponibles:
             return []
 
-        # Obtener el nivel del curso seleccionado
-        curso_seleccionado = self.combo_curso.currentText()
-        if not curso_seleccionado:
+        # Obtener el nivel del grupo seleccionado
+        grupo_seleccionado = self.combo_curso.currentText()
+        if not grupo_seleccionado:
             return []
 
         # Extraer el número del curso (1, 2, 3, 4)
-        numero_curso = curso_seleccionado[0]  # "1º Curso" -> "1"
+        numero_curso = grupo_seleccionado[0]  # "1º Curso" -> "1"
 
-        # Obtener cursos ya agregados (excepto el que se está editando)
-        cursos_ya_agregados = set()
-        for i in range(self.list_cursos_dialog.count()):
-            item = self.list_cursos_dialog.item(i)
+        # Obtener grupos ya agregados (excepto el que se está editando)
+        grupos_ya_agregados = set()
+        for i in range(self.list_grupos_dialog.count()):
+            item = self.list_grupos_dialog.item(i)
             codigo_item = item.data(Qt.ItemDataRole.UserRole)
-            if codigo_item != curso_a_excluir:
-                cursos_ya_agregados.add(codigo_item)
+            if codigo_item != grupo_a_excluir:
+                grupos_ya_agregados.add(codigo_item)
 
-        # Filtrar cursos que coincidan con el patrón
-        cursos_filtrados = []
-        for codigo, datos in self.cursos_disponibles.items():
+        # Filtrar grupos que coincidan con el patrón
+        grupos_filtrados = []
+        for codigo, datos in self.grupos_disponibles.items():
             # Saltar si ya está agregado
-            if codigo in cursos_ya_agregados:
+            if codigo in grupos_ya_agregados:
                 continue
 
             # Verificar que el código tenga al menos 3 caracteres
             if len(codigo) < 3:
                 continue
 
-            # Buscar el número del curso en las posiciones posibles
+            # Buscar el número del grupo en las posiciones posibles
             encontrado = False
 
             # Verificar si es patrón L[numero]NN (1 letra + número + 2 números)
@@ -446,34 +453,34 @@ class GestionAsignaturaDialog(QDialog):
             if encontrado:
                 nombre = datos.get('nombre', codigo)
                 coordinador = datos.get('coordinador', 'Sin coordinador')
-                cursos_filtrados.append((f"{codigo} - {nombre} ({coordinador})", codigo))
+                grupos_filtrados.append((f"{codigo} - {nombre} ({coordinador})", codigo))
 
-        return cursos_filtrados
+        return grupos_filtrados
 
     def validar_cambio_curso(self):
-        """Validar cambio de curso y limpiar cursos incompatibles"""
-        # Solo validar si hay cursos agregados
-        if self.list_cursos_dialog.count() == 0:
+        """Validar cambio de grupo y limpiar grupos incompatibles"""
+        # Solo validar si hay grupos agregados
+        if self.list_grupos_dialog.count() == 0:
             return
 
-        # Obtener cursos actuales
-        cursos_actuales = []
-        for i in range(self.list_cursos_dialog.count()):
-            item = self.list_cursos_dialog.item(i)
-            cursos_actuales.append(item.text())
+        # Obtener grupos actuales
+        grupos_actuales = []
+        for i in range(self.list_grupos_dialog.count()):
+            item = self.list_grupos_dialog.item(i)
+            grupos_actuales.append(item.text())
 
         # Obtener nivel actual
-        curso_seleccionado = self.combo_curso.currentText()
-        if not curso_seleccionado:
+        grupo_seleccionado = self.combo_curso.currentText()
+        if not grupo_seleccionado:
             return
 
-        numero_curso = curso_seleccionado[0]
+        numero_curso = grupo_seleccionado[0]
 
-        # Verificar cursos incompatibles
-        cursos_incompatibles = []
-        for codigo in cursos_actuales:
+        # Verificar grupos incompatibles
+        grupos_incompatibles = []
+        for codigo in grupos_actuales:
             if len(codigo) < 3:
-                cursos_incompatibles.append(codigo)
+                grupos_incompatibles.append(codigo)
                 continue
 
             # Verificar patrones
@@ -490,129 +497,129 @@ class GestionAsignaturaDialog(QDialog):
                     compatible = True
 
             if not compatible:
-                cursos_incompatibles.append(codigo)
+                grupos_incompatibles.append(codigo)
 
         # Si hay incompatibles, preguntar
-        if cursos_incompatibles:
+        if grupos_incompatibles:
             respuesta = QMessageBox.question(
-                self, "Cursos Incompatibles",
-                f"Los cursos actuales no son compatibles con '{curso_seleccionado}':\n"
-                f"• {', '.join(cursos_incompatibles)}\n\n"
-                f"¿Eliminar cursos incompatibles?",
+                self, "Grupos Incompatibles",
+                f"Los grupos actuales no son compatibles con '{grupo_seleccionado}':\n"
+                f"• {', '.join(grupos_incompatibles)}\n\n"
+                f"¿Eliminar grupos incompatibles?",
                 QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
                 QMessageBox.StandardButton.No
             )
 
             if respuesta == QMessageBox.StandardButton.Yes:
-                # Eliminar cursos incompatibles
-                for codigo in cursos_incompatibles:
-                    for i in range(self.list_cursos_dialog.count()):
-                        item = self.list_cursos_dialog.item(i)
+                # Eliminar grupos incompatibles
+                for codigo in grupos_incompatibles:
+                    for i in range(self.list_grupos_dialog.count()):
+                        item = self.list_grupos_dialog.item(i)
                         if item.text() == codigo:
-                            self.list_cursos_dialog.takeItem(i)
+                            self.list_grupos_dialog.takeItem(i)
                             break
 
-    def anadir_curso(self):
-        """Añadir nuevo curso a la asignatura"""
-        if not self.cursos_disponibles:
-            QMessageBox.information(self, "Sin Cursos",
-                                    "No hay cursos disponibles para asociar.\n"
-                                    "Configure primero los cursos en el sistema.")
+    def anadir_grupo(self):
+        """Añadir nuevo grupo a la asignatura"""
+        if not self.grupos_disponibles:
+            QMessageBox.information(self, "Sin Grupos",
+                                    "No hay grupos disponibles para asociar.\n"
+                                    "Configure primero los grupos en el sistema.")
             return
 
-        # Filtrar cursos según el nivel de la asignatura
-        cursos_filtrados = self.filtrar_cursos_por_nivel()
+        # Filtrar grupos según el nivel de la asignatura
+        grupos_filtrados = self.filtrar_grupos_por_nivel()
 
-        if not cursos_filtrados:
+        if not grupos_filtrados:
             curso_nivel = self.combo_curso.currentText()
-            QMessageBox.information(self, "Sin Cursos Compatibles",
-                                    f"No hay cursos disponibles para '{curso_nivel}'.\n"
-                                    f"Los cursos deben seguir el patrón LL{curso_nivel[0]}NN\n"
+            QMessageBox.information(self, "Sin Grupos Compatibles",
+                                    f"No hay grupos disponibles para '{curso_nivel}'.\n"
+                                    f"Los grupos deben seguir el patrón LL{curso_nivel[0]}NN\n"
                                     f"(ej: A{curso_nivel[0]}02, B{curso_nivel[0]}02)")
             return
 
         # Crear lista de opciones para el usuario
-        opciones_cursos = [item[0] for item in cursos_filtrados]
+        opciones_grupos = [item[0] for item in grupos_filtrados]
 
-        curso, ok = QInputDialog.getItem(
-            self, "Añadir Curso",
-            f"Seleccione un curso para '{self.combo_curso.currentText()}':",
-            opciones_cursos,
+        grupo, ok = QInputDialog.getItem(
+            self, "Añadir Grupo",
+            f"Seleccione un grupo para '{self.combo_curso.currentText()}':",
+            opciones_grupos,
             0, False
         )
 
-        if ok and curso:
-            codigo_curso = curso.split(' - ')[0]
+        if ok and grupo:
+            codigo_grupo = grupo.split(' - ')[0]
 
             # Verificar si ya existe
-            for i in range(self.list_cursos_dialog.count()):
-                if self.list_cursos_dialog.item(i).data(Qt.ItemDataRole.UserRole) == codigo_curso:
-                    QMessageBox.warning(self, "Error", "Este curso ya existe en la asignatura")
+            for i in range(self.list_grupos_dialog.count()):
+                if self.list_grupos_dialog.item(i).data(Qt.ItemDataRole.UserRole) == codigo_grupo:
+                    QMessageBox.warning(self, "Error", "Este grupo ya existe en la asignatura")
                     return
 
-            # Buscar nombre del curso para mostrar texto completo
-            nombre_curso = codigo_curso
-            if self.cursos_disponibles and codigo_curso in self.cursos_disponibles:
-                nombre_curso = self.cursos_disponibles[codigo_curso].get('nombre', codigo_curso)
+            # Buscar nombre del grupo para mostrar texto completo
+            nombre_grupo = codigo_grupo
+            if self.grupos_disponibles and codigo_grupo in self.grupos_disponibles:
+                nombre_grupo = self.grupos_disponibles[codigo_grupo].get('nombre', codigo_grupo)
 
-            texto_display = f"{codigo_curso} - {nombre_curso}"
+            texto_display = f"{codigo_grupo} - {nombre_grupo}"
 
             # Añadir a la lista
             item = QListWidgetItem(texto_display)
-            item.setData(Qt.ItemDataRole.UserRole, codigo_curso)
-            self.list_cursos_dialog.addItem(item)
+            item.setData(Qt.ItemDataRole.UserRole, codigo_grupo)
+            self.list_grupos_dialog.addItem(item)
 
             # Ordenar alfabéticamente
-            self.ordenar_cursos_lista()
+            self.ordenar_grupos_lista()
 
-            # Auto-seleccionar el curso añadido
-            self.auto_seleccionar_curso_dialog(codigo_curso)
+            # Auto-seleccionar el grupo añadido
+            self.auto_seleccionar_grupo_dialog(codigo_grupo)
 
-    def editar_curso_seleccionado(self):
-        """Editar curso seleccionado"""
-        item_actual = self.list_cursos_dialog.currentItem()
+    def editar_grupo_seleccionado(self):
+        """Editar grupo seleccionado"""
+        item_actual = self.list_grupos_dialog.currentItem()
         if not item_actual:
-            QMessageBox.warning(self, "Advertencia", "Seleccione un curso para editar")
+            QMessageBox.warning(self, "Advertencia", "Seleccione un grupo para editar")
             return
 
         codigo_original = item_actual.text()
 
-        if not self.cursos_disponibles:
-            QMessageBox.information(self, "Sin Cursos",
-                                    "No hay cursos disponibles para cambiar.")
+        if not self.grupos_disponibles:
+            QMessageBox.information(self, "Sin Grupos",
+                                    "No hay grupos disponibles para cambiar.")
             return
 
-        # Filtrar cursos según el nivel de la asignatura (excluyendo el actual)
-        cursos_filtrados = self.filtrar_cursos_por_nivel_edicion(codigo_original)
+        # Filtrar grupos según el nivel de la asignatura (excluyendo el actual)
+        grupos_filtrados = self.filtrar_grupos_por_nivel_edicion(codigo_original)
 
-        if not cursos_filtrados:
+        if not grupos_filtrados:
             curso_nivel = self.combo_curso.currentText()
-            QMessageBox.information(self, "Sin Cursos Compatibles",
-                                    f"No hay cursos disponibles para '{curso_nivel}'.\n"
-                                    f"Los cursos deben seguir el patrón LL{curso_nivel[0]}NN\n"
+            QMessageBox.information(self, "Sin Grupos Compatibles",
+                                    f"No hay grupos disponibles para '{curso_nivel}'.\n"
+                                    f"Los grupos deben seguir el patrón LL{curso_nivel[0]}NN\n"
                                     f"(ej: A{curso_nivel[0]}02, B{curso_nivel[0]}02)")
             return
 
         # Crear lista de opciones para el usuario
-        opciones_cursos = [item[0] for item in cursos_filtrados]
+        opciones_grupos = [item[0] for item in grupos_filtrados]
 
-        curso, ok = QInputDialog.getItem(
-            self, "Editar Curso",
-            f"Seleccione el nuevo curso para '{self.combo_curso.currentText()}':",
-            opciones_cursos,
+        grupo, ok = QInputDialog.getItem(
+            self, "Editar Grupo",
+            f"Seleccione el nuevo grupo para '{self.combo_curso.currentText()}':",
+            opciones_grupos,
             0, False
         )
 
-        if ok and curso:
-            codigo_nuevo = curso.split(' - ')[0]
+        if ok and grupo:
+            codigo_nuevo = grupo.split(' - ')[0]
 
             if codigo_nuevo == codigo_original:
                 return
 
             # Verificar si ya existe
-            for i in range(self.list_cursos_dialog.count()):
-                if self.list_cursos_dialog.item(i).text() == codigo_nuevo:
-                    QMessageBox.warning(self, "Error", "Este curso ya existe en la asignatura")
+            for i in range(self.list_grupos_dialog.count()):
+                if self.list_grupos_dialog.item(i).text() == codigo_nuevo:
+                    QMessageBox.warning(self, "Error", "Este grupo ya existe en la asignatura")
                     return
 
             # Actualizar el item
@@ -620,60 +627,60 @@ class GestionAsignaturaDialog(QDialog):
             item_actual.setData(Qt.ItemDataRole.UserRole, codigo_nuevo)
 
             # Ordenar alfabéticamente
-            self.ordenar_cursos_lista()
+            self.ordenar_grupos_lista()
 
-            # Auto-seleccionar el curso editado
-            self.auto_seleccionar_curso_dialog(codigo_nuevo)
+            # Auto-seleccionar el grupo editado
+            self.auto_seleccionar_grupo_dialog(codigo_nuevo)
 
-    def eliminar_curso_seleccionado(self):
-        """Eliminar Curso seleccionado"""
-        item_actual = self.list_cursos_dialog.currentItem()
+    def eliminar_grupo_seleccionado(self):
+        """Eliminar Grupo seleccionado"""
+        item_actual = self.list_grupos_dialog.currentItem()
         if not item_actual:
-            QMessageBox.warning(self, "Advertencia", "Seleccione un curso para eliminar")
+            QMessageBox.warning(self, "Advertencia", "Seleccione un grupo para eliminar")
             return
 
-        curso = item_actual.text()
+        grupo = item_actual.text()
 
         respuesta = QMessageBox.question(
-            self, "Eliminar Curso",
-            f"¿Está seguro de eliminar el curso '{curso}'?",
+            self, "Eliminar Grupo",
+            f"¿Está seguro de eliminar el grupo '{grupo}'?",
             QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No
         )
 
         if respuesta == QMessageBox.StandardButton.Yes:
-            row = self.list_cursos_dialog.row(item_actual)
-            self.list_cursos_dialog.takeItem(row)
+            row = self.list_grupos_dialog.row(item_actual)
+            self.list_grupos_dialog.takeItem(row)
 
-    def ordenar_cursos_lista(self):
-        """Ordenar cursos alfabéticamente en la lista"""
-        cursos_data = []
-        for i in range(self.list_cursos_dialog.count()):
-            item = self.list_cursos_dialog.item(i)
+    def ordenar_grupos_lista(self):
+        """Ordenar grupos alfabéticamente en la lista"""
+        grupos_data = []
+        for i in range(self.list_grupos_dialog.count()):
+            item = self.list_grupos_dialog.item(i)
             codigo = item.data(Qt.ItemDataRole.UserRole)
             texto = item.text()
-            cursos_data.append((codigo, texto))
+            grupos_data.append((codigo, texto))
 
         # Limpiar y recargar ordenado
-        self.list_cursos_dialog.clear()
-        for codigo, texto in sorted(cursos_data):
+        self.list_grupos_dialog.clear()
+        for codigo, texto in sorted(grupos_data):
             item = QListWidgetItem(texto)  # Mostrar texto completo
             item.setData(Qt.ItemDataRole.UserRole, codigo)
-            self.list_cursos_dialog.addItem(item)
+            self.list_grupos_dialog.addItem(item)
 
-    def get_cursos_seleccionados(self):
-        """Obtener lista de cursos de la lista dinámica"""
-        cursos = []
-        for i in range(self.list_cursos_dialog.count()):
-            item = self.list_cursos_dialog.item(i)
-            cursos.append(item.data(Qt.ItemDataRole.UserRole))
-        return sorted(cursos)
+    def get_grupos_seleccionados(self):
+        """Obtener lista de grupos de la lista dinámica"""
+        grupos = []
+        for i in range(self.list_grupos_dialog.count()):
+            item = self.list_grupos_dialog.item(i)
+            grupos.append(item.data(Qt.ItemDataRole.UserRole))
+        return sorted(grupos)
 
-    def auto_seleccionar_curso_dialog(self, curso):
-        """Auto-seleccionar curso en el dialog"""
-        for i in range(self.list_cursos_dialog.count()):
-            item = self.list_cursos_dialog.item(i)
-            if item.data(Qt.ItemDataRole.UserRole) == curso:
-                self.list_cursos_dialog.setCurrentItem(item)
+    def auto_seleccionar_grupo_dialog(self, grupo):
+        """Auto-seleccionar grupo en el dialog"""
+        for i in range(self.list_grupos_dialog.count()):
+            item = self.list_grupos_dialog.item(i)
+            if item.data(Qt.ItemDataRole.UserRole) == grupo:
+                self.list_grupos_dialog.setCurrentItem(item)
                 break
 
     def get_datos_asignatura(self):
@@ -685,7 +692,7 @@ class GestionAsignaturaDialog(QDialog):
             'curso': self.combo_curso.currentText(),
             'tipo': self.combo_tipo.currentText(),
             'descripcion': self.edit_descripcion.toPlainText().strip(),
-            'cursos_que_cursan': self.get_cursos_seleccionados(),
+            'grupos_asociados': self.get_grupos_seleccionados(),
             'configuracion_laboratorio': {
                 'horas_por_sesion': self.spin_horas_sesion.value(),
                 'minutos_por_sesion': self.spin_minutos_sesion.value()
@@ -704,8 +711,81 @@ class GestionAsignaturaDialog(QDialog):
             'fecha_creacion': datetime.now().isoformat()
         }
 
+    def igualar_tamanos_botones_ok_cancel(self):
+        """Forzar que OK y Cancel tengan exactamente el mismo tamaño"""
+        try:
+            button_box = self.findChild(QDialogButtonBox)
+            if button_box:
+                ok_button = button_box.button(QDialogButtonBox.StandardButton.Ok)
+                cancel_button = button_box.button(QDialogButtonBox.StandardButton.Cancel)
+
+                if ok_button and cancel_button:
+                    # Calcular el tamaño más grande y aplicarlo a ambos
+                    width = max(ok_button.sizeHint().width(), cancel_button.sizeHint().width(), 60)
+                    height = 35
+
+                    ok_button.setFixedSize(width, height)
+                    cancel_button.setFixedSize(width, height)
+
+        except Exception as e:
+            print(f"Error igualando tamaños: {e}")
+
+    def configurar_botones_uniformes(self):
+        """Configurar estilos uniformes para botones OK/Cancel - SIN CAMBIAR TEXTO"""
+        try:
+            # Buscar el QDialogButtonBox
+            button_box = self.findChild(QDialogButtonBox)
+            if button_box:
+                # Obtener botones específicos
+                ok_button = button_box.button(QDialogButtonBox.StandardButton.Ok)
+                cancel_button = button_box.button(QDialogButtonBox.StandardButton.Cancel)
+
+                # ✅ ESTILO UNIFORME PARA AMBOS BOTONES - MISMO COLOR DE FONDO
+                estilo_uniforme = """
+                    QPushButton {
+                        background-color: #4a4a4a;
+                        color: #ffffff;
+                        border: 1px solid #666666;
+                        border-radius: 5px;
+                        padding: 8px 20px;
+                        font-weight: bold;
+                        font-size: 12px;
+                        min-width: 80px;
+                        min-height: 35px;
+                        margin: 2px;
+                    }
+                    QPushButton:hover {
+                        background-color: #5a5a5a;
+                        border-color: #4a9eff;
+                    }
+                    QPushButton:pressed {
+                        background-color: #3a3a3a;
+                    }
+                    QPushButton:default {
+                        background-color: #4a9eff;
+                        border-color: #4a9eff;
+                    }
+                    QPushButton:default:hover {
+                        background-color: #5ab7ff;
+                    }
+                    QPushButton:default:pressed {
+                        background-color: #3a8adf;
+                    }
+                """
+
+                if ok_button:
+                    ok_button.setText("OK")
+                    ok_button.setStyleSheet(estilo_uniforme)
+
+                if cancel_button:
+                    cancel_button.setText("Cancel")
+                    cancel_button.setStyleSheet(estilo_uniforme)
+
+        except Exception as e:
+            print(f"Error configurando botones: {e}")
+
     def apply_dark_theme(self):
-        """Aplicar tema oscuro idéntico al sistema"""
+        """Aplicar tema oscuro con botones OK/Cancel uniformes"""
         self.setStyleSheet("""
             QDialog {
                 background-color: #2b2b2b;
@@ -756,6 +836,60 @@ class GestionAsignaturaDialog(QDialog):
                 border: 2px solid #4a9eff;
                 border-radius: 3px;
             }
+            QToolTip {
+                background-color: #2b2b2b;
+                color: #ffffff;
+                border: 1px solid #4a9eff;
+                border-radius: 4px;
+                padding: 4px 8px;
+                font-size: 11px;
+                font-weight: normal;
+            }
+
+            /* BOTONES OK/CANCEL */
+            QDialogButtonBox {
+                background-color: transparent;
+                border: none;
+                margin-top: 10px;
+            }
+
+            QDialogButtonBox QPushButton {
+                background-color: #4a4a4a;
+                color: #ffffff;
+                border: 1px solid #666666;
+                border-radius: 5px;
+                padding: 8px 16px;
+                font-weight: bold;
+                font-size: 12px;
+                min-width: 90px;
+                min-height: 35px;
+                max-height: 35px;
+                margin: 3px;
+            }
+
+            QDialogButtonBox QPushButton:hover {
+                background-color: #5a5a5a;
+                border-color: #4a9eff;
+            }
+
+            QDialogButtonBox QPushButton:pressed {
+                background-color: #3a3a3a;
+            }
+
+            /* ANULAR DIFERENCIAS ENTRE OK Y CANCEL */
+            QDialogButtonBox QPushButton:default {
+                background-color: #4a4a4a;
+                border-color: #666666;
+            }
+
+            QDialogButtonBox QPushButton:default:hover {
+                background-color: #5a5a5a;
+                border-color: #4a9eff;
+            }
+
+            QDialogButtonBox QPushButton:default:pressed {
+                background-color: #3a3a3a;
+            }
         """)
 
 
@@ -777,7 +911,15 @@ class ConfigurarAsignaturas(QMainWindow):
         self.alumnos_disponibles = self.obtener_alumnos_del_sistema()
         self.aulas_disponibles = self.obtener_aulas_del_sistema()
         self.horarios_disponibles = self.obtener_horarios_del_sistema()
-        self.cursos_disponibles = self.obtener_cursos_del_sistema()
+        self.grupos_disponibles = self.obtener_grupos_del_sistema()
+
+        # Sistema de cambios pendientes para aplicar al guardar
+        self.cambios_pendientes = {
+            "asignaturas_eliminadas": [],
+            "grupos_eliminados": [],
+            "profesores_eliminados": [],
+            "aulas_eliminadas": []
+        }
 
         # Estructura de datos principal
         if datos_existentes:
@@ -821,16 +963,16 @@ class ConfigurarAsignaturas(QMainWindow):
             self.log_mensaje(f"⚠️ Error obteniendo horarios del sistema: {e}", "warning")
             return {}
 
-    def obtener_cursos_del_sistema(self):
-        """Obtener cursos configurados desde el sistema global"""
+    def obtener_grupos_del_sistema(self):
+        """Obtener grupos configurados desde el sistema global"""
         try:
             if self.parent_window and hasattr(self.parent_window, 'configuracion'):
-                config_cursos = self.parent_window.configuracion["configuracion"].get("cursos", {})
-                if config_cursos.get("configurado") and config_cursos.get("datos"):
-                    return config_cursos["datos"]
+                config_grupos = self.parent_window.configuracion["configuracion"].get("grupos", {})
+                if config_grupos.get("configurado") and config_grupos.get("datos"):
+                    return config_grupos["datos"]
             return {}
         except Exception as e:
-            self.log_mensaje(f"⚠️ Error obteniendo cursos del sistema: {e}", "warning")
+            self.log_mensaje(f"⚠️ Error obteniendo grupos del sistema: {e}", "warning")
             return {}
 
     def obtener_aulas_del_sistema(self):
@@ -895,7 +1037,7 @@ class ConfigurarAsignaturas(QMainWindow):
 
         # Información del flujo
         info_label = QLabel(
-            "ℹ️ Define las asignaturas, cursos que las cursan y configuración de laboratorio. Las estadísticas se actualizan desde los alumnos matriculados.")
+            "ℹ️ Define las asignaturas, grupos que las cursan y configuración de laboratorio. Las estadísticas se actualizan desde los alumnos matriculados.")
         info_label.setStyleSheet("color: #cccccc; font-size: 11px; margin-bottom: 10px;")
         info_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
         main_layout.addWidget(info_label)
@@ -1132,7 +1274,7 @@ class ConfigurarAsignaturas(QMainWindow):
         return ', '.join(str(int(hex_color[i:i + 2], 16)) for i in (0, 2, 4))
 
     def apply_dark_theme(self):
-        """Aplicar tema oscuro idéntico al resto del sistema"""
+        """Aplicar tema oscuro idéntico al resto del sistema - CON TOOLTIPS"""
         self.setStyleSheet("""
             QMainWindow {
                 background-color: #2b2b2b;
@@ -1199,6 +1341,16 @@ class ConfigurarAsignaturas(QMainWindow):
             QLabel {
                 color: #ffffff;
             }
+            /* TOOLTIPS CORREGIDOS */
+            QToolTip {
+                background-color: #2b2b2b;
+                color: #ffffff;
+                border: 1px solid #4a9eff;
+                border-radius: 4px;
+                padding: 4px 8px;
+                font-size: 11px;
+                font-weight: normal;
+            }
         """)
 
     def conectar_signals(self):
@@ -1223,19 +1375,19 @@ class ConfigurarAsignaturas(QMainWindow):
             semestre = datos.get('semestre', 'Sin semestre')
             tipo = datos.get('tipo', 'Sin tipo')
 
-            # Mostrar cursos que la cursan
-            cursos = datos.get('cursos_que_cursan', [])
-            if cursos:
-                cursos_con_nombre = []
-                for curso in cursos:
-                    # Buscar nombre del curso
-                    nombre_curso = curso
-                    if curso in self.cursos_disponibles:
-                        nombre_curso = self.cursos_disponibles[curso].get('nombre', curso)
-                    cursos_con_nombre.append(f"{curso} - {nombre_curso}")
-                cursos_str = ', '.join(cursos_con_nombre)
+            # Mostrar grupos que la cursan
+            grupos = datos.get('grupos_asociados', [])
+            if grupos:
+                grupos_con_nombre = []
+                for grupo in grupos:
+                    # Buscar nombre del grupo
+                    nombre_grupo = grupo
+                    if grupo in self.grupos_disponibles:
+                        nombre_grupo = self.grupos_disponibles[grupo].get('nombre', grupo)
+                    grupos_con_nombre.append(f"{grupo} - {nombre_grupo}")
+                grupos_str = ', '.join(grupos_con_nombre)
             else:
-                cursos_str = 'Sin cursos'
+                grupos_str = 'Sin grupos'
 
             # Estadísticas
             stats = datos.get('estadisticas_calculadas', {})
@@ -1248,7 +1400,7 @@ class ConfigurarAsignaturas(QMainWindow):
             texto_item = f"{icono} {codigo} - {nombre}"
             if total_matriculados > 0:
                 texto_item += f" ({sin_lab_anterior}/{total_matriculados} alumnos)"
-            texto_item += f"\n    {semestre} | {cursos_str}"
+            texto_item += f"\n    {semestre} | {grupos_str}"
 
             item = QListWidgetItem(texto_item)
             item.setData(Qt.ItemDataRole.UserRole, codigo)
@@ -1275,22 +1427,22 @@ class ConfigurarAsignaturas(QMainWindow):
         # Mostrar información detallada
         info = f"📚 ASIGNATURA: {codigo} - {nombre}\n\n"
         info += f"📅 Semestre: {datos.get('semestre', 'No definido')}\n"
-        info += f"🎓 Curso: {datos.get('curso', 'No definido')}\n"
+        info += f"🎓 Curso: {datos.get('grupo', 'No definido')}\n"
         info += f"📖 Tipo: {datos.get('tipo', 'No definido')}\n"
         info += f"📝 Descripción: {datos.get('descripcion', 'Sin descripción')}\n\n"
 
-        # cursos que la cursan
-        cursos = datos.get('cursos_que_cursan', [])
-        if cursos:
-            info += f"🎓 CURSOS QUE LA CURSAN ({len(cursos)}):\n"
-            for curso in cursos:
-                # Buscar nombre del curso
-                nombre_curso = curso
-                if curso in self.cursos_disponibles:
-                    nombre_curso = self.cursos_disponibles[curso].get('nombre', curso)
-                info += f"  • {curso} - {nombre_curso}\n"
+        # grupos que la cursan
+        grupos = datos.get('grupos_asociados', [])
+        if grupos:
+            info += f"🎓 GRUPOS QUE LA CURSAN ({len(grupos)}):\n"
+            for grupo in grupos:
+                # Buscar nombre del grupo
+                nombre_grupo = grupo
+                if grupo in self.grupos_disponibles:
+                    nombre_grupo = self.grupos_disponibles[grupo].get('nombre', grupo)
+                info += f"  • {grupo} - {nombre_grupo}\n"
         else:
-            info += f"🎓 CURSOS: Sin cursos asignados\n"
+            info += f"🎓 GRUPOS: Sin grupos asignados\n"
         info += "\n"
 
         # Configuración laboratorio
@@ -1327,51 +1479,51 @@ class ConfigurarAsignaturas(QMainWindow):
         # Habilitar botones
         self.btn_duplicar.setEnabled(True)
 
-    def sincronizar_con_cursos(self, asignatura_codigo, cursos_nuevos, cursos_eliminados):
-        """Sincronizar cambios con módulo de cursos"""
+    def sincronizar_con_grupos(self, asignatura_codigo, grupos_nuevos, grupos_eliminados):
+        """Sincronizar cambios con módulo de grupos"""
         try:
             if not self.parent_window:
                 return
 
-            # Obtener configuración actual de cursos
-            config_cursos = self.parent_window.configuracion["configuracion"].get("cursos", {})
-            if not config_cursos.get("configurado") or not config_cursos.get("datos"):
+            # Obtener configuración actual de grupos
+            config_grupos = self.parent_window.configuracion["configuracion"].get("grupos", {})
+            if not config_grupos.get("configurado") or not config_grupos.get("datos"):
                 return
 
-            datos_cursos = config_cursos["datos"]
+            datos_grupos = config_grupos["datos"]
             cambios_realizados = False
 
-            # AÑADIR asignatura a cursos nuevos
-            for curso_codigo in cursos_nuevos:
-                if curso_codigo in datos_cursos:
-                    asignaturas_actuales = datos_cursos[curso_codigo].get("asignaturas_asociadas", [])
+            # AÑADIR asignatura a grupos nuevos
+            for grupo_codigo in grupos_nuevos:
+                if grupo_codigo in datos_grupos:
+                    asignaturas_actuales = datos_grupos[grupo_codigo].get("asignaturas_asociadas", [])
                     if asignatura_codigo not in asignaturas_actuales:
                         asignaturas_actuales.append(asignatura_codigo)
-                        datos_cursos[curso_codigo]["asignaturas_asociadas"] = sorted(asignaturas_actuales)
+                        datos_grupos[grupo_codigo]["asignaturas_asociadas"] = sorted(asignaturas_actuales)
                         cambios_realizados = True
 
-            # ELIMINAR asignatura de cursos eliminados
-            for curso_codigo in cursos_eliminados:
-                if curso_codigo in datos_cursos:
-                    asignaturas_actuales = datos_cursos[curso_codigo].get("asignaturas_asociadas", [])
+            # ELIMINAR asignatura de grupos eliminados
+            for grupo_codigo in grupos_eliminados:
+                if grupo_codigo in datos_grupos:
+                    asignaturas_actuales = datos_grupos[grupo_codigo].get("asignaturas_asociadas", [])
                     if asignatura_codigo in asignaturas_actuales:
                         asignaturas_actuales.remove(asignatura_codigo)
-                        datos_cursos[curso_codigo]["asignaturas_asociadas"] = sorted(asignaturas_actuales)
+                        datos_grupos[grupo_codigo]["asignaturas_asociadas"] = sorted(asignaturas_actuales)
                         cambios_realizados = True
 
             # Actualizar configuración si hubo cambios
             if cambios_realizados:
-                self.parent_window.configuracion["configuracion"]["cursos"]["datos"] = datos_cursos
-                self.parent_window.configuracion["configuracion"]["cursos"][
+                self.parent_window.configuracion["configuracion"]["grupos"]["datos"] = datos_grupos
+                self.parent_window.configuracion["configuracion"]["grupos"][
                     "fecha_actualizacion"] = datetime.now().isoformat()
-                self.log_mensaje(f"🔄 Sincronizados cursos desde asignatura {asignatura_codigo}", "info")
+                self.log_mensaje(f"🔄 Sincronizados grupos desde asignatura {asignatura_codigo}", "info")
 
         except Exception as e:
-            self.log_mensaje(f"⚠️ Error sincronizando con cursos: {e}", "warning")
+            self.log_mensaje(f"⚠️ Error sincronizando con grupos: {e}", "warning")
 
     def anadir_asignatura(self):
         """Añadir nueva asignatura - CON SINCRONIZACIÓN"""
-        dialog = GestionAsignaturaDialog(None, self.alumnos_disponibles, self.aulas_disponibles, self.cursos_disponibles, self)
+        dialog = GestionAsignaturaDialog(None, self.alumnos_disponibles, self.aulas_disponibles, self.grupos_disponibles, self)
 
         if dialog.exec() == QDialog.DialogCode.Accepted:
             datos = dialog.get_datos_asignatura()
@@ -1384,10 +1536,10 @@ class ConfigurarAsignaturas(QMainWindow):
             # Añadir nueva asignatura
             self.datos_configuracion[codigo] = datos
 
-            # SINCRONIZACIÓN: Notificar cursos añadidos
-            cursos_nuevos = datos.get('cursos_que_cursan', [])
-            if cursos_nuevos:
-                self.sincronizar_con_cursos(codigo, cursos_nuevos, [])
+            # SINCRONIZACIÓN: Notificar grupos añadidos
+            grupos_nuevos = datos.get('grupos_asociados', [])
+            if grupos_nuevos:
+                self.sincronizar_con_grupos(codigo, grupos_nuevos, [])
 
             # Auto-ordenar
             self.ordenar_asignaturas_alfabeticamente()
@@ -1400,13 +1552,14 @@ class ConfigurarAsignaturas(QMainWindow):
             QMessageBox.information(self, "Éxito", f"Asignatura '{codigo} - {datos['nombre']}' añadida correctamente")
 
     def editar_asignatura_seleccionada(self):
-        """Editar asignatura seleccionada - CON SINCRONIZACIÓN"""
+        """Editar asignatura seleccionada - CON SINCRONIZACIÓN Y EDICIÓN EN CASCADA"""
         if not self.asignatura_actual:
             QMessageBox.warning(self, "Advertencia", "Seleccione una asignatura para editar")
             return
 
         datos_originales = self.datos_configuracion[self.asignatura_actual].copy()
-        dialog = GestionAsignaturaDialog(datos_originales, self.alumnos_disponibles, self.aulas_disponibles, self.cursos_disponibles, self)
+        dialog = GestionAsignaturaDialog(datos_originales, self.alumnos_disponibles, self.aulas_disponibles,
+                                         self.grupos_disponibles, self)
 
         if dialog.exec() == QDialog.DialogCode.Accepted:
             datos_nuevos = dialog.get_datos_asignatura()
@@ -1418,27 +1571,31 @@ class ConfigurarAsignaturas(QMainWindow):
                 QMessageBox.warning(self, "Error", f"Ya existe una asignatura con el código '{codigo_nuevo}'")
                 return
 
-            # SINCRONIZACIÓN: Detectar cambios en cursos
-            cursos_originales = set(datos_originales.get('cursos_que_cursan', []))
-            cursos_nuevos = set(datos_nuevos.get('cursos_que_cursan', []))
+            # SINCRONIZACIÓN: Detectar cambios en grupos
+            grupos_originales = set(datos_originales.get('grupos_asociados', []))
+            grupos_nuevos = set(datos_nuevos.get('grupos_asociados', []))
 
-            cursos_añadidos = cursos_nuevos - cursos_originales
-            cursos_eliminados = cursos_originales - cursos_nuevos
+            grupos_añadidos = grupos_nuevos - grupos_originales
+            grupos_eliminados = grupos_originales - grupos_nuevos
 
             # Preservar estadísticas existentes
             if 'estadisticas_calculadas' in datos_originales:
                 datos_nuevos['estadisticas_calculadas'] = datos_originales['estadisticas_calculadas']
 
-            # Actualizar datos
+            # Actualizar datos localmente
             if codigo_nuevo != codigo_original:
                 del self.datos_configuracion[codigo_original]
                 self.asignatura_actual = codigo_nuevo
 
             self.datos_configuracion[codigo_nuevo] = datos_nuevos
 
-            # SINCRONIZACIÓN: Aplicar cambios
-            if cursos_añadidos or cursos_eliminados:
-                self.sincronizar_con_cursos(codigo_nuevo, cursos_añadidos, cursos_eliminados)
+            # EDICIÓN EN CASCADA: Si cambió el código, aplicar cambios
+            if codigo_nuevo != codigo_original:
+                self.editar_asignatura_real_completa(codigo_original, codigo_nuevo)
+
+            # SINCRONIZACIÓN: Aplicar cambios de grupos
+            if grupos_añadidos or grupos_eliminados:
+                self.sincronizar_con_grupos(codigo_nuevo, grupos_añadidos, grupos_eliminados)
 
             # Auto-ordenar
             self.ordenar_asignaturas_alfabeticamente()
@@ -1448,42 +1605,688 @@ class ConfigurarAsignaturas(QMainWindow):
             self.auto_seleccionar_asignatura(codigo_nuevo)
             self.marcar_cambio_realizado()
 
-            QMessageBox.information(self, "Éxito", f"Asignatura actualizada correctamente")
+            if codigo_nuevo != codigo_original:
+                QMessageBox.information(self, "Éxito",
+                                        f"Asignatura editada: {codigo_original} → {codigo_nuevo}\n"
+                                        f"Se aplicará el cambio en cascada al guardar los datos")
+            else:
+                QMessageBox.information(self, "Éxito", f"Asignatura actualizada correctamente")
+
+    def editar_asignatura_real_completa(self, codigo_original, codigo_nuevo):
+        """Editar asignatura realmente del sistema completo en cascada"""
+        try:
+            if not self.parent_window:
+                self.log_mensaje(f"⚠️ No se puede editar {codigo_original}: sin parent_window", "warning")
+                return
+
+            # Obtener datos de la asignatura después de editar
+            datos_asignatura = self.datos_configuracion.get(codigo_nuevo)  # Ya actualizado localmente
+            if not datos_asignatura:
+                self.log_mensaje(f"⚠️ Asignatura {codigo_nuevo} no encontrada en configuración", "warning")
+                return
+
+            grupos_asociados = datos_asignatura.get('grupos_asociados', [])
+
+            self.log_mensaje(f"✏️ Editando asignatura {codigo_original} → {codigo_nuevo} del sistema completo...", "info")
+
+            # 1. Editar en grupos
+            self.editar_asignatura_en_grupos_sistema(codigo_original, codigo_nuevo, grupos_asociados)
+
+            # 2. Editar en profesores
+            self.editar_asignatura_en_profesores_sistema(codigo_original, codigo_nuevo)
+
+            # 3. Editar en alumnos
+            self.editar_asignatura_en_alumnos_sistema(codigo_original, codigo_nuevo)
+
+            # 4. Editar en horarios
+            self.editar_asignatura_en_horarios_sistema(codigo_original, codigo_nuevo)
+
+            # 5. Editar en aulas
+            self.editar_asignatura_en_aulas_sistema(codigo_original, codigo_nuevo)
+
+            # 6. Editar en configuración de asignaturas del sistema
+            self.editar_asignatura_en_asignaturas_sistema(codigo_original, codigo_nuevo)
+
+            self.log_mensaje(f"✅ Asignatura {codigo_original} → {codigo_nuevo} editada completamente del sistema",
+                             "success")
+
+        except Exception as e:
+            self.log_mensaje(f"❌ Error en edición completa de asignatura {codigo_original}: {e}", "error")
+
+    def editar_asignatura_en_grupos_sistema(self, codigo_original, codigo_nuevo, grupos_asociados):
+        """Editar código de asignatura en el sistema de grupos"""
+        try:
+            config_grupos = self.parent_window.configuracion["configuracion"].get("grupos", {})
+            if not config_grupos.get("configurado") or not config_grupos.get("datos"):
+                return
+
+            datos_grupos = config_grupos["datos"]
+            cambios_realizados = False
+
+            # Procesar todos los grupos que cursan esta asignatura
+            for grupo_codigo in grupos_asociados:
+                if grupo_codigo in datos_grupos:
+                    asignaturas_asociadas = datos_grupos[grupo_codigo].get("asignaturas_asociadas", [])
+                    if codigo_original in asignaturas_asociadas:
+                        # Reemplazar código antiguo por nuevo
+                        indice = asignaturas_asociadas.index(codigo_original)
+                        asignaturas_asociadas[indice] = codigo_nuevo
+                        datos_grupos[grupo_codigo]["asignaturas_asociadas"] = sorted(asignaturas_asociadas)
+                        cambios_realizados = True
+                        self.log_mensaje(f"🔄 Asignatura {codigo_original} → {codigo_nuevo} editada en grupo {grupo_codigo}",
+                                         "info")
+
+            # Buscar en TODOS los grupos por si hay referencias huérfanas
+            for grupo_codigo, grupo_data in datos_grupos.items():
+                asignaturas_asociadas = grupo_data.get("asignaturas_asociadas", [])
+                if codigo_original in asignaturas_asociadas:
+                    # Reemplazar código antiguo por nuevo
+                    indice = asignaturas_asociadas.index(codigo_original)
+                    asignaturas_asociadas[indice] = codigo_nuevo
+                    grupo_data["asignaturas_asociadas"] = sorted(asignaturas_asociadas)
+                    cambios_realizados = True
+                    self.log_mensaje(
+                        f"🔄 Asignatura {codigo_original} → {codigo_nuevo} editada en grupo {grupo_codigo} (referencia huérfana)",
+                        "info")
+
+            if cambios_realizados:
+                self.parent_window.configuracion["configuracion"]["grupos"][
+                    "fecha_actualizacion"] = datetime.now().isoformat()
+                self.log_mensaje(f"✅ Asignatura {codigo_original} → {codigo_nuevo} editada en módulo de grupos", "success")
+
+        except Exception as e:
+            self.log_mensaje(f"⚠️ Error editando asignatura en grupos: {e}", "warning")
+
+
+    def editar_asignatura_en_profesores_sistema(self, codigo_original, codigo_nuevo):
+        """Editar código de asignatura en el sistema de profesores"""
+        try:
+            config_profesores = self.parent_window.configuracion["configuracion"].get("profesores", {})
+            if not config_profesores.get("configurado") or not config_profesores.get("datos"):
+                return
+
+            datos_profesores = config_profesores["datos"]
+            cambios_realizados = False
+
+            for profesor_id, profesor_data in datos_profesores.items():
+                # Editar en asignaturas_imparte
+                if "asignaturas_imparte" in profesor_data:
+                    asignaturas_imparte = profesor_data["asignaturas_imparte"]
+                    if codigo_original in asignaturas_imparte:
+                        # Reemplazar código antiguo por nuevo
+                        indice = asignaturas_imparte.index(codigo_original)
+                        asignaturas_imparte[indice] = codigo_nuevo
+                        profesor_data["asignaturas_imparte"] = asignaturas_imparte
+                        cambios_realizados = True
+                        nombre_profesor = profesor_data.get("nombre", "Desconocido")
+                        self.log_mensaje(
+                            f"🔄 Asignatura {codigo_original} → {codigo_nuevo} editada en profesor {nombre_profesor} ({profesor_id})",
+                            "info")
+
+                # Editar en horarios_bloqueados si hay referencias específicas a la asignatura
+                if "horarios_bloqueados" in profesor_data:
+                    horarios_bloqueados = profesor_data["horarios_bloqueados"]
+                    for dia, bloqueados in horarios_bloqueados.items():
+                        if isinstance(bloqueados, dict):
+                            for horario, motivo in bloqueados.items():
+                                if isinstance(motivo, str) and codigo_original.lower() in motivo.lower():
+                                    # Reemplazar en el motivo
+                                    nuevo_motivo = motivo.replace(codigo_original, codigo_nuevo)
+                                    bloqueados[horario] = nuevo_motivo
+                                    cambios_realizados = True
+                                    self.log_mensaje(
+                                        f"🔄 Horario bloqueado de {codigo_original} → {codigo_nuevo} editado en profesor {profesor_id}",
+                                        "info")
+
+            if cambios_realizados:
+                self.parent_window.configuracion["configuracion"]["profesores"][
+                    "fecha_actualizacion"] = datetime.now().isoformat()
+                self.log_mensaje(f"✅ Asignatura {codigo_original} → {codigo_nuevo} editada en módulo de profesores",
+                                 "success")
+
+        except Exception as e:
+            self.log_mensaje(f"⚠️ Error editando asignatura en profesores: {e}", "warning")
+
+
+    def editar_asignatura_en_alumnos_sistema(self, codigo_original, codigo_nuevo):
+        """Editar código de asignatura en el sistema de alumnos"""
+        try:
+            config_alumnos = self.parent_window.configuracion["configuracion"].get("alumnos", {})
+            if not config_alumnos.get("configurado") or not config_alumnos.get("datos"):
+                return
+
+            datos_alumnos = config_alumnos["datos"]
+            cambios_realizados = False
+            alumnos_modificados = 0
+
+            for alumno_codigo, alumno_data in datos_alumnos.items():
+                # Editar codigo_asignatura si coincide
+                if alumno_data.get("codigo_asignatura") == codigo_original:
+                    alumno_data["codigo_asignatura"] = codigo_nuevo
+                    cambios_realizados = True
+                    alumnos_modificados += 1
+                    nombre_alumno = alumno_data.get("nombre", "Desconocido")
+                    self.log_mensaje(
+                        f"🔄 Código de asignatura {codigo_original} → {codigo_nuevo} editado en alumno {nombre_alumno}",
+                        "info")
+
+                # Editar en asignaturas_matriculadas
+                if "asignaturas_matriculadas" in alumno_data:
+                    if codigo_original in alumno_data["asignaturas_matriculadas"]:
+                        # Mover datos del código antiguo al nuevo
+                        datos_asignatura = alumno_data["asignaturas_matriculadas"][codigo_original]
+                        del alumno_data["asignaturas_matriculadas"][codigo_original]
+                        alumno_data["asignaturas_matriculadas"][codigo_nuevo] = datos_asignatura
+                        cambios_realizados = True
+                        alumnos_modificados += 1
+                        nombre_alumno = alumno_data.get("nombre", "Desconocido")
+                        self.log_mensaje(
+                            f"🔄 Asignatura {codigo_original} → {codigo_nuevo} editada en matriculadas del alumno {nombre_alumno}",
+                            "info")
+
+            if cambios_realizados:
+                self.parent_window.configuracion["configuracion"]["alumnos"][
+                    "fecha_actualizacion"] = datetime.now().isoformat()
+                self.log_mensaje(
+                    f"✅ Asignatura {codigo_original} → {codigo_nuevo} editada en {alumnos_modificados} referencias en alumnos",
+                    "success")
+
+        except Exception as e:
+            self.log_mensaje(f"⚠️ Error editando asignatura en alumnos: {e}", "warning")
+
+
+    def editar_asignatura_en_horarios_sistema(self, codigo_original, codigo_nuevo):
+        """Editar código de asignatura en el sistema de horarios"""
+        try:
+            config_horarios = self.parent_window.configuracion["configuracion"].get("horarios", {})
+            if not config_horarios.get("configurado") or not config_horarios.get("datos"):
+                return
+
+            datos_horarios = config_horarios["datos"]
+            cambios_realizados = False
+
+            # Buscar en ambos semestres
+            for semestre in ["1", "2"]:
+                if semestre in datos_horarios:
+                    asignaturas_semestre = datos_horarios[semestre]
+
+                    # Buscar la asignatura por código o nombre
+                    asignatura_encontrada = None
+                    datos_asignatura = None
+
+                    # Buscar directamente por código
+                    if codigo_original in asignaturas_semestre:
+                        asignatura_encontrada = codigo_original
+                        datos_asignatura = asignaturas_semestre[codigo_original]
+                    else:
+                        # Buscar por nombre de asignatura (usar datos actuales)
+                        nombre_asignatura_original = self.datos_configuracion.get(codigo_nuevo, {}).get('nombre', '')
+                        if nombre_asignatura_original and nombre_asignatura_original in asignaturas_semestre:
+                            asignatura_encontrada = nombre_asignatura_original
+                            datos_asignatura = asignaturas_semestre[nombre_asignatura_original]
+
+                    # Editar asignatura si se encontró
+                    if asignatura_encontrada and datos_asignatura:
+                        # Eliminar con clave antigua
+                        del asignaturas_semestre[asignatura_encontrada]
+
+                        # Agregar con clave nueva (usar el nuevo código como clave)
+                        asignaturas_semestre[codigo_nuevo] = datos_asignatura
+                        cambios_realizados = True
+                        self.log_mensaje(
+                            f"🔄 Asignatura {asignatura_encontrada} → {codigo_nuevo} editada en semestre {semestre}",
+                            "info")
+
+            if cambios_realizados:
+                self.parent_window.configuracion["configuracion"]["horarios"][
+                    "fecha_actualizacion"] = datetime.now().isoformat()
+                self.log_mensaje(f"✅ Asignatura {codigo_original} → {codigo_nuevo} editada en módulo de horarios",
+                                 "success")
+
+        except Exception as e:
+            self.log_mensaje(f"⚠️ Error editando asignatura en horarios: {e}", "warning")
+
+
+    def editar_asignatura_en_aulas_sistema(self, codigo_original, codigo_nuevo):
+        """Editar código de asignatura en el sistema de aulas"""
+        try:
+            config_aulas = self.parent_window.configuracion["configuracion"].get("aulas", {})
+            if not config_aulas.get("configurado") or not config_aulas.get("datos"):
+                return
+
+            datos_aulas = config_aulas["datos"]
+            cambios_realizados = False
+
+            for aula_nombre, aula_data in datos_aulas.items():
+                # Editar en asignaturas_asociadas
+                if "asignaturas_asociadas" in aula_data:
+                    asignaturas_asociadas = aula_data["asignaturas_asociadas"]
+                    if codigo_original in asignaturas_asociadas:
+                        # Reemplazar código antiguo por nuevo
+                        indice = asignaturas_asociadas.index(codigo_original)
+                        asignaturas_asociadas[indice] = codigo_nuevo
+                        aula_data["asignaturas_asociadas"] = asignaturas_asociadas
+                        cambios_realizados = True
+                        self.log_mensaje(f"🔄 Asignatura {codigo_original} → {codigo_nuevo} editada en aula {aula_nombre}",
+                                         "info")
+
+                # Editar ocupaciones relacionadas con la asignatura si existen
+                if "ocupaciones_programadas" in aula_data:
+                    for ocupacion in aula_data["ocupaciones_programadas"]:
+                        if ocupacion.get("asignatura") == codigo_original:
+                            ocupacion["asignatura"] = codigo_nuevo
+                            cambios_realizados = True
+                            self.log_mensaje(
+                                f"🔄 Ocupación de {codigo_original} → {codigo_nuevo} editada en aula {aula_nombre}",
+                                "info")
+                        if ocupacion.get("codigo_asignatura") == codigo_original:
+                            ocupacion["codigo_asignatura"] = codigo_nuevo
+                            cambios_realizados = True
+                            self.log_mensaje(
+                                f"🔄 Código de ocupación {codigo_original} → {codigo_nuevo} editado en aula {aula_nombre}",
+                                "info")
+
+            if cambios_realizados:
+                self.parent_window.configuracion["configuracion"]["aulas"][
+                    "fecha_actualizacion"] = datetime.now().isoformat()
+                self.log_mensaje(f"✅ Asignatura {codigo_original} → {codigo_nuevo} editada en módulo de aulas", "success")
+
+        except Exception as e:
+            self.log_mensaje(f"⚠️ Error editando asignatura en aulas: {e}", "warning")
+
+
+    def editar_asignatura_en_asignaturas_sistema(self, codigo_original, codigo_nuevo):
+        """Editar código de asignatura en el módulo de asignaturas del sistema"""
+        try:
+            config_asignaturas = self.parent_window.configuracion["configuracion"].get("asignaturas", {})
+            if config_asignaturas.get("configurado") and config_asignaturas.get("datos"):
+                datos_asignaturas = config_asignaturas["datos"]
+                if codigo_original in datos_asignaturas and codigo_original != codigo_nuevo:
+                    # Mover datos del código antiguo al nuevo
+                    datos_asignaturas[codigo_nuevo] = datos_asignaturas[codigo_original]
+                    del datos_asignaturas[codigo_original]
+
+                    # Actualizar el código interno del objeto también
+                    datos_asignaturas[codigo_nuevo]["codigo"] = codigo_nuevo
+
+                    self.parent_window.configuracion["configuracion"]["asignaturas"][
+                        "fecha_actualizacion"] = datetime.now().isoformat()
+                    self.log_mensaje(f"🔄 Asignatura {codigo_original} → {codigo_nuevo} editada en módulo de asignaturas",
+                                     "info")
+
+        except Exception as e:
+            self.log_mensaje(f"⚠️ Error editando asignatura en asignaturas: {e}", "warning")
 
     def eliminar_asignatura_seleccionada(self):
-        """Eliminar asignatura seleccionada - CON SINCRONIZACIÓN"""
+        """Marcar asignatura seleccionada para eliminación en cascada al guardar"""
         if not self.asignatura_actual:
             QMessageBox.warning(self, "Advertencia", "Seleccione una asignatura para eliminar")
             return
 
         datos = self.datos_configuracion[self.asignatura_actual]
-        cursos_que_cursan = datos.get('cursos_que_cursan', [])
+        nombre = datos.get('nombre', 'Sin nombre')
+        grupos_asociados = datos.get('grupos_asociados', [])
+
+        mensaje = f"¿Está seguro de eliminar la asignatura '{self.asignatura_actual} - {nombre}'?\n\n"
+        if grupos_asociados:
+            mensaje += f"ADVERTENCIA: Esta asignatura está asociada a {len(grupos_asociados)} grupos.\n"
+            mensaje += f"Se eliminará automáticamente de:\n"
+            mensaje += f"  • Todos los grupos asociados ({', '.join(grupos_asociados)})\n"
+            mensaje += f"  • Todos los profesores que la imparten\n"
+            mensaje += f"  • Todos los alumnos matriculados\n"
+            mensaje += f"  • Todos los horarios programados\n"
+            mensaje += f"  • Todas las aulas con ocupaciones\n\n"
+        mensaje += "La eliminación se aplicará al guardar en el sistema."
 
         # Confirmar eliminación
         respuesta = QMessageBox.question(self, "Confirmar Eliminación",
-                                         f"¿Está seguro de eliminar la asignatura '{self.asignatura_actual}'?",
+                                         mensaje,
                                          QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No)
 
         if respuesta == QMessageBox.StandardButton.Yes:
-            # SINCRONIZACIÓN: Eliminar asignatura de todos los cursos
-            if cursos_que_cursan:
-                self.sincronizar_con_cursos(self.asignatura_actual, [], cursos_que_cursan)
+            asignatura_codigo = self.asignatura_actual
 
-            # Eliminar asignatura
-            del self.datos_configuracion[self.asignatura_actual]
+            # Marcar para eliminación en cascada
+            if asignatura_codigo not in self.cambios_pendientes["asignaturas_eliminadas"]:
+                self.cambios_pendientes["asignaturas_eliminadas"].append(asignatura_codigo)
+
+            # Marcar visualmente como eliminada en la tabla
+            self.marcar_asignatura_eliminada_en_tabla(asignatura_codigo)
+
+            # Deshabilitar selección de la asignatura eliminada
             self.asignatura_actual = None
-
-            # Actualizar interfaz
-            self.cargar_lista_asignaturas()
-            self.label_asignatura_actual.setText("Seleccione una asignatura")
-            self.info_asignatura.setText("ℹ️ Seleccione una asignatura para ver sus detalles")
+            self.label_asignatura_actual.setText("Asignatura marcada para eliminación")
+            self.info_asignatura.setText("⚠️ Esta asignatura será eliminada al guardar en el sistema")
             self.btn_duplicar.setEnabled(False)
             self.marcar_cambio_realizado()
 
-            QMessageBox.information(self, "Éxito", "Asignatura eliminada correctamente")
+            self.log_mensaje(f"📝 Asignatura {asignatura_codigo} marcada para eliminación al guardar", "info")
+            QMessageBox.information(self, "Marcada para Eliminación",
+                                    f"Asignatura '{asignatura_codigo}' marcada para eliminación.\n\nLa eliminación se aplicará al guardar en el sistema.")
+
+    def aplicar_eliminaciones_pendientes(self):
+        """Aplicar todas las eliminaciones marcadas en cascada"""
+        try:
+            asignaturas_eliminadas = self.cambios_pendientes["asignaturas_eliminadas"].copy()
+
+            if not asignaturas_eliminadas:
+                return
+
+            self.log_mensaje(f"🗑️ Aplicando eliminación en cascada de {len(asignaturas_eliminadas)} asignaturas...",
+                             "info")
+
+            # Eliminar cada asignatura marcada
+            for asignatura_codigo in asignaturas_eliminadas:
+                self.eliminar_asignatura_real_completa(asignatura_codigo)
+
+            # Limpiar lista de eliminaciones pendientes
+            self.cambios_pendientes["asignaturas_eliminadas"].clear()
+
+            self.log_mensaje(f"✅ Eliminación en cascada completada para {len(asignaturas_eliminadas)} asignaturas",
+                             "success")
+
+        except Exception as e:
+            self.log_mensaje(f"⚠️ Error aplicando eliminaciones pendientes: {e}", "warning")
+
+    def eliminar_asignatura_real_completa(self, asignatura_codigo):
+        """Eliminar asignatura realmente del sistema completo en cascada"""
+        try:
+            if not self.parent_window:
+                self.log_mensaje(f"⚠️ No se puede eliminar {asignatura_codigo}: sin parent_window", "warning")
+                return
+
+            # Obtener datos de la asignatura antes de eliminar
+            datos_asignatura = self.datos_configuracion.get(asignatura_codigo)
+            if not datos_asignatura:
+                self.log_mensaje(f"⚠️ Asignatura {asignatura_codigo} no encontrada en configuración", "warning")
+                return
+
+            grupos_asociados = datos_asignatura.get('grupos_asociados', [])
+
+            self.log_mensaje(f"🗑️ Eliminando asignatura {asignatura_codigo} del sistema completo...", "info")
+
+            # 1. Eliminar de grupos: Pasar grupos_asociados
+            self.eliminar_asignatura_de_grupos_sistema(asignatura_codigo, grupos_asociados)
+
+            # 2. Eliminar de profesores
+            self.eliminar_asignatura_de_profesores_sistema(asignatura_codigo)
+
+            # 3. Eliminar de alumnos
+            self.eliminar_asignatura_de_alumnos_sistema(asignatura_codigo)
+
+            # 4. Eliminar de horarios
+            self.eliminar_asignatura_de_horarios_sistema(asignatura_codigo)
+
+            # 5. Eliminar de aulas
+            self.eliminar_asignatura_de_aulas_sistema(asignatura_codigo)
+
+            # 6. Eliminar de configuración de asignaturas del sistema
+            self.eliminar_asignatura_de_asignaturas_sistema(asignatura_codigo)
+
+            # 7. Eliminar de la configuración local
+            if asignatura_codigo in self.datos_configuracion:
+                del self.datos_configuracion[asignatura_codigo]
+
+            self.log_mensaje(f"✅ Asignatura {asignatura_codigo} procesada para eliminación completa", "success")
+
+        except Exception as e:
+            self.log_mensaje(f"❌ Error en eliminación completa de asignatura {asignatura_codigo}: {e}", "error")
+
+    def eliminar_asignatura_de_grupos_sistema(self, asignatura_codigo, grupos_asociados):
+        """Eliminar asignatura del sistema de grupos"""
+        try:
+            config_grupos = self.parent_window.configuracion["configuracion"].get("grupos", {})
+            if not config_grupos.get("configurado") or not config_grupos.get("datos"):
+                return
+
+            datos_grupos = config_grupos["datos"]
+            cambios_realizados = False
+
+            # Procesar todos los grupos que cursaban esta asignatura
+            for grupo_codigo in grupos_asociados:
+                if grupo_codigo in datos_grupos:
+                    # CORREGIDO: Buscar en asignaturas_asociadas
+                    asignaturas_asociadas = datos_grupos[grupo_codigo].get("asignaturas_asociadas", [])
+                    if asignatura_codigo in asignaturas_asociadas:
+                        asignaturas_asociadas.remove(asignatura_codigo)
+                        datos_grupos[grupo_codigo]["asignaturas_asociadas"] = sorted(asignaturas_asociadas)
+                        cambios_realizados = True
+                        self.log_mensaje(f"🔄 Asignatura {asignatura_codigo} eliminada del grupo {grupo_codigo}", "info")
+
+            # Buscar en TODOS los grupos por si hay referencias huérfanas
+            for grupo_codigo, grupo_data in datos_grupos.items():
+                asignaturas_asociadas = grupo_data.get("asignaturas_asociadas", [])
+                if asignatura_codigo in asignaturas_asociadas:
+                    asignaturas_asociadas.remove(asignatura_codigo)
+                    grupo_data["asignaturas_asociadas"] = sorted(asignaturas_asociadas)
+                    cambios_realizados = True
+                    self.log_mensaje(
+                        f"🔄 Asignatura {asignatura_codigo} eliminada del grupo {grupo_codigo} (referencia huérfana)",
+                        "info")
+
+            if cambios_realizados:
+                self.parent_window.configuracion["configuracion"]["grupos"][
+                    "fecha_actualizacion"] = datetime.now().isoformat()
+                self.log_mensaje(f"✅ Asignatura {asignatura_codigo} eliminada del módulo de grupos", "success")
+
+        except Exception as e:
+            self.log_mensaje(f"⚠️ Error eliminando asignatura de grupos: {e}", "warning")
+
+    def eliminar_asignatura_de_profesores_sistema(self, asignatura_codigo):
+        """Eliminar asignatura del sistema de profesores"""
+        try:
+            config_profesores = self.parent_window.configuracion["configuracion"].get("profesores", {})
+            if not config_profesores.get("configurado") or not config_profesores.get("datos"):
+                return
+
+            datos_profesores = config_profesores["datos"]
+            cambios_realizados = False
+
+            for profesor_id, profesor_data in datos_profesores.items():
+                # Buscar en asignaturas_imparte
+                if "asignaturas_imparte" in profesor_data:
+                    asignaturas_imparte = profesor_data["asignaturas_imparte"]
+                    if asignatura_codigo in asignaturas_imparte:
+                        asignaturas_imparte.remove(asignatura_codigo)
+                        profesor_data["asignaturas_imparte"] = asignaturas_imparte
+                        cambios_realizados = True
+                        nombre_profesor = profesor_data.get("nombre", "Desconocido")
+                        self.log_mensaje(
+                            f"🔄 Asignatura {asignatura_codigo} eliminada del profesor {nombre_profesor} ({profesor_id})",
+                            "info")
+
+                # Eliminar de horarios_bloqueados si hay referencias específicas a la asignatura
+                if "horarios_bloqueados" in profesor_data:
+                    horarios_bloqueados = profesor_data["horarios_bloqueados"]
+                    for dia, bloqueados in horarios_bloqueados.items():
+                        if isinstance(bloqueados, dict):
+                            bloqueados_a_eliminar = []
+                            for horario, motivo in bloqueados.items():
+                                if isinstance(motivo, str) and asignatura_codigo.lower() in motivo.lower():
+                                    bloqueados_a_eliminar.append(horario)
+
+                            for horario in bloqueados_a_eliminar:
+                                del bloqueados[horario]
+                                cambios_realizados = True
+                                self.log_mensaje(
+                                    f"🔄 Horario bloqueado de {asignatura_codigo} eliminado del profesor {profesor_id}",
+                                    "info")
+
+            if cambios_realizados:
+                self.parent_window.configuracion["configuracion"]["profesores"][
+                    "fecha_actualizacion"] = datetime.now().isoformat()
+                self.log_mensaje(f"✅ Asignatura {asignatura_codigo} eliminada del módulo de profesores", "success")
+
+        except Exception as e:
+            self.log_mensaje(f"⚠️ Error eliminando asignatura de profesores: {e}", "warning")
+
+    def eliminar_asignatura_de_alumnos_sistema(self, asignatura_codigo):
+        """Eliminar asignatura del sistema de alumnos"""
+        try:
+            config_alumnos = self.parent_window.configuracion["configuracion"].get("alumnos", {})
+            if not config_alumnos.get("configurado") or not config_alumnos.get("datos"):
+                return
+
+            datos_alumnos = config_alumnos["datos"]
+            cambios_realizados = False
+            alumnos_modificados = 0
+
+            for alumno_codigo, alumno_data in datos_alumnos.items():
+                # Eliminar de codigo_asignatura si coincide
+                if alumno_data.get("codigo_asignatura") == asignatura_codigo:
+                    alumno_data["codigo_asignatura"] = ""
+                    cambios_realizados = True
+                    alumnos_modificados += 1
+                    nombre_alumno = alumno_data.get("nombre", "Desconocido")
+                    self.log_mensaje(f"🔄 Código de asignatura {asignatura_codigo} eliminado del alumno {nombre_alumno}",
+                                     "info")
+
+                # Eliminar de asignaturas_matriculadas
+                if "asignaturas_matriculadas" in alumno_data:
+                    if asignatura_codigo in alumno_data["asignaturas_matriculadas"]:
+                        del alumno_data["asignaturas_matriculadas"][asignatura_codigo]
+                        cambios_realizados = True
+                        alumnos_modificados += 1
+                        nombre_alumno = alumno_data.get("nombre", "Desconocido")
+                        self.log_mensaje(
+                            f"🔄 Asignatura {asignatura_codigo} eliminada de matriculadas del alumno {nombre_alumno}",
+                            "info")
+
+            if cambios_realizados:
+                self.parent_window.configuracion["configuracion"]["alumnos"][
+                    "fecha_actualizacion"] = datetime.now().isoformat()
+                self.log_mensaje(
+                    f"✅ Asignatura {asignatura_codigo} eliminada de {alumnos_modificados} referencias en alumnos",
+                    "success")
+
+        except Exception as e:
+            self.log_mensaje(f"⚠️ Error eliminando asignatura de alumnos: {e}", "warning")
+
+    def eliminar_asignatura_de_horarios_sistema(self, asignatura_codigo):
+        """Eliminar asignatura del sistema de horarios con limpieza completa"""
+        try:
+            config_horarios = self.parent_window.configuracion["configuracion"].get("horarios", {})
+            if not config_horarios.get("configurado") or not config_horarios.get("datos"):
+                return
+
+            datos_horarios = config_horarios["datos"]
+            cambios_realizados = False
+
+            # Buscar en ambos semestres
+            for semestre in ["1", "2"]:
+                if semestre in datos_horarios:
+                    asignaturas_semestre = datos_horarios[semestre]
+
+                    # Buscar la asignatura por código o nombre
+                    asignatura_encontrada = None
+
+                    # Buscar directamente por código
+                    if asignatura_codigo in asignaturas_semestre:
+                        asignatura_encontrada = asignatura_codigo
+                    else:
+                        # Buscar por nombre de asignatura
+                        nombre_asignatura = self.datos_configuracion.get(asignatura_codigo, {}).get('nombre', '')
+                        if nombre_asignatura and nombre_asignatura in asignaturas_semestre:
+                            asignatura_encontrada = nombre_asignatura
+
+                    # Eliminar asignatura completa si se encontró
+                    if asignatura_encontrada:
+                        del asignaturas_semestre[asignatura_encontrada]
+                        cambios_realizados = True
+                        self.log_mensaje(
+                            f"🗑️ Asignatura {asignatura_encontrada} eliminada completamente del semestre {semestre}",
+                            "info")
+
+            if cambios_realizados:
+                self.parent_window.configuracion["configuracion"]["horarios"][
+                    "fecha_actualizacion"] = datetime.now().isoformat()
+                self.log_mensaje(f"✅ Asignatura {asignatura_codigo} eliminada completamente del módulo de horarios",
+                                 "success")
+
+        except Exception as e:
+            self.log_mensaje(f"⚠️ Error eliminando asignatura de horarios: {e}", "warning")
+
+    def eliminar_asignatura_de_aulas_sistema(self, asignatura_codigo):
+        """Eliminar asignatura del sistema de aulas"""
+        try:
+            config_aulas = self.parent_window.configuracion["configuracion"].get("aulas", {})
+            if not config_aulas.get("configurado") or not config_aulas.get("datos"):
+                return
+
+            datos_aulas = config_aulas["datos"]
+            cambios_realizados = False
+
+            for aula_nombre, aula_data in datos_aulas.items():
+                # Buscar en asignaturas_asociadas
+                if "asignaturas_asociadas" in aula_data:
+                    asignaturas_asociadas = aula_data["asignaturas_asociadas"]
+                    if asignatura_codigo in asignaturas_asociadas:
+                        asignaturas_asociadas.remove(asignatura_codigo)
+                        aula_data["asignaturas_asociadas"] = asignaturas_asociadas
+                        cambios_realizados = True
+                        self.log_mensaje(f"🔄 Asignatura {asignatura_codigo} eliminada del aula {aula_nombre}", "info")
+
+                # Eliminar ocupaciones relacionadas con la asignatura si existen
+                if "ocupaciones_programadas" in aula_data:
+                    ocupaciones_originales = len(aula_data["ocupaciones_programadas"])
+                    aula_data["ocupaciones_programadas"] = [
+                        ocup for ocup in aula_data["ocupaciones_programadas"]
+                        if ocup.get("asignatura") != asignatura_codigo and ocup.get(
+                            "codigo_asignatura") != asignatura_codigo
+                    ]
+                    if len(aula_data["ocupaciones_programadas"]) < ocupaciones_originales:
+                        cambios_realizados = True
+                        self.log_mensaje(f"🔄 Ocupaciones de {asignatura_codigo} eliminadas del aula {aula_nombre}",
+                                         "info")
+
+            if cambios_realizados:
+                self.parent_window.configuracion["configuracion"]["aulas"][
+                    "fecha_actualizacion"] = datetime.now().isoformat()
+                self.log_mensaje(f"✅ Asignatura {asignatura_codigo} eliminada del módulo de aulas", "success")
+
+        except Exception as e:
+            self.log_mensaje(f"⚠️ Error eliminando asignatura de aulas: {e}", "warning")
+
+    def eliminar_asignatura_de_asignaturas_sistema(self, asignatura_codigo):
+        """Eliminar asignatura del módulo de asignaturas del sistema"""
+        try:
+            config_asignaturas = self.parent_window.configuracion["configuracion"].get("asignaturas", {})
+            if config_asignaturas.get("configurado") and config_asignaturas.get("datos"):
+                datos_asignaturas = config_asignaturas["datos"]
+                if asignatura_codigo in datos_asignaturas:
+                    del datos_asignaturas[asignatura_codigo]
+                    self.parent_window.configuracion["configuracion"]["asignaturas"][
+                        "fecha_actualizacion"] = datetime.now().isoformat()
+                    self.log_mensaje(f"🗑️ Asignatura {asignatura_codigo} eliminada del módulo de asignaturas", "info")
+
+        except Exception as e:
+            self.log_mensaje(f"⚠️ Error eliminando asignatura de asignaturas: {e}", "warning")
+
+    def marcar_asignatura_eliminada_en_tabla(self, asignatura_codigo):
+        """Marcar asignatura como eliminada visualmente en la tabla"""
+        try:
+            for row in range(self.list_asignaturas.count()):
+                item = self.list_asignaturas.item(row)
+                if item and item.data(Qt.ItemDataRole.UserRole) == asignatura_codigo:
+                    # Obtener texto actual y modificarlo
+                    texto_actual = item.text()
+                    if not texto_actual.startswith("🗑️"):
+                        texto_eliminado = f"🗑️ {texto_actual} (ELIMINADA)"
+                        item.setText(texto_eliminado)
+
+                    # Cambiar estilo visual
+                    item.setBackground(QColor(220, 220, 220))  # Gris claro
+                    item.setForeground(QColor(100, 100, 100))  # Texto gris
+
+                    # Deshabilitar selección
+                    item.setFlags(Qt.ItemFlag.NoItemFlags)
+                    break
+
+        except Exception as e:
+            self.log_mensaje(f"⚠️ Error marcando asignatura en tabla: {e}", "warning")
 
     def duplicar_asignatura_seleccionada(self):
-        """Duplicar asignatura seleccionada"""
+        """Duplicar asignatura seleccionada con sincronización"""
         if not self.asignatura_actual:
             return
 
@@ -1510,7 +2313,8 @@ class ConfigurarAsignaturas(QMainWindow):
             'ultima_actualizacion': datetime.now().isoformat()
         }
 
-        dialog = GestionAsignaturaDialog(datos_originales, self.alumnos_disponibles, self.aulas_disponibles, self.cursos_disponibles, self)
+        dialog = GestionAsignaturaDialog(datos_originales, self.alumnos_disponibles, self.aulas_disponibles,
+                                         self.grupos_disponibles, self)
 
         if dialog.exec() == QDialog.DialogCode.Accepted:
             datos_nuevos = dialog.get_datos_asignatura()
@@ -1522,6 +2326,11 @@ class ConfigurarAsignaturas(QMainWindow):
 
             # Añadir asignatura duplicada
             self.datos_configuracion[codigo_final] = datos_nuevos
+
+            # SINCRONIZACIÓN: Notificar grupos asociados (NUEVO)
+            grupos_asociados = datos_nuevos.get('grupos_asociados', [])
+            if grupos_asociados:
+                self.sincronizar_con_grupos(codigo_final, grupos_asociados, [])
 
             # Auto-ordenar
             self.ordenar_asignaturas_alfabeticamente()
@@ -1622,7 +2431,7 @@ class ConfigurarAsignaturas(QMainWindow):
             self.log_mensaje(f"⚠️ Error actualizando estadísticas: {e}", "warning")
 
     def importar_desde_horarios(self):
-        """Importar asignaturas y cursos desde módulo de horarios"""
+        """Importar asignaturas y grupos desde módulo de horarios"""
         try:
             if not self.horarios_disponibles:
                 QMessageBox.information(self, "Sin Datos",
@@ -1637,7 +2446,7 @@ class ConfigurarAsignaturas(QMainWindow):
                 return
 
             asignaturas_importadas = 0
-            cursos_importados = 0
+            grupos_importados = 0
 
             # Procesar ambos semestres
             for semestre, asignaturas_sem in asignaturas_horarios.items():
@@ -1649,8 +2458,8 @@ class ConfigurarAsignaturas(QMainWindow):
                     if codigo_asig in self.datos_configuracion:
                         continue
 
-                    # Importar cursos
-                    cursos = datos_asig.get("cursos", [])
+                    # Importar grupos
+                    grupos = datos_asig.get("grupos", [])
 
                     # Crear asignatura nueva
                     self.datos_configuracion[codigo_asig] = {
@@ -1660,7 +2469,7 @@ class ConfigurarAsignaturas(QMainWindow):
                         'curso': "1º Curso",  # Por defecto
                         'tipo': "Laboratorio",
                         'descripcion': f"Importada desde configuración de horarios",
-                        'cursos_que_cursan': sorted(cursos),
+                        'grupos_asociados': sorted(grupos),
                         'configuracion_laboratorio': {
                             'horas_por_sesion': 2,
                             'minutos_por_sesion': 0
@@ -1679,7 +2488,7 @@ class ConfigurarAsignaturas(QMainWindow):
                         'fecha_creacion': datetime.now().isoformat()
                     }
                     asignaturas_importadas += 1
-                    cursos_importados += len(cursos)
+                    grupos_importados += len(grupos)
 
             if asignaturas_importadas > 0:
                 # Auto-ordenar
@@ -1691,7 +2500,7 @@ class ConfigurarAsignaturas(QMainWindow):
 
                 QMessageBox.information(self, "Importación Exitosa",
                                         f"✅ Importadas {asignaturas_importadas} asignaturas "
-                                        f"con {cursos_importados} cursos desde horarios")
+                                        f"con {grupos_importados} grupos desde horarios")
             else:
                 QMessageBox.information(self, "Sin Importar",
                                         "No se encontraron asignaturas nuevas para importar")
@@ -1705,13 +2514,13 @@ class ConfigurarAsignaturas(QMainWindow):
             # Preparar datos para enviar a horarios
             datos_para_horarios = {}
             for codigo, datos in self.datos_configuracion.items():
-                cursos = datos.get('cursos_que_cursan', [])
+                grupos = datos.get('grupos_asociados', [])
                 stats = datos.get('estadisticas_calculadas', {})
 
                 # Convertir a formato compatible con horarios
                 datos_para_horarios[datos.get('nombre', codigo)] = {
                     'codigo': codigo,
-                    'cursos': cursos,
+                    'grupos': grupos,
                     'grupos_recomendados': stats.get('grupos_recomendados', 0),
                     'alumnos_reales': stats.get('sin_lab_anterior', 0),
                     'semestre': datos.get('semestre', '1º Semestre').split('º')[0]
@@ -1730,7 +2539,7 @@ class ConfigurarAsignaturas(QMainWindow):
                 # Modo independiente - mostrar datos preparados
                 mensaje = f"📤 Datos preparados para sincronización:\n\n"
                 for nombre, datos in datos_para_horarios.items():
-                    mensaje += f"• {nombre}: {len(datos['cursos'])} cursos, "
+                    mensaje += f"• {nombre}: {len(datos['grupos'])} grupos, "
                     mensaje += f"{datos['grupos_recomendados']} grupos\n"
 
                 QMessageBox.information(self, "Sincronización Preparada", mensaje)
@@ -1749,13 +2558,13 @@ class ConfigurarAsignaturas(QMainWindow):
                 for codigo, datos in self.datos_configuracion.items():
                     semestre_num = "1" if "1º" in datos.get('semestre', '1º Semestre') else "2"
                     nombre = datos.get('nombre', codigo)
-                    cursos = datos.get('cursos_que_cursan', [])
+                    grupos = datos.get('grupos_asociados', [])
 
                     if semestre_num not in datos_para_horarios:
                         datos_para_horarios[semestre_num] = {}
 
                     datos_para_horarios[semestre_num][nombre] = {
-                        'cursos': cursos,
+                        'grupos': grupos,
                         'codigo': codigo,
                         'horarios': {}  # Se mantendrán los horarios existentes
                     }
@@ -1804,12 +2613,12 @@ class ConfigurarAsignaturas(QMainWindow):
                     asignaturas_duplicadas += 1
                     continue
 
-                # Procesar cursos
-                cursos = []
-                if 'cursos_que_cursan' in df.columns and pd.notna(row['cursos_que_cursan']):
-                    cursos_text = str(row['cursos_que_cursan']).strip()
-                    if cursos_text:
-                        cursos = [g.strip().upper() for g in cursos_text.split(',')]
+                # Procesar grupos
+                grupos = []
+                if 'grupos_asociados' in df.columns and pd.notna(row['grupos_asociados']):
+                    grupos_text = str(row['grupos_asociados']).strip()
+                    if grupos_text:
+                        grupos = [g.strip().upper() for g in grupos_text.split(',')]
 
                 self.datos_configuracion[codigo] = {
                     'codigo': codigo,
@@ -1818,7 +2627,7 @@ class ConfigurarAsignaturas(QMainWindow):
                     'curso': str(row.get('curso', '1º Curso')).strip(),
                     'tipo': str(row['tipo']).strip(),
                     'descripcion': str(row.get('descripcion', '')).strip(),
-                    'cursos_que_cursan': cursos,
+                    'grupos_asociados': grupos,
                     'configuracion_laboratorio': {
                         'horas_por_sesion': int(row.get('horas_por_sesion', 2)) if pd.notna(row.get('horas_por_sesion')) else 2,
                         'minutos_por_sesion': int(row.get('minutos_por_sesion', 0)) if pd.notna(row.get('minutos_por_sesion')) else 0
@@ -1874,8 +2683,8 @@ class ConfigurarAsignaturas(QMainWindow):
         try:
             datos_export = []
             for codigo, datos in self.datos_configuracion.items():
-                # Convertir cursos a string
-                cursos_str = ', '.join(datos.get('cursos_que_cursan', []))
+                # Convertir grupos a string
+                grupos_str = ', '.join(datos.get('grupos_asociados', []))
 
                 config_lab = datos.get('configuracion_laboratorio', {})
                 planificacion = datos.get('planificacion', {})
@@ -1888,7 +2697,7 @@ class ConfigurarAsignaturas(QMainWindow):
                     'curso': datos.get('curso', ''),
                     'tipo': datos.get('tipo', ''),
                     'descripcion': datos.get('descripcion', ''),
-                    'cursos_que_cursan': cursos_str,
+                    'grupos_asociados': grupos_str,
                     'horas_por_sesion': config_lab.get('horas_por_sesion', 2),
                     'minutos_por_sesion': config_lab.get('minutos_por_sesion', 0),
                     'grupos_previstos': planificacion.get('grupos_previstos', 6),
@@ -1943,8 +2752,8 @@ class ConfigurarAsignaturas(QMainWindow):
                     f.write(f"   Semestre: {datos.get('semestre', 'No definido')}\n")
                     f.write(f"   Tipo: {datos.get('tipo', 'No definido')}\n")
 
-                    cursos = datos.get('cursos_que_cursan', [])
-                    f.write(f"   Cursos: {', '.join(cursos) if cursos else 'Sin cursos'}\n")
+                    grupos = datos.get('grupos_asociados', [])
+                    f.write(f"   Grupos: {', '.join(grupos) if grupos else 'Sin grupos'}\n")
 
                     stats = datos.get('estadisticas_calculadas', {})
                     f.write(f"   Matriculados: {stats.get('total_matriculados', 0)}\n")
@@ -2024,27 +2833,38 @@ class ConfigurarAsignaturas(QMainWindow):
             QMessageBox.critical(self, "Error", f"Error al guardar configuración:\n{str(e)}")
 
     def guardar_en_sistema(self):
-        """Guardar configuración en el sistema principal"""
+        """Guardar configuración en el sistema principal aplicando eliminaciones pendientes"""
         try:
-            if not self.datos_configuracion:
-                QMessageBox.warning(self, "Sin Datos", "No hay asignaturas configuradas para guardar.")
-                return
-
             total_asignaturas = len(self.datos_configuracion)
             con_alumnos = sum(1 for datos in self.datos_configuracion.values()
                               if datos.get('estadisticas_calculadas', {}).get('total_matriculados', 0) > 0)
+            asignaturas_a_eliminar = len(self.cambios_pendientes["asignaturas_eliminadas"])
+
+            if total_asignaturas == 0 and asignaturas_a_eliminar == 0:
+                QMessageBox.warning(self, "Sin Datos", "No hay asignaturas configuradas para guardar.")
+                return
+
+            mensaje_confirmacion = f"¿Guardar configuración en el sistema y cerrar?\n\n"
+            mensaje_confirmacion += f"📊 Resumen:\n"
+            mensaje_confirmacion += f"• {total_asignaturas} asignaturas configuradas\n"
+            mensaje_confirmacion += f"• {con_alumnos} asignaturas con alumnos matriculados\n"
+
+            if asignaturas_a_eliminar > 0:
+                mensaje_confirmacion += f"• {asignaturas_a_eliminar} asignaturas serán eliminadas en cascada\n"
+
+            mensaje_confirmacion += f"\nLa configuración se integrará con OPTIM y la ventana se cerrará."
 
             respuesta = QMessageBox.question(
                 self, "Guardar y Cerrar",
-                f"¿Guardar configuración en el sistema y cerrar?\n\n"
-                f"📊 Resumen:\n"
-                f"• {total_asignaturas} asignaturas configuradas\n"
-                f"• {con_alumnos} asignaturas con alumnos matriculados\n\n"
-                f"La configuración se integrará con OPTIM y la ventana se cerrará.",
+                mensaje_confirmacion,
                 QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No
             )
 
             if respuesta == QMessageBox.StandardButton.Yes:
+                # Aplicar eliminaciones pendientes antes de guardar
+                if asignaturas_a_eliminar > 0:
+                    self.aplicar_eliminaciones_pendientes()
+
                 # Enviar señal al sistema principal
                 self.configuracion_actualizada.emit(self.datos_configuracion)
 
@@ -2062,33 +2882,81 @@ class ConfigurarAsignaturas(QMainWindow):
             QMessageBox.critical(self, "Error", f"Error al guardar en el sistema:\n{str(e)}")
 
     def limpiar_todas_asignaturas(self):
-        """Limpiar todas las asignaturas configuradas"""
+        """Marcar todas las asignaturas para eliminación en cascada al guardar"""
         if not self.datos_configuracion:
             QMessageBox.information(self, "Sin Datos", "No hay asignaturas para limpiar")
             return
 
+        # Calcular estadísticas para mostrar en el diálogo
+        total_asignaturas = len(self.datos_configuracion)
+
+        # Contar grupos afectados
+        grupos_afectados = set()
+        for datos in self.datos_configuracion.values():
+            grupos_asociados = datos.get('grupos_asociados', [])
+            grupos_afectados.update(grupos_asociados)
+
+        mensaje = f"¿Está seguro de eliminar TODAS las asignaturas configuradas?\n\n"
+        mensaje += f"📊 IMPACTO TOTAL:\n"
+        mensaje += f"• {total_asignaturas} asignaturas serán eliminadas\n"
+        mensaje += f"• {len(grupos_afectados)} grupos serán afectados\n"
+        mensaje += f"• Todas las referencias en profesores, alumnos, horarios y aulas\n\n"
+        mensaje += f"⚠️ Esta acción marcará TODAS las asignaturas para eliminación.\n"
+        mensaje += f"La eliminación se aplicará al guardar en el sistema.\n\n"
+        mensaje += f"Esta acción no se puede deshacer."
+
         respuesta = QMessageBox.question(
-            self, "Limpiar Todo",
-            f"¿Está seguro de eliminar todas las asignaturas configuradas?\n\n"
-            f"Se eliminarán {len(self.datos_configuracion)} asignaturas.\n"
-            f"Esta acción no se puede deshacer.",
+            self, "Limpiar Todas las Asignaturas",
+            mensaje,
             QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
             QMessageBox.StandardButton.No
         )
 
         if respuesta == QMessageBox.StandardButton.Yes:
-            self.datos_configuracion.clear()
-            self.asignatura_actual = None
+            # Marcar TODAS las asignaturas para eliminación
+            asignaturas_marcadas = 0
+            for asignatura_codigo in list(self.datos_configuracion.keys()):
+                if asignatura_codigo not in self.cambios_pendientes["asignaturas_eliminadas"]:
+                    self.cambios_pendientes["asignaturas_eliminadas"].append(asignatura_codigo)
+                    asignaturas_marcadas += 1
 
-            # Actualizar interfaz
-            self.cargar_lista_asignaturas()
-            self.label_asignatura_actual.setText("Seleccione una asignatura")
-            self.info_asignatura.setText("ℹ️ Seleccione una asignatura para ver sus detalles")
-            self.texto_stats.setText("📈 Presiona 'Actualizar desde Alumnos' para ver estadísticas")
+            # Marcar visualmente TODAS las asignaturas como eliminadas
+            self.marcar_todas_asignaturas_eliminadas()
+
+            # Deshabilitar selección
+            self.asignatura_actual = None
+            self.label_asignatura_actual.setText("Todas las asignaturas marcadas para eliminación")
+            self.info_asignatura.setText("⚠️ TODAS las asignaturas serán eliminadas al guardar en el sistema")
+            self.texto_stats.setText("⚠️ TODAS las asignaturas marcadas para eliminación en cascada")
             self.btn_duplicar.setEnabled(False)
             self.marcar_cambio_realizado()
 
-            QMessageBox.information(self, "Limpieza Completada", "Todas las asignaturas han sido eliminadas")
+            self.log_mensaje(f"📝 {asignaturas_marcadas} asignaturas marcadas para eliminación al guardar", "info")
+            QMessageBox.information(self, "Marcadas para Eliminación",
+                                    f"✅ {asignaturas_marcadas} asignaturas marcadas para eliminación.\n\n"
+                                    f"La eliminación en cascada se aplicará al guardar en el sistema.")
+
+    def marcar_todas_asignaturas_eliminadas(self):
+        """Marcar visualmente todas las asignaturas como eliminadas"""
+        try:
+            for row in range(self.list_asignaturas.count()):
+                item = self.list_asignaturas.item(row)
+                if item and item.flags() != Qt.ItemFlag.NoItemFlags:  # Si no está ya deshabilitado
+                    # Obtener texto actual y modificarlo
+                    texto_actual = item.text()
+                    if not texto_actual.startswith("🗑️"):
+                        texto_eliminado = f"🗑️ {texto_actual} (ELIMINADA)"
+                        item.setText(texto_eliminado)
+
+                    # Cambiar estilo visual
+                    item.setBackground(QColor(220, 220, 220))  # Gris claro
+                    item.setForeground(QColor(100, 100, 100))  # Texto gris
+
+                    # Deshabilitar selección
+                    item.setFlags(Qt.ItemFlag.NoItemFlags)
+
+        except Exception as e:
+            self.log_mensaje(f"⚠️ Error marcando todas las asignaturas en tabla: {e}", "warning")
 
     def ordenar_asignaturas_alfabeticamente(self):
         """Reordenar asignaturas alfabéticamente por código"""
@@ -2119,10 +2987,13 @@ class ConfigurarAsignaturas(QMainWindow):
         datos_actuales = json.dumps(self.datos_configuracion, sort_keys=True)
         hay_cambios = datos_actuales != self.datos_iniciales
 
-        if hay_cambios and not self.datos_guardados_en_sistema:
+        # Verificar eliminaciones pendientes
+        hay_eliminaciones = len(self.cambios_pendientes["asignaturas_eliminadas"]) > 0
+
+        if (hay_cambios or hay_eliminaciones) and not self.datos_guardados_en_sistema:
             return True
 
-        if self.datos_guardados_en_sistema and hay_cambios:
+        if self.datos_guardados_en_sistema and (hay_cambios or hay_eliminaciones):
             return True
 
         return False
@@ -2141,7 +3012,7 @@ class ConfigurarAsignaturas(QMainWindow):
             print(f"{icono} {mensaje}")
 
     def closeEvent(self, event):
-        """Manejar cierre de ventana"""
+        """Manejar cierre de ventana cancelando eliminaciones pendientes si es necesario"""
         if not self.hay_cambios_sin_guardar():
             self.log_mensaje("🔚 Cerrando configuración de asignaturas", "info")
             event.accept()
@@ -2157,6 +3028,8 @@ class ConfigurarAsignaturas(QMainWindow):
         )
 
         if respuesta == QMessageBox.StandardButton.Yes:
+            # Cancelar eliminaciones pendientes y restaurar vista
+            self.cancelar_eliminaciones_pendientes()
             self.cancelar_cambios_en_sistema()
             self.log_mensaje("🔚 Cerrando sin guardar cambios", "warning")
             event.accept()
@@ -2187,6 +3060,29 @@ class ConfigurarAsignaturas(QMainWindow):
         except Exception as e:
             self.log_mensaje(f"⚠️ Error cancelando cambios: {e}", "warning")
 
+    def cancelar_eliminaciones_pendientes(self):
+        """Cancelar eliminaciones marcadas y restaurar vista"""
+        try:
+            asignaturas_canceladas = len(self.cambios_pendientes["asignaturas_eliminadas"])
+
+            if asignaturas_canceladas > 0:
+                self.cambios_pendientes["asignaturas_eliminadas"].clear()
+
+                # Recargar tabla para quitar marcas visuales
+                self.cargar_lista_asignaturas()
+
+                # Restaurar interfaz si se había limpiado todo
+                if asignaturas_canceladas == len(self.datos_configuracion) or asignaturas_canceladas > 1:
+                    self.label_asignatura_actual.setText("Seleccione una asignatura")
+                    self.info_asignatura.setText("ℹ️ Seleccione una asignatura para ver sus detalles")
+                    self.texto_stats.setText("📈 Presiona 'Actualizar desde Alumnos' para ver estadísticas")
+                    self.btn_duplicar.setEnabled(False)
+
+                self.log_mensaje(f"↩️ {asignaturas_canceladas} eliminaciones de asignaturas canceladas", "info")
+
+        except Exception as e:
+            self.log_mensaje(f"⚠️ Error cancelando eliminaciones: {e}", "warning")
+
     def notificar_cambios_a_horarios(self):
         """Notificar cambios de asignaturas al módulo de horarios - IMPLEMENTACIÓN REAL"""
         try:
@@ -2196,11 +3092,11 @@ class ConfigurarAsignaturas(QMainWindow):
 
                 for codigo, datos in self.datos_configuracion.items():
                     nombre = datos.get('nombre', codigo)
-                    cursos = datos.get('cursos_que_cursan', [])
+                    grupos = datos.get('grupos_asociados', [])
 
                     datos_para_horarios[nombre] = {
                         'codigo': codigo,
-                        'cursos': cursos,
+                        'grupos': grupos,
                         'horarios': {}  # Mantener horarios existentes
                     }
 
@@ -2231,7 +3127,7 @@ def main():
             "curso": "1º Curso",
             "tipo": "Laboratorio",
             "descripcion": "Introducción a la física experimental",
-            "cursos_que_cursan": ["GII", "GIOI"],
+            "grupos_asociados": ["GII", "GIOI"],
             "configuracion_laboratorio": {
                 "horas_por_sesion": 2,
                 "max_estudiantes_grupo": 20,

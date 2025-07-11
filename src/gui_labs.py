@@ -102,10 +102,10 @@ class OptimLabsGUI(QtWidgets.QMainWindow):
         self.setup_botones_secundarios()
         self.setup_area_log()
 
-        # Progres Bar para organizados de laboratorios
+        # Barra de progreso para organización de laboratorios
         self.setup_progress_bar()
 
-        # Aplicar tema oscuro del TFG
+        # Aplicar tema visual del sistema
         self.aplicar_tema_oscuro()
 
     def setup_titulo(self):
@@ -168,7 +168,7 @@ class OptimLabsGUI(QtWidgets.QMainWindow):
 
         # Primera fila de botones
         botones_fila1 = [
-            ("btn_cursos", "🎓 CURSOS\nGrados y titulaciones", 50, 20),
+            ("btn_grupos", "🎓 GRUPOS\nGrados y titulaciones", 50, 20),
             ("btn_asignaturas", "📋 ASIGNATURAS\nLímites y grupos", 300, 20),
             ("btn_profesores", "👨‍🏫 PROFESORES\nDisponibilidad horaria", 550, 20),
             ("btn_alumnos", "👥 ALUMNOS\nMatrículas por asignatura", 800, 20)
@@ -309,7 +309,7 @@ class OptimLabsGUI(QtWidgets.QMainWindow):
     def conectar_signals(self):
         """Conectar señales de botones"""
         # Botones de configuración
-        self.botones_config["btn_cursos"].clicked.connect(self.abrir_configurar_cursos)
+        self.botones_config["btn_grupos"].clicked.connect(self.abrir_configurar_grupos)
         self.botones_config["btn_asignaturas"].clicked.connect(self.abrir_configurar_asignaturas)
         self.botones_config["btn_profesores"].clicked.connect(self.abrir_configurar_profesores)
         self.botones_config["btn_alumnos"].clicked.connect(self.abrir_configurar_alumnos)
@@ -340,7 +340,7 @@ class OptimLabsGUI(QtWidgets.QMainWindow):
             except Exception as e:
                 self.log_mensaje(f"❌ Error cargando configuración: {e}", "error")
 
-        # Configuración por defecto ACTUALIZADA CON RESULTADOS
+        # Configuración por defecto del sistema
         return {
             "metadata": {
                 "version": "1.0",
@@ -359,7 +359,7 @@ class OptimLabsGUI(QtWidgets.QMainWindow):
                 "profesores": {"configurado": False, "datos": {}, "total": 0},
                 "alumnos": {"configurado": False, "datos": {}, "total": 0},
                 "asignaturas": {"configurado": False, "datos": {}, "total": 0},
-                "cursos": {"configurado": False, "datos": {}, "total": 0}
+                "grupos": {"configurado": False, "datos": {}, "total": 0}
             },
             "parametros_organizacion": {
                 "configurado": False,
@@ -393,7 +393,7 @@ class OptimLabsGUI(QtWidgets.QMainWindow):
                     "factor_penalizacion_conflictos": 100
                 }
             },
-            # Añadir seccion de resultados
+            # Sección de resultados de organización
             "resultados_organizacion": {
                 "datos_disponibles": False,
                 "fecha_actualizacion": None,
@@ -411,7 +411,7 @@ class OptimLabsGUI(QtWidgets.QMainWindow):
     def actualizar_estado_visual(self):
         """Actualizar indicadores visuales de configuración"""
         configuraciones = {
-            "cursos": self.configuracion["configuracion"]["cursos"],
+            "grupos": self.configuracion["configuracion"]["grupos"],
             "asignaturas": self.configuracion["configuracion"]["asignaturas"],
             "profesores": self.configuracion["configuracion"]["profesores"],
             "alumnos": self.configuracion["configuracion"]["alumnos"],
@@ -459,7 +459,7 @@ class OptimLabsGUI(QtWidgets.QMainWindow):
         self.actualizar_resumen_configuracion()
 
         # Verificar si se puede organizar
-        configuraciones_obligatorias = ["cursos", "asignaturas", "profesores", "alumnos", "horarios", "aulas",
+        configuraciones_obligatorias = ["grupos", "asignaturas", "profesores", "alumnos", "horarios", "aulas",
                                         "parametros"]
         todo_configurado = all(configuraciones[key].get("configurado", False) for key in configuraciones_obligatorias)
 
@@ -523,7 +523,7 @@ class OptimLabsGUI(QtWidgets.QMainWindow):
 
         # Configuraciones básicas
         resumen += "📚 DATOS ACADÉMICOS:\n"
-        resumen += f"  • Cursos: {config['cursos'].get('total', 0)} configurados\n"
+        resumen += f"  • Grupos: {config['grupos'].get('total', 0)} configurados\n"
         resumen += f"  • Asignaturas: {config['asignaturas'].get('total', 0)} configuradas\n"
         resumen += f"  • Profesores: {config['profesores'].get('total', 0)} configurados\n"
         resumen += f"  • Alumnos: {config['alumnos'].get('total', 0)} configurados\n"
@@ -574,11 +574,11 @@ class OptimLabsGUI(QtWidgets.QMainWindow):
 
         self.texto_resumen.setPlainText(resumen)
 
-    def get_estado_cursos(self):
-        """Obtener estado de configuración de cursos"""
-        cursos = self.configuracion["configuracion"].get("cursos", {})
-        if cursos.get("configurado", False) and cursos.get("total", 0) > 0:
-            return ("✅", f"{cursos['total']} cursos", "rgb(100,255,100)")
+    def get_estado_grupos(self):
+        """Obtener estado de configuración de grupos"""
+        grupos = self.configuracion["configuracion"].get("grupos", {})
+        if grupos.get("configurado", False) and grupos.get("total", 0) > 0:
+            return ("✅", f"{grupos['total']} grupos", "rgb(100,255,100)")
         return ("❌", "Sin configurar", "rgb(255,100,100)")
 
     def get_estado_horarios(self):
@@ -642,7 +642,7 @@ class OptimLabsGUI(QtWidgets.QMainWindow):
         config = self.configuracion["configuracion"]
         resumen = []
 
-        # Sección horarios mejorado
+        # Sección horarios
         if config["horarios"]["configurado"]:
             horarios_info = config["horarios"]
             total_asig = horarios_info.get("total_asignaturas", 0)
@@ -702,7 +702,7 @@ class OptimLabsGUI(QtWidgets.QMainWindow):
 
         # Títulos y estados
         configuraciones = [
-            ("cursos", "CURSOS", 50),
+            ("grupos", "GRUPOS", 50),
             ("asignaturas", "ASIGNATURAS", 200),
             ("profesores", "PROFESORES", 350),
             ("alumnos", "ALUMNOS", 500),
@@ -710,7 +710,7 @@ class OptimLabsGUI(QtWidgets.QMainWindow):
             ("horarios", "HORARIOS", 800),
             ("aulas", "AULAS", 950),
             ("parametros", "PARÁMETROS", 1100),
-            ("resultados", "RESULTADOS", 1250)  # ← AÑADIR RESULTADOS
+            ("resultados", "RESULTADOS", 1250)
         ]
 
         self.labels_estado = {}
@@ -743,50 +743,50 @@ class OptimLabsGUI(QtWidgets.QMainWindow):
         scrollbar.setValue(scrollbar.maximum())
 
     # ========= ACTUALIZACION DE CONFIGURACION =========
-    def actualizar_configuracion_cursos(self, cursos_data):
-        """Actualizar configuración de cursos en el sistema principal"""
+    def actualizar_configuracion_grupos(self, grupos_data):
+        """Actualizar configuración de grupos en el sistema principal"""
         try:
             # Verificar si es una cancelación de cambios
-            if isinstance(cursos_data, dict) and "metadata" in cursos_data:
-                metadata = cursos_data["metadata"]
+            if isinstance(grupos_data, dict) and "metadata" in grupos_data:
+                metadata = grupos_data["metadata"]
                 if metadata.get("accion") == "CANCELAR_CAMBIOS":
                     # Restaurar datos originales desde metadata
-                    datos_cursos = cursos_data.get("cursos", {})
-                    self.log_mensaje("🔄 Restaurando configuración original de cursos", "warning")
+                    datos_grupos = grupos_data.get("grupos", {})
+                    self.log_mensaje("🔄 Restaurando configuración original de grupos", "warning")
                 else:
                     # Datos normales con metadata
-                    datos_cursos = cursos_data.get("cursos", cursos_data)
+                    datos_grupos = grupos_data.get("grupos", grupos_data)
             else:
-                # CASO NORMAL: Datos directos de cursos SIN metadata
-                datos_cursos = cursos_data
+                # CASO NORMAL: Datos directos de grupos SIN metadata
+                datos_grupos = grupos_data
 
-            # DEBUG: Verificar qué datos estamos recibiendo
-            self.log_mensaje(f"📥 Recibiendo datos de cursos: {len(datos_cursos)} elementos", "info")
+            # Validar datos recibidos del módulo
+            self.log_mensaje(f"📥 Recibiendo datos de grupos: {len(datos_grupos)} elementos", "info")
 
             # Actualizar configuración interna
-            if "cursos" not in self.configuracion["configuracion"]:
-                self.configuracion["configuracion"]["cursos"] = {}
+            if "grupos" not in self.configuracion["configuracion"]:
+                self.configuracion["configuracion"]["grupos"] = {}
 
-            cursos_config = self.configuracion["configuracion"]["cursos"]
+            grupos_config = self.configuracion["configuracion"]["grupos"]
 
-            cursos_config["configurado"] = True if datos_cursos else False
-            cursos_config["datos"] = datos_cursos
-            cursos_config["total"] = len(datos_cursos)
-            cursos_config["fecha_actualizacion"] = datetime.now().isoformat()
+            grupos_config["configurado"] = True if datos_grupos else False
+            grupos_config["datos"] = datos_grupos
+            grupos_config["total"] = len(datos_grupos)
+            grupos_config["fecha_actualizacion"] = datetime.now().isoformat()
 
-            # IMPORTANTE: Guardar configuración en JSON
+            # Persistir configuración en archivo JSON
             self.guardar_configuracion()
 
             # Log apropiado según el tipo de actualización
-            total = len(datos_cursos)
-            if isinstance(cursos_data, dict) and cursos_data.get("metadata", {}).get("accion") == "CANCELAR_CAMBIOS":
+            total = len(datos_grupos)
+            if isinstance(grupos_data, dict) and grupos_data.get("metadata", {}).get("accion") == "CANCELAR_CAMBIOS":
                 self.log_mensaje(
-                    f"🔄 Configuración de cursos restaurada: {total} cursos",
+                    f"🔄 Configuración de grupos restaurada: {total} grupos",
                     "warning"
                 )
             else:
                 self.log_mensaje(
-                    f"✅ Configuración de cursos actualizada: {total} cursos guardados en JSON",
+                    f"✅ Configuración de grupos actualizada: {total} grupos guardados en JSON",
                     "success"
                 )
 
@@ -794,7 +794,7 @@ class OptimLabsGUI(QtWidgets.QMainWindow):
             self.actualizar_estado_visual()
 
         except Exception as e:
-            error_msg = f"Error al actualizar configuración de cursos: {str(e)}"
+            error_msg = f"Error al actualizar configuración de grupos: {str(e)}"
             self.log_mensaje(f"❌ {error_msg}", "error")
             QtWidgets.QMessageBox.critical(
                 self, "Error",
@@ -896,7 +896,7 @@ class OptimLabsGUI(QtWidgets.QMainWindow):
             # Actualizar interfaz visual
             self.actualizar_estado_visual()
 
-            # SOLO LOG - SIN DIÁLOGOS MOLESTOS
+            # Registro silencioso de la operación
             total_asignaturas = metadata.get("total_asignaturas", 0)
             total_franjas = metadata.get("total_franjas", 0)
             semestre = datos_horarios.get("semestre_actual", "?")
@@ -1336,62 +1336,62 @@ class OptimLabsGUI(QtWidgets.QMainWindow):
             return False
 
     # ========= MÉTODOS DE NAVEGACIÓN =========
-    def abrir_configurar_cursos(self):
-        """Abrir ventana de configuración de cursos - Estilo idéntico a asignaturas"""
+    def abrir_configurar_grupos(self):
+        """Abrir ventana de configuración de grupos - Estilo idéntico a asignaturas"""
         try:
-            from modules.interfaces.configurar_cursos import ConfigurarCursos
-            CURSOS_DISPONIBLE = True
+            from modules.interfaces.configurar_grupos import ConfigurarGrupos
+            GRUPOS_DISPONIBLE = True
         except ImportError as e:
-            print(f"⚠️ Módulo configurar_cursos no disponible: {e}")
-            CURSOS_DISPONIBLE = False
+            print(f"⚠️ Módulo configurar_grupos no disponible: {e}")
+            GRUPOS_DISPONIBLE = False
 
-        if not CURSOS_DISPONIBLE:
+        if not GRUPOS_DISPONIBLE:
             QtWidgets.QMessageBox.warning(
                 self, "Módulo no disponible",
-                "El módulo configurar_cursos.py no está disponible.\n"
+                "El módulo configurar_grupos.py no está disponible.\n"
                 "Verifica que esté en la misma carpeta que gui_labs.py"
             )
             return
 
-        self.log_mensaje("🎓 Abriendo configuración de cursos...", "info")
+        self.log_mensaje("🎓 Abriendo configuración de grupos...", "info")
 
         try:
             # Cerrar ventana anterior si existe
-            if hasattr(self, 'ventana_cursos') and self.ventana_cursos:
-                self.ventana_cursos.close()
+            if hasattr(self, 'ventana_grupos') and self.ventana_grupos:
+                self.ventana_grupos.close()
 
             # PREPARAR DATOS EXISTENTES PARA PASAR A LA VENTANA
             datos_existentes = None
-            cursos_config = self.configuracion["configuracion"].get("cursos", {})
+            grupos_config = self.configuracion["configuracion"].get("grupos", {})
 
-            if cursos_config.get("configurado") and cursos_config.get("datos"):
-                datos_existentes = cursos_config["datos"].copy()
-                total_cursos = cursos_config.get("total", 0)
+            if grupos_config.get("configurado") and grupos_config.get("datos"):
+                datos_existentes = grupos_config["datos"].copy()
+                total_grupos = grupos_config.get("total", 0)
                 self.log_mensaje(
-                    f"📥 Cargando configuración existente: {total_cursos} cursos configurados",
+                    f"📥 Cargando configuración existente: {total_grupos} grupos configurados",
                     "info"
                 )
             else:
-                self.log_mensaje("📝 Abriendo configuración nueva de cursos", "info")
+                self.log_mensaje("📝 Abriendo configuración nueva de grupos", "info")
 
             # Crear ventana con datos existentes (o None si no hay)
-            self.ventana_cursos = ConfigurarCursos(
+            self.ventana_grupos = ConfigurarGrupos(
                 parent=self,
                 datos_existentes=datos_existentes
             )
 
             # Conectar señal para recibir configuración actualizada
-            self.ventana_cursos.configuracion_actualizada.connect(self.actualizar_configuracion_cursos)
+            self.ventana_grupos.configuracion_actualizada.connect(self.actualizar_configuracion_grupos)
 
-            self.ventana_cursos.show()
+            self.ventana_grupos.show()
 
             if datos_existentes:
-                self.log_mensaje("✅ Ventana de cursos abierta con datos existentes", "success")
+                self.log_mensaje("✅ Ventana de grupos abierta con datos existentes", "success")
             else:
-                self.log_mensaje("✅ Ventana de cursos abierta (configuración nueva)", "success")
+                self.log_mensaje("✅ Ventana de grupos abierta (configuración nueva)", "success")
 
         except Exception as e:
-            error_msg = f"Error al abrir configuración de cursos: {str(e)}"
+            error_msg = f"Error al abrir configuración de grupos: {str(e)}"
             self.log_mensaje(f"❌ {error_msg}", "error")
             QtWidgets.QMessageBox.critical(
                 self, "Error",
@@ -1508,7 +1508,7 @@ class OptimLabsGUI(QtWidgets.QMainWindow):
             # Crear ventana con datos existentes (o None si no hay)
             self.ventana_horarios = ConfigurarHorarios(
                 parent=self,
-                datos_existentes=datos_existentes  # ← PASAR DATOS EXISTENTES
+                datos_existentes=datos_existentes  # Transferir configuración existente
             )
 
             # Conectar señal para recibir configuración actualizada
@@ -1573,7 +1573,7 @@ class OptimLabsGUI(QtWidgets.QMainWindow):
             # Crear ventana con datos existentes (o None si no hay)
             self.ventana_aulas = ConfigurarAulas(
                 parent=self,
-                datos_existentes=datos_existentes  # ← PASAR DATOS EXISTENTES
+                datos_existentes=datos_existentes  # Transferir configuración existente
             )
 
             # Conectar señal para recibir configuración actualizada
@@ -1833,7 +1833,7 @@ class OptimLabsGUI(QtWidgets.QMainWindow):
             # Crear ventana con datos existentes (o None si no hay)
             self.ventana_parametros = ConfigurarParametros(
                 parent=self,
-                datos_existentes=datos_existentes  # ← PASAR DATOS EXISTENTES
+                datos_existentes=datos_existentes  # Transferir configuración existente
             )
 
             # Conectar señal para recibir configuración actualizada
@@ -1855,7 +1855,7 @@ class OptimLabsGUI(QtWidgets.QMainWindow):
             )
 
     def abrir_ver_resultados(self):
-        """Abrir ventana de visualización de resultados - CON MENSAJE MEJORADO"""
+        """Abrir ventana de visualización de resultados"""
         # Verificar si el módulo está disponible
         try:
             from modules.interfaces.ver_resultados import VerResultados
@@ -1876,14 +1876,14 @@ class OptimLabsGUI(QtWidgets.QMainWindow):
         resultados_disponibles = self.configuracion.get("resultados_organizacion", {}).get("datos_disponibles", False)
 
         if not resultados_disponibles:
-            # MENSAJE MEJORADO CUANDO NO HAY DATOS
+            # MENSAJE CUANDO NO HAY DATOS
             mensaje_sin_datos = """
     📊 No hay resultados disponibles
 
     Para ver los resultados de organización, primero debes:
 
     1️⃣ Completar todas las configuraciones necesarias:
-       • Cursos y asignaturas
+       • Grupos y asignaturas
        • Profesores y alumnos  
        • Aulas y horarios
        • Parámetros de organización
@@ -1964,6 +1964,54 @@ class OptimLabsGUI(QtWidgets.QMainWindow):
         """Iniciar proceso de organización de laboratorios"""
         self.log_mensaje("✨ Iniciando organización de laboratorios...", "info")
 
+        # Verificar si el módulo está disponible
+        try:
+            from modules.organizador.prevalidacion import prevalidar_antes_de_ejecutar
+            PREVALIDACION = True
+        except ImportError as e:
+            print(f"⚠️ Módulo prevalidacion no disponible: {e}")
+            PREVALIDACION = False
+
+        if not PREVALIDACION:
+            QtWidgets.QMessageBox.warning(
+                self, "Módulo no disponible",
+                "El módulo prevalidacion.py no está disponible.\n"
+                "Verifica que esté en modules/organizador/prevalidacion.py"
+            )
+            return
+
+        # ✅ NUEVA SECCIÓN: Prevalidación
+        self.log_mensaje("🔍 Ejecutando prevalidación...", "info")
+
+        try:
+            es_viable, mensajes_problemas = prevalidar_antes_de_ejecutar(self.configuracion)
+
+            if not es_viable:
+                self.log_mensaje("❌ Problemas críticos detectados en prevalidación", "error")
+
+                # Preparar mensaje detallado para el usuario
+                mensaje_detallado = "Se detectaron problemas críticos que impedirán una organización exitosa:\n\n"
+                mensaje_detallado += "\n".join(mensajes_problemas)
+                mensaje_detallado += "\n\n¿Quieres intentar ejecutar de todos modos? (No recomendado)"
+
+                respuesta = QtWidgets.QMessageBox.question(
+                    self, "❌ Problemas Detectados",
+                    mensaje_detallado,
+                    QtWidgets.QMessageBox.StandardButton.Yes | QtWidgets.QMessageBox.StandardButton.No
+                )
+
+                if respuesta == QtWidgets.QMessageBox.StandardButton.No:
+                    self.log_mensaje("❌ Organización cancelada - resolver problemas primero", "warning")
+                    return
+                else:
+                    self.log_mensaje("⚠️ Continuando pese a problemas detectados...", "warning")
+            else:
+                self.log_mensaje("✅ Prevalidación exitosa - procediendo...", "success")
+
+        except Exception as e:
+            self.log_mensaje(f"⚠️ Error en prevalidación: {str(e)}", "warning")
+            self.log_mensaje("🔄 Continuando con organización normal...", "info")
+
         # Verificar que todos los datos necesarios estén configurados
         if not self._verificar_configuracion_completa():
             return
@@ -1981,72 +2029,71 @@ class OptimLabsGUI(QtWidgets.QMainWindow):
             self.log_mensaje("❌ Organización cancelada por el usuario", "warning")
             return
 
+        self._ejecutar_motor_organizacion()
+
+    def _ejecutar_motor_organizacion(self):
+        """Ejecutar el motor de organización en hilo separado"""
         try:
-            # Deshabilitar interfaz durante el proceso
+            # Verificar disponibilidad del motor
+            try:
+                from modules.organizador.motor_organizacion import ejecutar_organizacion
+                MOTOR_DISPONIBLE = True
+            except ImportError as e:
+                self.log_mensaje(f"❌ Motor de organización no disponible: {e}", "error")
+                QtWidgets.QMessageBox.critical(
+                    self, "Error",
+                    "El módulo motor_organizacion.py no está disponible.\n"
+                    "Verifica que esté en modules/organizador/motor_organizacion.py"
+                )
+                return
+
+            self.log_mensaje("🚀 Ejecutando motor de organización...", "info")
+
+            # Deshabilitar interfaz durante ejecución
             self._deshabilitar_interfaz_organizacion()
 
             # Mostrar barra de progreso
             self.progress_bar.setVisible(True)
             self.progress_bar.setValue(0)
-            self.progress_bar.setFormat("Iniciando organización... %p%")
 
-            # Importar y ejecutar motor de organización
-            from modules.organizador.motor_organizacion import ejecutar_organizacion
-
-            # Preparar callback de progreso
-            def actualizar_progreso(valor):
+            def callback_progreso(valor):
+                """Callback para actualizar progreso"""
                 self.progress_bar.setValue(valor)
-                if valor <= 5:
-                    self.progress_bar.setFormat("Validando datos... %p%")
-                elif valor <= 15:
-                    self.progress_bar.setFormat("Generando grupos... %p%")
-                elif valor <= 30:
-                    self.progress_bar.setFormat("Asignando recursos... %p%")
-                elif valor <= 50:
-                    self.progress_bar.setFormat("Resolviendo conflictos... %p%")
-                elif valor <= 70:
-                    self.progress_bar.setFormat("Optimizando... %p%")
-                elif valor <= 90:
-                    self.progress_bar.setFormat("Generando estadísticas... %p%")
-                else:
-                    self.progress_bar.setFormat("Completando... %p%")
+                QApplication.processEvents()  # Mantener interfaz responsiva
 
-                # Procesar eventos para mantener la UI responsive
-                QtWidgets.QApplication.processEvents()
+            # Ejecutar motor con callback de progreso
+            resultado = ejecutar_organizacion(self.configuracion, callback_progreso)
 
-            # Ejecutar organización
-            self.log_mensaje("🚀 Ejecutando motor de organización...", "info")
-            resultado = ejecutar_organizacion(self.configuracion, actualizar_progreso)
+            # Ocultar barra de progreso
+            self.progress_bar.setVisible(False)
+
+            # Restaurar interfaz
+            self._restaurar_interfaz_organizacion()
 
             # Procesar resultados
             if resultado["exito"]:
+                self.log_mensaje("✅ Motor ejecutado exitosamente", "success")
                 self._procesar_resultados_exitosos(resultado["resultados"])
             else:
+                self.log_mensaje(f"❌ Error en motor: {resultado['mensaje']}", "error")
                 self._procesar_resultados_fallidos(resultado["mensaje"])
 
-
-        except ImportError as e:
-
-            error_msg = f"Error: No se pudo importar el motor de organización.\n\nVerifica que motor_organizacion.py esté en la misma carpeta.\n\nError técnico: {e}"
-
-            self.log_mensaje(f"❌ {error_msg}", "error")
-
-            QtWidgets.QMessageBox.critical(self, "Error de Importación", error_msg)
-
         except Exception as e:
-            error_msg = f"Error inesperado durante la organización: {str(e)}"
-            self.log_mensaje(f"❌ {error_msg}", "error")
-            QtWidgets.QMessageBox.critical(self, "Error de Organización", error_msg)
-
-        finally:
-            # Restaurar interfaz
-            self._restaurar_interfaz_organizacion()
+            # Restaurar interfaz en caso de error
             self.progress_bar.setVisible(False)
+            self._restaurar_interfaz_organizacion()
+
+            error_msg = f"Error ejecutando motor de organización: {str(e)}"
+            self.log_mensaje(f"❌ {error_msg}", "error")
+            QtWidgets.QMessageBox.critical(
+                self, "Error de Ejecución",
+                f"{error_msg}\n\nDetalles técnicos:\n{type(e).__name__}: {e}"
+            )
 
     def _verificar_configuracion_completa(self):
         """Verificar que toda la configuración necesaria esté completa"""
         configuraciones_requeridas = {
-            "cursos": "Configuración de cursos",
+            "grupos": "Configuración de grupos",
             "asignaturas": "Configuración de asignaturas",
             "profesores": "Configuración de profesores",
             "alumnos": "Configuración de alumnos",
@@ -2186,7 +2233,7 @@ class OptimLabsGUI(QtWidgets.QMainWindow):
     • Revisar la compatibilidad entre asignaturas y aulas
     • Confirmar disponibilidad de profesores
     • Ajustar parámetros de organización
-    • Revisar que haya suficientes recursos disponibles
+    • Revisar que haya suficientes regrupos disponibles
 
     ¿Quieres revisar la configuración?
         """
