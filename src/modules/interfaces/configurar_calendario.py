@@ -522,6 +522,7 @@ class ConfigurarCalendario(QMainWindow):
     configuracion_actualizada = pyqtSignal(dict)
 
     def __init__(self, parent=None, datos_existentes=None):
+        """Inicializar ventana principal con configuración dinámica de semanas"""
         super().__init__()
         self.parent_window = parent
         self.setWindowTitle("Configurar Calendario - OPTIM Labs")
@@ -531,20 +532,29 @@ class ConfigurarCalendario(QMainWindow):
 
         # Determinar anio académico actual
         anio_actual = datetime.now().year
-        if datetime.now().month >= 9:  # Si estamos en sep-dic, es el anio actual
+        if datetime.now().month >= 9:
             self.anio_academico = anio_actual
-        else:  # Si estamos en ene-ago, es el anio anterior
+        else:
             self.anio_academico = anio_actual - 1
+
+        # Variable dinámica para límite de semanas
+        self.limite_semanas = 14
 
         # Estructura de datos principal
         if datos_existentes:
             self.datos_configuracion = datos_existentes.copy()
+            # Extraer límite de semanas si existe en los datos
+            if "metadata" in datos_existentes and "limite_semanas" in datos_existentes["metadata"]:
+                self.limite_semanas = datos_existentes["metadata"]["limite_semanas"]
             self.log_mensaje("📥 Cargando configuración existente de calendario...", "info")
         else:
             self.datos_configuracion = {
                 "anio_academico": f"{self.anio_academico}-{self.anio_academico + 1}",
                 "semestre_1": {},
-                "semestre_2": {}
+                "semestre_2": {},
+                "metadata": {
+                    "limite_semanas": self.limite_semanas
+                }
             }
             self.log_mensaje("📝 Iniciando configuración nueva de calendario...", "info")
 
@@ -625,25 +635,21 @@ class ConfigurarCalendario(QMainWindow):
         central_widget.setLayout(main_layout)
 
     def setup_anio_control(self, parent_layout):
-        """Crear control dinámico para cambiar anio académico"""
+        """Crear controles dinámicos para año académico y límite de semanas"""
         anio_control_layout = QHBoxLayout()
         anio_control_layout.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
-        # Etiqueta
+        # Control de año base
         label_anio = QLabel("Año base:")
         label_anio.setStyleSheet("color: #ffffff; font-weight: bold; font-size: 12px;")
         anio_control_layout.addWidget(label_anio)
 
-        # Campo de texto para anio (solo números, 4 dígitos)
         self.edit_anio = QLineEdit()
         self.edit_anio.setFixedWidth(80)
         self.edit_anio.setText(str(self.anio_academico))
         self.edit_anio.setMaxLength(4)
-
-        # Validador para solo números
         validator = QIntValidator()
         self.edit_anio.setValidator(validator)
-
         self.edit_anio.setStyleSheet("""
             QLineEdit {
                 background-color: #3c3c3c;
@@ -660,7 +666,6 @@ class ConfigurarCalendario(QMainWindow):
         """)
         anio_control_layout.addWidget(self.edit_anio)
 
-        # Botón aplicar
         self.btn_aplicar_anio = QPushButton("Aplicar")
         self.btn_aplicar_anio.setFixedWidth(80)
         self.btn_aplicar_anio.setStyleSheet("""
@@ -684,10 +689,238 @@ class ConfigurarCalendario(QMainWindow):
         self.btn_aplicar_anio.clicked.connect(self.aplicar_nuevo_anio)
         anio_control_layout.addWidget(self.btn_aplicar_anio)
 
-        # Conectar Enter al botón aplicar
         self.edit_anio.returnPressed.connect(self.aplicar_nuevo_anio)
-
         parent_layout.addLayout(anio_control_layout)
+
+        # Control de semanas
+        semanas_control_layout = QHBoxLayout()
+        semanas_control_layout.setAlignment(Qt.AlignmentFlag.AlignCenter)
+
+        label_semanas = QLabel("Semanas:")
+        label_semanas.setStyleSheet("color: #ffffff; font-weight: bold; font-size: 12px;")
+        semanas_control_layout.addWidget(label_semanas)
+
+        self.edit_semanas = QLineEdit()
+        self.edit_semanas.setFixedWidth(60)
+        self.edit_semanas.setText(str(self.limite_semanas))
+        self.edit_semanas.setMaxLength(2)
+        validator_semanas = QIntValidator(1, 30)
+        self.edit_semanas.setValidator(validator_semanas)
+        self.edit_semanas.setStyleSheet("""
+            QLineEdit {
+                background-color: #3c3c3c;
+                color: #ffffff;
+                border: 2px solid #ff9800;
+                border-radius: 5px;
+                padding: 5px;
+                font-weight: bold;
+                font-size: 12px;
+            }
+            QLineEdit:focus {
+                border-color: #ffb74d;
+            }
+        """)
+        semanas_control_layout.addWidget(self.edit_semanas)
+
+        self.btn_aplicar_semanas = QPushButton("Aplicar")
+        self.btn_aplicar_semanas.setFixedWidth(80)
+        self.btn_aplicar_semanas.setStyleSheet("""
+            QPushButton {
+                background-color: #ff9800;
+                color: #ffffff;
+                border: 1px solid #ff9800;
+                border-radius: 5px;
+                padding: 5px 10px;
+                font-weight: bold;
+                font-size: 12px;
+            }
+            QPushButton:hover {
+                background-color: #ffb74d;
+                border-color: #ffb74d;
+            }
+            QPushButton:pressed {
+                background-color: #f57c00;
+            }
+        """)
+        self.btn_aplicar_semanas.clicked.connect(self.aplicar_nuevo_limite_semanas)
+        semanas_control_layout.addWidget(self.btn_aplicar_semanas)
+
+        self.edit_semanas.returnPressed.connect(self.aplicar_nuevo_limite_semanas)
+        parent_layout.addLayout(semanas_control_layout)
+
+    def aplicar_nuevo_limite_semanas(self):
+        """Aplicar nuevo límite de semanas con regeneración completa de grids"""
+        try:
+            nuevo_limite_text = self.edit_semanas.text().strip()
+
+            if not nuevo_limite_text or len(nuevo_limite_text) == 0:
+                QMessageBox.warning(
+                    self, "Límite Inválido",
+                    "El número de semanas debe ser un valor entre 1 y 30."
+                )
+                self.edit_semanas.setText(str(self.limite_semanas))
+                return
+
+            nuevo_limite = int(nuevo_limite_text)
+
+            if nuevo_limite < 1 or nuevo_limite > 30:
+                QMessageBox.warning(
+                    self, "Límite Inválido",
+                    "El número de semanas debe estar entre 1 y 30."
+                )
+                self.edit_semanas.setText(str(self.limite_semanas))
+                return
+
+            if nuevo_limite == self.limite_semanas:
+                return
+
+            total_dias = len(self.datos_configuracion.get("semestre_1", {})) + len(
+                self.datos_configuracion.get("semestre_2", {}))
+
+            if total_dias > 0:
+                respuesta = QMessageBox.question(
+                    self, "Cambiar Límite de Semanas",
+                    f"🗓️ CAMBIAR LÍMITE DE SEMANAS\n\n"
+                    f"Límite actual: {self.limite_semanas} semanas\n"
+                    f"Límite nuevo: {nuevo_limite} semanas\n\n"
+                    f"⚠️ Hay {total_dias} días configurados actualmente.\n\n"
+                    f"Al cambiar el límite se regenerarán los grids\n"
+                    f"para mostrar la nueva configuración correctamente.\n\n"
+                    f"¿Continuar con el cambio?",
+                    QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
+                    QMessageBox.StandardButton.No
+                )
+
+                if respuesta == QMessageBox.StandardButton.No:
+                    self.edit_semanas.setText(str(self.limite_semanas))
+                    return
+
+            # Aplicar nuevo límite
+            limite_anterior = self.limite_semanas
+            self.limite_semanas = nuevo_limite
+
+            # Actualizar metadata
+            if "metadata" not in self.datos_configuracion:
+                self.datos_configuracion["metadata"] = {}
+            self.datos_configuracion["metadata"]["limite_semanas"] = nuevo_limite
+
+            # Regenerar completamente los grids con el nuevo límite
+            self.regenerar_grids_completos()
+
+            # Verificar equilibrio con nuevo límite
+            equilibrio_ok = self.verificar_equilibrio_completo(mostrar_si_todo_ok=False)
+
+            # Marcar cambio
+            self.marcar_cambio_realizado()
+
+            # Log del cambio
+            self.log_mensaje(f"🔢 Límite de semanas cambiado: {limite_anterior} → {nuevo_limite}", "success")
+
+            # Mensaje de confirmación con estado de equilibrio
+            if equilibrio_ok:
+                estado_msg = "✅ El equilibrio actual es compatible con el nuevo límite."
+            else:
+                estado_msg = "⚠️ Revisa el equilibrio con el nuevo límite."
+
+            QMessageBox.information(
+                self, "Límite Actualizado",
+                f"✅ Límite de semanas actualizado exitosamente\n\n"
+                f"Nuevo límite: {nuevo_limite} semanas por horario\n\n"
+                f"{estado_msg}\n\n"
+                f"💡 Usa 'Verificar Equilibrio' para análisis detallado."
+            )
+
+        except ValueError:
+            QMessageBox.warning(
+                self, "Límite Inválido",
+                "Por favor ingresa un número válido entre 1 y 30."
+            )
+            self.edit_semanas.setText(str(self.limite_semanas))
+        except Exception as e:
+            QMessageBox.critical(self, "Error", f"Error aplicando nuevo límite: {e}")
+            self.edit_semanas.setText(str(self.limite_semanas))
+
+    def regenerar_grids_completos(self):
+        """Regenerar completamente los grids con el nuevo límite de semanas"""
+        try:
+            # Guardar datos temporalmente
+            datos_backup = {
+                "semestre_1": self.datos_configuracion.get("semestre_1", {}).copy(),
+                "semestre_2": self.datos_configuracion.get("semestre_2", {}).copy()
+            }
+
+            # Limpiar widgets existentes completamente
+            self.limpiar_widgets_grids_completo()
+
+            # Recrear grid 1º semestre
+            self.grid_1 = self.crear_grid_semestre("semestre_1")
+
+            # Recrear grid 2º semestre
+            self.grid_2 = self.crear_grid_semestre("semestre_2")
+
+            # Reemplazar widgets en la interfaz
+            # Buscar los QGroupBox que contienen los grids
+            for widget in self.findChildren(QGroupBox):
+                if widget.title() == "1º SEMESTRE":
+                    # Limpiar layout anterior
+                    while widget.layout().count():
+                        child = widget.layout().takeAt(0)
+                        if child.widget():
+                            child.widget().deleteLater()
+                    # Agregar nuevo grid
+                    widget.layout().addWidget(self.grid_1)
+
+                elif widget.title() == "2º SEMESTRE":
+                    # Limpiar layout anterior
+                    while widget.layout().count():
+                        child = widget.layout().takeAt(0)
+                        if child.widget():
+                            child.widget().deleteLater()
+                    # Agregar nuevo grid
+                    widget.layout().addWidget(self.grid_2)
+
+            # Restaurar datos y cargar en nuevos grids
+            self.datos_configuracion["semestre_1"] = datos_backup["semestre_1"]
+            self.datos_configuracion["semestre_2"] = datos_backup["semestre_2"]
+
+            # Cargar datos en los nuevos grids
+            self.cargar_dias_en_grids()
+
+            self.log_mensaje(f"🔄 Grids regenerados con límite de {self.limite_semanas} semanas", "success")
+
+        except Exception as e:
+            self.log_mensaje(f"⚠️ Error regenerando grids: {e}", "warning")
+
+    def limpiar_widgets_grids_completo(self):
+        """Limpiar completamente todos los widgets de los grids"""
+        try:
+            # Limpiar referencias en memoria
+            for semestre in self.grids_widgets:
+                for dia in self.grids_widgets[semestre]:
+                    for widget in self.grids_widgets[semestre][dia]:
+                        if widget and hasattr(widget, 'setParent'):
+                            widget.setParent(None)
+                            widget.deleteLater()
+                    self.grids_widgets[semestre][dia].clear()
+
+            # Limpiar widgets físicamente si existen
+            try:
+                if hasattr(self, 'grid_1') and self.grid_1:
+                    grid_widget = self.grid_1.widget()
+                    if grid_widget:
+                        grid_widget.setParent(None)
+                        grid_widget.deleteLater()
+
+                if hasattr(self, 'grid_2') and self.grid_2:
+                    grid_widget = self.grid_2.widget()
+                    if grid_widget:
+                        grid_widget.setParent(None)
+                        grid_widget.deleteLater()
+            except:
+                pass
+
+        except Exception as e:
+            self.log_mensaje(f"⚠️ Error limpiando widgets: {e}", "warning")
 
     def aplicar_nuevo_anio(self):
         """Aplicar nuevo anio académico"""
@@ -903,7 +1136,7 @@ class ConfigurarCalendario(QMainWindow):
         parent_layout.addWidget(center_panel)
 
     def crear_grid_semestre(self, semestre):
-        """Crear grid para un semestre con numeración y capacidad dinámica"""
+        """Crear grid para semestre con filas exactas según límite configurado"""
         scroll = QScrollArea()
         scroll.setWidgetResizable(True)
         scroll.setMinimumHeight(300)
@@ -933,11 +1166,12 @@ class ConfigurarCalendario(QMainWindow):
             header.setStyleSheet("background-color: #4a4a4a; padding: 6px; border-radius: 3px; color: white;")
             header.setFixedWidth(ANCHO_COLUMNA)
             header.setMinimumHeight(30)
-            grid_layout.addWidget(header, 0, i + 1)  # +1 por la columna de numeración
+            grid_layout.addWidget(header, 0, i + 1)
 
-        # Crear inicialmente 14 filas (mínimo) con números y DropZoneWidgets
+        # Crear exactamente las filas según límite configurado
         dias_columnas = ["Lunes", "Martes", "Miércoles", "Jueves", "Viernes"]
-        for fila in range(1, 15):  # Filas 1-14
+
+        for fila in range(1, self.limite_semanas + 1):
             # Columna de numeración
             num_label = QLabel(str(fila))
             num_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
@@ -949,24 +1183,24 @@ class ConfigurarCalendario(QMainWindow):
                 border-radius: 3px; 
                 padding: 3px;
             """)
+            num_label.setToolTip(f"Día {fila}")
             num_label.setFixedWidth(ANCHO_NUMERACION)
             num_label.setMinimumHeight(50)
             grid_layout.addWidget(num_label, fila, 0)
 
             # Columnas de días
-            for col in range(5):  # Columnas 0-4 para días
+            for col in range(5):
                 dia_horario = dias_columnas[col]
                 drop_zone = DropZoneWidget(dia_horario)
                 drop_zone.dia_dropped.connect(self.manejar_drop_dia)
-                grid_layout.addWidget(drop_zone, fila, col + 1)  # +1 por la columna de numeración
+                grid_layout.addWidget(drop_zone, fila, col + 1)
 
         # Establecer política de columnas
-        grid_layout.setColumnMinimumWidth(0, ANCHO_NUMERACION)  # Columna numeración
-        for col in range(1, 6):  # Columnas 1-5 para días
+        grid_layout.setColumnMinimumWidth(0, ANCHO_NUMERACION)
+        for col in range(1, 6):
             grid_layout.setColumnMinimumWidth(col, ANCHO_COLUMNA)
             grid_layout.setColumnStretch(col, 0)
 
-        # Grid dinámico
         grid_layout.setSizeConstraint(QGridLayout.SizeConstraint.SetFixedSize)
         grid_widget.setSizePolicy(QSizePolicy.Policy.Fixed, QSizePolicy.Policy.Expanding)
 
@@ -1311,43 +1545,41 @@ class ConfigurarCalendario(QMainWindow):
             QMessageBox.critical(self, "Error", f"Error añadiendo día: {e}")
 
     def verificar_limite_por_horario(self, semestre, horario_asignado):
-        """Verificar límite de 14 días por horario específico con avisos precisos"""
-        # Contar días con este horario asignado en este semestre
+        """Verificar límite dinámico por horario específico con avisos precisos"""
         count = sum(1 for config in self.datos_configuracion[semestre].values()
                     if config.get('horario_asignado') == horario_asignado)
 
         sem_nombre = "1º" if semestre == "semestre_1" else "2º"
 
-        if count > 14:
+        if count > self.limite_semanas:
             QMessageBox.warning(
                 self, "⚠️ Límite Excedido",
                 f"🚨 LÍMITE SUPERADO\n\n"
                 f"Columna \"{horario_asignado}\" en {sem_nombre} semestre:\n"
                 f"📊 Días actuales: {count}\n"
-                f"📋 Límite recomendado: 14 días\n"
-                f"📈 Exceso: {count - 14} días\n\n"
+                f"📋 Límite configurado: {self.limite_semanas} días\n"
+                f"📈 Exceso: {count - self.limite_semanas} días\n\n"
                 f"⚠️ Esto puede causar sobrecarga en ese horario.\n"
                 f"Considera redistribuir algunos días a otras columnas."
             )
-        elif count == 14:
+        elif count == self.limite_semanas:
             QMessageBox.information(
                 self, "✅ Límite Alcanzado",
                 f"🎯 LÍMITE PERFECTO\n\n"
                 f"Columna \"{horario_asignado}\" en {sem_nombre} semestre:\n"
                 f"📊 Días actuales: {count}\n"
-                f"📋 Límite recomendado: 14 días\n\n"
-                f"✅ Has alcanzado exactamente el límite ideal.\n"
+                f"📋 Límite configurado: {self.limite_semanas} días\n\n"
+                f"✅ Has alcanzado exactamente el límite configurado.\n"
                 f"💡 Evita añadir más días a esta columna."
             )
 
     def verificar_equilibrio_completo(self, mostrar_si_todo_ok=False):
-        """Verificar equilibrio de todos los horarios en ambos semestres"""
+        """Verificar equilibrio de horarios con límite dinámico de semanas"""
         problemas_encontrados = []
 
         for semestre in ["semestre_1", "semestre_2"]:
             sem_nombre = "1º" if semestre == "semestre_1" else "2º"
 
-            # Contar por horario
             conteo_horarios = {"Lunes": 0, "Martes": 0, "Miércoles": 0, "Jueves": 0, "Viernes": 0}
 
             for config in self.datos_configuracion[semestre].values():
@@ -1355,22 +1587,20 @@ class ConfigurarCalendario(QMainWindow):
                 if horario in conteo_horarios:
                     conteo_horarios[horario] += 1
 
-            # Verificar problemas por horario
             for horario, count in conteo_horarios.items():
-                if count > 14:
+                if count > self.limite_semanas:
                     problemas_encontrados.append(
-                        f"🚨 {sem_nombre} semestre - {horario}: {count} días (excede límite por {count - 14})"
+                        f"🚨 {sem_nombre} semestre - {horario}: {count} días (excede límite por {count - self.limite_semanas})"
                     )
-                elif count < 14 and count > 0:
+                elif count < self.limite_semanas and count > 0:
                     problemas_encontrados.append(
-                        f"⚠️ {sem_nombre} semestre - {horario}: {count} días (faltan {14 - count} para límite)"
+                        f"⚠️ {sem_nombre} semestre - {horario}: {count} días (faltan {self.limite_semanas - count} para límite)"
                     )
                 elif count == 0:
                     problemas_encontrados.append(
                         f"❌ {sem_nombre} semestre - {horario}: 0 días (columna vacía)"
                     )
 
-        # Mostrar resultados
         if problemas_encontrados:
             mensaje = "📊 ANÁLISIS DE EQUILIBRIO DE HORARIOS\n\n"
             mensaje += "Se detectaron los siguientes desequilibrios:\n\n"
@@ -1379,7 +1609,7 @@ class ConfigurarCalendario(QMainWindow):
                 mensaje += f"{i}. {problema}\n"
 
             mensaje += f"\n💡 RECOMENDACIONES:\n"
-            mensaje += f"• Ideal: 14 días por horario\n"
+            mensaje += f"• Ideal: {self.limite_semanas} días por horario\n"
             mensaje += f"• Redistribuye días entre columnas usando drag & drop\n"
             mensaje += f"• Usa 'Generar Calendario Automático' para equilibrio perfecto"
 
@@ -1389,10 +1619,10 @@ class ConfigurarCalendario(QMainWindow):
             if mostrar_si_todo_ok:
                 QMessageBox.information(
                     self, "✅ Equilibrio Perfecto",
-                    "🎯 CONFIGURACIÓN IDEAL\n\n"
-                    "✅ Todos los horarios tienen exactamente 14 días\n"
-                    "✅ Distribución perfectamente equilibrada\n\n"
-                    "🎉 ¡Excelente configuración!"
+                    f"🎯 CONFIGURACIÓN IDEAL\n\n"
+                    f"✅ Todos los horarios tienen exactamente {self.limite_semanas} días\n"
+                    f"✅ Distribución perfectamente equilibrada\n\n"
+                    f"🎉 ¡Excelente configuración!"
                 )
             return True
 
@@ -1425,66 +1655,51 @@ class ConfigurarCalendario(QMainWindow):
             self.log_mensaje(f"⚠️ Error restaurando numeración: {e}", "warning")
 
     def cargar_dias_en_grids(self):
-        """Cargar días configurados en los grids con capacidad dinámica optimizada"""
+        """Cargar días configurados respetando límite dinámico y expandiendo solo si es necesario"""
         try:
-            # Limpiar solo widgets de días, preservar numeración
             self.limpiar_widgets_grids()
 
-            # Mapeo consistente de días
             dias_mapa = {
                 "Lunes": 1, "Martes": 2, "Miércoles": 3, "Jueves": 4, "Viernes": 5
             }
 
-            # Cargar cada semestre
             for semestre in ["semestre_1", "semestre_2"]:
                 datos_semestre = self.datos_configuracion.get(semestre, {})
 
-                # Obtener el grid correcto
                 grid_widget = self.grid_1.widget() if semestre == "semestre_1" else self.grid_2.widget()
                 grid_layout = grid_widget.layout()
 
-                # Verificar y restaurar numeración base 1-14
-                self.verificar_y_restaurar_numeracion(grid_layout)
-
-                # Organizar por día de la semana
                 dias_por_semana = {
                     "Lunes": [], "Martes": [], "Miércoles": [], "Jueves": [], "Viernes": []
                 }
 
-                # Solo añadir datos si existen
                 if datos_semestre:
                     for fecha_str, config_dia in datos_semestre.items():
                         horario_asignado = config_dia.get('horario_asignado', 'Lunes')
                         if horario_asignado in dias_por_semana:
                             dias_por_semana[horario_asignado].append((fecha_str, config_dia))
 
-                    # Ordenar por fecha dentro de cada día
                     for dia in dias_por_semana:
                         dias_por_semana[dia].sort(key=lambda x: x[0])
 
-                # Calcular máximo número de días en cualquier columna
+                # Verificar si necesitamos expandir más allá del límite configurado
                 max_dias = max(len(dias_por_semana[dia]) for dia in dias_por_semana) if any(
                     dias_por_semana.values()) else 0
-                filas_necesarias = max(14, max_dias)  # Mínimo 14, máximo según datos
 
-                # Expandir grid solo si es necesario (esto no borrará números existentes)
-                if filas_necesarias > 14:
-                    self.expandir_grid_si_necesario(grid_layout, filas_necesarias)
+                # Solo expandir si realmente hay más días que el límite
+                if max_dias > self.limite_semanas:
+                    self.expandir_grid_si_necesario(grid_layout, max_dias)
 
-                # Procesar todas las columnas de días
+                # Cargar días en las columnas
                 for dia in ["Lunes", "Martes", "Miércoles", "Jueves", "Viernes"]:
                     if dia not in dias_mapa:
                         continue
 
-                    col = dias_mapa[dia]  # Columna correspondiente
-                    fila = 1  # Empezar en fila 1 (fila 0 son headers)
+                    col = dias_mapa[dia]
+                    fila = 1
                     lista_dias = dias_por_semana[dia]
 
-                    # Añadir widgets de días existentes
                     for fecha_str, config_dia in lista_dias:
-                        if fila > filas_necesarias:  # No exceder filas disponibles
-                            break
-
                         # Crear widget del día
                         dia_widget = DiaWidget(
                             fecha_str,
@@ -1495,71 +1710,59 @@ class ConfigurarCalendario(QMainWindow):
                             self
                         )
 
-                        # Conectar señales
                         dia_widget.dia_eliminado.connect(
                             lambda fecha, s=semestre: self.eliminar_dia(fecha, s))
                         dia_widget.dia_dropped.connect(self.manejar_drop_dia)
 
-                        # Guardar referencia
                         self.grids_widgets[semestre][dia].append(dia_widget)
-
-                        # Añadir widget en posición específica
                         grid_layout.addWidget(dia_widget, fila, col)
                         fila += 1
 
-                    # Rellenar espacios vacíos con DropZoneWidget hasta filas disponibles
-                    filas_disponibles = max(14, grid_layout.rowCount() - 1)  # -1 por header
+                    # Rellenar espacios vacíos con DropZoneWidget hasta las filas disponibles
+                    filas_disponibles = grid_layout.rowCount() - 1  # -1 por header
                     while fila <= filas_disponibles:
-                        # Verificar si ya existe un widget en esta posición
                         existing_item = grid_layout.itemAtPosition(fila, col)
                         if not existing_item or not existing_item.widget():
-                            # Crear nueva drop zone
                             drop_zone = DropZoneWidget(dia)
                             drop_zone.dia_dropped.connect(self.manejar_drop_dia)
 
-                            # Aplicar estilo de advertencia si excede 14
-                            if fila > 14:
+                            # Aplicar estilo de advertencia si excede límite configurado
+                            if fila > self.limite_semanas:
                                 drop_zone.setStyleSheet("""
                                     border: 2px dashed #ff6600; 
                                     border-radius: 3px; 
                                     background-color: rgba(255, 102, 0, 0.1);
                                 """)
-                                drop_zone.setToolTip(f"⚠️ Zona {dia} - Fila {fila} excede límite")
+                                drop_zone.setToolTip(f"⚠️ Zona {dia} - Fila {fila} excede límite configurado")
 
                             grid_layout.addWidget(drop_zone, fila, col)
                         fila += 1
 
-            # Actualizar contadores
             self.actualizar_contadores()
 
         except Exception as e:
             self.log_mensaje(f"⚠️ Error cargando días en grids: {e}", "warning")
 
     def expandir_grid_si_necesario(self, grid_layout, filas_necesarias):
-        """Expandir grid dinámicamente agregando solo las filas que faltan"""
+        """Expandir grid dinámicamente con límite configurado como referencia"""
         try:
             ANCHO_COLUMNA = 140
             ANCHO_NUMERACION = 50
 
-            # Obtener número actual de filas
             filas_actuales = grid_layout.rowCount()
 
-            # Solo añadir filas si realmente necesitamos más
             if filas_necesarias >= filas_actuales:
                 dias_columnas = ["Lunes", "Martes", "Miércoles", "Jueves", "Viernes"]
 
-                # Añadir solo las filas que faltan
                 for fila in range(filas_actuales, filas_necesarias + 1):
-                    # Verificar si ya existe la numeración en esta fila
                     existing_num = grid_layout.itemAtPosition(fila, 0)
                     if not existing_num or not existing_num.widget():
-                        # Crear columna de numeración solo si no existe
                         num_label = QLabel(str(fila))
                         num_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
                         num_label.setFont(QFont("Arial", 8, QFont.Weight.Bold))
 
-                        # Color diferente si excede 14 (visual warning)
-                        if fila > 14:
+                        # Color diferente si excede límite configurado
+                        if fila > self.limite_semanas:
                             num_label.setStyleSheet("""
                                 background-color: #cc5500; 
                                 color: #ffffff; 
@@ -1568,7 +1771,8 @@ class ConfigurarCalendario(QMainWindow):
                                 padding: 3px;
                                 font-weight: bold;
                             """)
-                            num_label.setToolTip(f"⚠️ Fila {fila} - Excede límite recomendado de 14 días")
+                            num_label.setToolTip(
+                                f"⚠️ Fila {fila} - Excede límite configurado de {self.limite_semanas} días")
                         else:
                             num_label.setStyleSheet("""
                                 background-color: #5a5a5a; 
@@ -1583,7 +1787,6 @@ class ConfigurarCalendario(QMainWindow):
                         num_label.setMinimumHeight(50)
                         grid_layout.addWidget(num_label, fila, 0)
 
-                    # Crear columnas de días solo si no existen
                     for col in range(5):
                         existing_widget = grid_layout.itemAtPosition(fila, col + 1)
                         if not existing_widget or not existing_widget.widget():
@@ -1591,14 +1794,14 @@ class ConfigurarCalendario(QMainWindow):
                             drop_zone = DropZoneWidget(dia_horario)
                             drop_zone.dia_dropped.connect(self.manejar_drop_dia)
 
-                            # Color de advertencia para DropZones que exceden límite
-                            if fila > 14:
+                            # Color de advertencia para DropZones que exceden límite configurado
+                            if fila > self.limite_semanas:
                                 drop_zone.setStyleSheet("""
                                     border: 2px dashed #ff6600; 
                                     border-radius: 3px; 
                                     background-color: rgba(255, 102, 0, 0.1);
                                 """)
-                                drop_zone.setToolTip(f"⚠️ Zona {dia_horario} - Fila {fila} excede límite")
+                                drop_zone.setToolTip(f"⚠️ Zona {dia_horario} - Fila {fila} excede límite configurado")
 
                             grid_layout.addWidget(drop_zone, fila, col + 1)
 
@@ -1639,9 +1842,8 @@ class ConfigurarCalendario(QMainWindow):
             self.log_mensaje(f"⚠️ Error limpiando widgets: {e}", "warning")
 
     def manejar_drop_dia(self, datos_dia, nuevo_horario):
-        """Manejar cuando se dropea un día en una nueva columna"""
+        """Manejar drop de días con verificación de límite dinámico configurado"""
         try:
-            # Parsear datos del día
             partes = datos_dia.split('|')
             if len(partes) != 5:
                 return
@@ -1649,7 +1851,6 @@ class ConfigurarCalendario(QMainWindow):
             fecha, dia_real, horario_original, motivo, es_especial_str = partes
             es_especial = es_especial_str == 'True'
 
-            # Buscar el semestre que contiene esta fecha
             semestre = None
             for s in ["semestre_1", "semestre_2"]:
                 if fecha in self.datos_configuracion[s]:
@@ -1659,15 +1860,15 @@ class ConfigurarCalendario(QMainWindow):
             if not semestre:
                 return
 
-            # Verificar límite en la nueva columna antes de mover
+            # Verificar límite dinámico en la nueva columna antes de mover
             count_nuevo_horario = sum(1 for config in self.datos_configuracion[semestre].values()
                                       if config.get('horario_asignado') == nuevo_horario)
 
-            # Si no estaba en esta columna antes, verificar límite
-            if horario_original != nuevo_horario and count_nuevo_horario >= 14:
+            if horario_original != nuevo_horario and count_nuevo_horario >= self.limite_semanas:
                 respuesta = QMessageBox.question(
                     self, "⚠️ Límite de Columna",
                     f"La columna \"{nuevo_horario}\" ya tiene {count_nuevo_horario} días.\n\n"
+                    f"Límite configurado: {self.limite_semanas} días\n\n"
                     f"¿Continuar moviendo el día {fecha} a esta columna?",
                     QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No
                 )
@@ -1675,7 +1876,6 @@ class ConfigurarCalendario(QMainWindow):
                 if respuesta == QMessageBox.StandardButton.No:
                     return
 
-            # Actualizar horario asignado en los datos
             nueva_es_especial = dia_real != nuevo_horario
 
             self.datos_configuracion[semestre][fecha].update({
@@ -1683,16 +1883,10 @@ class ConfigurarCalendario(QMainWindow):
                 'es_especial': nueva_es_especial
             })
 
-            # Recargar grids para mostrar el cambio
             self.cargar_dias_en_grids()
-
-            # Verificar nuevo límite
             self.verificar_limite_por_horario(semestre, nuevo_horario)
-
-            # Marcar cambio
             self.marcar_cambio_realizado()
 
-            # Log del movimiento
             if horario_original != nuevo_horario:
                 self.log_mensaje(
                     f"📋 Día {fecha} movido: {horario_original} → {nuevo_horario}",
@@ -1721,9 +1915,8 @@ class ConfigurarCalendario(QMainWindow):
             self.log_mensaje(f"⚠️ Error eliminando día: {e}", "warning")
 
     def actualizar_contadores(self):
-        """Actualizar contadores de días con información detallada por horario y alertas visuales"""
+        """Actualizar contadores de días con límite dinámico y alertas visuales"""
 
-        # Función auxiliar para contar por horario
         def contar_por_horario(semestre_data):
             conteo = {"Lunes": 0, "Martes": 0, "Miércoles": 0, "Jueves": 0, "Viernes": 0}
             for config in semestre_data.values():
@@ -1732,58 +1925,51 @@ class ConfigurarCalendario(QMainWindow):
                     conteo[horario] += 1
             return conteo
 
-        # Contar por horario en cada semestre
         count_1_por_horario = contar_por_horario(self.datos_configuracion.get("semestre_1", {}))
         count_2_por_horario = contar_por_horario(self.datos_configuracion.get("semestre_2", {}))
 
-        # Totales por semestre
         total_1 = sum(count_1_por_horario.values())
         total_2 = sum(count_2_por_horario.values())
 
-        # Detectar si alguna columna excede 14
-        exceso_1 = any(count > 14 for count in count_1_por_horario.values())
-        exceso_2 = any(count > 14 for count in count_2_por_horario.values())
+        # Detectar si alguna columna excede límite configurado
+        exceso_1 = any(count > self.limite_semanas for count in count_1_por_horario.values())
+        exceso_2 = any(count > self.limite_semanas for count in count_2_por_horario.values())
 
-        # Detectar columnas específicas que exceden
-        columnas_exceso_1 = [dia for dia, count in count_1_por_horario.items() if count > 14]
-        columnas_exceso_2 = [dia for dia, count in count_2_por_horario.items() if count > 14]
+        # Detectar columnas específicas que exceden límite configurado
+        columnas_exceso_1 = [dia for dia, count in count_1_por_horario.items() if count > self.limite_semanas]
+        columnas_exceso_2 = [dia for dia, count in count_2_por_horario.items() if count > self.limite_semanas]
 
-        # Aplicar colores según límite
         color_1 = "#ff6666" if exceso_1 else "#66ff66" if total_1 > 0 else "#cccccc"
         color_2 = "#ff6666" if exceso_2 else "#66ff66" if total_2 > 0 else "#cccccc"
 
-        # Mostrar contadores con detalles y alertas
+        # Mostrar contadores con detalles y alertas basadas en límite configurado
         texto_1 = f"📊 Total: {total_1} días"
         if total_1 > 0:
-            # Mostrar detalles de columnas con días
             detalles_1 = []
             for dia, count in count_1_por_horario.items():
                 if count > 0:
-                    if count > 14:
-                        detalles_1.append(f"{dia[0]}:{count}⚠️")  # Añadir alerta visual
+                    if count > self.limite_semanas:
+                        detalles_1.append(f"{dia[0]}:{count}⚠️")
                     else:
                         detalles_1.append(f"{dia[0]}:{count}")
             if detalles_1:
                 texto_1 += f" ({', '.join(detalles_1)})"
 
-        # Añadir advertencia si hay excesos
         if columnas_exceso_1:
             texto_1 += f"\n🚨 EXCESO: {', '.join(columnas_exceso_1)}"
 
         texto_2 = f"📊 Total: {total_2} días"
         if total_2 > 0:
-            # Mostrar detalles de columnas con días
             detalles_2 = []
             for dia, count in count_2_por_horario.items():
                 if count > 0:
-                    if count > 14:
-                        detalles_2.append(f"{dia[0]}:{count}⚠️")  # Añadir alerta visual
+                    if count > self.limite_semanas:
+                        detalles_2.append(f"{dia[0]}:{count}⚠️")
                     else:
                         detalles_2.append(f"{dia[0]}:{count}")
             if detalles_2:
                 texto_2 += f" ({', '.join(detalles_2)})"
 
-        # Añadir advertencia si hay excesos
         if columnas_exceso_2:
             texto_2 += f"\n🚨 EXCESO: {', '.join(columnas_exceso_2)}"
 
@@ -1889,11 +2075,10 @@ class ConfigurarCalendario(QMainWindow):
             QMessageBox.critical(self, "Error", f"Error generando calendario: {e}")
 
     def generar_dias_semestre(self, semestre, fecha_inicio, fecha_fin):
-        """Generar días lectivos para un semestre respetando límite por horario"""
+        """Generar días lectivos para semestre respetando límite dinámico configurado"""
         fecha_actual = fecha_inicio
         conteo_por_horario = {"Lunes": 0, "Martes": 0, "Miércoles": 0, "Jueves": 0, "Viernes": 0}
 
-        # Festivos típicos a excluir
         festivos = [
             (10, 12),  # Día del Pilar
             (11, 1),  # Todos los Santos
@@ -1905,16 +2090,14 @@ class ConfigurarCalendario(QMainWindow):
         ]
 
         while fecha_actual <= fecha_fin:
-            # Solo días laborables (lunes a viernes)
             if fecha_actual.weekday() < 5:  # 0=Lunes, 4=Viernes
                 dia_semana = ["Lunes", "Martes", "Miércoles", "Jueves", "Viernes"][fecha_actual.weekday()]
 
-                # Verificar límite por horario (14 días por columna)
-                if conteo_por_horario[dia_semana] >= 14:
+                # Verificar límite dinámico configurado por horario
+                if conteo_por_horario[dia_semana] >= self.limite_semanas:
                     fecha_actual += timedelta(days=1)
                     continue
 
-                # Verificar si no es festivo
                 es_festivo = (fecha_actual.month, fecha_actual.day) in festivos
 
                 if not es_festivo:

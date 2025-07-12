@@ -1,0 +1,501 @@
+{
+  "metadata": {
+    "version": "1.0",
+    "timestamp": "2025-07-12T23:51:03.120211",
+    "semestre_actual": 1
+  },
+  "configuracion": {
+    "horarios": {
+      "configurado": false,
+      "datos": {},
+      "archivo": ""
+    },
+    "calendario": {
+      "configurado": true,
+      "datos": {
+        "anio_academico": "2024-2025",
+        "metadata": {
+          "limite_semanas": 5
+        },
+        "semestre_1": {
+          "2024-09-02": {
+            "dia_real": "Lunes",
+            "es_especial": false,
+            "es_fin_semana": false,
+            "fecha": "2024-09-02",
+            "horario_asignado": "Lunes",
+            "motivo": ""
+          },
+          "2024-09-03": {
+            "dia_real": "Martes",
+            "es_especial": false,
+            "es_fin_semana": false,
+            "fecha": "2024-09-03",
+            "horario_asignado": "Martes",
+            "motivo": ""
+          },
+          "2024-09-04": {
+            "dia_real": "Miércoles",
+            "es_especial": false,
+            "es_fin_semana": false,
+            "fecha": "2024-09-04",
+            "horario_asignado": "Miércoles",
+            "motivo": ""
+          },
+          "2024-09-05": {
+            "dia_real": "Jueves",
+            "es_especial": false,
+            "es_fin_semana": false,
+            "fecha": "2024-09-05",
+            "horario_asignado": "Jueves",
+            "motivo": ""
+          },
+          "2024-09-06": {
+            "dia_real": "Viernes",
+            "es_especial": false,
+            "es_fin_semana": false,
+            "fecha": "2024-09-06",
+            "horario_asignado": "Viernes",
+            "motivo": ""
+          },
+          "2024-09-09": {
+            "dia_real": "Lunes",
+            "es_especial": false,
+            "es_fin_semana": false,
+            "fecha": "2024-09-09",
+            "horario_asignado": "Lunes",
+            "motivo": ""
+          },
+          "2024-09-10": {
+            "dia_real": "Martes",
+            "es_especial": false,
+            "es_fin_semana": false,
+            "fecha": "2024-09-10",
+            "horario_asignado": "Martes",
+            "motivo": ""
+          },
+          "2024-09-11": {
+            "dia_real": "Miércoles",
+            "es_especial": false,
+            "es_fin_semana": false,
+            "fecha": "2024-09-11",
+            "horario_asignado": "Miércoles",
+            "motivo": ""
+          },
+          "2024-09-12": {
+            "dia_real": "Jueves",
+            "es_especial": false,
+            "es_fin_semana": false,
+            "fecha": "2024-09-12",
+            "horario_asignado": "Jueves",
+            "motivo": ""
+          },
+          "2024-09-13": {
+            "dia_real": "Viernes",
+            "es_especial": false,
+            "es_fin_semana": false,
+            "fecha": "2024-09-13",
+            "horario_asignado": "Viernes",
+            "motivo": ""
+          },
+          "2024-09-16": {
+            "dia_real": "Lunes",
+            "es_especial": false,
+            "es_fin_semana": false,
+            "fecha": "2024-09-16",
+            "horario_asignado": "Lunes",
+            "motivo": ""
+          },
+          "2024-09-17": {
+            "dia_real": "Martes",
+            "es_especial": false,
+            "es_fin_semana": false,
+            "fecha": "2024-09-17",
+            "horario_asignado": "Martes",
+            "motivo": ""
+          },
+          "2024-09-18": {
+            "dia_real": "Miércoles",
+            "es_especial": false,
+            "es_fin_semana": false,
+            "fecha": "2024-09-18",
+            "horario_asignado": "Miércoles",
+            "motivo": ""
+          },
+          "2024-09-19": {
+            "dia_real": "Jueves",
+            "es_especial": false,
+            "es_fin_semana": false,
+            "fecha": "2024-09-19",
+            "horario_asignado": "Jueves",
+            "motivo": ""
+          },
+          "2024-09-20": {
+            "dia_real": "Viernes",
+            "es_especial": false,
+            "es_fin_semana": false,
+            "fecha": "2024-09-20",
+            "horario_asignado": "Viernes",
+            "motivo": ""
+          },
+          "2024-09-23": {
+            "dia_real": "Lunes",
+            "es_especial": false,
+            "es_fin_semana": false,
+            "fecha": "2024-09-23",
+            "horario_asignado": "Lunes",
+            "motivo": ""
+          },
+          "2024-09-24": {
+            "dia_real": "Martes",
+            "es_especial": false,
+            "es_fin_semana": false,
+            "fecha": "2024-09-24",
+            "horario_asignado": "Martes",
+            "motivo": ""
+          },
+          "2024-09-25": {
+            "dia_real": "Miércoles",
+            "es_especial": false,
+            "es_fin_semana": false,
+            "fecha": "2024-09-25",
+            "horario_asignado": "Miércoles",
+            "motivo": ""
+          },
+          "2024-09-26": {
+            "dia_real": "Jueves",
+            "es_especial": false,
+            "es_fin_semana": false,
+            "fecha": "2024-09-26",
+            "horario_asignado": "Jueves",
+            "motivo": ""
+          },
+          "2024-09-27": {
+            "dia_real": "Viernes",
+            "es_especial": false,
+            "es_fin_semana": false,
+            "fecha": "2024-09-27",
+            "horario_asignado": "Viernes",
+            "motivo": ""
+          },
+          "2024-09-30": {
+            "dia_real": "Lunes",
+            "es_especial": false,
+            "es_fin_semana": false,
+            "fecha": "2024-09-30",
+            "horario_asignado": "Lunes",
+            "motivo": ""
+          },
+          "2024-10-01": {
+            "dia_real": "Martes",
+            "es_especial": false,
+            "es_fin_semana": false,
+            "fecha": "2024-10-01",
+            "horario_asignado": "Martes",
+            "motivo": ""
+          },
+          "2024-10-02": {
+            "dia_real": "Miércoles",
+            "es_especial": false,
+            "es_fin_semana": false,
+            "fecha": "2024-10-02",
+            "horario_asignado": "Miércoles",
+            "motivo": ""
+          },
+          "2024-10-03": {
+            "dia_real": "Jueves",
+            "es_especial": false,
+            "es_fin_semana": false,
+            "fecha": "2024-10-03",
+            "horario_asignado": "Jueves",
+            "motivo": ""
+          },
+          "2024-10-04": {
+            "dia_real": "Viernes",
+            "es_especial": false,
+            "es_fin_semana": false,
+            "fecha": "2024-10-04",
+            "horario_asignado": "Viernes",
+            "motivo": ""
+          }
+        },
+        "semestre_2": {
+          "2025-02-03": {
+            "dia_real": "Lunes",
+            "es_especial": false,
+            "es_fin_semana": false,
+            "fecha": "2025-02-03",
+            "horario_asignado": "Lunes",
+            "motivo": ""
+          },
+          "2025-02-04": {
+            "dia_real": "Martes",
+            "es_especial": false,
+            "es_fin_semana": false,
+            "fecha": "2025-02-04",
+            "horario_asignado": "Martes",
+            "motivo": ""
+          },
+          "2025-02-05": {
+            "dia_real": "Miércoles",
+            "es_especial": false,
+            "es_fin_semana": false,
+            "fecha": "2025-02-05",
+            "horario_asignado": "Miércoles",
+            "motivo": ""
+          },
+          "2025-02-06": {
+            "dia_real": "Jueves",
+            "es_especial": false,
+            "es_fin_semana": false,
+            "fecha": "2025-02-06",
+            "horario_asignado": "Jueves",
+            "motivo": ""
+          },
+          "2025-02-07": {
+            "dia_real": "Viernes",
+            "es_especial": false,
+            "es_fin_semana": false,
+            "fecha": "2025-02-07",
+            "horario_asignado": "Viernes",
+            "motivo": ""
+          },
+          "2025-02-10": {
+            "dia_real": "Lunes",
+            "es_especial": false,
+            "es_fin_semana": false,
+            "fecha": "2025-02-10",
+            "horario_asignado": "Lunes",
+            "motivo": ""
+          },
+          "2025-02-11": {
+            "dia_real": "Martes",
+            "es_especial": false,
+            "es_fin_semana": false,
+            "fecha": "2025-02-11",
+            "horario_asignado": "Martes",
+            "motivo": ""
+          },
+          "2025-02-12": {
+            "dia_real": "Miércoles",
+            "es_especial": false,
+            "es_fin_semana": false,
+            "fecha": "2025-02-12",
+            "horario_asignado": "Miércoles",
+            "motivo": ""
+          },
+          "2025-02-13": {
+            "dia_real": "Jueves",
+            "es_especial": false,
+            "es_fin_semana": false,
+            "fecha": "2025-02-13",
+            "horario_asignado": "Jueves",
+            "motivo": ""
+          },
+          "2025-02-14": {
+            "dia_real": "Viernes",
+            "es_especial": false,
+            "es_fin_semana": false,
+            "fecha": "2025-02-14",
+            "horario_asignado": "Viernes",
+            "motivo": ""
+          },
+          "2025-02-17": {
+            "dia_real": "Lunes",
+            "es_especial": false,
+            "es_fin_semana": false,
+            "fecha": "2025-02-17",
+            "horario_asignado": "Lunes",
+            "motivo": ""
+          },
+          "2025-02-18": {
+            "dia_real": "Martes",
+            "es_especial": false,
+            "es_fin_semana": false,
+            "fecha": "2025-02-18",
+            "horario_asignado": "Martes",
+            "motivo": ""
+          },
+          "2025-02-19": {
+            "dia_real": "Miércoles",
+            "es_especial": false,
+            "es_fin_semana": false,
+            "fecha": "2025-02-19",
+            "horario_asignado": "Miércoles",
+            "motivo": ""
+          },
+          "2025-02-20": {
+            "dia_real": "Jueves",
+            "es_especial": false,
+            "es_fin_semana": false,
+            "fecha": "2025-02-20",
+            "horario_asignado": "Jueves",
+            "motivo": ""
+          },
+          "2025-02-21": {
+            "dia_real": "Viernes",
+            "es_especial": false,
+            "es_fin_semana": false,
+            "fecha": "2025-02-21",
+            "horario_asignado": "Viernes",
+            "motivo": ""
+          },
+          "2025-02-24": {
+            "dia_real": "Lunes",
+            "es_especial": false,
+            "es_fin_semana": false,
+            "fecha": "2025-02-24",
+            "horario_asignado": "Lunes",
+            "motivo": ""
+          },
+          "2025-02-25": {
+            "dia_real": "Martes",
+            "es_especial": false,
+            "es_fin_semana": false,
+            "fecha": "2025-02-25",
+            "horario_asignado": "Martes",
+            "motivo": ""
+          },
+          "2025-02-26": {
+            "dia_real": "Miércoles",
+            "es_especial": false,
+            "es_fin_semana": false,
+            "fecha": "2025-02-26",
+            "horario_asignado": "Miércoles",
+            "motivo": ""
+          },
+          "2025-02-27": {
+            "dia_real": "Jueves",
+            "es_especial": false,
+            "es_fin_semana": false,
+            "fecha": "2025-02-27",
+            "horario_asignado": "Jueves",
+            "motivo": ""
+          },
+          "2025-02-28": {
+            "dia_real": "Viernes",
+            "es_especial": false,
+            "es_fin_semana": false,
+            "fecha": "2025-02-28",
+            "horario_asignado": "Viernes",
+            "motivo": ""
+          },
+          "2025-03-03": {
+            "dia_real": "Lunes",
+            "es_especial": false,
+            "es_fin_semana": false,
+            "fecha": "2025-03-03",
+            "horario_asignado": "Lunes",
+            "motivo": ""
+          },
+          "2025-03-04": {
+            "dia_real": "Martes",
+            "es_especial": false,
+            "es_fin_semana": false,
+            "fecha": "2025-03-04",
+            "horario_asignado": "Martes",
+            "motivo": ""
+          },
+          "2025-03-05": {
+            "dia_real": "Miércoles",
+            "es_especial": false,
+            "es_fin_semana": false,
+            "fecha": "2025-03-05",
+            "horario_asignado": "Miércoles",
+            "motivo": ""
+          },
+          "2025-03-06": {
+            "dia_real": "Jueves",
+            "es_especial": false,
+            "es_fin_semana": false,
+            "fecha": "2025-03-06",
+            "horario_asignado": "Jueves",
+            "motivo": ""
+          },
+          "2025-03-07": {
+            "dia_real": "Viernes",
+            "es_especial": false,
+            "es_fin_semana": false,
+            "fecha": "2025-03-07",
+            "horario_asignado": "Viernes",
+            "motivo": ""
+          }
+        }
+      },
+      "semanas_total": 10,
+      "dias_semestre_1": 25,
+      "dias_semestre_2": 25,
+      "fecha_actualizacion": "2025-07-12T23:51:03.120211"
+    },
+    "aulas": {
+      "configurado": false,
+      "datos": {},
+      "total_aulas": 0,
+      "fecha_actualizacion": null
+    },
+    "profesores": {
+      "configurado": false,
+      "datos": {},
+      "total": 0
+    },
+    "alumnos": {
+      "configurado": false,
+      "datos": {},
+      "total": 0
+    },
+    "asignaturas": {
+      "configurado": false,
+      "datos": {},
+      "total": 0
+    },
+    "grupos": {
+      "configurado": false,
+      "datos": {},
+      "total": 0
+    }
+  },
+  "parametros_organizacion": {
+    "configurado": false,
+    "fecha_actualizacion": null,
+    "parametros_booleanos": {
+      "preferir_grupos_pares": true,
+      "priorizar_horas_tempranas": true,
+      "aplicar_prioridad_doble_grado": true,
+      "permitir_intercambio_automatico": true,
+      "aplicar_restricciones_duras": true,
+      "generar_reportes_detallados": true,
+      "optimizar_utilizacion_aulas": true,
+      "equilibrar_carga_profesores": true
+    },
+    "pesos_optimizacion": {
+      "peso_equilibrio_grupos": 25,
+      "peso_grupos_pares": 20,
+      "peso_horas_tempranas": 40,
+      "peso_doble_grado": 30,
+      "peso_conflictos_alumnos": 15,
+      "peso_utilizacion_aulas": 25,
+      "peso_distribucion_profesores": 20,
+      "peso_compatibilidad_asignaturas": 30
+    },
+    "configuraciones_adicionales": {
+      "diferencia_maxima_grupos": 1,
+      "utilizacion_aula_optima": 85,
+      "max_horas_profesor_dia": 6,
+      "min_descanso_entre_clases": 30,
+      "preferencia_aulas_especificas": 70,
+      "factor_penalizacion_conflictos": 100
+    }
+  },
+  "resultados_organizacion": {
+    "datos_disponibles": false,
+    "fecha_actualizacion": null,
+    "ultima_ejecucion": {},
+    "resumen": {
+      "total_grupos": 0,
+      "grupos_asignados": 0,
+      "conflictos_detectados": 0,
+      "porcentaje_exito": 0
+    },
+    "historial_ejecuciones": []
+  }
+}
