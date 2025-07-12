@@ -705,7 +705,7 @@ class GestionProfesorDialog(QDialog):
         self.asignaturas_scroll_layout.addWidget(grid_widget)
 
     def crear_grid_horarios_profesor(self):
-        """Crea el grid de horarios 4x5 para el profesor - VERSIÓN GRANDE"""
+        """Crea el grid de horarios 4x5 para el profesor"""
         self.grid_horarios_group = QGroupBox("🗓️ Horario Semanal")
         grid_layout = QGridLayout()
         grid_layout.setSpacing(5)
@@ -716,7 +716,7 @@ class GestionProfesorDialog(QDialog):
         # Header vacío
         grid_layout.addWidget(QLabel(""), 0, 0)
 
-        # Headers de días - MÁS GRANDES
+        # Headers de días
         for col, dia in enumerate(self.dias_semana):
             header = QLabel(dia)
             header.setAlignment(Qt.AlignmentFlag.AlignCenter)
@@ -732,7 +732,7 @@ class GestionProfesorDialog(QDialog):
             """)
             grid_layout.addWidget(header, 0, col + 1)
 
-        # Crear widgets de franjas - MÁS GRANDES
+        # Crear widgets de franjas
         self.franjas_widgets = {}
 
         for fila, horario in enumerate(self.horarios_fijos):
@@ -752,7 +752,7 @@ class GestionProfesorDialog(QDialog):
             """)
             grid_layout.addWidget(horario_header, fila + 1, 0)
 
-            # Franjas del horario - TAMAÑO GRANDE
+            # Franjas del horario
             for col, dia in enumerate(self.dias_semana):
                 franja = FranjaProfesorWidget(dia, horario, self)
                 franja.actualizar_estado('deshabilitado')  # Por defecto deshabilitado
@@ -1196,7 +1196,7 @@ class ConfigurarProfesores(QMainWindow):
         self.parent_window = parent
         self.setWindowTitle("Configurar Profesores - OPTIM Labs")
 
-        # CENTRAR INMEDIATAMENTE SIN PARPADEO
+        # Centrar sin parpadeo
         window_width = 1350
         window_height = 850
         center_window_on_screen_immediate(self, window_width, window_height)
@@ -1595,7 +1595,7 @@ class ConfigurarProfesores(QMainWindow):
         return ', '.join(str(int(hex_color[i:i + 2], 16)) for i in (0, 2, 4))
 
     def apply_dark_theme(self):
-        """Aplicar tema oscuro idéntico al sistema"""
+        """Aplicar tema oscuro idéntico al resto del sistema - CON TOOLTIPS"""
         self.setStyleSheet("""
             QMainWindow {
                 background-color: #2b2b2b;
@@ -1659,47 +1659,18 @@ class ConfigurarProfesores(QMainWindow):
                 border-radius: 5px;
                 padding: 8px;
             }
-            QComboBox {
-                background-color: #3c3c3c;
-                color: #ffffff;
-                border: 1px solid #555555;
-                border-radius: 3px;
-                padding: 5px;
-                min-width: 60px;
-            }
-            QComboBox:hover {
-                border-color: #4a9eff;
-            }
-            QComboBox::drop-down {
-                border: none;
-                width: 20px;
-            }
-            QComboBox::down-arrow {
-                image: none;
-                border-left: 5px solid transparent;
-                border-right: 5px solid transparent;
-                border-top: 5px solid #ffffff;
-            }
-            QCheckBox {
-                color: #ffffff;
-                font-size: 11px;
-                padding: 2px;
-            }
-            QCheckBox::indicator {
-                width: 18px;
-                height: 18px;
-            }
-            QCheckBox::indicator:unchecked {
-                background-color: #3c3c3c;
-                border: 2px solid #666666;
-                border-radius: 3px;
-            }
-            QCheckBox::indicator:unchecked:hover {
-                border-color: #4a9eff;
-                background-color: #4a4a4a;
-            }
             QLabel {
                 color: #ffffff;
+            }
+            /* ✅ TOOLTIPS CORREGIDOS */
+            QToolTip {
+                background-color: #2b2b2b;
+                color: #ffffff;
+                border: 1px solid #4a9eff;
+                border-radius: 4px;
+                padding: 4px 8px;
+                font-size: 11px;
+                font-weight: normal;
             }
         """)
 

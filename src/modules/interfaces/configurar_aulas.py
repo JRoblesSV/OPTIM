@@ -527,8 +527,81 @@ class GestionAulaDialog(QDialog):
             'fechas_no_disponibles': fechas_no_disponibles
         }
 
+    def igualar_tamanos_botones_ok_cancel(self):
+        """Forzar que OK y Cancel tengan exactamente el mismo tamaño"""
+        try:
+            button_box = self.findChild(QDialogButtonBox)
+            if button_box:
+                ok_button = button_box.button(QDialogButtonBox.StandardButton.Ok)
+                cancel_button = button_box.button(QDialogButtonBox.StandardButton.Cancel)
+
+                if ok_button and cancel_button:
+                    # Calcular el tamaño más grande y aplicarlo a ambos
+                    width = max(ok_button.sizeHint().width(), cancel_button.sizeHint().width(), 60)
+                    height = 35
+
+                    ok_button.setFixedSize(width, height)
+                    cancel_button.setFixedSize(width, height)
+
+        except Exception as e:
+            print(f"Error igualando tamaños: {e}")
+
+    def configurar_botones_uniformes(self):
+        """Configurar estilos uniformes para botones OK/Cancel - SIN CAMBIAR TEXTO"""
+        try:
+            # Buscar el QDialogButtonBox
+            button_box = self.findChild(QDialogButtonBox)
+            if button_box:
+                # Obtener botones específicos
+                ok_button = button_box.button(QDialogButtonBox.StandardButton.Ok)
+                cancel_button = button_box.button(QDialogButtonBox.StandardButton.Cancel)
+
+                # ✅ ESTILO UNIFORME PARA AMBOS BOTONES - MISMO COLOR DE FONDO
+                estilo_uniforme = """
+                    QPushButton {
+                        background-color: #4a4a4a;
+                        color: #ffffff;
+                        border: 1px solid #666666;
+                        border-radius: 5px;
+                        padding: 8px 20px;
+                        font-weight: bold;
+                        font-size: 12px;
+                        min-width: 80px;
+                        min-height: 35px;
+                        margin: 2px;
+                    }
+                    QPushButton:hover {
+                        background-color: #5a5a5a;
+                        border-color: #4a9eff;
+                    }
+                    QPushButton:pressed {
+                        background-color: #3a3a3a;
+                    }
+                    QPushButton:default {
+                        background-color: #4a9eff;
+                        border-color: #4a9eff;
+                    }
+                    QPushButton:default:hover {
+                        background-color: #5ab7ff;
+                    }
+                    QPushButton:default:pressed {
+                        background-color: #3a8adf;
+                    }
+                """
+
+                if ok_button:
+                    ok_button.setText("OK")
+                    ok_button.setStyleSheet(estilo_uniforme)
+
+                if cancel_button:
+                    cancel_button.setText("Cancel")
+                    cancel_button.setStyleSheet(estilo_uniforme)
+
+        except Exception as e:
+            print(f"Error configurando botones: {e}")
+
     def apply_dark_theme(self):
-        """Aplicar tema oscuro idéntico al sistema"""
+        """Aplicar tema oscuro con botones OK/Cancel uniformes"""
         self.setStyleSheet("""
             QDialog {
                 background-color: #2b2b2b;
@@ -550,96 +623,87 @@ class GestionAulaDialog(QDialog):
             QLabel {
                 color: #ffffff;
             }
-            QLineEdit, QSpinBox {
+            QLineEdit, QComboBox, QSpinBox, QTextEdit {
                 background-color: #3c3c3c;
                 color: #ffffff;
                 border: 1px solid #555555;
                 border-radius: 3px;
                 padding: 5px;
             }
-            QLineEdit:focus, QSpinBox:focus {
+            QLineEdit:focus, QComboBox:focus, QSpinBox:focus, QTextEdit:focus {
                 border-color: #4a9eff;
             }
-            QScrollArea {
-                background-color: #3c3c3c;
-                border: 1px solid #555555;
-                border-radius: 5px;
-            }
-            QScrollBar:vertical {
-                background-color: #3c3c3c;
-                width: 12px;
-                border-radius: 6px;
-            }
-            QScrollBar::handle:vertical {
-                background-color: #666666;
-                border-radius: 6px;
-                min-height: 20px;
-            }
-            QScrollBar::handle:vertical:hover {
-                background-color: #4a9eff;
-            }
-            QScrollBar::add-line:vertical, QScrollBar::sub-line:vertical {
-                border: none;
-                background: none;
-            }
-            QCalendarWidget {
-                background-color: #3c3c3c;
+            QCheckBox {
                 color: #ffffff;
-                border: 1px solid #555555;
-                border-radius: 5px;
+                font-size: 11px;
+                padding: 2px;
             }
-            QListWidget {
+            QCheckBox::indicator {
+                width: 18px;
+                height: 18px;
+            }
+            QCheckBox::indicator:unchecked {
                 background-color: #3c3c3c;
-                color: #ffffff;
-                border: 1px solid #555555;
-                border-radius: 5px;
-                padding: 5px;
-            }
-            QListWidget::item {
-                padding: 5px;
+                border: 2px solid #555555;
                 border-radius: 3px;
-                margin: 1px;
             }
-            QListWidget::item:selected {
+            QCheckBox::indicator:checked {
                 background-color: #4a9eff;
-                color: #ffffff;
+                border: 2px solid #4a9eff;
+                border-radius: 3px;
             }
-            QListWidget::item:hover {
-                background-color: #4a4a4a;
-            }
-            QTabWidget::pane {
-                border: 1px solid #4a4a4a;
+            QToolTip {
                 background-color: #2b2b2b;
-            }
-            QTabWidget::tab-bar {
-                alignment: center;
-            }
-            QTabBar::tab {
-                background-color: #4a4a4a;
                 color: #ffffff;
-                padding: 8px 20px;
-                margin: 2px;
+                border: 1px solid #4a9eff;
                 border-radius: 4px;
+                padding: 4px 8px;
+                font-size: 11px;
+                font-weight: normal;
             }
-            QTabBar::tab:selected {
-                background-color: #4a9eff;
-                color: #ffffff;
+
+            /* BOTONES OK/CANCEL */
+            QDialogButtonBox {
+                background-color: transparent;
+                border: none;
+                margin-top: 10px;
             }
-            QTabBar::tab:hover {
-                background-color: #5a5a5a;
-            }
-            QPushButton {
+
+            QDialogButtonBox QPushButton {
                 background-color: #4a4a4a;
                 color: #ffffff;
                 border: 1px solid #666666;
                 border-radius: 5px;
-                padding: 6px 12px;
+                padding: 8px 16px;
                 font-weight: bold;
+                font-size: 12px;
+                min-width: 90px;
+                min-height: 35px;
+                max-height: 35px;
+                margin: 3px;
             }
-            QPushButton:hover {
+
+            QDialogButtonBox QPushButton:hover {
                 background-color: #5a5a5a;
+                border-color: #4a9eff;
             }
-            QPushButton:pressed {
+
+            QDialogButtonBox QPushButton:pressed {
+                background-color: #3a3a3a;
+            }
+
+            /* ANULAR DIFERENCIAS ENTRE OK Y CANCEL */
+            QDialogButtonBox QPushButton:default {
+                background-color: #4a4a4a;
+                border-color: #666666;
+            }
+
+            QDialogButtonBox QPushButton:default:hover {
+                background-color: #5a5a5a;
+                border-color: #4a9eff;
+            }
+
+            QDialogButtonBox QPushButton:default:pressed {
                 background-color: #3a3a3a;
             }
         """)
@@ -963,7 +1027,7 @@ class ConfigurarAulas(QMainWindow):
         return ', '.join(str(int(hex_color[i:i + 2], 16)) for i in (0, 2, 4))
 
     def apply_dark_theme(self):
-        """Aplicar tema oscuro idéntico al sistema"""
+        """Aplicar tema oscuro idéntico al resto del sistema - CON TOOLTIPS"""
         self.setStyleSheet("""
             QMainWindow {
                 background-color: #2b2b2b;
@@ -1029,6 +1093,16 @@ class ConfigurarAulas(QMainWindow):
             }
             QLabel {
                 color: #ffffff;
+            }
+            /* ✅ TOOLTIPS CORREGIDOS */
+            QToolTip {
+                background-color: #2b2b2b;
+                color: #ffffff;
+                border: 1px solid #4a9eff;
+                border-radius: 4px;
+                padding: 4px 8px;
+                font-size: 11px;
+                font-weight: normal;
             }
         """)
 
