@@ -1445,14 +1445,15 @@ class ConfigurarHorarios(QMainWindow):
         try:
             total_asignaturas = sum(
                 len(asignaturas) for asignaturas in self.datos_configuracion["asignaturas"].values())
-            total_franjas = 0
 
+            total_franjas = 0
             for semestre, asignaturas in self.datos_configuracion["asignaturas"].items():
-                for asig_data in asignaturas.values():
+                for asignatura_nombre, asig_data in asignaturas.items():
                     horarios_grid = asig_data.get("horarios_grid", {})
-                    for horario_data in horarios_grid.values():
-                        for dia_data in horario_data.values():
-                            if dia_data:
+                    for horario, dias_data in horarios_grid.items():
+                        for dia, grupos in dias_data.items():
+                            # Solo contar franjas que tienen grupos asignados
+                            if isinstance(grupos, list) and len(grupos) > 0:
                                 total_franjas += 1
 
             respuesta = QMessageBox.question(
