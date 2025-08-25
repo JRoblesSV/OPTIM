@@ -1,8 +1,9 @@
 {
   "metadata": {
     "version": "1.0",
-    "timestamp": "2025-07-13T15:50:06.884584",
-    "semestre_actual": 1,
+    "timestamp": "2025-08-24T21:44:14.200334",
+    "semestre_actual": "AUTO",
+    "modo_procesamiento": "multi_semestre",
     "exportado_en": "2025-07-13T15:49:42.949499",
     "version_optim": "1.0",
     "tipo_archivo": "configuracion_completa_optim",
@@ -70,16 +71,18 @@
             ],
             "horarios_grid": {
               "15:30-17:30": {
-                "Lunes": [
-                  "A302",
-                  "EE303"
-                ],
+                "Lunes": [],
                 "Miércoles": [
                   "A302"
+                ],
+                "Martes": [
+                  "A302",
+                  "EE303"
                 ]
               },
               "17:30-19:30": {
-                "Lunes": [
+                "Lunes": [],
+                "Martes": [
                   "A302"
                 ]
               }
@@ -88,7 +91,7 @@
         }
       },
       "archivo": "horarios_integrados.json",
-      "timestamp": "2025-07-13T15:49:13.447140",
+      "timestamp": "2025-07-14T19:45:30.967882",
       "semestre_actual": "2",
       "total_asignaturas": 2,
       "total_franjas": 7,
@@ -103,1133 +106,1133 @@
         },
         "semestre_1": {
           "2024-09-02": {
-            "fecha": "2024-09-02",
             "dia_real": "Lunes",
-            "horario_asignado": "Lunes",
-            "motivo": "",
             "es_especial": false,
-            "es_fin_semana": false
+            "es_fin_semana": false,
+            "fecha": "2024-09-02",
+            "horario_asignado": "Lunes",
+            "motivo": ""
           },
           "2024-09-03": {
-            "fecha": "2024-09-03",
             "dia_real": "Martes",
-            "horario_asignado": "Martes",
-            "motivo": "",
             "es_especial": false,
-            "es_fin_semana": false
+            "es_fin_semana": false,
+            "fecha": "2024-09-03",
+            "horario_asignado": "Martes",
+            "motivo": ""
           },
           "2024-09-04": {
-            "fecha": "2024-09-04",
             "dia_real": "Miércoles",
-            "horario_asignado": "Miércoles",
-            "motivo": "",
             "es_especial": false,
-            "es_fin_semana": false
+            "es_fin_semana": false,
+            "fecha": "2024-09-04",
+            "horario_asignado": "Miércoles",
+            "motivo": ""
           },
           "2024-09-05": {
-            "fecha": "2024-09-05",
             "dia_real": "Jueves",
-            "horario_asignado": "Jueves",
-            "motivo": "",
             "es_especial": false,
-            "es_fin_semana": false
+            "es_fin_semana": false,
+            "fecha": "2024-09-05",
+            "horario_asignado": "Jueves",
+            "motivo": ""
           },
           "2024-09-06": {
-            "fecha": "2024-09-06",
             "dia_real": "Viernes",
-            "horario_asignado": "Viernes",
-            "motivo": "",
             "es_especial": false,
-            "es_fin_semana": false
+            "es_fin_semana": false,
+            "fecha": "2024-09-06",
+            "horario_asignado": "Viernes",
+            "motivo": ""
           },
           "2024-09-09": {
-            "fecha": "2024-09-09",
             "dia_real": "Lunes",
-            "horario_asignado": "Lunes",
-            "motivo": "",
             "es_especial": false,
-            "es_fin_semana": false
+            "es_fin_semana": false,
+            "fecha": "2024-09-09",
+            "horario_asignado": "Lunes",
+            "motivo": ""
           },
           "2024-09-10": {
-            "fecha": "2024-09-10",
             "dia_real": "Martes",
-            "horario_asignado": "Martes",
-            "motivo": "",
             "es_especial": false,
-            "es_fin_semana": false
+            "es_fin_semana": false,
+            "fecha": "2024-09-10",
+            "horario_asignado": "Martes",
+            "motivo": ""
           },
           "2024-09-11": {
-            "fecha": "2024-09-11",
             "dia_real": "Miércoles",
-            "horario_asignado": "Miércoles",
-            "motivo": "",
             "es_especial": false,
-            "es_fin_semana": false
+            "es_fin_semana": false,
+            "fecha": "2024-09-11",
+            "horario_asignado": "Miércoles",
+            "motivo": ""
           },
           "2024-09-12": {
-            "fecha": "2024-09-12",
             "dia_real": "Jueves",
-            "horario_asignado": "Jueves",
-            "motivo": "",
             "es_especial": false,
-            "es_fin_semana": false
+            "es_fin_semana": false,
+            "fecha": "2024-09-12",
+            "horario_asignado": "Jueves",
+            "motivo": ""
           },
           "2024-09-13": {
-            "fecha": "2024-09-13",
             "dia_real": "Viernes",
-            "horario_asignado": "Viernes",
-            "motivo": "",
             "es_especial": false,
-            "es_fin_semana": false
+            "es_fin_semana": false,
+            "fecha": "2024-09-13",
+            "horario_asignado": "Viernes",
+            "motivo": ""
           },
           "2024-09-16": {
-            "fecha": "2024-09-16",
             "dia_real": "Lunes",
-            "horario_asignado": "Lunes",
-            "motivo": "",
             "es_especial": false,
-            "es_fin_semana": false
+            "es_fin_semana": false,
+            "fecha": "2024-09-16",
+            "horario_asignado": "Lunes",
+            "motivo": ""
           },
           "2024-09-17": {
-            "fecha": "2024-09-17",
             "dia_real": "Martes",
-            "horario_asignado": "Martes",
-            "motivo": "",
             "es_especial": false,
-            "es_fin_semana": false
+            "es_fin_semana": false,
+            "fecha": "2024-09-17",
+            "horario_asignado": "Martes",
+            "motivo": ""
           },
           "2024-09-18": {
-            "fecha": "2024-09-18",
             "dia_real": "Miércoles",
-            "horario_asignado": "Miércoles",
-            "motivo": "",
             "es_especial": false,
-            "es_fin_semana": false
+            "es_fin_semana": false,
+            "fecha": "2024-09-18",
+            "horario_asignado": "Miércoles",
+            "motivo": ""
           },
           "2024-09-19": {
-            "fecha": "2024-09-19",
             "dia_real": "Jueves",
-            "horario_asignado": "Jueves",
-            "motivo": "",
             "es_especial": false,
-            "es_fin_semana": false
+            "es_fin_semana": false,
+            "fecha": "2024-09-19",
+            "horario_asignado": "Jueves",
+            "motivo": ""
           },
           "2024-09-20": {
-            "fecha": "2024-09-20",
             "dia_real": "Viernes",
-            "horario_asignado": "Viernes",
-            "motivo": "",
             "es_especial": false,
-            "es_fin_semana": false
+            "es_fin_semana": false,
+            "fecha": "2024-09-20",
+            "horario_asignado": "Viernes",
+            "motivo": ""
           },
           "2024-09-23": {
-            "fecha": "2024-09-23",
             "dia_real": "Lunes",
-            "horario_asignado": "Lunes",
-            "motivo": "",
             "es_especial": false,
-            "es_fin_semana": false
+            "es_fin_semana": false,
+            "fecha": "2024-09-23",
+            "horario_asignado": "Lunes",
+            "motivo": ""
           },
           "2024-09-24": {
-            "fecha": "2024-09-24",
             "dia_real": "Martes",
-            "horario_asignado": "Martes",
-            "motivo": "",
             "es_especial": false,
-            "es_fin_semana": false
+            "es_fin_semana": false,
+            "fecha": "2024-09-24",
+            "horario_asignado": "Martes",
+            "motivo": ""
           },
           "2024-09-25": {
-            "fecha": "2024-09-25",
             "dia_real": "Miércoles",
-            "horario_asignado": "Miércoles",
-            "motivo": "",
             "es_especial": false,
-            "es_fin_semana": false
+            "es_fin_semana": false,
+            "fecha": "2024-09-25",
+            "horario_asignado": "Miércoles",
+            "motivo": ""
           },
           "2024-09-26": {
-            "fecha": "2024-09-26",
             "dia_real": "Jueves",
-            "horario_asignado": "Jueves",
-            "motivo": "",
             "es_especial": false,
-            "es_fin_semana": false
+            "es_fin_semana": false,
+            "fecha": "2024-09-26",
+            "horario_asignado": "Jueves",
+            "motivo": ""
           },
           "2024-09-27": {
-            "fecha": "2024-09-27",
             "dia_real": "Viernes",
-            "horario_asignado": "Viernes",
-            "motivo": "",
             "es_especial": false,
-            "es_fin_semana": false
+            "es_fin_semana": false,
+            "fecha": "2024-09-27",
+            "horario_asignado": "Viernes",
+            "motivo": ""
           },
           "2024-09-30": {
-            "fecha": "2024-09-30",
             "dia_real": "Lunes",
-            "horario_asignado": "Lunes",
-            "motivo": "",
             "es_especial": false,
-            "es_fin_semana": false
+            "es_fin_semana": false,
+            "fecha": "2024-09-30",
+            "horario_asignado": "Lunes",
+            "motivo": ""
           },
           "2024-10-01": {
-            "fecha": "2024-10-01",
             "dia_real": "Martes",
-            "horario_asignado": "Martes",
-            "motivo": "",
             "es_especial": false,
-            "es_fin_semana": false
+            "es_fin_semana": false,
+            "fecha": "2024-10-01",
+            "horario_asignado": "Martes",
+            "motivo": ""
           },
           "2024-10-02": {
-            "fecha": "2024-10-02",
             "dia_real": "Miércoles",
-            "horario_asignado": "Miércoles",
-            "motivo": "",
             "es_especial": false,
-            "es_fin_semana": false
+            "es_fin_semana": false,
+            "fecha": "2024-10-02",
+            "horario_asignado": "Miércoles",
+            "motivo": ""
           },
           "2024-10-03": {
-            "fecha": "2024-10-03",
             "dia_real": "Jueves",
-            "horario_asignado": "Jueves",
-            "motivo": "",
             "es_especial": false,
-            "es_fin_semana": false
+            "es_fin_semana": false,
+            "fecha": "2024-10-03",
+            "horario_asignado": "Jueves",
+            "motivo": ""
           },
           "2024-10-04": {
-            "fecha": "2024-10-04",
             "dia_real": "Viernes",
-            "horario_asignado": "Viernes",
-            "motivo": "",
             "es_especial": false,
-            "es_fin_semana": false
+            "es_fin_semana": false,
+            "fecha": "2024-10-04",
+            "horario_asignado": "Viernes",
+            "motivo": ""
           },
           "2024-10-07": {
-            "fecha": "2024-10-07",
             "dia_real": "Lunes",
-            "horario_asignado": "Lunes",
-            "motivo": "",
             "es_especial": false,
-            "es_fin_semana": false
+            "es_fin_semana": false,
+            "fecha": "2024-10-07",
+            "horario_asignado": "Lunes",
+            "motivo": ""
           },
           "2024-10-08": {
-            "fecha": "2024-10-08",
             "dia_real": "Martes",
-            "horario_asignado": "Martes",
-            "motivo": "",
             "es_especial": false,
-            "es_fin_semana": false
+            "es_fin_semana": false,
+            "fecha": "2024-10-08",
+            "horario_asignado": "Martes",
+            "motivo": ""
           },
           "2024-10-09": {
-            "fecha": "2024-10-09",
             "dia_real": "Miércoles",
-            "horario_asignado": "Miércoles",
-            "motivo": "",
             "es_especial": false,
-            "es_fin_semana": false
+            "es_fin_semana": false,
+            "fecha": "2024-10-09",
+            "horario_asignado": "Miércoles",
+            "motivo": ""
           },
           "2024-10-10": {
-            "fecha": "2024-10-10",
             "dia_real": "Jueves",
-            "horario_asignado": "Jueves",
-            "motivo": "",
             "es_especial": false,
-            "es_fin_semana": false
+            "es_fin_semana": false,
+            "fecha": "2024-10-10",
+            "horario_asignado": "Jueves",
+            "motivo": ""
           },
           "2024-10-11": {
-            "fecha": "2024-10-11",
             "dia_real": "Viernes",
-            "horario_asignado": "Viernes",
-            "motivo": "",
             "es_especial": false,
-            "es_fin_semana": false
+            "es_fin_semana": false,
+            "fecha": "2024-10-11",
+            "horario_asignado": "Viernes",
+            "motivo": ""
           },
           "2024-10-14": {
-            "fecha": "2024-10-14",
             "dia_real": "Lunes",
-            "horario_asignado": "Lunes",
-            "motivo": "",
             "es_especial": false,
-            "es_fin_semana": false
+            "es_fin_semana": false,
+            "fecha": "2024-10-14",
+            "horario_asignado": "Lunes",
+            "motivo": ""
           },
           "2024-10-15": {
-            "fecha": "2024-10-15",
             "dia_real": "Martes",
-            "horario_asignado": "Martes",
-            "motivo": "",
             "es_especial": false,
-            "es_fin_semana": false
+            "es_fin_semana": false,
+            "fecha": "2024-10-15",
+            "horario_asignado": "Martes",
+            "motivo": ""
           },
           "2024-10-16": {
-            "fecha": "2024-10-16",
             "dia_real": "Miércoles",
-            "horario_asignado": "Miércoles",
-            "motivo": "",
             "es_especial": false,
-            "es_fin_semana": false
+            "es_fin_semana": false,
+            "fecha": "2024-10-16",
+            "horario_asignado": "Miércoles",
+            "motivo": ""
           },
           "2024-10-17": {
-            "fecha": "2024-10-17",
             "dia_real": "Jueves",
-            "horario_asignado": "Jueves",
-            "motivo": "",
             "es_especial": false,
-            "es_fin_semana": false
+            "es_fin_semana": false,
+            "fecha": "2024-10-17",
+            "horario_asignado": "Jueves",
+            "motivo": ""
           },
           "2024-10-18": {
-            "fecha": "2024-10-18",
             "dia_real": "Viernes",
-            "horario_asignado": "Viernes",
-            "motivo": "",
             "es_especial": false,
-            "es_fin_semana": false
+            "es_fin_semana": false,
+            "fecha": "2024-10-18",
+            "horario_asignado": "Viernes",
+            "motivo": ""
           },
           "2024-10-21": {
-            "fecha": "2024-10-21",
             "dia_real": "Lunes",
-            "horario_asignado": "Lunes",
-            "motivo": "",
             "es_especial": false,
-            "es_fin_semana": false
+            "es_fin_semana": false,
+            "fecha": "2024-10-21",
+            "horario_asignado": "Lunes",
+            "motivo": ""
           },
           "2024-10-22": {
-            "fecha": "2024-10-22",
             "dia_real": "Martes",
-            "horario_asignado": "Martes",
-            "motivo": "",
             "es_especial": false,
-            "es_fin_semana": false
+            "es_fin_semana": false,
+            "fecha": "2024-10-22",
+            "horario_asignado": "Martes",
+            "motivo": ""
           },
           "2024-10-23": {
-            "fecha": "2024-10-23",
             "dia_real": "Miércoles",
-            "horario_asignado": "Miércoles",
-            "motivo": "",
             "es_especial": false,
-            "es_fin_semana": false
+            "es_fin_semana": false,
+            "fecha": "2024-10-23",
+            "horario_asignado": "Miércoles",
+            "motivo": ""
           },
           "2024-10-24": {
-            "fecha": "2024-10-24",
             "dia_real": "Jueves",
-            "horario_asignado": "Jueves",
-            "motivo": "",
             "es_especial": false,
-            "es_fin_semana": false
+            "es_fin_semana": false,
+            "fecha": "2024-10-24",
+            "horario_asignado": "Jueves",
+            "motivo": ""
           },
           "2024-10-25": {
-            "fecha": "2024-10-25",
             "dia_real": "Viernes",
-            "horario_asignado": "Viernes",
-            "motivo": "",
             "es_especial": false,
-            "es_fin_semana": false
+            "es_fin_semana": false,
+            "fecha": "2024-10-25",
+            "horario_asignado": "Viernes",
+            "motivo": ""
           },
           "2024-10-28": {
-            "fecha": "2024-10-28",
             "dia_real": "Lunes",
-            "horario_asignado": "Lunes",
-            "motivo": "",
             "es_especial": false,
-            "es_fin_semana": false
+            "es_fin_semana": false,
+            "fecha": "2024-10-28",
+            "horario_asignado": "Lunes",
+            "motivo": ""
           },
           "2024-10-29": {
-            "fecha": "2024-10-29",
             "dia_real": "Martes",
-            "horario_asignado": "Martes",
-            "motivo": "",
             "es_especial": false,
-            "es_fin_semana": false
+            "es_fin_semana": false,
+            "fecha": "2024-10-29",
+            "horario_asignado": "Martes",
+            "motivo": ""
           },
           "2024-10-30": {
-            "fecha": "2024-10-30",
             "dia_real": "Miércoles",
-            "horario_asignado": "Miércoles",
-            "motivo": "",
             "es_especial": false,
-            "es_fin_semana": false
+            "es_fin_semana": false,
+            "fecha": "2024-10-30",
+            "horario_asignado": "Miércoles",
+            "motivo": ""
           },
           "2024-10-31": {
-            "fecha": "2024-10-31",
             "dia_real": "Jueves",
-            "horario_asignado": "Jueves",
-            "motivo": "",
             "es_especial": false,
-            "es_fin_semana": false
+            "es_fin_semana": false,
+            "fecha": "2024-10-31",
+            "horario_asignado": "Jueves",
+            "motivo": ""
           },
           "2024-11-04": {
-            "fecha": "2024-11-04",
             "dia_real": "Lunes",
-            "horario_asignado": "Lunes",
-            "motivo": "",
             "es_especial": false,
-            "es_fin_semana": false
+            "es_fin_semana": false,
+            "fecha": "2024-11-04",
+            "horario_asignado": "Lunes",
+            "motivo": ""
           },
           "2024-11-05": {
-            "fecha": "2024-11-05",
             "dia_real": "Martes",
-            "horario_asignado": "Martes",
-            "motivo": "",
             "es_especial": false,
-            "es_fin_semana": false
+            "es_fin_semana": false,
+            "fecha": "2024-11-05",
+            "horario_asignado": "Martes",
+            "motivo": ""
           },
           "2024-11-06": {
-            "fecha": "2024-11-06",
             "dia_real": "Miércoles",
-            "horario_asignado": "Miércoles",
-            "motivo": "",
             "es_especial": false,
-            "es_fin_semana": false
+            "es_fin_semana": false,
+            "fecha": "2024-11-06",
+            "horario_asignado": "Miércoles",
+            "motivo": ""
           },
           "2024-11-07": {
-            "fecha": "2024-11-07",
             "dia_real": "Jueves",
-            "horario_asignado": "Jueves",
-            "motivo": "",
             "es_especial": false,
-            "es_fin_semana": false
+            "es_fin_semana": false,
+            "fecha": "2024-11-07",
+            "horario_asignado": "Jueves",
+            "motivo": ""
           },
           "2024-11-08": {
-            "fecha": "2024-11-08",
             "dia_real": "Viernes",
-            "horario_asignado": "Viernes",
-            "motivo": "",
             "es_especial": false,
-            "es_fin_semana": false
+            "es_fin_semana": false,
+            "fecha": "2024-11-08",
+            "horario_asignado": "Viernes",
+            "motivo": ""
           },
           "2024-11-11": {
-            "fecha": "2024-11-11",
             "dia_real": "Lunes",
-            "horario_asignado": "Lunes",
-            "motivo": "",
             "es_especial": false,
-            "es_fin_semana": false
+            "es_fin_semana": false,
+            "fecha": "2024-11-11",
+            "horario_asignado": "Lunes",
+            "motivo": ""
           },
           "2024-11-12": {
-            "fecha": "2024-11-12",
             "dia_real": "Martes",
-            "horario_asignado": "Martes",
-            "motivo": "",
             "es_especial": false,
-            "es_fin_semana": false
+            "es_fin_semana": false,
+            "fecha": "2024-11-12",
+            "horario_asignado": "Martes",
+            "motivo": ""
           },
           "2024-11-13": {
-            "fecha": "2024-11-13",
             "dia_real": "Miércoles",
-            "horario_asignado": "Miércoles",
-            "motivo": "",
             "es_especial": false,
-            "es_fin_semana": false
+            "es_fin_semana": false,
+            "fecha": "2024-11-13",
+            "horario_asignado": "Miércoles",
+            "motivo": ""
           },
           "2024-11-14": {
-            "fecha": "2024-11-14",
             "dia_real": "Jueves",
-            "horario_asignado": "Jueves",
-            "motivo": "",
             "es_especial": false,
-            "es_fin_semana": false
+            "es_fin_semana": false,
+            "fecha": "2024-11-14",
+            "horario_asignado": "Jueves",
+            "motivo": ""
           },
           "2024-11-15": {
-            "fecha": "2024-11-15",
             "dia_real": "Viernes",
-            "horario_asignado": "Viernes",
-            "motivo": "",
             "es_especial": false,
-            "es_fin_semana": false
+            "es_fin_semana": false,
+            "fecha": "2024-11-15",
+            "horario_asignado": "Viernes",
+            "motivo": ""
           },
           "2024-11-18": {
-            "fecha": "2024-11-18",
             "dia_real": "Lunes",
-            "horario_asignado": "Lunes",
-            "motivo": "",
             "es_especial": false,
-            "es_fin_semana": false
+            "es_fin_semana": false,
+            "fecha": "2024-11-18",
+            "horario_asignado": "Lunes",
+            "motivo": ""
           },
           "2024-11-19": {
-            "fecha": "2024-11-19",
             "dia_real": "Martes",
-            "horario_asignado": "Martes",
-            "motivo": "",
             "es_especial": false,
-            "es_fin_semana": false
+            "es_fin_semana": false,
+            "fecha": "2024-11-19",
+            "horario_asignado": "Martes",
+            "motivo": ""
           },
           "2024-11-20": {
-            "fecha": "2024-11-20",
             "dia_real": "Miércoles",
-            "horario_asignado": "Miércoles",
-            "motivo": "",
             "es_especial": false,
-            "es_fin_semana": false
+            "es_fin_semana": false,
+            "fecha": "2024-11-20",
+            "horario_asignado": "Miércoles",
+            "motivo": ""
           },
           "2024-11-21": {
-            "fecha": "2024-11-21",
             "dia_real": "Jueves",
-            "horario_asignado": "Jueves",
-            "motivo": "",
             "es_especial": false,
-            "es_fin_semana": false
+            "es_fin_semana": false,
+            "fecha": "2024-11-21",
+            "horario_asignado": "Jueves",
+            "motivo": ""
           },
           "2024-11-22": {
-            "fecha": "2024-11-22",
             "dia_real": "Viernes",
-            "horario_asignado": "Viernes",
-            "motivo": "",
             "es_especial": false,
-            "es_fin_semana": false
+            "es_fin_semana": false,
+            "fecha": "2024-11-22",
+            "horario_asignado": "Viernes",
+            "motivo": ""
           },
           "2024-11-25": {
-            "fecha": "2024-11-25",
             "dia_real": "Lunes",
-            "horario_asignado": "Lunes",
-            "motivo": "",
             "es_especial": false,
-            "es_fin_semana": false
+            "es_fin_semana": false,
+            "fecha": "2024-11-25",
+            "horario_asignado": "Lunes",
+            "motivo": ""
           },
           "2024-11-26": {
-            "fecha": "2024-11-26",
             "dia_real": "Martes",
-            "horario_asignado": "Martes",
-            "motivo": "",
             "es_especial": false,
-            "es_fin_semana": false
+            "es_fin_semana": false,
+            "fecha": "2024-11-26",
+            "horario_asignado": "Martes",
+            "motivo": ""
           },
           "2024-11-27": {
-            "fecha": "2024-11-27",
             "dia_real": "Miércoles",
-            "horario_asignado": "Miércoles",
-            "motivo": "",
             "es_especial": false,
-            "es_fin_semana": false
+            "es_fin_semana": false,
+            "fecha": "2024-11-27",
+            "horario_asignado": "Miércoles",
+            "motivo": ""
           },
           "2024-11-28": {
-            "fecha": "2024-11-28",
             "dia_real": "Jueves",
-            "horario_asignado": "Jueves",
-            "motivo": "",
             "es_especial": false,
-            "es_fin_semana": false
+            "es_fin_semana": false,
+            "fecha": "2024-11-28",
+            "horario_asignado": "Jueves",
+            "motivo": ""
           },
           "2024-11-29": {
-            "fecha": "2024-11-29",
             "dia_real": "Viernes",
-            "horario_asignado": "Viernes",
-            "motivo": "",
             "es_especial": false,
-            "es_fin_semana": false
+            "es_fin_semana": false,
+            "fecha": "2024-11-29",
+            "horario_asignado": "Viernes",
+            "motivo": ""
           },
           "2024-12-02": {
-            "fecha": "2024-12-02",
             "dia_real": "Lunes",
-            "horario_asignado": "Lunes",
-            "motivo": "",
             "es_especial": false,
-            "es_fin_semana": false
+            "es_fin_semana": false,
+            "fecha": "2024-12-02",
+            "horario_asignado": "Lunes",
+            "motivo": ""
           },
           "2024-12-03": {
-            "fecha": "2024-12-03",
             "dia_real": "Martes",
-            "horario_asignado": "Martes",
-            "motivo": "",
             "es_especial": false,
-            "es_fin_semana": false
+            "es_fin_semana": false,
+            "fecha": "2024-12-03",
+            "horario_asignado": "Martes",
+            "motivo": ""
           },
           "2024-12-04": {
-            "fecha": "2024-12-04",
             "dia_real": "Miércoles",
-            "horario_asignado": "Miércoles",
-            "motivo": "",
             "es_especial": false,
-            "es_fin_semana": false
+            "es_fin_semana": false,
+            "fecha": "2024-12-04",
+            "horario_asignado": "Miércoles",
+            "motivo": ""
           },
           "2024-12-05": {
-            "fecha": "2024-12-05",
             "dia_real": "Jueves",
-            "horario_asignado": "Jueves",
-            "motivo": "",
             "es_especial": false,
-            "es_fin_semana": false
+            "es_fin_semana": false,
+            "fecha": "2024-12-05",
+            "horario_asignado": "Jueves",
+            "motivo": ""
           },
           "2024-12-13": {
-            "fecha": "2024-12-13",
             "dia_real": "Viernes",
-            "horario_asignado": "Viernes",
-            "motivo": "",
             "es_especial": false,
-            "es_fin_semana": false
+            "es_fin_semana": false,
+            "fecha": "2024-12-13",
+            "horario_asignado": "Viernes",
+            "motivo": ""
           },
           "2024-12-20": {
-            "fecha": "2024-12-20",
             "dia_real": "Viernes",
-            "horario_asignado": "Viernes",
-            "motivo": "",
             "es_especial": false,
-            "es_fin_semana": false
+            "es_fin_semana": false,
+            "fecha": "2024-12-20",
+            "horario_asignado": "Viernes",
+            "motivo": ""
           }
         },
         "semestre_2": {
           "2025-02-03": {
-            "fecha": "2025-02-03",
             "dia_real": "Lunes",
-            "horario_asignado": "Lunes",
-            "motivo": "",
             "es_especial": false,
-            "es_fin_semana": false
+            "es_fin_semana": false,
+            "fecha": "2025-02-03",
+            "horario_asignado": "Lunes",
+            "motivo": ""
           },
           "2025-02-04": {
-            "fecha": "2025-02-04",
             "dia_real": "Martes",
-            "horario_asignado": "Martes",
-            "motivo": "",
             "es_especial": false,
-            "es_fin_semana": false
+            "es_fin_semana": false,
+            "fecha": "2025-02-04",
+            "horario_asignado": "Martes",
+            "motivo": ""
           },
           "2025-02-05": {
-            "fecha": "2025-02-05",
             "dia_real": "Miércoles",
-            "horario_asignado": "Miércoles",
-            "motivo": "",
             "es_especial": false,
-            "es_fin_semana": false
+            "es_fin_semana": false,
+            "fecha": "2025-02-05",
+            "horario_asignado": "Miércoles",
+            "motivo": ""
           },
           "2025-02-06": {
-            "fecha": "2025-02-06",
             "dia_real": "Jueves",
-            "horario_asignado": "Jueves",
-            "motivo": "",
             "es_especial": false,
-            "es_fin_semana": false
+            "es_fin_semana": false,
+            "fecha": "2025-02-06",
+            "horario_asignado": "Jueves",
+            "motivo": ""
           },
           "2025-02-07": {
-            "fecha": "2025-02-07",
             "dia_real": "Viernes",
-            "horario_asignado": "Viernes",
-            "motivo": "",
             "es_especial": false,
-            "es_fin_semana": false
+            "es_fin_semana": false,
+            "fecha": "2025-02-07",
+            "horario_asignado": "Viernes",
+            "motivo": ""
           },
           "2025-02-10": {
-            "fecha": "2025-02-10",
             "dia_real": "Lunes",
-            "horario_asignado": "Lunes",
-            "motivo": "",
             "es_especial": false,
-            "es_fin_semana": false
+            "es_fin_semana": false,
+            "fecha": "2025-02-10",
+            "horario_asignado": "Lunes",
+            "motivo": ""
           },
           "2025-02-11": {
-            "fecha": "2025-02-11",
             "dia_real": "Martes",
-            "horario_asignado": "Martes",
-            "motivo": "",
             "es_especial": false,
-            "es_fin_semana": false
+            "es_fin_semana": false,
+            "fecha": "2025-02-11",
+            "horario_asignado": "Martes",
+            "motivo": ""
           },
           "2025-02-12": {
-            "fecha": "2025-02-12",
             "dia_real": "Miércoles",
-            "horario_asignado": "Miércoles",
-            "motivo": "",
             "es_especial": false,
-            "es_fin_semana": false
+            "es_fin_semana": false,
+            "fecha": "2025-02-12",
+            "horario_asignado": "Miércoles",
+            "motivo": ""
           },
           "2025-02-13": {
-            "fecha": "2025-02-13",
             "dia_real": "Jueves",
-            "horario_asignado": "Jueves",
-            "motivo": "",
             "es_especial": false,
-            "es_fin_semana": false
+            "es_fin_semana": false,
+            "fecha": "2025-02-13",
+            "horario_asignado": "Jueves",
+            "motivo": ""
           },
           "2025-02-14": {
-            "fecha": "2025-02-14",
             "dia_real": "Viernes",
-            "horario_asignado": "Viernes",
-            "motivo": "",
             "es_especial": false,
-            "es_fin_semana": false
+            "es_fin_semana": false,
+            "fecha": "2025-02-14",
+            "horario_asignado": "Viernes",
+            "motivo": ""
           },
           "2025-02-17": {
-            "fecha": "2025-02-17",
             "dia_real": "Lunes",
-            "horario_asignado": "Lunes",
-            "motivo": "",
             "es_especial": false,
-            "es_fin_semana": false
+            "es_fin_semana": false,
+            "fecha": "2025-02-17",
+            "horario_asignado": "Lunes",
+            "motivo": ""
           },
           "2025-02-18": {
-            "fecha": "2025-02-18",
             "dia_real": "Martes",
-            "horario_asignado": "Martes",
-            "motivo": "",
             "es_especial": false,
-            "es_fin_semana": false
+            "es_fin_semana": false,
+            "fecha": "2025-02-18",
+            "horario_asignado": "Martes",
+            "motivo": ""
           },
           "2025-02-19": {
-            "fecha": "2025-02-19",
             "dia_real": "Miércoles",
-            "horario_asignado": "Miércoles",
-            "motivo": "",
             "es_especial": false,
-            "es_fin_semana": false
+            "es_fin_semana": false,
+            "fecha": "2025-02-19",
+            "horario_asignado": "Miércoles",
+            "motivo": ""
           },
           "2025-02-20": {
-            "fecha": "2025-02-20",
             "dia_real": "Jueves",
-            "horario_asignado": "Jueves",
-            "motivo": "",
             "es_especial": false,
-            "es_fin_semana": false
+            "es_fin_semana": false,
+            "fecha": "2025-02-20",
+            "horario_asignado": "Jueves",
+            "motivo": ""
           },
           "2025-02-21": {
-            "fecha": "2025-02-21",
             "dia_real": "Viernes",
-            "horario_asignado": "Viernes",
-            "motivo": "",
             "es_especial": false,
-            "es_fin_semana": false
+            "es_fin_semana": false,
+            "fecha": "2025-02-21",
+            "horario_asignado": "Viernes",
+            "motivo": ""
           },
           "2025-02-24": {
-            "fecha": "2025-02-24",
             "dia_real": "Lunes",
-            "horario_asignado": "Lunes",
-            "motivo": "",
             "es_especial": false,
-            "es_fin_semana": false
+            "es_fin_semana": false,
+            "fecha": "2025-02-24",
+            "horario_asignado": "Lunes",
+            "motivo": ""
           },
           "2025-02-25": {
-            "fecha": "2025-02-25",
             "dia_real": "Martes",
-            "horario_asignado": "Martes",
-            "motivo": "",
             "es_especial": false,
-            "es_fin_semana": false
+            "es_fin_semana": false,
+            "fecha": "2025-02-25",
+            "horario_asignado": "Martes",
+            "motivo": ""
           },
           "2025-02-26": {
-            "fecha": "2025-02-26",
             "dia_real": "Miércoles",
-            "horario_asignado": "Miércoles",
-            "motivo": "",
             "es_especial": false,
-            "es_fin_semana": false
+            "es_fin_semana": false,
+            "fecha": "2025-02-26",
+            "horario_asignado": "Miércoles",
+            "motivo": ""
           },
           "2025-02-27": {
-            "fecha": "2025-02-27",
             "dia_real": "Jueves",
-            "horario_asignado": "Jueves",
-            "motivo": "",
             "es_especial": false,
-            "es_fin_semana": false
+            "es_fin_semana": false,
+            "fecha": "2025-02-27",
+            "horario_asignado": "Jueves",
+            "motivo": ""
           },
           "2025-02-28": {
-            "fecha": "2025-02-28",
             "dia_real": "Viernes",
-            "horario_asignado": "Viernes",
-            "motivo": "",
             "es_especial": false,
-            "es_fin_semana": false
+            "es_fin_semana": false,
+            "fecha": "2025-02-28",
+            "horario_asignado": "Viernes",
+            "motivo": ""
           },
           "2025-03-03": {
-            "fecha": "2025-03-03",
             "dia_real": "Lunes",
-            "horario_asignado": "Lunes",
-            "motivo": "",
             "es_especial": false,
-            "es_fin_semana": false
+            "es_fin_semana": false,
+            "fecha": "2025-03-03",
+            "horario_asignado": "Lunes",
+            "motivo": ""
           },
           "2025-03-04": {
-            "fecha": "2025-03-04",
             "dia_real": "Martes",
-            "horario_asignado": "Martes",
-            "motivo": "",
             "es_especial": false,
-            "es_fin_semana": false
+            "es_fin_semana": false,
+            "fecha": "2025-03-04",
+            "horario_asignado": "Martes",
+            "motivo": ""
           },
           "2025-03-05": {
-            "fecha": "2025-03-05",
             "dia_real": "Miércoles",
-            "horario_asignado": "Miércoles",
-            "motivo": "",
             "es_especial": false,
-            "es_fin_semana": false
+            "es_fin_semana": false,
+            "fecha": "2025-03-05",
+            "horario_asignado": "Miércoles",
+            "motivo": ""
           },
           "2025-03-06": {
-            "fecha": "2025-03-06",
             "dia_real": "Jueves",
-            "horario_asignado": "Jueves",
-            "motivo": "",
             "es_especial": false,
-            "es_fin_semana": false
+            "es_fin_semana": false,
+            "fecha": "2025-03-06",
+            "horario_asignado": "Jueves",
+            "motivo": ""
           },
           "2025-03-07": {
-            "fecha": "2025-03-07",
             "dia_real": "Viernes",
-            "horario_asignado": "Viernes",
-            "motivo": "",
             "es_especial": false,
-            "es_fin_semana": false
+            "es_fin_semana": false,
+            "fecha": "2025-03-07",
+            "horario_asignado": "Viernes",
+            "motivo": ""
           },
           "2025-03-10": {
-            "fecha": "2025-03-10",
             "dia_real": "Lunes",
-            "horario_asignado": "Lunes",
-            "motivo": "",
             "es_especial": false,
-            "es_fin_semana": false
+            "es_fin_semana": false,
+            "fecha": "2025-03-10",
+            "horario_asignado": "Lunes",
+            "motivo": ""
           },
           "2025-03-11": {
-            "fecha": "2025-03-11",
             "dia_real": "Martes",
-            "horario_asignado": "Martes",
-            "motivo": "",
             "es_especial": false,
-            "es_fin_semana": false
+            "es_fin_semana": false,
+            "fecha": "2025-03-11",
+            "horario_asignado": "Martes",
+            "motivo": ""
           },
           "2025-03-12": {
-            "fecha": "2025-03-12",
             "dia_real": "Miércoles",
-            "horario_asignado": "Miércoles",
-            "motivo": "",
             "es_especial": false,
-            "es_fin_semana": false
+            "es_fin_semana": false,
+            "fecha": "2025-03-12",
+            "horario_asignado": "Miércoles",
+            "motivo": ""
           },
           "2025-03-13": {
-            "fecha": "2025-03-13",
             "dia_real": "Jueves",
-            "horario_asignado": "Jueves",
-            "motivo": "",
             "es_especial": false,
-            "es_fin_semana": false
+            "es_fin_semana": false,
+            "fecha": "2025-03-13",
+            "horario_asignado": "Jueves",
+            "motivo": ""
           },
           "2025-03-14": {
-            "fecha": "2025-03-14",
             "dia_real": "Viernes",
-            "horario_asignado": "Viernes",
-            "motivo": "",
             "es_especial": false,
-            "es_fin_semana": false
+            "es_fin_semana": false,
+            "fecha": "2025-03-14",
+            "horario_asignado": "Viernes",
+            "motivo": ""
           },
           "2025-03-17": {
-            "fecha": "2025-03-17",
             "dia_real": "Lunes",
-            "horario_asignado": "Lunes",
-            "motivo": "",
             "es_especial": false,
-            "es_fin_semana": false
+            "es_fin_semana": false,
+            "fecha": "2025-03-17",
+            "horario_asignado": "Lunes",
+            "motivo": ""
           },
           "2025-03-18": {
-            "fecha": "2025-03-18",
             "dia_real": "Martes",
-            "horario_asignado": "Martes",
-            "motivo": "",
             "es_especial": false,
-            "es_fin_semana": false
+            "es_fin_semana": false,
+            "fecha": "2025-03-18",
+            "horario_asignado": "Martes",
+            "motivo": ""
           },
           "2025-03-19": {
-            "fecha": "2025-03-19",
             "dia_real": "Miércoles",
-            "horario_asignado": "Miércoles",
-            "motivo": "",
             "es_especial": false,
-            "es_fin_semana": false
+            "es_fin_semana": false,
+            "fecha": "2025-03-19",
+            "horario_asignado": "Miércoles",
+            "motivo": ""
           },
           "2025-03-20": {
-            "fecha": "2025-03-20",
             "dia_real": "Jueves",
-            "horario_asignado": "Jueves",
-            "motivo": "",
             "es_especial": false,
-            "es_fin_semana": false
+            "es_fin_semana": false,
+            "fecha": "2025-03-20",
+            "horario_asignado": "Jueves",
+            "motivo": ""
           },
           "2025-03-21": {
-            "fecha": "2025-03-21",
             "dia_real": "Viernes",
-            "horario_asignado": "Viernes",
-            "motivo": "",
             "es_especial": false,
-            "es_fin_semana": false
+            "es_fin_semana": false,
+            "fecha": "2025-03-21",
+            "horario_asignado": "Viernes",
+            "motivo": ""
           },
           "2025-03-24": {
-            "fecha": "2025-03-24",
             "dia_real": "Lunes",
-            "horario_asignado": "Lunes",
-            "motivo": "",
             "es_especial": false,
-            "es_fin_semana": false
+            "es_fin_semana": false,
+            "fecha": "2025-03-24",
+            "horario_asignado": "Lunes",
+            "motivo": ""
           },
           "2025-03-25": {
-            "fecha": "2025-03-25",
             "dia_real": "Martes",
-            "horario_asignado": "Martes",
-            "motivo": "",
             "es_especial": false,
-            "es_fin_semana": false
+            "es_fin_semana": false,
+            "fecha": "2025-03-25",
+            "horario_asignado": "Martes",
+            "motivo": ""
           },
           "2025-03-26": {
-            "fecha": "2025-03-26",
             "dia_real": "Miércoles",
-            "horario_asignado": "Miércoles",
-            "motivo": "",
             "es_especial": false,
-            "es_fin_semana": false
+            "es_fin_semana": false,
+            "fecha": "2025-03-26",
+            "horario_asignado": "Miércoles",
+            "motivo": ""
           },
           "2025-03-27": {
-            "fecha": "2025-03-27",
             "dia_real": "Jueves",
-            "horario_asignado": "Jueves",
-            "motivo": "",
             "es_especial": false,
-            "es_fin_semana": false
+            "es_fin_semana": false,
+            "fecha": "2025-03-27",
+            "horario_asignado": "Jueves",
+            "motivo": ""
           },
           "2025-03-28": {
-            "fecha": "2025-03-28",
             "dia_real": "Viernes",
-            "horario_asignado": "Viernes",
-            "motivo": "",
             "es_especial": false,
-            "es_fin_semana": false
+            "es_fin_semana": false,
+            "fecha": "2025-03-28",
+            "horario_asignado": "Viernes",
+            "motivo": ""
           },
           "2025-03-31": {
-            "fecha": "2025-03-31",
             "dia_real": "Lunes",
-            "horario_asignado": "Lunes",
-            "motivo": "",
             "es_especial": false,
-            "es_fin_semana": false
+            "es_fin_semana": false,
+            "fecha": "2025-03-31",
+            "horario_asignado": "Lunes",
+            "motivo": ""
           },
           "2025-04-01": {
-            "fecha": "2025-04-01",
             "dia_real": "Martes",
-            "horario_asignado": "Martes",
-            "motivo": "",
             "es_especial": false,
-            "es_fin_semana": false
+            "es_fin_semana": false,
+            "fecha": "2025-04-01",
+            "horario_asignado": "Martes",
+            "motivo": ""
           },
           "2025-04-02": {
-            "fecha": "2025-04-02",
             "dia_real": "Miércoles",
-            "horario_asignado": "Miércoles",
-            "motivo": "",
             "es_especial": false,
-            "es_fin_semana": false
+            "es_fin_semana": false,
+            "fecha": "2025-04-02",
+            "horario_asignado": "Miércoles",
+            "motivo": ""
           },
           "2025-04-03": {
-            "fecha": "2025-04-03",
             "dia_real": "Jueves",
-            "horario_asignado": "Jueves",
-            "motivo": "",
             "es_especial": false,
-            "es_fin_semana": false
+            "es_fin_semana": false,
+            "fecha": "2025-04-03",
+            "horario_asignado": "Jueves",
+            "motivo": ""
           },
           "2025-04-04": {
-            "fecha": "2025-04-04",
             "dia_real": "Viernes",
-            "horario_asignado": "Viernes",
-            "motivo": "",
             "es_especial": false,
-            "es_fin_semana": false
+            "es_fin_semana": false,
+            "fecha": "2025-04-04",
+            "horario_asignado": "Viernes",
+            "motivo": ""
           },
           "2025-04-07": {
-            "fecha": "2025-04-07",
             "dia_real": "Lunes",
-            "horario_asignado": "Lunes",
-            "motivo": "",
             "es_especial": false,
-            "es_fin_semana": false
+            "es_fin_semana": false,
+            "fecha": "2025-04-07",
+            "horario_asignado": "Lunes",
+            "motivo": ""
           },
           "2025-04-08": {
-            "fecha": "2025-04-08",
             "dia_real": "Martes",
-            "horario_asignado": "Martes",
-            "motivo": "",
             "es_especial": false,
-            "es_fin_semana": false
+            "es_fin_semana": false,
+            "fecha": "2025-04-08",
+            "horario_asignado": "Martes",
+            "motivo": ""
           },
           "2025-04-09": {
-            "fecha": "2025-04-09",
             "dia_real": "Miércoles",
-            "horario_asignado": "Miércoles",
-            "motivo": "",
             "es_especial": false,
-            "es_fin_semana": false
+            "es_fin_semana": false,
+            "fecha": "2025-04-09",
+            "horario_asignado": "Miércoles",
+            "motivo": ""
           },
           "2025-04-10": {
-            "fecha": "2025-04-10",
             "dia_real": "Jueves",
-            "horario_asignado": "Jueves",
-            "motivo": "",
             "es_especial": false,
-            "es_fin_semana": false
+            "es_fin_semana": false,
+            "fecha": "2025-04-10",
+            "horario_asignado": "Jueves",
+            "motivo": ""
           },
           "2025-04-11": {
-            "fecha": "2025-04-11",
             "dia_real": "Viernes",
-            "horario_asignado": "Viernes",
-            "motivo": "",
             "es_especial": false,
-            "es_fin_semana": false
+            "es_fin_semana": false,
+            "fecha": "2025-04-11",
+            "horario_asignado": "Viernes",
+            "motivo": ""
           },
           "2025-04-14": {
-            "fecha": "2025-04-14",
             "dia_real": "Lunes",
-            "horario_asignado": "Lunes",
-            "motivo": "",
             "es_especial": false,
-            "es_fin_semana": false
+            "es_fin_semana": false,
+            "fecha": "2025-04-14",
+            "horario_asignado": "Lunes",
+            "motivo": ""
           },
           "2025-04-15": {
-            "fecha": "2025-04-15",
             "dia_real": "Martes",
-            "horario_asignado": "Martes",
-            "motivo": "",
             "es_especial": false,
-            "es_fin_semana": false
+            "es_fin_semana": false,
+            "fecha": "2025-04-15",
+            "horario_asignado": "Martes",
+            "motivo": ""
           },
           "2025-04-16": {
-            "fecha": "2025-04-16",
             "dia_real": "Miércoles",
-            "horario_asignado": "Miércoles",
-            "motivo": "",
             "es_especial": false,
-            "es_fin_semana": false
+            "es_fin_semana": false,
+            "fecha": "2025-04-16",
+            "horario_asignado": "Miércoles",
+            "motivo": ""
           },
           "2025-04-17": {
-            "fecha": "2025-04-17",
             "dia_real": "Jueves",
-            "horario_asignado": "Jueves",
-            "motivo": "",
             "es_especial": false,
-            "es_fin_semana": false
+            "es_fin_semana": false,
+            "fecha": "2025-04-17",
+            "horario_asignado": "Jueves",
+            "motivo": ""
           },
           "2025-04-18": {
-            "fecha": "2025-04-18",
             "dia_real": "Viernes",
-            "horario_asignado": "Viernes",
-            "motivo": "",
             "es_especial": false,
-            "es_fin_semana": false
+            "es_fin_semana": false,
+            "fecha": "2025-04-18",
+            "horario_asignado": "Viernes",
+            "motivo": ""
           },
           "2025-04-21": {
-            "fecha": "2025-04-21",
             "dia_real": "Lunes",
-            "horario_asignado": "Lunes",
-            "motivo": "",
             "es_especial": false,
-            "es_fin_semana": false
+            "es_fin_semana": false,
+            "fecha": "2025-04-21",
+            "horario_asignado": "Lunes",
+            "motivo": ""
           },
           "2025-04-22": {
-            "fecha": "2025-04-22",
             "dia_real": "Martes",
-            "horario_asignado": "Martes",
-            "motivo": "",
             "es_especial": false,
-            "es_fin_semana": false
+            "es_fin_semana": false,
+            "fecha": "2025-04-22",
+            "horario_asignado": "Martes",
+            "motivo": ""
           },
           "2025-04-23": {
-            "fecha": "2025-04-23",
             "dia_real": "Miércoles",
-            "horario_asignado": "Miércoles",
-            "motivo": "",
             "es_especial": false,
-            "es_fin_semana": false
+            "es_fin_semana": false,
+            "fecha": "2025-04-23",
+            "horario_asignado": "Miércoles",
+            "motivo": ""
           },
           "2025-04-24": {
-            "fecha": "2025-04-24",
             "dia_real": "Jueves",
-            "horario_asignado": "Jueves",
-            "motivo": "",
             "es_especial": false,
-            "es_fin_semana": false
+            "es_fin_semana": false,
+            "fecha": "2025-04-24",
+            "horario_asignado": "Jueves",
+            "motivo": ""
           },
           "2025-04-25": {
-            "fecha": "2025-04-25",
             "dia_real": "Viernes",
-            "horario_asignado": "Viernes",
-            "motivo": "",
             "es_especial": false,
-            "es_fin_semana": false
+            "es_fin_semana": false,
+            "fecha": "2025-04-25",
+            "horario_asignado": "Viernes",
+            "motivo": ""
           },
           "2025-04-28": {
-            "fecha": "2025-04-28",
             "dia_real": "Lunes",
-            "horario_asignado": "Lunes",
-            "motivo": "",
             "es_especial": false,
-            "es_fin_semana": false
+            "es_fin_semana": false,
+            "fecha": "2025-04-28",
+            "horario_asignado": "Lunes",
+            "motivo": ""
           },
           "2025-04-29": {
-            "fecha": "2025-04-29",
             "dia_real": "Martes",
-            "horario_asignado": "Martes",
-            "motivo": "",
             "es_especial": false,
-            "es_fin_semana": false
+            "es_fin_semana": false,
+            "fecha": "2025-04-29",
+            "horario_asignado": "Martes",
+            "motivo": ""
           },
           "2025-04-30": {
-            "fecha": "2025-04-30",
             "dia_real": "Miércoles",
-            "horario_asignado": "Miércoles",
-            "motivo": "",
             "es_especial": false,
-            "es_fin_semana": false
+            "es_fin_semana": false,
+            "fecha": "2025-04-30",
+            "horario_asignado": "Miércoles",
+            "motivo": ""
           },
           "2025-05-01": {
-            "fecha": "2025-05-01",
             "dia_real": "Jueves",
-            "horario_asignado": "Jueves",
-            "motivo": "",
             "es_especial": false,
-            "es_fin_semana": false
+            "es_fin_semana": false,
+            "fecha": "2025-05-01",
+            "horario_asignado": "Jueves",
+            "motivo": ""
           },
           "2025-05-02": {
-            "fecha": "2025-05-02",
             "dia_real": "Viernes",
-            "horario_asignado": "Viernes",
-            "motivo": "",
             "es_especial": false,
-            "es_fin_semana": false
+            "es_fin_semana": false,
+            "fecha": "2025-05-02",
+            "horario_asignado": "Viernes",
+            "motivo": ""
           },
           "2025-05-05": {
-            "fecha": "2025-05-05",
             "dia_real": "Lunes",
-            "horario_asignado": "Lunes",
-            "motivo": "",
             "es_especial": false,
-            "es_fin_semana": false
+            "es_fin_semana": false,
+            "fecha": "2025-05-05",
+            "horario_asignado": "Lunes",
+            "motivo": ""
           },
           "2025-05-06": {
-            "fecha": "2025-05-06",
             "dia_real": "Martes",
-            "horario_asignado": "Martes",
-            "motivo": "",
             "es_especial": false,
-            "es_fin_semana": false
+            "es_fin_semana": false,
+            "fecha": "2025-05-06",
+            "horario_asignado": "Martes",
+            "motivo": ""
           },
           "2025-05-07": {
-            "fecha": "2025-05-07",
             "dia_real": "Miércoles",
-            "horario_asignado": "Miércoles",
-            "motivo": "",
             "es_especial": false,
-            "es_fin_semana": false
+            "es_fin_semana": false,
+            "fecha": "2025-05-07",
+            "horario_asignado": "Miércoles",
+            "motivo": ""
           },
           "2025-05-08": {
-            "fecha": "2025-05-08",
             "dia_real": "Jueves",
-            "horario_asignado": "Jueves",
-            "motivo": "",
             "es_especial": false,
-            "es_fin_semana": false
+            "es_fin_semana": false,
+            "fecha": "2025-05-08",
+            "horario_asignado": "Jueves",
+            "motivo": ""
           },
           "2025-05-09": {
-            "fecha": "2025-05-09",
             "dia_real": "Viernes",
-            "horario_asignado": "Viernes",
-            "motivo": "",
             "es_especial": false,
-            "es_fin_semana": false
+            "es_fin_semana": false,
+            "fecha": "2025-05-09",
+            "horario_asignado": "Viernes",
+            "motivo": ""
           }
         }
       },
       "semanas_total": 28,
       "dias_semestre_1": 70,
       "dias_semestre_2": 70,
-      "fecha_actualizacion": "2025-07-13T15:37:59.232059",
+      "fecha_actualizacion": "2025-08-24T21:44:14.200334",
       "total": 140
     },
     "aulas": {
@@ -1246,29 +1249,8 @@
             "SII"
           ],
           "fechas_no_disponibles": [
-            "19/05/2025",
-            "20/05/2025",
-            "21/05/2025",
-            "22/05/2025",
-            "23/05/2025"
-          ]
-        },
-        "lab info_copia": {
-          "nombre": "lab info_copia",
-          "capacidad": 24,
-          "equipamiento": "rtdfb",
-          "edificio": "sgf",
-          "planta": "fghv",
-          "disponible": true,
-          "asignaturas_asociadas": [
-            "SII"
-          ],
-          "fechas_no_disponibles": [
-            "19/05/2025",
-            "20/05/2025",
-            "21/05/2025",
-            "22/05/2025",
-            "23/05/2025"
+            "10/07/2025",
+            "16/07/2025"
           ]
         },
         "lab sei": {
@@ -1284,9 +1266,9 @@
           "fechas_no_disponibles": []
         }
       },
-      "total_aulas": 3,
-      "fecha_actualizacion": "2025-07-13T15:38:24.281171",
-      "total": 3
+      "total_aulas": 2,
+      "fecha_actualizacion": "2025-07-14T19:44:42.503393",
+      "total": 2
     },
     "profesores": {
       "configurado": true,
@@ -1325,11 +1307,27 @@
             "20/05/2025"
           ],
           "observaciones": "",
-          "fecha_creacion": "2025-07-13T15:24:39.489493"
+          "fecha_creacion": "2025-07-14T19:44:07.257878"
+        },
+        "dadd8f7a-3775-47e2-b9d7-49b1a5b58d0c": {
+          "id": "dadd8f7a-3775-47e2-b9d7-49b1a5b58d0c",
+          "nombre": "Jose (copia)",
+          "apellidos": "Luis",
+          "asignaturas_imparte": [
+            "SEI"
+          ],
+          "dias_trabajo": [
+            "Lunes",
+            "Martes",
+            "Miércoles",
+            "Jueves"
+          ],
+          "horarios_bloqueados": {},
+          "fechas_no_disponibles": [],
+          "observaciones": "",
+          "fecha_creacion": "2025-07-14T19:44:30.106140"
         },
         "7fda7950-3abd-4663-806b-73429f6e75cc": {
-          "id": "7fda7950-3abd-4663-806b-73429f6e75cc",
-          "nombre": "Juan",
           "apellidos": "Perez",
           "asignaturas_imparte": [
             "SII"
@@ -1341,14 +1339,16 @@
             "Jueves",
             "Viernes"
           ],
-          "horarios_bloqueados": {},
+          "fecha_creacion": "2025-07-13T15:23:56.753842",
           "fechas_no_disponibles": [],
-          "observaciones": "",
-          "fecha_creacion": "2025-07-13T15:23:56.753842"
+          "horarios_bloqueados": {},
+          "id": "7fda7950-3abd-4663-806b-73429f6e75cc",
+          "nombre": "Juan",
+          "observaciones": ""
         }
       },
-      "total": 2,
-      "fecha_actualizacion": "2025-07-13T15:24:42.628153"
+      "total": 3,
+      "fecha_actualizacion": "2025-07-14T19:44:32.147191"
     },
     "alumnos": {
       "configurado": true,
@@ -1373,6 +1373,26 @@
           "observaciones": "Importado desde Excel - Sistemas Electronicos Industriales - Grupo A302",
           "fecha_creacion": "2025-07-13T15:25:14.346352"
         },
+        "232224A": {
+          "dni": "232224A",
+          "nombre": "SAMIR (copia)",
+          "apellidos": "AHOUCH EL KASSIMI",
+          "email": "samir.ahouch@alumnos.upm.es",
+          "matricula": "56247",
+          "grupos_matriculado": [
+            "EE303"
+          ],
+          "asignaturas_matriculadas": {
+            "SEI": {
+              "matriculado": true,
+              "lab_aprobado": false
+            }
+          },
+          "exp_centro": "56247",
+          "exp_agora": "322513",
+          "observaciones": "Importado desde Excel - Sistemas Electronicos Industriales - Grupo A302",
+          "fecha_creacion": "2025-07-13T22:04:26.308115"
+        },
         "6719214": {
           "dni": "6719214",
           "nombre": "ABDULRAHMAN",
@@ -1389,13 +1409,37 @@
             },
             "SII": {
               "matriculado": true,
+              "lab_aprobado": true
+            }
+          },
+          "exp_centro": "53327",
+          "exp_agora": "321611",
+          "observaciones": "Importado desde Excel - Sistemas Electronicos Industriales - Grupo A302",
+          "fecha_creacion": "2025-07-14T18:09:40.598158"
+        },
+        "671921A": {
+          "dni": "671921A",
+          "nombre": "ABDULRAHMAN (copia)",
+          "apellidos": "AL KOLAIBI AL GHOULI",
+          "email": "a.aalkolaibi@alumnos.upm.es",
+          "matricula": "53327",
+          "grupos_matriculado": [
+            "EE303"
+          ],
+          "asignaturas_matriculadas": {
+            "SEI": {
+              "matriculado": true,
+              "lab_aprobado": false
+            },
+            "SII": {
+              "matriculado": true,
               "lab_aprobado": false
             }
           },
           "exp_centro": "53327",
           "exp_agora": "321611",
           "observaciones": "Importado desde Excel - Sistemas Electronicos Industriales - Grupo A302",
-          "fecha_creacion": "2025-07-13T15:25:14.346352"
+          "fecha_creacion": "2025-07-13T22:04:34.351186"
         },
         "21115643": {
           "dni": "21115643",
@@ -3022,121 +3066,209 @@
           "fecha_creacion": "2025-07-13T15:25:14.346352"
         }
       },
-      "total": 82,
-      "fecha_actualizacion": "2025-07-13T15:25:33.543743"
+      "total": 84,
+      "fecha_actualizacion": "2025-07-14T18:09:42.532681"
     },
     "asignaturas": {
       "configurado": true,
       "datos": {
         "SEI": {
           "codigo": "SEI",
-          "nombre": "Sistemas Electronicos Industriales",
-          "semestre": "2º Semestre",
           "curso": "3º Curso",
-          "tipo": "Laboratorio",
           "descripcion": "",
-          "grupos_asociados": [
-            "A302",
-            "EE303"
-          ],
-          "configuracion_laboratorio": {
-            "horas_por_sesion": 2,
-            "minutos_por_sesion": 0
-          },
-          "planificacion": {
-            "grupos_previstos": 8,
-            "clases_año": 5
-          },
           "estadisticas_calculadas": {
-            "total_matriculados": 0,
             "con_lab_anterior": 0,
             "sin_lab_anterior": 0,
-            "grupos_recomendados": 0,
+            "total_matriculados": 0,
             "ultima_actualizacion": "2025-07-13T15:23:00.651797"
           },
-          "fecha_creacion": "2025-07-13T15:23:27.790586"
+          "fecha_creacion": "2025-07-14T18:38:45.061223",
+          "grupos_asociados": {
+            "A302": {
+              "configuracion_laboratorio": {
+                "clases_año": 1,
+                "grupos_previstos": 1,
+                "horas_por_sesion": 1,
+                "minutos_por_sesion": 0
+              },
+              "estadisticas_calculadas": {
+                "con_lab_anterior": 100,
+                "grupos_recomendados": 0,
+                "sin_lab_anterior": 0,
+                "total_matriculados": 0,
+                "ultima_actualizacion": "2025-07-13T15:23:00.651797"
+              }
+            },
+            "EE303": {
+              "configuracion_laboratorio": {
+                "clases_año": 8,
+                "grupos_previstos": 6,
+                "horas_por_sesion": 2,
+                "minutos_por_sesion": 0
+              },
+              "estadisticas_calculadas": {
+                "con_lab_anterior": 0,
+                "grupos_recomendados": 0,
+                "sin_lab_anterior": 0,
+                "total_matriculados": 0,
+                "ultima_actualizacion": "2025-07-13T15:23:00.651797"
+              }
+            }
+          },
+          "nombre": "Sistemas Electronicos Industriales",
+          "semestre": "2º Semestre",
+          "tipo": "Laboratorio"
+        },
+        "SEI_COPIA": {
+          "codigo": "SEI_COPIA",
+          "curso": "3º Curso",
+          "descripcion": "",
+          "estadisticas_calculadas": {
+            "con_lab_anterior": 0,
+            "sin_lab_anterior": 0,
+            "total_matriculados": 0,
+            "ultima_actualizacion": "2025-08-24T19:26:20.356341"
+          },
+          "fecha_creacion": "2025-08-24T19:26:20.356341",
+          "grupos_asociados": {
+            "A302": {
+              "configuracion_laboratorio": {
+                "clases_año": 2,
+                "grupos_previstos": 2,
+                "horas_por_sesion": 2,
+                "minutos_por_sesion": 0
+              },
+              "estadisticas_calculadas": {
+                "con_lab_anterior": 0,
+                "grupos_recomendados": 0,
+                "sin_lab_anterior": 0,
+                "total_matriculados": 0,
+                "ultima_actualizacion": "2025-08-24T19:26:20.356341"
+              }
+            },
+            "EE303": {
+              "configuracion_laboratorio": {
+                "clases_año": 3,
+                "grupos_previstos": 3,
+                "horas_por_sesion": 3,
+                "minutos_por_sesion": 0
+              },
+              "estadisticas_calculadas": {
+                "con_lab_anterior": 0,
+                "grupos_recomendados": 0,
+                "sin_lab_anterior": 0,
+                "total_matriculados": 0,
+                "ultima_actualizacion": "2025-08-24T19:26:20.356341"
+              }
+            }
+          },
+          "nombre": "Sistemas Electronicos Industriales (Copia)",
+          "semestre": "2º Semestre",
+          "tipo": "Laboratorio"
         },
         "SII": {
           "codigo": "SII",
-          "nombre": "Sistemas Informaticos Industriales",
-          "semestre": "2º Semestre",
           "curso": "3º Curso",
-          "tipo": "Laboratorio",
           "descripcion": "",
-          "grupos_asociados": [
-            "A302",
-            "EE303"
-          ],
-          "configuracion_laboratorio": {
-            "horas_por_sesion": 2,
-            "minutos_por_sesion": 0
-          },
-          "planificacion": {
-            "grupos_previstos": 8,
-            "clases_año": 5
-          },
           "estadisticas_calculadas": {
-            "total_matriculados": 0,
             "con_lab_anterior": 0,
             "sin_lab_anterior": 0,
-            "grupos_recomendados": 0,
+            "total_matriculados": 0,
             "ultima_actualizacion": "2025-07-13T15:22:51.472035"
           },
-          "fecha_creacion": "2025-07-13T15:22:51.472035"
+          "fecha_creacion": "2025-07-14T17:54:43.734029",
+          "grupos_asociados": {
+            "A302": {
+              "configuracion_laboratorio": {
+                "clases_año": 10,
+                "grupos_previstos": 4,
+                "horas_por_sesion": 2,
+                "minutos_por_sesion": 0
+              },
+              "estadisticas_calculadas": {
+                "con_lab_anterior": 0,
+                "grupos_recomendados": 0,
+                "sin_lab_anterior": 0,
+                "total_matriculados": 0,
+                "ultima_actualizacion": "2025-07-13T15:22:51.472035"
+              }
+            },
+            "EE303": {
+              "configuracion_laboratorio": {
+                "clases_año": 10,
+                "grupos_previstos": 4,
+                "horas_por_sesion": 2,
+                "minutos_por_sesion": 0
+              },
+              "estadisticas_calculadas": {
+                "con_lab_anterior": 0,
+                "grupos_recomendados": 0,
+                "sin_lab_anterior": 0,
+                "total_matriculados": 0,
+                "ultima_actualizacion": "2025-07-13T15:22:51.472035"
+              }
+            }
+          },
+          "nombre": "Sistemas Informaticos Industriales",
+          "semestre": "2º Semestre",
+          "tipo": "Laboratorio"
         }
       },
-      "total": 2,
-      "fecha_actualizacion": "2025-07-13T15:23:30.875576"
+      "total": 3,
+      "fecha_actualizacion": "2025-08-24T19:28:00.275834"
     },
     "grupos": {
       "configurado": true,
       "datos": {
         "A302": {
-          "codigo": "A302",
-          "nombre": "Grado Electronica",
-          "curso_actual": "3º Curso",
-          "coordinador": "Dr. Pepe",
-          "departamento": "fgh",
-          "creditos_totales": 240,
-          "plazas": 120,
-          "estudiantes_matriculados": 95,
-          "horario_tipo": "Mañana",
-          "observaciones": "",
-          "fecha_creacion": "2025-07-13T15:21:35.021327",
           "activo": true,
           "asignaturas_asociadas": [
             "SEI",
+            "SEI_COPIA",
             "SII"
-          ]
+          ],
+          "codigo": "A302",
+          "coordinador": "Dr. Pepe",
+          "creditos_totales": 240,
+          "curso_actual": "3º Curso",
+          "departamento": "fgh",
+          "estudiantes_matriculados": 95,
+          "fecha_creacion": "2025-07-13T15:21:35.021327",
+          "horario_tipo": "Mañana",
+          "nombre": "Grado Electronica",
+          "observaciones": "",
+          "plazas": 120
         },
         "EE303": {
-          "codigo": "EE303",
-          "nombre": "Doble grado Electroca y Electronica",
-          "curso_actual": "3º Curso",
-          "coordinador": "pepe",
-          "departamento": "ing",
-          "creditos_totales": 240,
-          "plazas": 120,
-          "estudiantes_matriculados": 95,
-          "horario_tipo": "Mañana",
-          "observaciones": "",
-          "fecha_creacion": "2025-07-13T15:22:03.656654",
           "activo": true,
           "asignaturas_asociadas": [
             "SEI",
+            "SEI_COPIA",
             "SII"
-          ]
+          ],
+          "codigo": "EE303",
+          "coordinador": "pepe",
+          "creditos_totales": 240,
+          "curso_actual": "3º Curso",
+          "departamento": "ing",
+          "estudiantes_matriculados": 95,
+          "fecha_creacion": "2025-07-13T15:22:03.656654",
+          "horario_tipo": "Mañana",
+          "nombre": "Doble grado Electroca y Electronica",
+          "observaciones": "",
+          "plazas": 120
         }
       },
       "total": 2,
-      "fecha_actualizacion": "2025-07-13T15:23:27.791588"
+      "fecha_actualizacion": "2025-08-24T19:58:29.567928"
     }
   },
   "parametros_organizacion": {
-    "configurado": false,
-    "fecha_actualizacion": null,
+    "configurado": true,
+    "fecha_actualizacion": "2025-07-13T19:07:13.749440",
     "parametros_booleanos": {
       "preferir_grupos_pares": true,
+      "maximizar_alumnos_pares": true,
       "priorizar_horas_tempranas": true,
       "aplicar_prioridad_doble_grado": true,
       "permitir_intercambio_automatico": true,
@@ -3146,34 +3278,1803 @@
       "equilibrar_carga_profesores": true
     },
     "pesos_optimizacion": {
-      "peso_equilibrio_grupos": 25,
-      "peso_grupos_pares": 20,
       "peso_horas_tempranas": 40,
       "peso_doble_grado": 30,
-      "peso_conflictos_alumnos": 15,
-      "peso_utilizacion_aulas": 25,
-      "peso_distribucion_profesores": 20,
-      "peso_compatibilidad_asignaturas": 30
+      "peso_grupos_pares": 20,
+      "peso_equilibrio_grupos": 25
     },
-    "configuraciones_adicionales": {
-      "diferencia_maxima_grupos": 1,
-      "utilizacion_aula_optima": 85,
-      "max_horas_profesor_dia": 6,
-      "min_descanso_entre_clases": 30,
-      "preferencia_aulas_especificas": 70,
-      "factor_penalizacion_conflictos": 100
-    }
+    "configuraciones_adicionales": {}
   },
   "resultados_organizacion": {
-    "datos_disponibles": false,
-    "fecha_actualizacion": null,
-    "ultima_ejecucion": {},
-    "resumen": {
-      "total_grupos": 0,
-      "grupos_asignados": 0,
-      "conflictos_detectados": 0,
-      "porcentaje_exito": 0
+    "datos_disponibles": true,
+    "fecha_actualizacion": "2025-07-14T19:23:57.643831",
+    "ultima_ejecucion": {
+      "timestamp": "2025-07-14T19:23:57.641660",
+      "version": "motor_organizacion_v5.0",
+      "estadisticas": {
+        "total_grupos": 10,
+        "grupos_asignados": 10,
+        "porcentaje_exito": 100.0,
+        "conflictos_detectados": 24,
+        "aulas_utilizadas": 2,
+        "profesores_participantes": 3,
+        "utilizacion_promedio_aulas": 35.227272727272776,
+        "grupos_equilibrados": 2,
+        "horas_tempranas_utilizadas": 0.0
+      },
+      "horarios": [
+        {
+          "asignatura": "SEI",
+          "grupo": "SEI_G1",
+          "aula": "lab sei",
+          "profesor": "Jose Luis",
+          "profesor_id": "0ed06d65-e792-4e3d-a219-8f1cfabe6de4",
+          "dia": "Lunes",
+          "hora_inicio": "15:30",
+          "hora_fin": "17:30",
+          "num_alumnos": 14,
+          "curso": "A302",
+          "capacidad_aula": 24,
+          "utilizacion_aula": 58.333333333333336,
+          "slot_temporal": "Lunes_15:30-17:30"
+        },
+        {
+          "asignatura": "SEI",
+          "grupo": "SEI_G1",
+          "aula": "lab sei",
+          "profesor": "Jose Luis",
+          "profesor_id": "0ed06d65-e792-4e3d-a219-8f1cfabe6de4",
+          "dia": "Lunes",
+          "hora_inicio": "15:30",
+          "hora_fin": "17:30",
+          "num_alumnos": 14,
+          "curso": "A302",
+          "capacidad_aula": 24,
+          "utilizacion_aula": 58.333333333333336,
+          "slot_temporal": "Lunes_15:30-17:30"
+        },
+        {
+          "asignatura": "SEI",
+          "grupo": "SEI_G1",
+          "aula": "lab sei",
+          "profesor": "Jose Luis",
+          "profesor_id": "0ed06d65-e792-4e3d-a219-8f1cfabe6de4",
+          "dia": "Miércoles",
+          "hora_inicio": "15:30",
+          "hora_fin": "17:30",
+          "num_alumnos": 14,
+          "curso": "A302",
+          "capacidad_aula": 24,
+          "utilizacion_aula": 58.333333333333336,
+          "slot_temporal": "Miércoles_15:30-17:30"
+        },
+        {
+          "asignatura": "SEI",
+          "grupo": "SEI_G1",
+          "aula": "lab sei",
+          "profesor": "Jose Luis",
+          "profesor_id": "0ed06d65-e792-4e3d-a219-8f1cfabe6de4",
+          "dia": "Miércoles",
+          "hora_inicio": "15:30",
+          "hora_fin": "17:30",
+          "num_alumnos": 14,
+          "curso": "A302",
+          "capacidad_aula": 24,
+          "utilizacion_aula": 58.333333333333336,
+          "slot_temporal": "Miércoles_15:30-17:30"
+        },
+        {
+          "asignatura": "SEI",
+          "grupo": "SEI_G1",
+          "aula": "lab sei",
+          "profesor": "Jose Luis",
+          "profesor_id": "0ed06d65-e792-4e3d-a219-8f1cfabe6de4",
+          "dia": "Lunes",
+          "hora_inicio": "17:30",
+          "hora_fin": "19:30",
+          "num_alumnos": 14,
+          "curso": "A302",
+          "capacidad_aula": 24,
+          "utilizacion_aula": 58.333333333333336,
+          "slot_temporal": "Lunes_17:30-19:30"
+        },
+        {
+          "asignatura": "SEI",
+          "grupo": "SEI_G1",
+          "aula": "lab sei",
+          "profesor": "Jose Luis",
+          "profesor_id": "0ed06d65-e792-4e3d-a219-8f1cfabe6de4",
+          "dia": "Lunes",
+          "hora_inicio": "17:30",
+          "hora_fin": "19:30",
+          "num_alumnos": 14,
+          "curso": "A302",
+          "capacidad_aula": 24,
+          "utilizacion_aula": 58.333333333333336,
+          "slot_temporal": "Lunes_17:30-19:30"
+        },
+        {
+          "asignatura": "SEI",
+          "grupo": "SEI_G1",
+          "aula": "lab sei",
+          "profesor": "Jose Luis",
+          "profesor_id": "0ed06d65-e792-4e3d-a219-8f1cfabe6de4",
+          "dia": "Jueves",
+          "hora_inicio": "17:30",
+          "hora_fin": "19:30",
+          "num_alumnos": 14,
+          "curso": "A302",
+          "capacidad_aula": 24,
+          "utilizacion_aula": 58.333333333333336,
+          "slot_temporal": "Jueves_17:30-19:30"
+        },
+        {
+          "asignatura": "SEI",
+          "grupo": "SEI_G1",
+          "aula": "lab sei",
+          "profesor": "Jose Luis",
+          "profesor_id": "0ed06d65-e792-4e3d-a219-8f1cfabe6de4",
+          "dia": "Jueves",
+          "hora_inicio": "17:30",
+          "hora_fin": "19:30",
+          "num_alumnos": 14,
+          "curso": "A302",
+          "capacidad_aula": 24,
+          "utilizacion_aula": 58.333333333333336,
+          "slot_temporal": "Jueves_17:30-19:30"
+        },
+        {
+          "asignatura": "SEI",
+          "grupo": "SEI_G2",
+          "aula": "lab sei",
+          "profesor": "Jose (copia) Luis",
+          "profesor_id": "dadd8f7a-3775-47e2-b9d7-49b1a5b58d0c",
+          "dia": "Lunes",
+          "hora_inicio": "15:30",
+          "hora_fin": "17:30",
+          "num_alumnos": 14,
+          "curso": "A302",
+          "capacidad_aula": 24,
+          "utilizacion_aula": 58.333333333333336,
+          "slot_temporal": "Lunes_15:30-17:30"
+        },
+        {
+          "asignatura": "SEI",
+          "grupo": "SEI_G2",
+          "aula": "lab sei",
+          "profesor": "Jose (copia) Luis",
+          "profesor_id": "dadd8f7a-3775-47e2-b9d7-49b1a5b58d0c",
+          "dia": "Lunes",
+          "hora_inicio": "15:30",
+          "hora_fin": "17:30",
+          "num_alumnos": 14,
+          "curso": "A302",
+          "capacidad_aula": 24,
+          "utilizacion_aula": 58.333333333333336,
+          "slot_temporal": "Lunes_15:30-17:30"
+        },
+        {
+          "asignatura": "SEI",
+          "grupo": "SEI_G2",
+          "aula": "lab sei",
+          "profesor": "Jose (copia) Luis",
+          "profesor_id": "dadd8f7a-3775-47e2-b9d7-49b1a5b58d0c",
+          "dia": "Miércoles",
+          "hora_inicio": "15:30",
+          "hora_fin": "17:30",
+          "num_alumnos": 14,
+          "curso": "A302",
+          "capacidad_aula": 24,
+          "utilizacion_aula": 58.333333333333336,
+          "slot_temporal": "Miércoles_15:30-17:30"
+        },
+        {
+          "asignatura": "SEI",
+          "grupo": "SEI_G2",
+          "aula": "lab sei",
+          "profesor": "Jose (copia) Luis",
+          "profesor_id": "dadd8f7a-3775-47e2-b9d7-49b1a5b58d0c",
+          "dia": "Miércoles",
+          "hora_inicio": "15:30",
+          "hora_fin": "17:30",
+          "num_alumnos": 14,
+          "curso": "A302",
+          "capacidad_aula": 24,
+          "utilizacion_aula": 58.333333333333336,
+          "slot_temporal": "Miércoles_15:30-17:30"
+        },
+        {
+          "asignatura": "SEI",
+          "grupo": "SEI_G2",
+          "aula": "lab sei",
+          "profesor": "Jose (copia) Luis",
+          "profesor_id": "dadd8f7a-3775-47e2-b9d7-49b1a5b58d0c",
+          "dia": "Lunes",
+          "hora_inicio": "17:30",
+          "hora_fin": "19:30",
+          "num_alumnos": 14,
+          "curso": "A302",
+          "capacidad_aula": 24,
+          "utilizacion_aula": 58.333333333333336,
+          "slot_temporal": "Lunes_17:30-19:30"
+        },
+        {
+          "asignatura": "SEI",
+          "grupo": "SEI_G2",
+          "aula": "lab sei",
+          "profesor": "Jose (copia) Luis",
+          "profesor_id": "dadd8f7a-3775-47e2-b9d7-49b1a5b58d0c",
+          "dia": "Lunes",
+          "hora_inicio": "17:30",
+          "hora_fin": "19:30",
+          "num_alumnos": 14,
+          "curso": "A302",
+          "capacidad_aula": 24,
+          "utilizacion_aula": 58.333333333333336,
+          "slot_temporal": "Lunes_17:30-19:30"
+        },
+        {
+          "asignatura": "SEI",
+          "grupo": "SEI_G2",
+          "aula": "lab sei",
+          "profesor": "Jose (copia) Luis",
+          "profesor_id": "dadd8f7a-3775-47e2-b9d7-49b1a5b58d0c",
+          "dia": "Jueves",
+          "hora_inicio": "17:30",
+          "hora_fin": "19:30",
+          "num_alumnos": 14,
+          "curso": "A302",
+          "capacidad_aula": 24,
+          "utilizacion_aula": 58.333333333333336,
+          "slot_temporal": "Jueves_17:30-19:30"
+        },
+        {
+          "asignatura": "SEI",
+          "grupo": "SEI_G2",
+          "aula": "lab sei",
+          "profesor": "Jose (copia) Luis",
+          "profesor_id": "dadd8f7a-3775-47e2-b9d7-49b1a5b58d0c",
+          "dia": "Jueves",
+          "hora_inicio": "17:30",
+          "hora_fin": "19:30",
+          "num_alumnos": 14,
+          "curso": "A302",
+          "capacidad_aula": 24,
+          "utilizacion_aula": 58.333333333333336,
+          "slot_temporal": "Jueves_17:30-19:30"
+        },
+        {
+          "asignatura": "SEI",
+          "grupo": "SEI_G3",
+          "aula": "lab sei",
+          "profesor": "Jose Luis",
+          "profesor_id": "0ed06d65-e792-4e3d-a219-8f1cfabe6de4",
+          "dia": "Lunes",
+          "hora_inicio": "15:30",
+          "hora_fin": "17:30",
+          "num_alumnos": 14,
+          "curso": "A302",
+          "capacidad_aula": 24,
+          "utilizacion_aula": 58.333333333333336,
+          "slot_temporal": "Lunes_15:30-17:30"
+        },
+        {
+          "asignatura": "SEI",
+          "grupo": "SEI_G3",
+          "aula": "lab sei",
+          "profesor": "Jose Luis",
+          "profesor_id": "0ed06d65-e792-4e3d-a219-8f1cfabe6de4",
+          "dia": "Lunes",
+          "hora_inicio": "15:30",
+          "hora_fin": "17:30",
+          "num_alumnos": 14,
+          "curso": "A302",
+          "capacidad_aula": 24,
+          "utilizacion_aula": 58.333333333333336,
+          "slot_temporal": "Lunes_15:30-17:30"
+        },
+        {
+          "asignatura": "SEI",
+          "grupo": "SEI_G3",
+          "aula": "lab sei",
+          "profesor": "Jose Luis",
+          "profesor_id": "0ed06d65-e792-4e3d-a219-8f1cfabe6de4",
+          "dia": "Miércoles",
+          "hora_inicio": "15:30",
+          "hora_fin": "17:30",
+          "num_alumnos": 14,
+          "curso": "A302",
+          "capacidad_aula": 24,
+          "utilizacion_aula": 58.333333333333336,
+          "slot_temporal": "Miércoles_15:30-17:30"
+        },
+        {
+          "asignatura": "SEI",
+          "grupo": "SEI_G3",
+          "aula": "lab sei",
+          "profesor": "Jose Luis",
+          "profesor_id": "0ed06d65-e792-4e3d-a219-8f1cfabe6de4",
+          "dia": "Miércoles",
+          "hora_inicio": "15:30",
+          "hora_fin": "17:30",
+          "num_alumnos": 14,
+          "curso": "A302",
+          "capacidad_aula": 24,
+          "utilizacion_aula": 58.333333333333336,
+          "slot_temporal": "Miércoles_15:30-17:30"
+        },
+        {
+          "asignatura": "SEI",
+          "grupo": "SEI_G3",
+          "aula": "lab sei",
+          "profesor": "Jose Luis",
+          "profesor_id": "0ed06d65-e792-4e3d-a219-8f1cfabe6de4",
+          "dia": "Lunes",
+          "hora_inicio": "17:30",
+          "hora_fin": "19:30",
+          "num_alumnos": 14,
+          "curso": "A302",
+          "capacidad_aula": 24,
+          "utilizacion_aula": 58.333333333333336,
+          "slot_temporal": "Lunes_17:30-19:30"
+        },
+        {
+          "asignatura": "SEI",
+          "grupo": "SEI_G3",
+          "aula": "lab sei",
+          "profesor": "Jose Luis",
+          "profesor_id": "0ed06d65-e792-4e3d-a219-8f1cfabe6de4",
+          "dia": "Lunes",
+          "hora_inicio": "17:30",
+          "hora_fin": "19:30",
+          "num_alumnos": 14,
+          "curso": "A302",
+          "capacidad_aula": 24,
+          "utilizacion_aula": 58.333333333333336,
+          "slot_temporal": "Lunes_17:30-19:30"
+        },
+        {
+          "asignatura": "SEI",
+          "grupo": "SEI_G3",
+          "aula": "lab sei",
+          "profesor": "Jose Luis",
+          "profesor_id": "0ed06d65-e792-4e3d-a219-8f1cfabe6de4",
+          "dia": "Jueves",
+          "hora_inicio": "17:30",
+          "hora_fin": "19:30",
+          "num_alumnos": 14,
+          "curso": "A302",
+          "capacidad_aula": 24,
+          "utilizacion_aula": 58.333333333333336,
+          "slot_temporal": "Jueves_17:30-19:30"
+        },
+        {
+          "asignatura": "SEI",
+          "grupo": "SEI_G3",
+          "aula": "lab sei",
+          "profesor": "Jose Luis",
+          "profesor_id": "0ed06d65-e792-4e3d-a219-8f1cfabe6de4",
+          "dia": "Jueves",
+          "hora_inicio": "17:30",
+          "hora_fin": "19:30",
+          "num_alumnos": 14,
+          "curso": "A302",
+          "capacidad_aula": 24,
+          "utilizacion_aula": 58.333333333333336,
+          "slot_temporal": "Jueves_17:30-19:30"
+        },
+        {
+          "asignatura": "SEI",
+          "grupo": "SEI_G4",
+          "aula": "lab sei",
+          "profesor": "Jose (copia) Luis",
+          "profesor_id": "dadd8f7a-3775-47e2-b9d7-49b1a5b58d0c",
+          "dia": "Lunes",
+          "hora_inicio": "15:30",
+          "hora_fin": "17:30",
+          "num_alumnos": 14,
+          "curso": "A302",
+          "capacidad_aula": 24,
+          "utilizacion_aula": 58.333333333333336,
+          "slot_temporal": "Lunes_15:30-17:30"
+        },
+        {
+          "asignatura": "SEI",
+          "grupo": "SEI_G4",
+          "aula": "lab sei",
+          "profesor": "Jose (copia) Luis",
+          "profesor_id": "dadd8f7a-3775-47e2-b9d7-49b1a5b58d0c",
+          "dia": "Lunes",
+          "hora_inicio": "15:30",
+          "hora_fin": "17:30",
+          "num_alumnos": 14,
+          "curso": "A302",
+          "capacidad_aula": 24,
+          "utilizacion_aula": 58.333333333333336,
+          "slot_temporal": "Lunes_15:30-17:30"
+        },
+        {
+          "asignatura": "SEI",
+          "grupo": "SEI_G4",
+          "aula": "lab sei",
+          "profesor": "Jose (copia) Luis",
+          "profesor_id": "dadd8f7a-3775-47e2-b9d7-49b1a5b58d0c",
+          "dia": "Miércoles",
+          "hora_inicio": "15:30",
+          "hora_fin": "17:30",
+          "num_alumnos": 14,
+          "curso": "A302",
+          "capacidad_aula": 24,
+          "utilizacion_aula": 58.333333333333336,
+          "slot_temporal": "Miércoles_15:30-17:30"
+        },
+        {
+          "asignatura": "SEI",
+          "grupo": "SEI_G4",
+          "aula": "lab sei",
+          "profesor": "Jose (copia) Luis",
+          "profesor_id": "dadd8f7a-3775-47e2-b9d7-49b1a5b58d0c",
+          "dia": "Miércoles",
+          "hora_inicio": "15:30",
+          "hora_fin": "17:30",
+          "num_alumnos": 14,
+          "curso": "A302",
+          "capacidad_aula": 24,
+          "utilizacion_aula": 58.333333333333336,
+          "slot_temporal": "Miércoles_15:30-17:30"
+        },
+        {
+          "asignatura": "SEI",
+          "grupo": "SEI_G4",
+          "aula": "lab sei",
+          "profesor": "Jose (copia) Luis",
+          "profesor_id": "dadd8f7a-3775-47e2-b9d7-49b1a5b58d0c",
+          "dia": "Lunes",
+          "hora_inicio": "17:30",
+          "hora_fin": "19:30",
+          "num_alumnos": 14,
+          "curso": "A302",
+          "capacidad_aula": 24,
+          "utilizacion_aula": 58.333333333333336,
+          "slot_temporal": "Lunes_17:30-19:30"
+        },
+        {
+          "asignatura": "SEI",
+          "grupo": "SEI_G4",
+          "aula": "lab sei",
+          "profesor": "Jose (copia) Luis",
+          "profesor_id": "dadd8f7a-3775-47e2-b9d7-49b1a5b58d0c",
+          "dia": "Lunes",
+          "hora_inicio": "17:30",
+          "hora_fin": "19:30",
+          "num_alumnos": 14,
+          "curso": "A302",
+          "capacidad_aula": 24,
+          "utilizacion_aula": 58.333333333333336,
+          "slot_temporal": "Lunes_17:30-19:30"
+        },
+        {
+          "asignatura": "SEI",
+          "grupo": "SEI_G4",
+          "aula": "lab sei",
+          "profesor": "Jose (copia) Luis",
+          "profesor_id": "dadd8f7a-3775-47e2-b9d7-49b1a5b58d0c",
+          "dia": "Jueves",
+          "hora_inicio": "17:30",
+          "hora_fin": "19:30",
+          "num_alumnos": 14,
+          "curso": "A302",
+          "capacidad_aula": 24,
+          "utilizacion_aula": 58.333333333333336,
+          "slot_temporal": "Jueves_17:30-19:30"
+        },
+        {
+          "asignatura": "SEI",
+          "grupo": "SEI_G4",
+          "aula": "lab sei",
+          "profesor": "Jose (copia) Luis",
+          "profesor_id": "dadd8f7a-3775-47e2-b9d7-49b1a5b58d0c",
+          "dia": "Jueves",
+          "hora_inicio": "17:30",
+          "hora_fin": "19:30",
+          "num_alumnos": 14,
+          "curso": "A302",
+          "capacidad_aula": 24,
+          "utilizacion_aula": 58.333333333333336,
+          "slot_temporal": "Jueves_17:30-19:30"
+        },
+        {
+          "asignatura": "SEI",
+          "grupo": "SEI_G5",
+          "aula": "lab sei",
+          "profesor": "Jose Luis",
+          "profesor_id": "0ed06d65-e792-4e3d-a219-8f1cfabe6de4",
+          "dia": "Lunes",
+          "hora_inicio": "15:30",
+          "hora_fin": "17:30",
+          "num_alumnos": 14,
+          "curso": "A302",
+          "capacidad_aula": 24,
+          "utilizacion_aula": 58.333333333333336,
+          "slot_temporal": "Lunes_15:30-17:30"
+        },
+        {
+          "asignatura": "SEI",
+          "grupo": "SEI_G5",
+          "aula": "lab sei",
+          "profesor": "Jose Luis",
+          "profesor_id": "0ed06d65-e792-4e3d-a219-8f1cfabe6de4",
+          "dia": "Lunes",
+          "hora_inicio": "15:30",
+          "hora_fin": "17:30",
+          "num_alumnos": 14,
+          "curso": "A302",
+          "capacidad_aula": 24,
+          "utilizacion_aula": 58.333333333333336,
+          "slot_temporal": "Lunes_15:30-17:30"
+        },
+        {
+          "asignatura": "SEI",
+          "grupo": "SEI_G5",
+          "aula": "lab sei",
+          "profesor": "Jose Luis",
+          "profesor_id": "0ed06d65-e792-4e3d-a219-8f1cfabe6de4",
+          "dia": "Miércoles",
+          "hora_inicio": "15:30",
+          "hora_fin": "17:30",
+          "num_alumnos": 14,
+          "curso": "A302",
+          "capacidad_aula": 24,
+          "utilizacion_aula": 58.333333333333336,
+          "slot_temporal": "Miércoles_15:30-17:30"
+        },
+        {
+          "asignatura": "SEI",
+          "grupo": "SEI_G5",
+          "aula": "lab sei",
+          "profesor": "Jose Luis",
+          "profesor_id": "0ed06d65-e792-4e3d-a219-8f1cfabe6de4",
+          "dia": "Miércoles",
+          "hora_inicio": "15:30",
+          "hora_fin": "17:30",
+          "num_alumnos": 14,
+          "curso": "A302",
+          "capacidad_aula": 24,
+          "utilizacion_aula": 58.333333333333336,
+          "slot_temporal": "Miércoles_15:30-17:30"
+        },
+        {
+          "asignatura": "SEI",
+          "grupo": "SEI_G5",
+          "aula": "lab sei",
+          "profesor": "Jose Luis",
+          "profesor_id": "0ed06d65-e792-4e3d-a219-8f1cfabe6de4",
+          "dia": "Lunes",
+          "hora_inicio": "17:30",
+          "hora_fin": "19:30",
+          "num_alumnos": 14,
+          "curso": "A302",
+          "capacidad_aula": 24,
+          "utilizacion_aula": 58.333333333333336,
+          "slot_temporal": "Lunes_17:30-19:30"
+        },
+        {
+          "asignatura": "SEI",
+          "grupo": "SEI_G5",
+          "aula": "lab sei",
+          "profesor": "Jose Luis",
+          "profesor_id": "0ed06d65-e792-4e3d-a219-8f1cfabe6de4",
+          "dia": "Lunes",
+          "hora_inicio": "17:30",
+          "hora_fin": "19:30",
+          "num_alumnos": 14,
+          "curso": "A302",
+          "capacidad_aula": 24,
+          "utilizacion_aula": 58.333333333333336,
+          "slot_temporal": "Lunes_17:30-19:30"
+        },
+        {
+          "asignatura": "SEI",
+          "grupo": "SEI_G5",
+          "aula": "lab sei",
+          "profesor": "Jose Luis",
+          "profesor_id": "0ed06d65-e792-4e3d-a219-8f1cfabe6de4",
+          "dia": "Jueves",
+          "hora_inicio": "17:30",
+          "hora_fin": "19:30",
+          "num_alumnos": 14,
+          "curso": "A302",
+          "capacidad_aula": 24,
+          "utilizacion_aula": 58.333333333333336,
+          "slot_temporal": "Jueves_17:30-19:30"
+        },
+        {
+          "asignatura": "SEI",
+          "grupo": "SEI_G5",
+          "aula": "lab sei",
+          "profesor": "Jose Luis",
+          "profesor_id": "0ed06d65-e792-4e3d-a219-8f1cfabe6de4",
+          "dia": "Jueves",
+          "hora_inicio": "17:30",
+          "hora_fin": "19:30",
+          "num_alumnos": 14,
+          "curso": "A302",
+          "capacidad_aula": 24,
+          "utilizacion_aula": 58.333333333333336,
+          "slot_temporal": "Jueves_17:30-19:30"
+        },
+        {
+          "asignatura": "SEI",
+          "grupo": "SEI_G6",
+          "aula": "lab sei",
+          "profesor": "Jose (copia) Luis",
+          "profesor_id": "dadd8f7a-3775-47e2-b9d7-49b1a5b58d0c",
+          "dia": "Lunes",
+          "hora_inicio": "15:30",
+          "hora_fin": "17:30",
+          "num_alumnos": 13,
+          "curso": "A302",
+          "capacidad_aula": 24,
+          "utilizacion_aula": 54.166666666666664,
+          "slot_temporal": "Lunes_15:30-17:30"
+        },
+        {
+          "asignatura": "SEI",
+          "grupo": "SEI_G6",
+          "aula": "lab sei",
+          "profesor": "Jose (copia) Luis",
+          "profesor_id": "dadd8f7a-3775-47e2-b9d7-49b1a5b58d0c",
+          "dia": "Lunes",
+          "hora_inicio": "15:30",
+          "hora_fin": "17:30",
+          "num_alumnos": 13,
+          "curso": "A302",
+          "capacidad_aula": 24,
+          "utilizacion_aula": 54.166666666666664,
+          "slot_temporal": "Lunes_15:30-17:30"
+        },
+        {
+          "asignatura": "SEI",
+          "grupo": "SEI_G6",
+          "aula": "lab sei",
+          "profesor": "Jose (copia) Luis",
+          "profesor_id": "dadd8f7a-3775-47e2-b9d7-49b1a5b58d0c",
+          "dia": "Miércoles",
+          "hora_inicio": "15:30",
+          "hora_fin": "17:30",
+          "num_alumnos": 13,
+          "curso": "A302",
+          "capacidad_aula": 24,
+          "utilizacion_aula": 54.166666666666664,
+          "slot_temporal": "Miércoles_15:30-17:30"
+        },
+        {
+          "asignatura": "SEI",
+          "grupo": "SEI_G6",
+          "aula": "lab sei",
+          "profesor": "Jose (copia) Luis",
+          "profesor_id": "dadd8f7a-3775-47e2-b9d7-49b1a5b58d0c",
+          "dia": "Miércoles",
+          "hora_inicio": "15:30",
+          "hora_fin": "17:30",
+          "num_alumnos": 13,
+          "curso": "A302",
+          "capacidad_aula": 24,
+          "utilizacion_aula": 54.166666666666664,
+          "slot_temporal": "Miércoles_15:30-17:30"
+        },
+        {
+          "asignatura": "SEI",
+          "grupo": "SEI_G6",
+          "aula": "lab sei",
+          "profesor": "Jose (copia) Luis",
+          "profesor_id": "dadd8f7a-3775-47e2-b9d7-49b1a5b58d0c",
+          "dia": "Lunes",
+          "hora_inicio": "17:30",
+          "hora_fin": "19:30",
+          "num_alumnos": 13,
+          "curso": "A302",
+          "capacidad_aula": 24,
+          "utilizacion_aula": 54.166666666666664,
+          "slot_temporal": "Lunes_17:30-19:30"
+        },
+        {
+          "asignatura": "SEI",
+          "grupo": "SEI_G6",
+          "aula": "lab sei",
+          "profesor": "Jose (copia) Luis",
+          "profesor_id": "dadd8f7a-3775-47e2-b9d7-49b1a5b58d0c",
+          "dia": "Lunes",
+          "hora_inicio": "17:30",
+          "hora_fin": "19:30",
+          "num_alumnos": 13,
+          "curso": "A302",
+          "capacidad_aula": 24,
+          "utilizacion_aula": 54.166666666666664,
+          "slot_temporal": "Lunes_17:30-19:30"
+        },
+        {
+          "asignatura": "SEI",
+          "grupo": "SEI_G6",
+          "aula": "lab sei",
+          "profesor": "Jose (copia) Luis",
+          "profesor_id": "dadd8f7a-3775-47e2-b9d7-49b1a5b58d0c",
+          "dia": "Jueves",
+          "hora_inicio": "17:30",
+          "hora_fin": "19:30",
+          "num_alumnos": 13,
+          "curso": "A302",
+          "capacidad_aula": 24,
+          "utilizacion_aula": 54.166666666666664,
+          "slot_temporal": "Jueves_17:30-19:30"
+        },
+        {
+          "asignatura": "SEI",
+          "grupo": "SEI_G6",
+          "aula": "lab sei",
+          "profesor": "Jose (copia) Luis",
+          "profesor_id": "dadd8f7a-3775-47e2-b9d7-49b1a5b58d0c",
+          "dia": "Jueves",
+          "hora_inicio": "17:30",
+          "hora_fin": "19:30",
+          "num_alumnos": 13,
+          "curso": "A302",
+          "capacidad_aula": 24,
+          "utilizacion_aula": 54.166666666666664,
+          "slot_temporal": "Jueves_17:30-19:30"
+        },
+        {
+          "asignatura": "SII",
+          "grupo": "SII_G1",
+          "aula": "lab info",
+          "profesor": "Juan Perez",
+          "profesor_id": "7fda7950-3abd-4663-806b-73429f6e75cc",
+          "dia": "Lunes",
+          "hora_inicio": "15:30",
+          "hora_fin": "17:30",
+          "num_alumnos": 2,
+          "curso": "EE303",
+          "capacidad_aula": 24,
+          "utilizacion_aula": 8.333333333333332,
+          "slot_temporal": "Lunes_15:30-17:30"
+        },
+        {
+          "asignatura": "SII",
+          "grupo": "SII_G1",
+          "aula": "lab info",
+          "profesor": "Juan Perez",
+          "profesor_id": "7fda7950-3abd-4663-806b-73429f6e75cc",
+          "dia": "Lunes",
+          "hora_inicio": "15:30",
+          "hora_fin": "17:30",
+          "num_alumnos": 2,
+          "curso": "EE303",
+          "capacidad_aula": 24,
+          "utilizacion_aula": 8.333333333333332,
+          "slot_temporal": "Lunes_15:30-17:30"
+        },
+        {
+          "asignatura": "SII",
+          "grupo": "SII_G1",
+          "aula": "lab info",
+          "profesor": "Juan Perez",
+          "profesor_id": "7fda7950-3abd-4663-806b-73429f6e75cc",
+          "dia": "Lunes",
+          "hora_inicio": "15:30",
+          "hora_fin": "17:30",
+          "num_alumnos": 2,
+          "curso": "EE303",
+          "capacidad_aula": 24,
+          "utilizacion_aula": 8.333333333333332,
+          "slot_temporal": "Lunes_15:30-17:30"
+        },
+        {
+          "asignatura": "SII",
+          "grupo": "SII_G1",
+          "aula": "lab info",
+          "profesor": "Juan Perez",
+          "profesor_id": "7fda7950-3abd-4663-806b-73429f6e75cc",
+          "dia": "Lunes",
+          "hora_inicio": "15:30",
+          "hora_fin": "17:30",
+          "num_alumnos": 2,
+          "curso": "EE303",
+          "capacidad_aula": 24,
+          "utilizacion_aula": 8.333333333333332,
+          "slot_temporal": "Lunes_15:30-17:30"
+        },
+        {
+          "asignatura": "SII",
+          "grupo": "SII_G1",
+          "aula": "lab info",
+          "profesor": "Juan Perez",
+          "profesor_id": "7fda7950-3abd-4663-806b-73429f6e75cc",
+          "dia": "Miércoles",
+          "hora_inicio": "15:30",
+          "hora_fin": "17:30",
+          "num_alumnos": 2,
+          "curso": "EE303",
+          "capacidad_aula": 24,
+          "utilizacion_aula": 8.333333333333332,
+          "slot_temporal": "Miércoles_15:30-17:30"
+        },
+        {
+          "asignatura": "SII",
+          "grupo": "SII_G1",
+          "aula": "lab info",
+          "profesor": "Juan Perez",
+          "profesor_id": "7fda7950-3abd-4663-806b-73429f6e75cc",
+          "dia": "Miércoles",
+          "hora_inicio": "15:30",
+          "hora_fin": "17:30",
+          "num_alumnos": 2,
+          "curso": "EE303",
+          "capacidad_aula": 24,
+          "utilizacion_aula": 8.333333333333332,
+          "slot_temporal": "Miércoles_15:30-17:30"
+        },
+        {
+          "asignatura": "SII",
+          "grupo": "SII_G1",
+          "aula": "lab info",
+          "profesor": "Juan Perez",
+          "profesor_id": "7fda7950-3abd-4663-806b-73429f6e75cc",
+          "dia": "Miércoles",
+          "hora_inicio": "15:30",
+          "hora_fin": "17:30",
+          "num_alumnos": 2,
+          "curso": "EE303",
+          "capacidad_aula": 24,
+          "utilizacion_aula": 8.333333333333332,
+          "slot_temporal": "Miércoles_15:30-17:30"
+        },
+        {
+          "asignatura": "SII",
+          "grupo": "SII_G1",
+          "aula": "lab info",
+          "profesor": "Juan Perez",
+          "profesor_id": "7fda7950-3abd-4663-806b-73429f6e75cc",
+          "dia": "Lunes",
+          "hora_inicio": "17:30",
+          "hora_fin": "19:30",
+          "num_alumnos": 2,
+          "curso": "EE303",
+          "capacidad_aula": 24,
+          "utilizacion_aula": 8.333333333333332,
+          "slot_temporal": "Lunes_17:30-19:30"
+        },
+        {
+          "asignatura": "SII",
+          "grupo": "SII_G1",
+          "aula": "lab info",
+          "profesor": "Juan Perez",
+          "profesor_id": "7fda7950-3abd-4663-806b-73429f6e75cc",
+          "dia": "Lunes",
+          "hora_inicio": "17:30",
+          "hora_fin": "19:30",
+          "num_alumnos": 2,
+          "curso": "EE303",
+          "capacidad_aula": 24,
+          "utilizacion_aula": 8.333333333333332,
+          "slot_temporal": "Lunes_17:30-19:30"
+        },
+        {
+          "asignatura": "SII",
+          "grupo": "SII_G1",
+          "aula": "lab info",
+          "profesor": "Juan Perez",
+          "profesor_id": "7fda7950-3abd-4663-806b-73429f6e75cc",
+          "dia": "Lunes",
+          "hora_inicio": "17:30",
+          "hora_fin": "19:30",
+          "num_alumnos": 2,
+          "curso": "EE303",
+          "capacidad_aula": 24,
+          "utilizacion_aula": 8.333333333333332,
+          "slot_temporal": "Lunes_17:30-19:30"
+        },
+        {
+          "asignatura": "SII",
+          "grupo": "SII_G2",
+          "aula": "lab info",
+          "profesor": "Juan Perez",
+          "profesor_id": "7fda7950-3abd-4663-806b-73429f6e75cc",
+          "dia": "Lunes",
+          "hora_inicio": "15:30",
+          "hora_fin": "17:30",
+          "num_alumnos": 2,
+          "curso": "A302",
+          "capacidad_aula": 24,
+          "utilizacion_aula": 8.333333333333332,
+          "slot_temporal": "Lunes_15:30-17:30"
+        },
+        {
+          "asignatura": "SII",
+          "grupo": "SII_G2",
+          "aula": "lab info",
+          "profesor": "Juan Perez",
+          "profesor_id": "7fda7950-3abd-4663-806b-73429f6e75cc",
+          "dia": "Lunes",
+          "hora_inicio": "15:30",
+          "hora_fin": "17:30",
+          "num_alumnos": 2,
+          "curso": "A302",
+          "capacidad_aula": 24,
+          "utilizacion_aula": 8.333333333333332,
+          "slot_temporal": "Lunes_15:30-17:30"
+        },
+        {
+          "asignatura": "SII",
+          "grupo": "SII_G2",
+          "aula": "lab info",
+          "profesor": "Juan Perez",
+          "profesor_id": "7fda7950-3abd-4663-806b-73429f6e75cc",
+          "dia": "Lunes",
+          "hora_inicio": "15:30",
+          "hora_fin": "17:30",
+          "num_alumnos": 2,
+          "curso": "A302",
+          "capacidad_aula": 24,
+          "utilizacion_aula": 8.333333333333332,
+          "slot_temporal": "Lunes_15:30-17:30"
+        },
+        {
+          "asignatura": "SII",
+          "grupo": "SII_G2",
+          "aula": "lab info",
+          "profesor": "Juan Perez",
+          "profesor_id": "7fda7950-3abd-4663-806b-73429f6e75cc",
+          "dia": "Lunes",
+          "hora_inicio": "15:30",
+          "hora_fin": "17:30",
+          "num_alumnos": 2,
+          "curso": "A302",
+          "capacidad_aula": 24,
+          "utilizacion_aula": 8.333333333333332,
+          "slot_temporal": "Lunes_15:30-17:30"
+        },
+        {
+          "asignatura": "SII",
+          "grupo": "SII_G2",
+          "aula": "lab info",
+          "profesor": "Juan Perez",
+          "profesor_id": "7fda7950-3abd-4663-806b-73429f6e75cc",
+          "dia": "Miércoles",
+          "hora_inicio": "15:30",
+          "hora_fin": "17:30",
+          "num_alumnos": 2,
+          "curso": "A302",
+          "capacidad_aula": 24,
+          "utilizacion_aula": 8.333333333333332,
+          "slot_temporal": "Miércoles_15:30-17:30"
+        },
+        {
+          "asignatura": "SII",
+          "grupo": "SII_G2",
+          "aula": "lab info",
+          "profesor": "Juan Perez",
+          "profesor_id": "7fda7950-3abd-4663-806b-73429f6e75cc",
+          "dia": "Miércoles",
+          "hora_inicio": "15:30",
+          "hora_fin": "17:30",
+          "num_alumnos": 2,
+          "curso": "A302",
+          "capacidad_aula": 24,
+          "utilizacion_aula": 8.333333333333332,
+          "slot_temporal": "Miércoles_15:30-17:30"
+        },
+        {
+          "asignatura": "SII",
+          "grupo": "SII_G2",
+          "aula": "lab info",
+          "profesor": "Juan Perez",
+          "profesor_id": "7fda7950-3abd-4663-806b-73429f6e75cc",
+          "dia": "Miércoles",
+          "hora_inicio": "15:30",
+          "hora_fin": "17:30",
+          "num_alumnos": 2,
+          "curso": "A302",
+          "capacidad_aula": 24,
+          "utilizacion_aula": 8.333333333333332,
+          "slot_temporal": "Miércoles_15:30-17:30"
+        },
+        {
+          "asignatura": "SII",
+          "grupo": "SII_G2",
+          "aula": "lab info",
+          "profesor": "Juan Perez",
+          "profesor_id": "7fda7950-3abd-4663-806b-73429f6e75cc",
+          "dia": "Lunes",
+          "hora_inicio": "17:30",
+          "hora_fin": "19:30",
+          "num_alumnos": 2,
+          "curso": "A302",
+          "capacidad_aula": 24,
+          "utilizacion_aula": 8.333333333333332,
+          "slot_temporal": "Lunes_17:30-19:30"
+        },
+        {
+          "asignatura": "SII",
+          "grupo": "SII_G2",
+          "aula": "lab info",
+          "profesor": "Juan Perez",
+          "profesor_id": "7fda7950-3abd-4663-806b-73429f6e75cc",
+          "dia": "Lunes",
+          "hora_inicio": "17:30",
+          "hora_fin": "19:30",
+          "num_alumnos": 2,
+          "curso": "A302",
+          "capacidad_aula": 24,
+          "utilizacion_aula": 8.333333333333332,
+          "slot_temporal": "Lunes_17:30-19:30"
+        },
+        {
+          "asignatura": "SII",
+          "grupo": "SII_G2",
+          "aula": "lab info",
+          "profesor": "Juan Perez",
+          "profesor_id": "7fda7950-3abd-4663-806b-73429f6e75cc",
+          "dia": "Lunes",
+          "hora_inicio": "17:30",
+          "hora_fin": "19:30",
+          "num_alumnos": 2,
+          "curso": "A302",
+          "capacidad_aula": 24,
+          "utilizacion_aula": 8.333333333333332,
+          "slot_temporal": "Lunes_17:30-19:30"
+        },
+        {
+          "asignatura": "SII",
+          "grupo": "SII_G3",
+          "aula": "lab info",
+          "profesor": "Juan Perez",
+          "profesor_id": "7fda7950-3abd-4663-806b-73429f6e75cc",
+          "dia": "Lunes",
+          "hora_inicio": "15:30",
+          "hora_fin": "17:30",
+          "num_alumnos": 2,
+          "curso": "A302",
+          "capacidad_aula": 24,
+          "utilizacion_aula": 8.333333333333332,
+          "slot_temporal": "Lunes_15:30-17:30"
+        },
+        {
+          "asignatura": "SII",
+          "grupo": "SII_G3",
+          "aula": "lab info",
+          "profesor": "Juan Perez",
+          "profesor_id": "7fda7950-3abd-4663-806b-73429f6e75cc",
+          "dia": "Lunes",
+          "hora_inicio": "15:30",
+          "hora_fin": "17:30",
+          "num_alumnos": 2,
+          "curso": "A302",
+          "capacidad_aula": 24,
+          "utilizacion_aula": 8.333333333333332,
+          "slot_temporal": "Lunes_15:30-17:30"
+        },
+        {
+          "asignatura": "SII",
+          "grupo": "SII_G3",
+          "aula": "lab info",
+          "profesor": "Juan Perez",
+          "profesor_id": "7fda7950-3abd-4663-806b-73429f6e75cc",
+          "dia": "Lunes",
+          "hora_inicio": "15:30",
+          "hora_fin": "17:30",
+          "num_alumnos": 2,
+          "curso": "A302",
+          "capacidad_aula": 24,
+          "utilizacion_aula": 8.333333333333332,
+          "slot_temporal": "Lunes_15:30-17:30"
+        },
+        {
+          "asignatura": "SII",
+          "grupo": "SII_G3",
+          "aula": "lab info",
+          "profesor": "Juan Perez",
+          "profesor_id": "7fda7950-3abd-4663-806b-73429f6e75cc",
+          "dia": "Lunes",
+          "hora_inicio": "15:30",
+          "hora_fin": "17:30",
+          "num_alumnos": 2,
+          "curso": "A302",
+          "capacidad_aula": 24,
+          "utilizacion_aula": 8.333333333333332,
+          "slot_temporal": "Lunes_15:30-17:30"
+        },
+        {
+          "asignatura": "SII",
+          "grupo": "SII_G3",
+          "aula": "lab info",
+          "profesor": "Juan Perez",
+          "profesor_id": "7fda7950-3abd-4663-806b-73429f6e75cc",
+          "dia": "Miércoles",
+          "hora_inicio": "15:30",
+          "hora_fin": "17:30",
+          "num_alumnos": 2,
+          "curso": "A302",
+          "capacidad_aula": 24,
+          "utilizacion_aula": 8.333333333333332,
+          "slot_temporal": "Miércoles_15:30-17:30"
+        },
+        {
+          "asignatura": "SII",
+          "grupo": "SII_G3",
+          "aula": "lab info",
+          "profesor": "Juan Perez",
+          "profesor_id": "7fda7950-3abd-4663-806b-73429f6e75cc",
+          "dia": "Miércoles",
+          "hora_inicio": "15:30",
+          "hora_fin": "17:30",
+          "num_alumnos": 2,
+          "curso": "A302",
+          "capacidad_aula": 24,
+          "utilizacion_aula": 8.333333333333332,
+          "slot_temporal": "Miércoles_15:30-17:30"
+        },
+        {
+          "asignatura": "SII",
+          "grupo": "SII_G3",
+          "aula": "lab info",
+          "profesor": "Juan Perez",
+          "profesor_id": "7fda7950-3abd-4663-806b-73429f6e75cc",
+          "dia": "Miércoles",
+          "hora_inicio": "15:30",
+          "hora_fin": "17:30",
+          "num_alumnos": 2,
+          "curso": "A302",
+          "capacidad_aula": 24,
+          "utilizacion_aula": 8.333333333333332,
+          "slot_temporal": "Miércoles_15:30-17:30"
+        },
+        {
+          "asignatura": "SII",
+          "grupo": "SII_G3",
+          "aula": "lab info",
+          "profesor": "Juan Perez",
+          "profesor_id": "7fda7950-3abd-4663-806b-73429f6e75cc",
+          "dia": "Lunes",
+          "hora_inicio": "17:30",
+          "hora_fin": "19:30",
+          "num_alumnos": 2,
+          "curso": "A302",
+          "capacidad_aula": 24,
+          "utilizacion_aula": 8.333333333333332,
+          "slot_temporal": "Lunes_17:30-19:30"
+        },
+        {
+          "asignatura": "SII",
+          "grupo": "SII_G3",
+          "aula": "lab info",
+          "profesor": "Juan Perez",
+          "profesor_id": "7fda7950-3abd-4663-806b-73429f6e75cc",
+          "dia": "Lunes",
+          "hora_inicio": "17:30",
+          "hora_fin": "19:30",
+          "num_alumnos": 2,
+          "curso": "A302",
+          "capacidad_aula": 24,
+          "utilizacion_aula": 8.333333333333332,
+          "slot_temporal": "Lunes_17:30-19:30"
+        },
+        {
+          "asignatura": "SII",
+          "grupo": "SII_G3",
+          "aula": "lab info",
+          "profesor": "Juan Perez",
+          "profesor_id": "7fda7950-3abd-4663-806b-73429f6e75cc",
+          "dia": "Lunes",
+          "hora_inicio": "17:30",
+          "hora_fin": "19:30",
+          "num_alumnos": 2,
+          "curso": "A302",
+          "capacidad_aula": 24,
+          "utilizacion_aula": 8.333333333333332,
+          "slot_temporal": "Lunes_17:30-19:30"
+        },
+        {
+          "asignatura": "SII",
+          "grupo": "SII_G4",
+          "aula": "lab info",
+          "profesor": "Juan Perez",
+          "profesor_id": "7fda7950-3abd-4663-806b-73429f6e75cc",
+          "dia": "Lunes",
+          "hora_inicio": "15:30",
+          "hora_fin": "17:30",
+          "num_alumnos": 2,
+          "curso": "A302",
+          "capacidad_aula": 24,
+          "utilizacion_aula": 8.333333333333332,
+          "slot_temporal": "Lunes_15:30-17:30"
+        },
+        {
+          "asignatura": "SII",
+          "grupo": "SII_G4",
+          "aula": "lab info",
+          "profesor": "Juan Perez",
+          "profesor_id": "7fda7950-3abd-4663-806b-73429f6e75cc",
+          "dia": "Lunes",
+          "hora_inicio": "15:30",
+          "hora_fin": "17:30",
+          "num_alumnos": 2,
+          "curso": "A302",
+          "capacidad_aula": 24,
+          "utilizacion_aula": 8.333333333333332,
+          "slot_temporal": "Lunes_15:30-17:30"
+        },
+        {
+          "asignatura": "SII",
+          "grupo": "SII_G4",
+          "aula": "lab info",
+          "profesor": "Juan Perez",
+          "profesor_id": "7fda7950-3abd-4663-806b-73429f6e75cc",
+          "dia": "Lunes",
+          "hora_inicio": "15:30",
+          "hora_fin": "17:30",
+          "num_alumnos": 2,
+          "curso": "A302",
+          "capacidad_aula": 24,
+          "utilizacion_aula": 8.333333333333332,
+          "slot_temporal": "Lunes_15:30-17:30"
+        },
+        {
+          "asignatura": "SII",
+          "grupo": "SII_G4",
+          "aula": "lab info",
+          "profesor": "Juan Perez",
+          "profesor_id": "7fda7950-3abd-4663-806b-73429f6e75cc",
+          "dia": "Lunes",
+          "hora_inicio": "15:30",
+          "hora_fin": "17:30",
+          "num_alumnos": 2,
+          "curso": "A302",
+          "capacidad_aula": 24,
+          "utilizacion_aula": 8.333333333333332,
+          "slot_temporal": "Lunes_15:30-17:30"
+        },
+        {
+          "asignatura": "SII",
+          "grupo": "SII_G4",
+          "aula": "lab info",
+          "profesor": "Juan Perez",
+          "profesor_id": "7fda7950-3abd-4663-806b-73429f6e75cc",
+          "dia": "Miércoles",
+          "hora_inicio": "15:30",
+          "hora_fin": "17:30",
+          "num_alumnos": 2,
+          "curso": "A302",
+          "capacidad_aula": 24,
+          "utilizacion_aula": 8.333333333333332,
+          "slot_temporal": "Miércoles_15:30-17:30"
+        },
+        {
+          "asignatura": "SII",
+          "grupo": "SII_G4",
+          "aula": "lab info",
+          "profesor": "Juan Perez",
+          "profesor_id": "7fda7950-3abd-4663-806b-73429f6e75cc",
+          "dia": "Miércoles",
+          "hora_inicio": "15:30",
+          "hora_fin": "17:30",
+          "num_alumnos": 2,
+          "curso": "A302",
+          "capacidad_aula": 24,
+          "utilizacion_aula": 8.333333333333332,
+          "slot_temporal": "Miércoles_15:30-17:30"
+        },
+        {
+          "asignatura": "SII",
+          "grupo": "SII_G4",
+          "aula": "lab info",
+          "profesor": "Juan Perez",
+          "profesor_id": "7fda7950-3abd-4663-806b-73429f6e75cc",
+          "dia": "Miércoles",
+          "hora_inicio": "15:30",
+          "hora_fin": "17:30",
+          "num_alumnos": 2,
+          "curso": "A302",
+          "capacidad_aula": 24,
+          "utilizacion_aula": 8.333333333333332,
+          "slot_temporal": "Miércoles_15:30-17:30"
+        },
+        {
+          "asignatura": "SII",
+          "grupo": "SII_G4",
+          "aula": "lab info",
+          "profesor": "Juan Perez",
+          "profesor_id": "7fda7950-3abd-4663-806b-73429f6e75cc",
+          "dia": "Lunes",
+          "hora_inicio": "17:30",
+          "hora_fin": "19:30",
+          "num_alumnos": 2,
+          "curso": "A302",
+          "capacidad_aula": 24,
+          "utilizacion_aula": 8.333333333333332,
+          "slot_temporal": "Lunes_17:30-19:30"
+        },
+        {
+          "asignatura": "SII",
+          "grupo": "SII_G4",
+          "aula": "lab info",
+          "profesor": "Juan Perez",
+          "profesor_id": "7fda7950-3abd-4663-806b-73429f6e75cc",
+          "dia": "Lunes",
+          "hora_inicio": "17:30",
+          "hora_fin": "19:30",
+          "num_alumnos": 2,
+          "curso": "A302",
+          "capacidad_aula": 24,
+          "utilizacion_aula": 8.333333333333332,
+          "slot_temporal": "Lunes_17:30-19:30"
+        },
+        {
+          "asignatura": "SII",
+          "grupo": "SII_G4",
+          "aula": "lab info",
+          "profesor": "Juan Perez",
+          "profesor_id": "7fda7950-3abd-4663-806b-73429f6e75cc",
+          "dia": "Lunes",
+          "hora_inicio": "17:30",
+          "hora_fin": "19:30",
+          "num_alumnos": 2,
+          "curso": "A302",
+          "capacidad_aula": 24,
+          "utilizacion_aula": 8.333333333333332,
+          "slot_temporal": "Lunes_17:30-19:30"
+        }
+      ],
+      "problemas": [
+        {
+          "id": 1,
+          "tipo": "Restricción dura violada",
+          "descripcion": "CONFLICTO TEMPORAL: Profesor 7fda7950-3abd-4663-806b-73429f6e75cc asignado simultáneamente en Lunes_15:30-17:30 a aulas lab info, lab info, lab info, lab info, lab info, lab info, lab info, lab info, lab info, lab info, lab info, lab info, lab info, lab info, lab info, lab info",
+          "severidad": "Alta",
+          "afecta": "Asignación específica"
+        },
+        {
+          "id": 2,
+          "tipo": "Restricción dura violada",
+          "descripcion": "CONFLICTO TEMPORAL: Profesor 0ed06d65-e792-4e3d-a219-8f1cfabe6de4 asignado simultáneamente en Lunes_15:30-17:30 a aulas lab sei, lab sei, lab sei, lab sei, lab sei, lab sei",
+          "severidad": "Alta",
+          "afecta": "Asignación específica"
+        },
+        {
+          "id": 3,
+          "tipo": "Restricción dura violada",
+          "descripcion": "CONFLICTO TEMPORAL: Profesor dadd8f7a-3775-47e2-b9d7-49b1a5b58d0c asignado simultáneamente en Lunes_15:30-17:30 a aulas lab sei, lab sei, lab sei, lab sei, lab sei, lab sei",
+          "severidad": "Alta",
+          "afecta": "Asignación específica"
+        },
+        {
+          "id": 4,
+          "tipo": "Restricción dura violada",
+          "descripcion": "CONFLICTO TEMPORAL: Aula lab sei asignada simultáneamente en Lunes_15:30-17:30 a asignaturas SEI, SEI, SEI, SEI, SEI, SEI, SEI, SEI, SEI, SEI, SEI, SEI",
+          "severidad": "Alta",
+          "afecta": "Asignación específica"
+        },
+        {
+          "id": 5,
+          "tipo": "Restricción dura violada",
+          "descripcion": "CONFLICTO TEMPORAL: Aula lab info asignada simultáneamente en Lunes_15:30-17:30 a asignaturas SII, SII, SII, SII, SII, SII, SII, SII, SII, SII, SII, SII, SII, SII, SII, SII",
+          "severidad": "Alta",
+          "afecta": "Asignación específica"
+        },
+        {
+          "id": 6,
+          "tipo": "Restricción dura violada",
+          "descripcion": "CONFLICTO TEMPORAL: Profesor 7fda7950-3abd-4663-806b-73429f6e75cc asignado simultáneamente en Miércoles_15:30-17:30 a aulas lab info, lab info, lab info, lab info, lab info, lab info, lab info, lab info, lab info, lab info, lab info, lab info",
+          "severidad": "Alta",
+          "afecta": "Asignación específica"
+        },
+        {
+          "id": 7,
+          "tipo": "Restricción dura violada",
+          "descripcion": "CONFLICTO TEMPORAL: Profesor 0ed06d65-e792-4e3d-a219-8f1cfabe6de4 asignado simultáneamente en Miércoles_15:30-17:30 a aulas lab sei, lab sei, lab sei, lab sei, lab sei, lab sei",
+          "severidad": "Alta",
+          "afecta": "Asignación específica"
+        },
+        {
+          "id": 8,
+          "tipo": "Restricción dura violada",
+          "descripcion": "CONFLICTO TEMPORAL: Profesor dadd8f7a-3775-47e2-b9d7-49b1a5b58d0c asignado simultáneamente en Miércoles_15:30-17:30 a aulas lab sei, lab sei, lab sei, lab sei, lab sei, lab sei",
+          "severidad": "Alta",
+          "afecta": "Asignación específica"
+        },
+        {
+          "id": 9,
+          "tipo": "Restricción dura violada",
+          "descripcion": "CONFLICTO TEMPORAL: Aula lab sei asignada simultáneamente en Miércoles_15:30-17:30 a asignaturas SEI, SEI, SEI, SEI, SEI, SEI, SEI, SEI, SEI, SEI, SEI, SEI",
+          "severidad": "Alta",
+          "afecta": "Asignación específica"
+        },
+        {
+          "id": 10,
+          "tipo": "Restricción dura violada",
+          "descripcion": "CONFLICTO TEMPORAL: Aula lab info asignada simultáneamente en Miércoles_15:30-17:30 a asignaturas SII, SII, SII, SII, SII, SII, SII, SII, SII, SII, SII, SII",
+          "severidad": "Alta",
+          "afecta": "Asignación específica"
+        },
+        {
+          "id": 11,
+          "tipo": "Restricción dura violada",
+          "descripcion": "CONFLICTO TEMPORAL: Profesor 7fda7950-3abd-4663-806b-73429f6e75cc asignado simultáneamente en Lunes_17:30-19:30 a aulas lab info, lab info, lab info, lab info, lab info, lab info, lab info, lab info, lab info, lab info, lab info, lab info",
+          "severidad": "Alta",
+          "afecta": "Asignación específica"
+        },
+        {
+          "id": 12,
+          "tipo": "Restricción dura violada",
+          "descripcion": "CONFLICTO TEMPORAL: Profesor 0ed06d65-e792-4e3d-a219-8f1cfabe6de4 asignado simultáneamente en Lunes_17:30-19:30 a aulas lab sei, lab sei, lab sei, lab sei, lab sei, lab sei",
+          "severidad": "Alta",
+          "afecta": "Asignación específica"
+        },
+        {
+          "id": 13,
+          "tipo": "Restricción dura violada",
+          "descripcion": "CONFLICTO TEMPORAL: Profesor dadd8f7a-3775-47e2-b9d7-49b1a5b58d0c asignado simultáneamente en Lunes_17:30-19:30 a aulas lab sei, lab sei, lab sei, lab sei, lab sei, lab sei",
+          "severidad": "Alta",
+          "afecta": "Asignación específica"
+        },
+        {
+          "id": 14,
+          "tipo": "Restricción dura violada",
+          "descripcion": "CONFLICTO TEMPORAL: Aula lab sei asignada simultáneamente en Lunes_17:30-19:30 a asignaturas SEI, SEI, SEI, SEI, SEI, SEI, SEI, SEI, SEI, SEI, SEI, SEI",
+          "severidad": "Alta",
+          "afecta": "Asignación específica"
+        },
+        {
+          "id": 15,
+          "tipo": "Restricción dura violada",
+          "descripcion": "CONFLICTO TEMPORAL: Aula lab info asignada simultáneamente en Lunes_17:30-19:30 a asignaturas SII, SII, SII, SII, SII, SII, SII, SII, SII, SII, SII, SII",
+          "severidad": "Alta",
+          "afecta": "Asignación específica"
+        },
+        {
+          "id": 16,
+          "tipo": "Restricción dura violada",
+          "descripcion": "CONFLICTO TEMPORAL: Profesor 0ed06d65-e792-4e3d-a219-8f1cfabe6de4 asignado simultáneamente en Jueves_17:30-19:30 a aulas lab sei, lab sei, lab sei, lab sei, lab sei, lab sei",
+          "severidad": "Alta",
+          "afecta": "Asignación específica"
+        },
+        {
+          "id": 17,
+          "tipo": "Restricción dura violada",
+          "descripcion": "CONFLICTO TEMPORAL: Profesor dadd8f7a-3775-47e2-b9d7-49b1a5b58d0c asignado simultáneamente en Jueves_17:30-19:30 a aulas lab sei, lab sei, lab sei, lab sei, lab sei, lab sei",
+          "severidad": "Alta",
+          "afecta": "Asignación específica"
+        },
+        {
+          "id": 18,
+          "tipo": "Restricción dura violada",
+          "descripcion": "CONFLICTO TEMPORAL: Aula lab sei asignada simultáneamente en Jueves_17:30-19:30 a asignaturas SEI, SEI, SEI, SEI, SEI, SEI, SEI, SEI, SEI, SEI, SEI, SEI",
+          "severidad": "Alta",
+          "afecta": "Asignación específica"
+        },
+        {
+          "id": 19,
+          "tipo": "Restricción dura violada",
+          "descripcion": "GRUPO NO PERMITIDO: EE303 no puede cursar SII en Miércoles 15:30-17:30. Grupos permitidos: A302",
+          "severidad": "Alta",
+          "afecta": "Asignación específica"
+        },
+        {
+          "id": 20,
+          "tipo": "Restricción dura violada",
+          "descripcion": "GRUPO NO PERMITIDO: EE303 no puede cursar SII en Miércoles 15:30-17:30. Grupos permitidos: A302",
+          "severidad": "Alta",
+          "afecta": "Asignación específica"
+        },
+        {
+          "id": 21,
+          "tipo": "Restricción dura violada",
+          "descripcion": "GRUPO NO PERMITIDO: EE303 no puede cursar SII en Miércoles 15:30-17:30. Grupos permitidos: A302",
+          "severidad": "Alta",
+          "afecta": "Asignación específica"
+        },
+        {
+          "id": 22,
+          "tipo": "Restricción dura violada",
+          "descripcion": "GRUPO NO PERMITIDO: EE303 no puede cursar SII en Lunes 17:30-19:30. Grupos permitidos: A302",
+          "severidad": "Alta",
+          "afecta": "Asignación específica"
+        },
+        {
+          "id": 23,
+          "tipo": "Restricción dura violada",
+          "descripcion": "GRUPO NO PERMITIDO: EE303 no puede cursar SII en Lunes 17:30-19:30. Grupos permitidos: A302",
+          "severidad": "Alta",
+          "afecta": "Asignación específica"
+        },
+        {
+          "id": 24,
+          "tipo": "Restricción dura violada",
+          "descripcion": "GRUPO NO PERMITIDO: EE303 no puede cursar SII en Lunes 17:30-19:30. Grupos permitidos: A302",
+          "severidad": "Alta",
+          "afecta": "Asignación específica"
+        }
+      ],
+      "grupos_por_asignatura": {
+        "SEI": [
+          {
+            "grupo_id": "SEI_G1",
+            "num_alumnos": 14,
+            "curso_principal": "A302",
+            "tiene_doble_grado": true,
+            "alumnos": [
+              "671921A",
+              "232224A",
+              "53851901",
+              "71371894",
+              "51476600",
+              "50572716",
+              "9104694",
+              "55022198",
+              "21115643",
+              "DCP547868",
+              "3941450",
+              "70068948",
+              "YC8350549",
+              "77481076"
+            ]
+          },
+          {
+            "grupo_id": "SEI_G2",
+            "num_alumnos": 14,
+            "curso_principal": "A302",
+            "tiene_doble_grado": false,
+            "alumnos": [
+              "51199324",
+              "54363023",
+              "54976306",
+              "5956642",
+              "51191346",
+              "43470571",
+              "53993128",
+              "78228827",
+              "53472377",
+              "70420909",
+              "53980770",
+              "49365019",
+              "47291937",
+              "2322249"
+            ]
+          },
+          {
+            "grupo_id": "SEI_G3",
+            "num_alumnos": 14,
+            "curso_principal": "A302",
+            "tiene_doble_grado": false,
+            "alumnos": [
+              "3238317",
+              "2775904",
+              "70069877",
+              "3208393",
+              "4240321",
+              "5950735",
+              "3031410",
+              "79059925",
+              "53846408",
+              "49391665",
+              "54197397",
+              "6024289",
+              "6632059",
+              "70833659"
+            ]
+          },
+          {
+            "grupo_id": "SEI_G4",
+            "num_alumnos": 14,
+            "curso_principal": "A302",
+            "tiene_doble_grado": false,
+            "alumnos": [
+              "6595225",
+              "54721161",
+              "51550083",
+              "3487476",
+              "3953512",
+              "50479157",
+              "54838914",
+              "9149386",
+              "6008748",
+              "2776786",
+              "49155207",
+              "50502125",
+              "35719895",
+              "54157689"
+            ]
+          },
+          {
+            "grupo_id": "SEI_G5",
+            "num_alumnos": 14,
+            "curso_principal": "A302",
+            "tiene_doble_grado": false,
+            "alumnos": [
+              "11100471",
+              "50771036",
+              "2334400",
+              "54025803",
+              "51760419",
+              "49104167",
+              "76061803",
+              "Y7958755",
+              "50632038",
+              "51515956",
+              "51542960",
+              "4631384",
+              "72326962",
+              "Y6971297"
+            ]
+          },
+          {
+            "grupo_id": "SEI_G6",
+            "num_alumnos": 13,
+            "curso_principal": "A302",
+            "tiene_doble_grado": false,
+            "alumnos": [
+              "5964566",
+              "Y0864835",
+              "Y2460702",
+              "49229398",
+              "51999937",
+              "6286184",
+              "6719214",
+              "11896544",
+              "51131833",
+              "51762439",
+              "2743818",
+              "5954984",
+              "53850991"
+            ]
+          }
+        ],
+        "SII": [
+          {
+            "grupo_id": "SII_G1",
+            "num_alumnos": 2,
+            "curso_principal": "EE303",
+            "tiene_doble_grado": true,
+            "alumnos": [
+              "671921A",
+              "79059925"
+            ]
+          },
+          {
+            "grupo_id": "SII_G2",
+            "num_alumnos": 2,
+            "curso_principal": "A302",
+            "tiene_doble_grado": false,
+            "alumnos": [
+              "21115643",
+              "16872"
+            ]
+          },
+          {
+            "grupo_id": "SII_G3",
+            "num_alumnos": 2,
+            "curso_principal": "A302",
+            "tiene_doble_grado": false,
+            "alumnos": [
+              "53846408",
+              "51191346"
+            ]
+          },
+          {
+            "grupo_id": "SII_G4",
+            "num_alumnos": 2,
+            "curso_principal": "A302",
+            "tiene_doble_grado": false,
+            "alumnos": [
+              "70069877",
+              "53980770"
+            ]
+          }
+        ]
+      },
+      "estadisticas_detalladas": {
+        "generacion_grupos": {
+          "total_grupos_generados": 0,
+          "grupos_equilibrados": 4,
+          "grupos_pares": 0,
+          "alumnos_doble_grado_priorizados": 3,
+          "diferencia_max_encontrada": 0,
+          "timestamp_generacion": null
+        },
+        "asignacion_recursos": {
+          "total_grupos_procesados": 10,
+          "grupos_asignados_exitosamente": 10,
+          "grupos_sin_asignar": 0,
+          "intercambios_realizados": 0,
+          "conflictos_resueltos": 0,
+          "utilizacion_promedio_aulas": 35.227272727272776,
+          "timestamp_asignacion": "2025-07-14T19:23:57.636378"
+        },
+        "optimizacion": {
+          "puntuacion_inicial": 0,
+          "puntuacion_final": 0,
+          "mejora_porcentual": 0,
+          "total_intercambios": 0,
+          "conflictos_resueltos": 0,
+          "optimizaciones_aplicadas": [
+            "Horas tempranas: 88 oportunidades identificadas",
+            "Utilización aulas: 88 aulas identificadas para optimización",
+            "Distribución profesores: desequilibrio de 16 grupos detectado",
+            "Conflictos alumnos: 568 detectados"
+          ],
+          "timestamp_optimizacion": "2025-07-14T19:23:57.638389"
+        }
+      },
+      "resumen_ejecucion": {
+        "total_asignaturas_procesadas": 2,
+        "total_grupos_generados": 10,
+        "total_asignaciones": 88,
+        "total_problemas": 24,
+        "total_intercambios": 0,
+        "duracion_proceso": "completado"
+      }
     },
-    "historial_ejecuciones": []
+    "resumen": {
+      "total_grupos": 10,
+      "grupos_asignados": 10,
+      "conflictos_detectados": 24,
+      "porcentaje_exito": 100.0
+    },
+    "historial_ejecuciones": [
+      {
+        "timestamp": "2025-07-14T19:13:55.607473",
+        "resumen": {
+          "total_grupos": 10,
+          "grupos_asignados": 88,
+          "conflictos_detectados": 18,
+          "porcentaje_exito": 880.0000000000001
+        },
+        "total_horarios": 88,
+        "total_problemas": 18
+      },
+      {
+        "timestamp": "2025-07-14T19:15:45.669386",
+        "resumen": {
+          "total_grupos": 10,
+          "grupos_asignados": 88,
+          "conflictos_detectados": 18,
+          "porcentaje_exito": 880.0000000000001
+        },
+        "total_horarios": 88,
+        "total_problemas": 18
+      },
+      {
+        "timestamp": "2025-07-14T19:16:48.429239",
+        "resumen": {
+          "total_grupos": 10,
+          "grupos_asignados": 88,
+          "conflictos_detectados": 18,
+          "porcentaje_exito": 880.0000000000001
+        },
+        "total_horarios": 88,
+        "total_problemas": 18
+      },
+      {
+        "timestamp": "2025-07-14T19:19:20.167057",
+        "resumen": {
+          "total_grupos": 7,
+          "grupos_asignados": 58,
+          "conflictos_detectados": 18,
+          "porcentaje_exito": 828.5714285714287
+        },
+        "total_horarios": 58,
+        "total_problemas": 18
+      },
+      {
+        "timestamp": "2025-07-14T19:23:57.643831",
+        "resumen": {
+          "total_grupos": 10,
+          "grupos_asignados": 10,
+          "conflictos_detectados": 24,
+          "porcentaje_exito": 100.0
+        },
+        "total_horarios": 88,
+        "total_problemas": 24
+      }
+    ]
   }
 }

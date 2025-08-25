@@ -164,19 +164,29 @@ class GestionAlumnoDialog(QDialog):
         datos_personales_group.setLayout(datos_personales_layout)
         layout.addWidget(datos_personales_group)
 
-        # 🎓 DATOS ACADÉMICOS
-        datos_academicos_group = QGroupBox("🎓 DATOS ACADÉMICOS")
-        datos_academicos_layout = QGridLayout()
+        # 📋 EXPEDIENTES
+        expedientes_group = QGroupBox("📋 EXPEDIENTES")
+        expedientes_layout = QGridLayout()
 
-        # Fila 1: N° Matrícula | Año Matrícula
         self.edit_matricula = QLineEdit()
-        self.edit_matricula.setPlaceholderText("Ej: 2024000123")
+        self.edit_matricula.setPlaceholderText("Ej: 60400")
 
-        datos_academicos_layout.addWidget(QLabel("📋 N° Matrícula:"), 0, 0)
-        datos_academicos_layout.addWidget(self.edit_matricula, 0, 1)
+        self.edit_exp_centro = QLineEdit()
+        self.edit_exp_centro.setPlaceholderText("Ej: GIN-14")
 
-        datos_academicos_group.setLayout(datos_academicos_layout)
-        layout.addWidget(datos_academicos_group)
+        self.edit_exp_agora = QLineEdit()
+        self.edit_exp_agora.setPlaceholderText("Ej: AGR789012")
+
+        expedientes_layout.addWidget(QLabel("📋 N° Matrícula:"), 0, 0)
+        expedientes_layout.addWidget(self.edit_matricula, 0, 1)
+        expedientes_layout.addWidget(QLabel("🏫 N° Exp. Centro:"), 0, 2)
+        expedientes_layout.addWidget(self.edit_exp_centro, 0, 3)
+
+        expedientes_layout.addWidget(QLabel("🌐 N° Exp. Ágora:"), 1, 0)
+        expedientes_layout.addWidget(self.edit_exp_agora, 1, 1)
+
+        expedientes_group.setLayout(expedientes_layout)
+        layout.addWidget(expedientes_group)
 
         # 🎓📚 GRUPOS Y ASIGNATURAS (LADO A LADO)
         grupos_asignaturas_group = QGroupBox("🎓📚 GRUPOS Y ASIGNATURAS MATRICULADAS")
@@ -315,24 +325,6 @@ class GestionAlumnoDialog(QDialog):
 
         grupos_asignaturas_group.setLayout(grupos_asignaturas_main_layout)
         layout.addWidget(grupos_asignaturas_group)
-
-        # 📋 EXPEDIENTES
-        expedientes_group = QGroupBox("📋 EXPEDIENTES")
-        expedientes_layout = QGridLayout()
-
-        self.edit_exp_centro = QLineEdit()
-        self.edit_exp_centro.setPlaceholderText("Ej: GIN-14")
-
-        self.edit_exp_agora = QLineEdit()
-        self.edit_exp_agora.setPlaceholderText("Ej: AGR789012")
-
-        expedientes_layout.addWidget(QLabel("🏫 N° Exp. Centro:"), 0, 0)
-        expedientes_layout.addWidget(self.edit_exp_centro, 0, 1)
-        expedientes_layout.addWidget(QLabel("🌐 N° Exp. Ágora:"), 0, 2)
-        expedientes_layout.addWidget(self.edit_exp_agora, 0, 3)
-
-        expedientes_group.setLayout(expedientes_layout)
-        layout.addWidget(expedientes_group)
 
         # 📝 OBSERVACIONES
         observaciones_group = QGroupBox("📝 OBSERVACIONES")
@@ -783,9 +775,6 @@ class GestionAlumnoDialog(QDialog):
         self.edit_apellidos.setText(datos.get('apellidos', ''))
         self.edit_email.setText(datos.get('email', ''))
 
-        # Datos académicos
-        self.edit_matricula.setText(datos.get('matricula', ''))
-
         # Expedientes
         self.edit_exp_centro.setText(datos.get('exp_centro', ''))
         self.edit_exp_agora.setText(datos.get('exp_agora', ''))
@@ -901,11 +890,8 @@ class GestionAlumnoDialog(QDialog):
             'apellidos': self.edit_apellidos.text().strip(),
             'email': self.edit_email.text().strip().lower(),
 
-            # Datos académicos
-            'matricula': self.edit_matricula.text().strip(),
+            # Grupos y asignaturas
             'grupos_matriculado': [grupo for grupo, check in self.checks_grupos.items() if check.isChecked()],
-
-            # Asignaturas
             'asignaturas_matriculadas': asignaturas_matriculadas,
 
             # Expedientes
@@ -1245,8 +1231,40 @@ class ConfigurarAlumnos(QMainWindow):
         self.combo_filtro_asignatura.setMaximumWidth(200)
         filtros_layout.addWidget(self.combo_filtro_asignatura)
 
-        self.check_solo_sin_lab = QCheckBox("Solo alumnos con laboratorio pentiende")
+        self.check_solo_sin_lab = QCheckBox("Solo alumnos con laboratorio pendiente")
         self.check_solo_sin_lab.setToolTip("Mostrar solo alumnos sin experiencia previa")
+        self.check_solo_sin_lab.setStyleSheet("""
+                    QCheckBox {
+                        font-size: 12px;
+                        font-weight: 500;
+                        padding: 4px 6px;
+                        margin: 2px 0px;
+                        color: #ffffff;
+                    }
+                    QCheckBox::indicator {
+                        width: 18px;
+                        height: 18px;
+                        margin-right: 8px;
+                    }
+                    QCheckBox::indicator:unchecked {
+                        background-color: #3c3c3c;
+                        border: 2px solid #666666;
+                        border-radius: 4px;
+                    }
+                    QCheckBox::indicator:unchecked:hover {
+                        border-color: #4a9eff;
+                        background-color: #4a4a4a;
+                    }
+                    QCheckBox::indicator:checked {
+                        background-color: #4a9eff;
+                        border: 2px solid #4a9eff;
+                        border-radius: 4px;
+                    }
+                    QCheckBox:hover {
+                        background-color: rgba(74, 158, 255, 0.15);
+                        border-radius: 4px;
+                    }
+                """)
         filtros_layout.addWidget(self.check_solo_sin_lab)
 
         filtros_layout.addStretch()
@@ -1990,15 +2008,18 @@ class ConfigurarAlumnos(QMainWindow):
             # Leer Excel con pandas
             df = self._leer_excel_universal(archivo)
 
-            # Mapeo de columnas esperadas (flexibles)
+            # Forzar columnas del DataFrame a minúsculas para facilitar detección
+            df.columns = [col.lower().strip() for col in df.columns]
+
+            # Mapeo de columnas esperadas (all en minúsculas)
             columnas_mapeo = {
-                'dni': ['DNI', 'dni', 'Dni'],
-                'apellidos': ['Apellidos', 'apellidos', 'APELLIDOS'],
-                'nombre': ['Nombre', 'nombre', 'NOMBRE'],
-                'email': ['Email', 'email', 'EMAIL', 'E-mail', 'e-mail'],
-                'grupo': ['Grupo matrícula', 'Grupo matricula', 'grupo', 'GRUPO', 'Grupo de Matricula'],
-                'exp_centro': ['Nº Expediente en Centro', 'Exp Centro', 'exp_centro', 'Expediente Centro'],
-                'exp_agora': ['Nº Expediente en Ágora', 'Exp Agora', 'exp_agora', 'Expediente Agora']
+                'dni': ['dni', 'nº exp', 'nº expediente en centro'],
+                'apellidos': ['apellidos'],
+                'nombre': ['nombre'],
+                'email': ['email', 'e-mail'],
+                'grupo': ['grupo matrícula', 'grupo matricula', 'grupo', 'grupo de matricula'],
+                'exp_centro': ['nº expediente en centro', 'exp centro', 'exp_centro', 'expediente centro'],
+                'exp_agora': ['nº expediente en ágora', 'exp agora', 'exp_agora', 'expediente agora']
             }
 
             # Detectar columnas
@@ -2085,13 +2106,13 @@ class ConfigurarAlumnos(QMainWindow):
 
                     exp_centro = ""
                     if 'exp_centro' in columnas_detectadas:
-                        exp_centro = str(row[columnas_detectadas['exp_centro']]).strip()
+                        exp_centro = str(int(row[columnas_detectadas['exp_centro']])).strip()
                         if exp_centro == 'nan':
                             exp_centro = ""
 
                     exp_agora = ""
                     if 'exp_agora' in columnas_detectadas:
-                        exp_agora = str(row[columnas_detectadas['exp_agora']]).strip()
+                        exp_agora = str(int(row[columnas_detectadas['exp_agora']])).strip()
                         if exp_agora == 'nan':
                             exp_agora = ""
 
@@ -2147,7 +2168,6 @@ class ConfigurarAlumnos(QMainWindow):
                             'nombre': nombre,
                             'apellidos': apellidos,
                             'email': email,
-                            'matricula': exp_centro if exp_centro else dni,
                             'grupos_matriculado': [codigo_grupo],
                             'asignaturas_matriculadas': {
                                 asignatura_info['key']: {
@@ -2258,8 +2278,11 @@ class ConfigurarAlumnos(QMainWindow):
             columna_id = None
             identificadores = []
 
-            posibles_columnas = ['DNI', 'dni', 'Dni', 'Nº Expediente en Centro', 'Exp Centro', 'exp_centro',
-                                 'Expediente Centro']
+            # Forzar columnas del DataFrame a minúsculas
+            df.columns = [col.lower().strip() for col in df.columns]
+
+            posibles_columnas = ['dni', 'nº exp', 'nº expediente en centro', 'exp centro', 'exp_centro',
+                                 'expediente centro']
 
             for col_name in posibles_columnas:
                 if col_name in df.columns:
@@ -3208,7 +3231,6 @@ def main():
             "nombre": "Juan",
             "apellidos": "García López",
             "email": "juan.garcia@alumnos.upm.es",
-            "matricula": "2024000123",
             "grupos_matriculado": ["A202", "B204"],
             "asignaturas_matriculadas": {
                 "1_Fisica I": {"matriculado": True, "lab_aprobado": False},
@@ -3224,7 +3246,6 @@ def main():
             "nombre": "María",
             "apellidos": "Fernández Ruiz",
             "email": "maria.fernandez@alumnos.upm.es",
-            "matricula": "2024000124",
             "grupo": "B204",
             "asignaturas_matriculadas": {
                 "1_Fisica I": {"matriculado": True, "lab_aprobado": True}

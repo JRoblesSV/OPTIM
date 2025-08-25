@@ -23,10 +23,10 @@ Universidad: ETSIDI (UPM)
 import sys
 import os
 import json
+import tempfile
 from datetime import datetime
 from PyQt6.QtWidgets import QApplication
 from PyQt6 import QtCore, QtGui, QtWidgets
-from PyQt6.QtCore import QTimer
 
 
 def center_window_on_screen_immediate(window, width, height):
@@ -176,9 +176,9 @@ class OptimLabsGUI(QtWidgets.QMainWindow):
 
         # Segunda fila de botones
         botones_fila2 = [
-            ("btn_calendario", "📅 CALENDARIO\nConfigurar semestre", 50, 100),
-            ("btn_horarios", "⏰ HORARIOS\nFranjas por asignatura", 300, 100),
-            ("btn_aulas", "🏢 AULAS\nLaboratorios disponibles", 550, 100),
+            ("btn_aulas", "🏢 AULAS\nLaboratorios disponibles", 50, 100),
+            ("btn_calendario", "📅 CALENDARIO\nConfigurar semestre", 300, 100),
+            ("btn_horarios", "⏰ HORARIOS\nFranjas por asignatura", 550, 100),
             ("btn_parametros", "🎯 PARÁMETROS\nPesos optimización", 800, 100)
         ]
 
@@ -480,7 +480,7 @@ class OptimLabsGUI(QtWidgets.QMainWindow):
 
         # Verificar si se puede organizar
         configuraciones_obligatorias = ["grupos", "asignaturas", "profesores", "alumnos", "horarios", "aulas",
-                                        "parametros"]
+                                        "calendario", "horarios"]
         todo_configurado = all(configuraciones[key].get("configurado", False) for key in configuraciones_obligatorias)
 
         # Habilitar/deshabilitar botón principal
@@ -1994,7 +1994,7 @@ class OptimLabsGUI(QtWidgets.QMainWindow):
 
         # Verificar si el módulo está disponible
         try:
-            from modules.organizador.prevalidacion import prevalidar_antes_de_ejecutar
+            from modules.organizador.prevalidacion import PrevalidacionSistema
             PREVALIDACION = True
         except ImportError as e:
             print(f"⚠️ Módulo prevalidacion no disponible: {e}")
@@ -2008,33 +2008,48 @@ class OptimLabsGUI(QtWidgets.QMainWindow):
             )
             return
 
-        # ✅ NUEVA SECCIÓN: Prevalidación
+        # Prevalidación
         self.log_mensaje("🔍 Ejecutando prevalidación...", "info")
 
         try:
-            es_viable, mensajes_problemas = prevalidar_antes_de_ejecutar(self.configuracion)
 
-            if not es_viable:
-                self.log_mensaje("❌ Problemas críticos detectados en prevalidación", "error")
+            with tempfile.NamedTemporaryFile(mode='w', delete=False, suffix='.json', encoding='utf-8') as tmp_file:
+                json.dump(self.configuracion, tmp_file, indent=2, ensure_ascii=False)
+                tmp_config_path = tmp_file.name
 
-                # Preparar mensaje detallado para el usuario
-                mensaje_detallado = "Se detectaron problemas críticos que impedirán una organización exitosa:\n\n"
-                mensaje_detallado += "\n".join(mensajes_problemas)
-                mensaje_detallado += "\n\n¿Quieres intentar ejecutar de todos modos? (No recomendado)"
+            try:
+                # Ejecutar prevalidación con archivo temporal
+                prevalidador = PrevalidacionSistema(tmp_config_path)
+                es_viable = prevalidador.ejecutar_prevalidacion()
 
-                respuesta = QtWidgets.QMessageBox.question(
-                    self, "❌ Problemas Detectados",
-                    mensaje_detallado,
-                    QtWidgets.QMessageBox.StandardButton.Yes | QtWidgets.QMessageBox.StandardButton.No
-                )
+                if not es_viable:
+                    self.log_mensaje("❌ Problemas críticos detectados en prevalidación", "error")
 
-                if respuesta == QtWidgets.QMessageBox.StandardButton.No:
-                    self.log_mensaje("❌ Organización cancelada - resolver problemas primero", "warning")
-                    return
+                    # Preparar mensaje detallado para el usuario
+                    mensaje_detallado = "Se detectaron problemas críticos que impedirán una organización exitosa:\n\n"
+                    mensaje_detallado += "Verifica recursos disponibles y configuración."
+                    mensaje_detallado += "\n\n¿Quieres intentar ejecutar de todos modos? (No recomendado)"
+
+                    respuesta = QtWidgets.QMessageBox.question(
+                        self, "❌ Problemas Detectados",
+                        mensaje_detallado,
+                        QtWidgets.QMessageBox.StandardButton.Yes | QtWidgets.QMessageBox.StandardButton.No
+                    )
+
+                    if respuesta == QtWidgets.QMessageBox.StandardButton.No:
+                        self.log_mensaje("❌ Organización cancelada - resolver problemas primero", "warning")
+                        return
+                    else:
+                        self.log_mensaje("⚠️ Continuando pese a problemas detectados...", "warning")
                 else:
-                    self.log_mensaje("⚠️ Continuando pese a problemas detectados...", "warning")
-            else:
-                self.log_mensaje("✅ Prevalidación exitosa - procediendo...", "success")
+                    self.log_mensaje("✅ Prevalidación exitosa - procediendo...", "success")
+
+            finally:
+                # Limpiar archivo temporal
+                try:
+                    os.unlink(tmp_config_path)
+                except:
+                    pass
 
         except Exception as e:
             self.log_mensaje(f"⚠️ Error en prevalidación: {str(e)}", "warning")
@@ -2064,7 +2079,7 @@ class OptimLabsGUI(QtWidgets.QMainWindow):
         try:
             # Verificar disponibilidad del motor
             try:
-                from modules.organizador.motor_organizacion import ejecutar_organizacion
+                from src.modules.organizador.motor_organizacion import ejecutar_organizacion
                 MOTOR_DISPONIBLE = True
             except ImportError as e:
                 self.log_mensaje(f"❌ Motor de organización no disponible: {e}", "error")
@@ -2650,9 +2665,9 @@ class OptimLabsGUI(QtWidgets.QMainWindow):
             "2️⃣ Configurar Asignaturas\n"
             "3️⃣ Configurar Profesores\n"
             "4️⃣ Configurar Alumnos matriculados\n"
+            "7️⃣ Configurar Aulas/Laboratorios\n"
             "5️⃣ Configurar Calendario semestral\n"
             "6️⃣ Organizar Horarios por asignatura\n\n"
-            "7️⃣ Configurar Aulas/Laboratorios"
             "Desarrollado por SoftVier para ETSIDI (UPM)"
         )
 

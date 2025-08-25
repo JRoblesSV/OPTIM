@@ -59,6 +59,7 @@ def center_window_on_screen_immediate(window, width, height):
         window.setGeometry(100, 100, width, height)
 
 
+
 class ConfiguracionDiaDialog(QDialog):
     """Mini-popup rápido para configurar un día"""
 
@@ -69,12 +70,21 @@ class ConfiguracionDiaDialog(QDialog):
 
         self.setWindowTitle("Configurar Día Lectivo")
         self.setModal(True)
-        window_width = 350
-        window_height = 200
-        center_window_on_screen_immediate(self, window_width, window_height)
+
+        # Centrado automático al mostrar la ventana
+        self.resize(1600, 900)
+        self.center_on_screen()
 
         self.setup_ui()
         self.apply_dark_theme()
+
+    def center_on_screen(self):
+        """Centrar ventana automáticamente en la pantalla"""
+        screen = QApplication.primaryScreen().availableGeometry()
+        window_geometry = self.frameGeometry()
+        center_point = screen.center()
+        window_geometry.moveCenter(center_point)
+        self.move(window_geometry.topLeft())
 
     def setup_ui(self):
         layout = QVBoxLayout()
@@ -540,6 +550,10 @@ class ConfigurarCalendario(QMainWindow):
         # Variable dinámica para límite de semanas
         self.limite_semanas = 14
 
+        # Configuración de rangos de semestres (mes_inicio, mes_fin)
+        self.rango_semestre_1 = (9, 1)  # Septiembre a Enero (año siguiente)
+        self.rango_semestre_2 = (2, 6)  # Febrero a Junio
+
         # Estructura de datos principal
         if datos_existentes:
             self.datos_configuracion = datos_existentes.copy()
@@ -601,16 +615,16 @@ class ConfigurarCalendario(QMainWindow):
         main_layout.setSpacing(10)
 
         # Título principal
-        titulo = QLabel("🗓️ CONFIGURACIÓN DE CALENDARIO ACADÉMICO")
+        titulo = QLabel(f"🗓️ CONFIGURACIÓN DE CALENDARIO ACADÉMICO | {self.datos_configuracion['anio_academico']}")
         titulo.setStyleSheet("color: #4a9eff; font-weight: bold; font-size: 16px; margin-bottom: 10px;")
         titulo.setAlignment(Qt.AlignmentFlag.AlignCenter)
         main_layout.addWidget(titulo)
 
         # Información del anio académico
-        self.anio_label = QLabel(f"📅 Año Académico: {self.datos_configuracion['anio_academico']}")
-        self.anio_label.setStyleSheet("color: #cccccc; font-size: 12px; margin-bottom: 10px;")
-        self.anio_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        main_layout.addWidget(self.anio_label)
+        #self.anio_label = QLabel(f"📅 Año Académico: {self.datos_configuracion['anio_academico']}")
+        #self.anio_label.setStyleSheet("color: #cccccc; font-size: 12px; margin-bottom: 10px;")
+        #self.anio_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        #main_layout.addWidget(self.anio_label)
 
         # Información de uso
         info_label = QLabel(
@@ -1025,6 +1039,110 @@ class ConfigurarCalendario(QMainWindow):
         except Exception as e:
             self.log_mensaje(f"⚠️ Error actualizando rangos de calendarios: {e}", "warning")
 
+    def obtener_nombre_rango(self, rango):
+        """Obtener nombre legible del rango de meses"""
+        nombres_meses = ["Ene", "Feb", "Mar", "Abr", "May", "Jun",
+                         "Jul", "Ago", "Sep", "Oct", "Nov", "Dic"]
+        mes_inicio, mes_fin = rango
+        return f"{nombres_meses[mes_inicio - 1]}-{nombres_meses[mes_fin - 1]}"
+
+    def configurar_calendario_navegacion(self, calendar_widget):
+        """Configurar calendario con navegación simplificada (solo flechas)"""
+        calendar_widget.setNavigationBarVisible(True)
+
+        # Ocultar dropdowns de mes y año, mantener solo flechas
+        navigation_bar = calendar_widget.findChild(QWidget, "qt_calendar_navigationbar")
+        if navigation_bar:
+            for combo in navigation_bar.findChildren(QComboBox):
+                combo.hide()
+            for spinbox in navigation_bar.findChildren(QSpinBox):
+                spinbox.hide()
+
+        # Aplicar estilo para eliminar solo el fondo de color del header
+        calendar_widget.setStyleSheet("""
+            QCalendarWidget QWidget#qt_calendar_navigationbar {
+                background-color: #4a4a4a;
+            }
+            QCalendarWidget QToolButton {
+                background-color: #4a4a4a;
+                color: #ffffff;
+                border: 1px solid #666666;
+                border-radius: 3px;
+                padding: 5px;
+            }
+            QCalendarWidget QToolButton:hover {
+                background-color: #5a5a5a;
+            }
+        """)
+
+    def aplicar_rango_semestre_1(self):
+        """Aplicar nuevo rango para el 1º semestre"""
+        mes_inicio = self.combo_inicio_sem1.currentIndex() + 1
+        mes_fin = self.combo_fin_sem1.currentIndex() + 1
+
+        if mes_inicio == mes_fin:
+            QMessageBox.warning(self, "Rango Inválido", "Los meses de inicio y fin no pueden ser iguales.")
+            return
+
+        self.rango_semestre_1 = (mes_inicio, mes_fin)
+        self.actualizar_rango_calendario_1()
+        self.sem1_group.setTitle(f"1º Semestre ({self.obtener_nombre_rango(self.rango_semestre_1)})")
+        self.log_mensaje(f"Rango 1º semestre actualizado: {self.obtener_nombre_rango(self.rango_semestre_1)}",
+                         "success")
+
+    def aplicar_rango_semestre_2(self):
+        """Aplicar nuevo rango para el 2º semestre"""
+        mes_inicio = self.combo_inicio_sem2.currentIndex() + 1
+        mes_fin = self.combo_fin_sem2.currentIndex() + 1
+
+        if mes_inicio == mes_fin:
+            QMessageBox.warning(self, "Rango Inválido", "Los meses de inicio y fin no pueden ser iguales.")
+            return
+
+        self.rango_semestre_2 = (mes_inicio, mes_fin)
+        self.actualizar_rango_calendario_2()
+        self.sem2_group.setTitle(f"2º Semestre ({self.obtener_nombre_rango(self.rango_semestre_2)})")
+        self.log_mensaje(f"Rango 2º semestre actualizado: {self.obtener_nombre_rango(self.rango_semestre_2)}",
+                         "success")
+
+    def actualizar_rango_calendario_1(self):
+        """Actualizar rango de fechas del calendario 1"""
+        mes_inicio, mes_fin = self.rango_semestre_1
+
+        if mes_inicio <= mes_fin:
+            # Mismo año
+            inicio = QDate(self.anio_academico, mes_inicio, 1)
+            fin = QDate(self.anio_academico, mes_fin,
+                        QDate(self.anio_academico, mes_fin, 1).daysInMonth())
+        else:
+            # Cruza año (ej: Sep-Ene)
+            inicio = QDate(self.anio_academico, mes_inicio, 1)
+            fin = QDate(self.anio_academico + 1, mes_fin,
+                        QDate(self.anio_academico + 1, mes_fin, 1).daysInMonth())
+
+        self.calendario_1.setMinimumDate(inicio)
+        self.calendario_1.setMaximumDate(fin)
+        self.calendario_1.setSelectedDate(inicio)
+
+    def actualizar_rango_calendario_2(self):
+        """Actualizar rango de fechas del calendario 2"""
+        mes_inicio, mes_fin = self.rango_semestre_2
+
+        if mes_inicio <= mes_fin:
+            # Mismo año
+            inicio = QDate(self.anio_academico + 1, mes_inicio, 1)
+            fin = QDate(self.anio_academico + 1, mes_fin,
+                        QDate(self.anio_academico + 1, mes_fin, 1).daysInMonth())
+        else:
+            # Cruza año
+            inicio = QDate(self.anio_academico + 1, mes_inicio, 1)
+            fin = QDate(self.anio_academico + 2, mes_fin,
+                        QDate(self.anio_academico + 2, mes_fin, 1).daysInMonth())
+
+        self.calendario_2.setMinimumDate(inicio)
+        self.calendario_2.setMaximumDate(fin)
+        self.calendario_2.setSelectedDate(inicio)
+
     def setup_calendarios_panel(self, parent_layout):
         """Panel izquierdo con calendarios clicables"""
         left_panel = QGroupBox("📅 CALENDARIOS RÁPIDOS")
@@ -1038,20 +1156,63 @@ class ConfigurarCalendario(QMainWindow):
         separator.setFixedHeight(10)
         left_layout.addWidget(separator)
 
-        # Calendario 1º semestre
-        sem1_group = QGroupBox("1º Semestre (Sep-Ene)")
+        # Configuración de rangos editables
+        rangos_group = QGroupBox("Configurar Rangos de Semestres")
+        rangos_layout = QVBoxLayout()
+
+        # Configurar rango 1º semestre
+        sem1_config_layout = QHBoxLayout()
+        sem1_config_layout.addWidget(QLabel("1º Semestre    Ini: "))
+        self.combo_inicio_sem1 = QComboBox()
+        self.combo_inicio_sem1.addItems(["Ene", "Feb", "Mar", "Abr", "May", "Jun",
+                                         "Jul", "Ago", "Sep", "Oct", "Nov", "Dic"])
+        self.combo_inicio_sem1.setCurrentIndex(8)  # Septiembre por defecto
+        sem1_config_layout.addWidget(self.combo_inicio_sem1)
+
+        sem1_config_layout.addWidget(QLabel("Fin: "))
+        self.combo_fin_sem1 = QComboBox()
+        self.combo_fin_sem1.addItems(["Ene", "Feb", "Mar", "Abr", "May", "Jun",
+                                      "Jul", "Ago", "Sep", "Oct", "Nov", "Dic"])
+        self.combo_fin_sem1.setCurrentIndex(0)  # Enero por defecto
+        sem1_config_layout.addWidget(self.combo_fin_sem1)
+
+        self.btn_aplicar_rango_sem1 = QPushButton("Aplicar")
+        self.btn_aplicar_rango_sem1.clicked.connect(self.aplicar_rango_semestre_1)
+        sem1_config_layout.addWidget(self.btn_aplicar_rango_sem1)
+        rangos_layout.addLayout(sem1_config_layout)
+
+        # Configurar rango 2º semestre
+        sem2_config_layout = QHBoxLayout()
+        sem2_config_layout.addWidget(QLabel("2º Semestre    Ini: "))
+        self.combo_inicio_sem2 = QComboBox()
+        self.combo_inicio_sem2.addItems(["Ene", "Feb", "Mar", "Abr", "May", "Jun",
+                                         "Jul", "Ago", "Sep", "Oct", "Nov", "Dic"])
+        self.combo_inicio_sem2.setCurrentIndex(1)  # Febrero por defecto
+        sem2_config_layout.addWidget(self.combo_inicio_sem2)
+
+        sem2_config_layout.addWidget(QLabel("Fin: "))
+        self.combo_fin_sem2 = QComboBox()
+        self.combo_fin_sem2.addItems(["Ene", "Feb", "Mar", "Abr", "May", "Jun",
+                                      "Jul", "Ago", "Sep", "Oct", "Nov", "Dic"])
+        self.combo_fin_sem2.setCurrentIndex(5)  # Junio por defecto
+        sem2_config_layout.addWidget(self.combo_fin_sem2)
+
+        self.btn_aplicar_rango_sem2 = QPushButton("Aplicar")
+        self.btn_aplicar_rango_sem2.clicked.connect(self.aplicar_rango_semestre_2)
+        sem2_config_layout.addWidget(self.btn_aplicar_rango_sem2)
+        rangos_layout.addLayout(sem2_config_layout)
+
+        rangos_group.setLayout(rangos_layout)
+        left_layout.addWidget(rangos_group)
+
+        # Calendario 1º semestre con navegación simplificada
+        sem1_group = QGroupBox(f"1º Semestre ({self.obtener_nombre_rango(self.rango_semestre_1)})")
         sem1_layout = QVBoxLayout()
 
         self.calendario_1 = QCalendarWidget()
         self.calendario_1.setMaximumHeight(200)
-
-        # Configurar rango de fechas del 1º semestre
-        inicio_1 = QDate(self.anio_academico, 9, 1)
-        fin_1 = QDate(self.anio_academico + 1, 1, 31)
-        self.calendario_1.setMinimumDate(inicio_1)
-        self.calendario_1.setMaximumDate(fin_1)
-        self.calendario_1.setSelectedDate(inicio_1)
-
+        self.configurar_calendario_navegacion(self.calendario_1)
+        self.actualizar_rango_calendario_1()
         self.calendario_1.clicked.connect(lambda fecha: self.calendario_dia_clicked(fecha, "semestre_1"))
         sem1_layout.addWidget(self.calendario_1)
 
@@ -1063,20 +1224,14 @@ class ConfigurarCalendario(QMainWindow):
         sem1_group.setLayout(sem1_layout)
         left_layout.addWidget(sem1_group)
 
-        # Calendario 2º semestre
-        sem2_group = QGroupBox("2º Semestre (Feb-Jun)")
+        # Calendario 2º semestre con navegación simplificada
+        sem2_group = QGroupBox(f"2º Semestre ({self.obtener_nombre_rango(self.rango_semestre_2)})")
         sem2_layout = QVBoxLayout()
 
         self.calendario_2 = QCalendarWidget()
         self.calendario_2.setMaximumHeight(200)
-
-        # Configurar rango de fechas del 2º semestre
-        inicio_2 = QDate(self.anio_academico + 1, 2, 1)
-        fin_2 = QDate(self.anio_academico + 1, 6, 30)
-        self.calendario_2.setMinimumDate(inicio_2)
-        self.calendario_2.setMaximumDate(fin_2)
-        self.calendario_2.setSelectedDate(inicio_2)
-
+        self.configurar_calendario_navegacion(self.calendario_2)
+        self.actualizar_rango_calendario_2()
         self.calendario_2.clicked.connect(lambda fecha: self.calendario_dia_clicked(fecha, "semestre_2"))
         sem2_layout.addWidget(self.calendario_2)
 
@@ -1087,6 +1242,10 @@ class ConfigurarCalendario(QMainWindow):
 
         sem2_group.setLayout(sem2_layout)
         left_layout.addWidget(sem2_group)
+
+        # Guardar referencias a los grupos para actualizar títulos
+        self.sem1_group = sem1_group
+        self.sem2_group = sem2_group
 
         # Leyenda de colores y controles
         leyenda_group = QGroupBox("🎨 Leyenda & Controles")
@@ -1104,7 +1263,8 @@ class ConfigurarCalendario(QMainWindow):
 
         left_layout.addStretch()
         left_panel.setLayout(left_layout)
-        left_panel.setMaximumWidth(350)
+        left_panel.setMaximumWidth(360)  # Aumentar de 350 a 450
+        left_panel.setMinimumWidth(350)  # Establecer ancho mínimo
         parent_layout.addWidget(left_panel)
 
     def setup_grids_panel(self, parent_layout):
@@ -1459,30 +1619,44 @@ class ConfigurarCalendario(QMainWindow):
         pass
 
     def calendario_dia_clicked(self, fecha, semestre):
-        """Manejar clic en calendario"""
+        """Manejar clic en calendario con validación de rangos dinámicos"""
         try:
-            # Verificar que la fecha esté en el rango del semestre correcto
             anio_fecha = fecha.year()
             mes_fecha = fecha.month()
 
             # Validar que la fecha corresponde al semestre seleccionado
             if semestre == "semestre_1":
-                # 1º semestre: Sep-Ene
-                if not ((mes_fecha >= 9 and anio_fecha == self.anio_academico) or
-                        (mes_fecha <= 1 and anio_fecha == self.anio_academico + 1)):
+                mes_inicio, mes_fin = self.rango_semestre_1
+                if mes_inicio <= mes_fin:
+                    # Mismo año
+                    fecha_valida = (mes_inicio <= mes_fecha <= mes_fin and anio_fecha == self.anio_academico)
+                else:
+                    # Cruza año
+                    fecha_valida = ((mes_fecha >= mes_inicio and anio_fecha == self.anio_academico) or
+                                    (mes_fecha <= mes_fin and anio_fecha == self.anio_academico + 1))
+
+                if not fecha_valida:
                     QMessageBox.warning(
                         self, "Fecha Incorrecta",
-                        f"La fecha seleccionada no corresponde al 1º semestre\n"
-                        f"(Septiembre {self.anio_academico} - Enero {self.anio_academico + 1})"
+                        f"La fecha seleccionada no corresponde al rango del 1º semestre\n"
+                        f"({self.obtener_nombre_rango(self.rango_semestre_1)})"
                     )
                     return
             else:  # semestre_2
-                # 2º semestre: Feb-Jun
-                if not (2 <= mes_fecha <= 6 and anio_fecha == self.anio_academico + 1):
+                mes_inicio, mes_fin = self.rango_semestre_2
+                if mes_inicio <= mes_fin:
+                    # Mismo año
+                    fecha_valida = (mes_inicio <= mes_fecha <= mes_fin and anio_fecha == self.anio_academico + 1)
+                else:
+                    # Cruza año
+                    fecha_valida = ((mes_fecha >= mes_inicio and anio_fecha == self.anio_academico + 1) or
+                                    (mes_fecha <= mes_fin and anio_fecha == self.anio_academico + 2))
+
+                if not fecha_valida:
                     QMessageBox.warning(
                         self, "Fecha Incorrecta",
-                        f"La fecha seleccionada no corresponde al 2º semestre\n"
-                        f"(Febrero {self.anio_academico + 1} - Junio {self.anio_academico + 1})"
+                        f"La fecha seleccionada no corresponde al rango del 2º semestre\n"
+                        f"({self.obtener_nombre_rango(self.rango_semestre_2)})"
                     )
                     return
 
@@ -2464,6 +2638,27 @@ class ConfigurarCalendario(QMainWindow):
             event.accept()
         else:
             event.ignore()
+
+    def showEvent(self, event):
+        """Centrar ventana automáticamente cuando se muestra"""
+        super().showEvent(event)
+
+        # Obtener geometría de la pantalla
+        screen = QApplication.primaryScreen()
+        if screen:
+            screen_geometry = screen.availableGeometry()
+            window_geometry = self.frameGeometry()
+
+            # Calcular posición central
+            center_x = screen_geometry.center().x() - (window_geometry.width() // 2)
+            center_y = screen_geometry.center().y() - (window_geometry.height() // 2)
+
+            # Asegurar que la ventana esté dentro de los límites de la pantalla
+            center_x = max(screen_geometry.left(), min(center_x, screen_geometry.right() - window_geometry.width()))
+            center_y = max(screen_geometry.top(), min(center_y, screen_geometry.bottom() - window_geometry.height()))
+
+            # Mover ventana al centro
+            self.move(center_x, center_y)
 
     def cancelar_cambios_en_sistema(self):
         """Cancelar cambios restaurando estado original"""
