@@ -1,0 +1,49 @@
+{
+  "horarios_semanal": {
+    "Lunes": [
+      {
+        "inicio": "10:00",
+        "fin": "14:00",
+        "laboratorios": [
+          "Lab_ResistenciaMateriales_M206"
+        ]
+      }
+    ],
+    "Martes": [],
+    "Miércoles": [
+      {
+        "inicio": "10:30",
+        "fin": "13:30",
+        "laboratorios": [
+          "Lab_ResistenciaMateriales_M206"
+        ]
+      }
+    ],
+    "Jueves": [
+      {
+        "inicio": "09:30",
+        "fin": "13:30",
+        "laboratorios": [
+          "Lab_MecanicaFluidos_M206"
+        ]
+      }
+    ],
+    "Viernes": [
+      {
+        "inicio": "09:30",
+        "fin": "13:30",
+        "laboratorios": [
+          "Lab_Termodinamica M206"
+        ]
+      }
+    ]
+  },
+  "laboratorios_disponibles": [
+    "Lab_Termodinamica_M206",
+    "Lab_MecanicaFluidos_M206",
+    "Lab_ResistenciaMateriales_M206",
+    "Lab_CienciaMateriales_M206"
+  ],
+  "fecha_creacion": "2025-06-25T19:45:57.702337",
+  "version": "1.0"
+}

@@ -1,0 +1,56 @@
+{
+  "laboratorios": {
+    "Lab_Fisica_A": {
+      "capacidad": 24,
+      "equipamiento": "Equipos medición básicos",
+      "edificio": "Edificio A"
+    },
+    "Lab_Fisica_B": {
+      "capacidad": 20,
+      "equipamiento": "Equipos medición avanzados",
+      "edificio": "Edificio A"
+    },
+    "Lab_Quimica_A": {
+      "capacidad": 18,
+      "equipamiento": "Campana extractora",
+      "edificio": "Edificio B"
+    },
+    "Lab_Expresion_Grafica": {
+      "capacidad": 30,
+      "equipamiento": "Ordenadores + CAD",
+      "edificio": "Edificio C"
+    }
+  },
+  "cursos": {
+    "M204": {
+      "descripcion": "Mecánica 2º Mañana",
+      "es_doble_grado": false,
+      "comparte_con": ""
+    },
+    "M206": {
+      "descripcion": "Mecánica 2º Tarde",
+      "es_doble_grado": false,
+      "comparte_con": ""
+    },
+    "E104": {
+      "descripcion": "Electrónica 1º Mañana",
+      "es_doble_grado": false,
+      "comparte_con": ""
+    },
+    "EE204": {
+      "descripcion": "Doble Electr. 2º Mañana",
+      "es_doble_grado": true,
+      "comparte_con": "E204"
+    }
+  },
+  "asignaciones": {
+    "M204_Lab_Fisica_A_Lunes_08:00": {
+      "curso": "M204",
+      "laboratorio": "Lab_Fisica_A",
+      "dia": "Lunes",
+      "inicio": "08:00",
+      "fin": "10:00"
+    }
+  },
+  "fecha_guardado": "2025-06-26T17:11:27.692647"
+}
