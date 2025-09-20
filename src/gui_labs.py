@@ -1,580 +1,1154 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+"""
+OPTIM - Sistema de Programación Automática de Laboratorios
+GUI Principal - Hub Central de Configuración
+
+Autor: SoftVier para ETSIDI (UPM)
+Basado en TFG exitoso - Stack: Python + PyQt6 + tema oscuro
+"""
+
 import sys
 import os
-
+import json
+from datetime import datetime
 from PyQt6 import QtCore, QtGui, QtWidgets
-
-# ========= MANEJO ROBUSTO DE INTERFACES =========
-INTERFACES_DISPONIBLES = False
-ConfigurarCalendario = None
-ConfigurarHorarios = None
-VerResultados = None
+from PyQt6.QtCore import QTimer
 
 
-def cargar_interfaces():
-    """Cargar interfaces extra con manejo de errores detallado"""
-    global INTERFACES_DISPONIBLES, ConfigurarCalendario, ConfigurarHorarios, VerResultados
 
-    try:
-        if not os.path.exists('modules/interfaces'):
-            print("📁 Directorio 'interfaces' no encontrado - solo funcionalidad básica")
-            return False
-
-        from src.modules.interfaces import ConfigurarCalendario, ConfigurarHorarios, VerResultados
-        INTERFACES_DISPONIBLES = True
-        print("✅ Interfaces avanzadas cargadas correctamente")
-        return True
-
-    except ImportError as e:
-        print(f"⚠️ Interfaces no disponibles: {e}")
-        print("ℹ️ La funcionalidad principal sigue disponible")
-        return False
-    except Exception as e:
-        print(f"❌ Error inesperado cargando interfaces: {e}")
-        return False
-
-
-# Cargar interfaces al inicio
-cargar_interfaces()
-
-
-class Ui_MainWindow(object):
+class OptimLabsGUI(QtWidgets.QMainWindow):
     def __init__(self):
-        self.path_alumnos = None
-        self.path_asignaturas = None
-        self.path_laboratorios = None
-        self.path_profesores = None
-        self.path_restricciones = None
-        self._validation_logged = False
+        super().__init__()
+        self.config_file = "configuracion_labs.json"
 
-        # Referencias a ventanas de configuración
-        self.ventana_calendario = None
+        # Ventanas de configuración (se abren bajo demanda)
         self.ventana_horarios = None
+        self.ventana_calendario = None
+        self.ventana_alumnos = None
+        self.ventana_profesores = None
+        self.ventana_aulas = None
         self.ventana_resultados = None
 
-        # Guardar referencia al MainWindow
-        self.main_window = None
+        self.setupUi()
+        self.conectar_signals()
 
-    def setupUi(self, MainWindow):
-        # Guardar referencia
-        self.main_window = MainWindow
+        # Now load configuration after UI is set up
+        self.configuracion = self.cargar_configuracion()
 
-        MainWindow.setObjectName("MainWindow")
-        MainWindow.resize(1100, 750)
-        MainWindow.setMinimumSize(QtCore.QSize(1100, 750))
-        MainWindow.setMaximumSize(QtCore.QSize(1100, 750))
-        MainWindow.setWindowTitle("OPTIM by SoftVier - ETSIDI")
+        self.actualizar_estado_visual()
+        self.log_mensaje("🔄 OPTIM Labs iniciado correctamente", "info")
 
-        self.centralwidget = QtWidgets.QWidget(MainWindow)
-        self.centralwidget.setObjectName("centralwidget")
+    def setupUi(self):
+        """Configurar interfaz principal"""
+        self.setObjectName("OptimLabsGUI")
+        self.resize(1200, 850)
+        self.setMinimumSize(QtCore.QSize(1200, 850))
+        self.setWindowTitle("OPTIM by SoftVier - ETSIDI")
 
-        # ========= MENÚ SUPERIOR (solo si hay interfaces enlazadas) =========
-        if INTERFACES_DISPONIBLES:
-            self.setup_menu_bar(MainWindow)
+        # Widget central
+        self.centralwidget = QtWidgets.QWidget(self)
+        self.setCentralWidget(self.centralwidget)
 
-        # ========= TÍTULO PRINCIPAL =========
-        self.titulo_principal = QtWidgets.QLabel(self.centralwidget)
-        self.titulo_principal.setGeometry(QtCore.QRect(50, 10, 1000, 35))
+        # Configurar componentes
+        self.setup_titulo()
+        self.setup_panel_estado()
+        self.setup_botones_configuracion()
+        self.setup_resumen_configuracion()
+        self.setup_botones_principales()
+        self.setup_area_log()
 
-        titulo_base = "OPTIM by SoftVier - ETSIDI"
-        if not INTERFACES_DISPONIBLES:
-            titulo_base += " (Modo Básico)"
+        # Aplicar tema oscuro del TFG
+        self.aplicar_tema_oscuro()
 
-        self.titulo_principal.setText(titulo_base)
-        self.titulo_principal.setAlignment(QtCore.Qt.AlignmentFlag.AlignCenter)
-        self.titulo_principal.setStyleSheet("""
+    def setup_titulo(self):
+        """Título principal con información del proyecto"""
+        self.titulo = QtWidgets.QLabel(self.centralwidget)
+        self.titulo.setGeometry(QtCore.QRect(50, 10, 1100, 45))
+        self.titulo.setText("🎯 OPTIM by SoftVier - Sistema de Programación de Laboratorios ETSIDI")
+        self.titulo.setAlignment(QtCore.Qt.AlignmentFlag.AlignCenter)
+        self.titulo.setStyleSheet("""
             QLabel {
                 color: rgb(42,130,218);
-                font-size: 18px;
+                font-size: 16px;
                 font-weight: bold;
                 background-color: rgb(35,35,35);
-                border: 1px solid rgb(42,130,218);
-                border-radius: 5px;
+                border: 2px solid rgb(42,130,218);
+                border-radius: 8px;
+                padding: 10px;
+            }
+        """)
+
+    def setup_panel_estado(self):
+        """Panel de estado general con indicadores visuales"""
+        # Frame contenedor
+        self.frame_estado = QtWidgets.QFrame(self.centralwidget)
+        self.frame_estado.setGeometry(QtCore.QRect(50, 70, 1100, 80))
+        self.frame_estado.setFrameStyle(QtWidgets.QFrame.Shape.Box)
+
+        # Labels de estado
+        estados = [
+            ("asignaturas", "📚 Asignaturas", 20),
+            ("profesores", "👨‍🏫 Profesores", 180),
+            ("alumnos", "👥 Alumnos", 340),
+            ("aulas", "🏢 Aulas", 500),
+            ("calendario", "📆 Calendario", 660),
+            ("horarios", "📅 Horarios", 820),
+            ("global", "🎯 Estado", 980)
+        ]
+
+        self.labels_estado = {}
+        for key, texto, x_pos in estados:
+            # Label título
+            label_titulo = QtWidgets.QLabel(self.frame_estado)
+            label_titulo.setGeometry(QtCore.QRect(x_pos, 10, 150, 20))
+            label_titulo.setText(texto)
+            label_titulo.setStyleSheet("font-weight: bold; font-size: 12px;")
+
+            # Label estado
+            label_estado = QtWidgets.QLabel(self.frame_estado)
+            label_estado.setGeometry(QtCore.QRect(x_pos, 35, 150, 35))
+            label_estado.setText("❌ Sin configurar")
+            label_estado.setStyleSheet("font-size: 11px; color: rgb(220,220,220);")
+
+            self.labels_estado[key] = label_estado
+
+    def setup_botones_configuracion(self):
+        """Botones para acceder a cada configuración"""
+        # Frame contenedor
+        self.frame_botones = QtWidgets.QFrame(self.centralwidget)
+        self.frame_botones.setGeometry(QtCore.QRect(50, 170, 1100, 180))
+
+        # Primera fila de botones
+        botones_fila1 = [
+            ("btn_asignaturas", "📋 ASIGNATURAS\nLímites y grupos", 50, 20),
+            ("btn_profesores", "👨‍🏫 PROFESORES\nDisponibilidad horaria", 300, 20),
+            ("btn_alumnos", "👥 ALUMNOS\nMatrículas por asignatura", 550, 20),
+            ("btn_aulas", "🏢 AULAS\nLaboratorios disponibles", 800, 20)
+        ]
+
+        # Segunda fila de botones
+        botones_fila2 = [
+            ("btn_calendario", "📅 CALENDARIO\nConfigurar semestre", 50, 100),
+            ("btn_horarios", "⏰ HORARIOS\nFranjas por asignatura", 300, 100),
+            ("btn_parametros", "🎯 PARÁMETROS\nPesos optimización", 550, 100),
+            ("btn_resultados", "📊 RESULTADOS\nVer última ejecución", 800, 100)
+        ]
+
+        self.botones_config = {}
+        for botones_fila in [botones_fila1, botones_fila2]:
+            for key, texto, x, y in botones_fila:
+                btn = QtWidgets.QPushButton(self.frame_botones)
+                btn.setGeometry(QtCore.QRect(x, y, 220, 65))
+                btn.setText(texto)
+                btn.setStyleSheet(self.estilo_boton_configuracion())
+                self.botones_config[key] = btn
+
+    def setup_resumen_configuracion(self):
+        """Área de resumen de configuración actual"""
+        # Label título
+        self.label_resumen_titulo = QtWidgets.QLabel(self.centralwidget)
+        self.label_resumen_titulo.setGeometry(QtCore.QRect(50, 370, 1100, 25))
+        self.label_resumen_titulo.setText("📋 RESUMEN DE CONFIGURACIÓN ACTUAL")
+        self.label_resumen_titulo.setStyleSheet("font-weight: bold; font-size: 14px; color: rgb(42,130,218);")
+
+        # Área de texto para resumen
+        self.texto_resumen = QtWidgets.QTextEdit(self.centralwidget)
+        self.texto_resumen.setGeometry(QtCore.QRect(50, 400, 1100, 120))
+        self.texto_resumen.setReadOnly(True)
+        self.texto_resumen.setStyleSheet("""
+            QTextEdit {
+                background-color: rgb(42,42,42);
+                color: rgb(220,220,220);
+                border: 1px solid rgb(127,127,127);
+                font-family: 'Consolas', monospace;
+                font-size: 11px;
                 padding: 8px;
             }
         """)
 
-        # ========= SECCIONES PRINCIPALES =========
-        self.setup_credenciales_section()
-        self.setup_archivos_section()
-        self.setup_configuracion_section()
-        self.setup_opciones_section()
+    def setup_botones_principales(self):
+        """Botones principales de acción"""
+        # Frame contenedor
+        self.frame_acciones = QtWidgets.QFrame(self.centralwidget)
+        self.frame_acciones.setGeometry(QtCore.QRect(50, 540, 1100, 80))
 
-        # ========= BOTONES CONFIGURACIÓN (solo si están disponibles) =========
-        if INTERFACES_DISPONIBLES:
-            self.setup_botones_configuracion()
-
-        # ========= ÁREA DE LOG =========
-        self.setup_area_log()
-
-        # ========= BOTONES PRINCIPALES =========
-        self.setup_botones_principales()
-
-        # ========= BARRA DE PROGRESO =========
-        self.progress_bar = QtWidgets.QProgressBar(self.centralwidget)
-        self.progress_bar.setGeometry(QtCore.QRect(50, 720, 1000, 20))
-        self.progress_bar.setVisible(False)
-
-        MainWindow.setCentralWidget(self.centralwidget)
-
-        # ========= CONEXIONES =========
-        self.connect_signals()
-
-        # ========= TEMA OSCURO =========
-        self.apply_dark_theme_tfg()
-
-        # ========= LOG INICIAL =========
-        self.mostrar_log_inicial()
-
-    def setup_menu_bar(self, MainWindow):
-        """Configurar barra de menú (solo si interfaces disponibles)"""
-        menubar = MainWindow.menuBar()
-
-        # Menú Configuración
-        menu_config = menubar.addMenu('⚙️ Configuración')
-
-        action_calendario = QtGui.QAction('📅 Configurar Calendario', MainWindow)
-        action_calendario.triggered.connect(self.abrir_configurar_calendario)
-        menu_config.addAction(action_calendario)
-
-        action_horarios = QtGui.QAction('⏰ Configurar Horarios', MainWindow)
-        action_horarios.triggered.connect(self.abrir_configurar_horarios)
-        menu_config.addAction(action_horarios)
-
-        menu_config.addSeparator()
-
-        action_resultados = QtGui.QAction('📊 Ver Resultados', MainWindow)
-        action_resultados.triggered.connect(self.abrir_ver_resultados)
-        menu_config.addAction(action_resultados)
-
-        # Menú Ayuda
-        menu_ayuda = menubar.addMenu('❓ Ayuda')
-        action_acerca = QtGui.QAction('ℹ️ Acerca de OPTIM', MainWindow)
-        action_acerca.triggered.connect(self.mostrar_acerca_de)
-        menu_ayuda.addAction(action_acerca)
-
-    def setup_credenciales_section(self):
-        """Sección credenciales UPM"""
-        self.label_credenciales = QtWidgets.QLabel(self.centralwidget)
-        self.label_credenciales.setGeometry(QtCore.QRect(50, 60, 500, 25))
-        self.label_credenciales.setText("Credenciales UPM (OPCIONALES - solo para web scraping)")
-
-        self.label_email = QtWidgets.QLabel(self.centralwidget)
-        self.label_email.setGeometry(QtCore.QRect(50, 95, 100, 20))
-        self.label_email.setText("Email UPM:")
-
-        self.lineEdit_email = QtWidgets.QLineEdit(self.centralwidget)
-        self.lineEdit_email.setGeometry(QtCore.QRect(160, 95, 370, 25))
-        self.lineEdit_email.setPlaceholderText("usuario@upm.es")
-
-        self.label_password = QtWidgets.QLabel(self.centralwidget)
-        self.label_password.setGeometry(QtCore.QRect(50, 135, 100, 20))
-        self.label_password.setText("Contraseña:")
-
-        self.lineEdit_password = QtWidgets.QLineEdit(self.centralwidget)
-        self.lineEdit_password.setGeometry(QtCore.QRect(160, 135, 370, 25))
-        self.lineEdit_password.setEchoMode(QtWidgets.QLineEdit.EchoMode.Password)
-        self.lineEdit_password.setPlaceholderText("Tu contraseña UPM")
-
-    def setup_archivos_section(self):
-        """Sección archivos de datos"""
-        self.label_archivos = QtWidgets.QLabel(self.centralwidget)
-        self.label_archivos.setGeometry(QtCore.QRect(50, 180, 500, 25))
-        self.label_archivos.setText("Seleccione los archivos con los datos del sistema")
-
-        # Archivos obligatorios
-        archivos = [
-            ("alumnos", "Lista de Alumnos por Asignatura (CSV/Excel)", 215),
-            ("asignaturas", "Asignaturas y Laboratorios Compatibles (CSV/Excel)", 255),
-            ("laboratorios", "Laboratorios Disponibles y Capacidades (CSV/Excel)", 295),
-            ("profesores", "Profesores y Disponibilidad Horaria (CSV/Excel)", 335),
-            ("restricciones", "Restricciones Adicionales (Opcional)", 375)
+        # Botones principales
+        botones_principales = [
+            ("btn_organizar", "✨ ORGANIZAR\nLABORATORIOS", 50, 15, 200, True),
+            ("btn_guardar", "💾 GUARDAR\nCONFIGURACIÓN", 300, 15, 180, False),
+            ("btn_cargar", "📂 CARGAR\nCONFIGURACIÓN", 520, 15, 180, False),
+            ("btn_reset", "🔄 RESET\nTODO", 740, 15, 140, False),
+            ("btn_ayuda", "❓ AYUDA\nY SOPORTE", 920, 15, 140, False)
         ]
 
-        for nombre, descripcion, y_pos in archivos:
-            # Label
-            label = QtWidgets.QLabel(self.centralwidget)
-            label.setGeometry(QtCore.QRect(50, y_pos, 350, 20))
-            label.setText(descripcion)
-            setattr(self, f'label_{nombre}', label)
+        self.botones_principales = {}
+        for key, texto, x, y, width, es_principal in botones_principales:
+            btn = QtWidgets.QPushButton(self.frame_acciones)
+            btn.setGeometry(QtCore.QRect(x, y, width, 50))
+            btn.setText(texto)
 
-            # Botón
-            btn = QtWidgets.QPushButton(self.centralwidget)
-            btn.setGeometry(QtCore.QRect(450, y_pos, 80, 25))
-            btn.setText("Examinar")
-            setattr(self, f'btn_{nombre}', btn)
+            if es_principal:
+                btn.setStyleSheet(self.estilo_boton_principal())
+                btn.setEnabled(False)  # Deshabilitado hasta tener configuración completa
+            else:
+                btn.setStyleSheet(self.estilo_boton_secundario())
 
-    def setup_configuracion_section(self):
-        """Sección parámetros"""
-        self.label_config = QtWidgets.QLabel(self.centralwidget)
-        self.label_config.setGeometry(QtCore.QRect(50, 420, 500, 25))
-        self.label_config.setText("Configuración de parámetros")
-
-        # Semestre
-        self.label_semestre = QtWidgets.QLabel(self.centralwidget)
-        self.label_semestre.setGeometry(QtCore.QRect(50, 455, 80, 20))
-        self.label_semestre.setText("Semestre:")
-
-        self.combo_semestre = QtWidgets.QComboBox(self.centralwidget)
-        self.combo_semestre.setGeometry(QtCore.QRect(140, 455, 60, 25))
-        self.combo_semestre.addItems(["1", "2"])
-
-        # Capacidad
-        self.label_capacidad = QtWidgets.QLabel(self.centralwidget)
-        self.label_capacidad.setGeometry(QtCore.QRect(250, 455, 130, 20))
-        self.label_capacidad.setText("Capacidad máxima:")
-
-        self.spin_capacidad = QtWidgets.QSpinBox(self.centralwidget)
-        self.spin_capacidad.setGeometry(QtCore.QRect(390, 455, 60, 25))
-        self.spin_capacidad.setMinimum(10)
-        self.spin_capacidad.setMaximum(50)
-        self.spin_capacidad.setValue(24)
-
-    def setup_opciones_section(self):
-        """Sección opciones"""
-        self.label_opciones = QtWidgets.QLabel(self.centralwidget)
-        self.label_opciones.setGeometry(QtCore.QRect(50, 500, 500, 25))
-        self.label_opciones.setText("Opciones adicionales:")
-
-        self.check_grupos_pares = QtWidgets.QCheckBox(self.centralwidget)
-        self.check_grupos_pares.setGeometry(QtCore.QRect(50, 535, 500, 20))
-        self.check_grupos_pares.setText("Priorizar grupos equilibrados")
-        self.check_grupos_pares.setChecked(True)
-
-        self.check_web_scraping = QtWidgets.QCheckBox(self.centralwidget)
-        self.check_web_scraping.setGeometry(QtCore.QRect(50, 560, 500, 20))
-        self.check_web_scraping.setText("Web scraping automático (requiere credenciales)")
-
-        self.check_optimizacion = QtWidgets.QCheckBox(self.centralwidget)
-        self.check_optimizacion.setGeometry(QtCore.QRect(50, 585, 500, 20))
-        self.check_optimizacion.setText("Optimización avanzada (más lento)")
-
-    def setup_botones_configuracion(self):
-        """Botones configuración (solo si interfaces disponibles)"""
-        self.label_config_avanzada = QtWidgets.QLabel(self.centralwidget)
-        self.label_config_avanzada.setGeometry(QtCore.QRect(50, 615, 500, 20))
-        self.label_config_avanzada.setText("Configuración Avanzada:")
-        self.label_config_avanzada.setStyleSheet("color: rgb(42,130,218); font-weight: bold;")
-
-        self.btn_config_calendario = QtWidgets.QPushButton(self.centralwidget)
-        self.btn_config_calendario.setGeometry(QtCore.QRect(50, 640, 140, 30))
-        self.btn_config_calendario.setText("📅 Calendario")
-
-        self.btn_config_horarios = QtWidgets.QPushButton(self.centralwidget)
-        self.btn_config_horarios.setGeometry(QtCore.QRect(200, 640, 140, 30))
-        self.btn_config_horarios.setText("⏰ Horarios")
-
-        self.btn_ver_resultados = QtWidgets.QPushButton(self.centralwidget)
-        self.btn_ver_resultados.setGeometry(QtCore.QRect(350, 640, 140, 30))
-        self.btn_ver_resultados.setText("📊 Resultados")
+            self.botones_principales[key] = btn
 
     def setup_area_log(self):
-        """Área de log"""
-        y_pos = 120 if INTERFACES_DISPONIBLES else 120
-        height = 450 if INTERFACES_DISPONIBLES else 520
+        """Área de log de actividad"""
+        # Label título
+        self.label_log_titulo = QtWidgets.QLabel(self.centralwidget)
+        self.label_log_titulo.setGeometry(QtCore.QRect(50, 640, 1100, 25))
+        self.label_log_titulo.setText("📝 LOG DE ACTIVIDAD")
+        self.label_log_titulo.setStyleSheet("font-weight: bold; font-size: 14px; color: rgb(42,130,218);")
 
-        self.info_area = QtWidgets.QTextEdit(self.centralwidget)
-        self.info_area.setGeometry(QtCore.QRect(580, y_pos, 470, height))
-        self.info_area.setReadOnly(True)
+        # Área de texto para log
+        self.texto_log = QtWidgets.QTextEdit(self.centralwidget)
+        self.texto_log.setGeometry(QtCore.QRect(50, 670, 1100, 150))
+        self.texto_log.setReadOnly(True)
+        self.texto_log.setStyleSheet("""
+            QTextEdit {
+                background-color: rgb(35,35,35);
+                color: rgb(200,200,200);
+                border: 1px solid rgb(127,127,127);
+                font-family: 'Consolas', monospace;
+                font-size: 10px;
+                padding: 5px;
+            }
+        """)
 
-    def setup_botones_principales(self):
-        """Botones principales"""
-        y_pos = 580 if INTERFACES_DISPONIBLES else 650
+    def conectar_signals(self):
+        """Conectar señales de botones"""
+        # Botones de configuración
+        self.botones_config["btn_calendario"].clicked.connect(self.abrir_configurar_calendario)
+        self.botones_config["btn_horarios"].clicked.connect(self.abrir_configurar_horarios)
+        self.botones_config["btn_aulas"].clicked.connect(self.abrir_configurar_aulas)
+        self.botones_config["btn_profesores"].clicked.connect(self.abrir_configurar_profesores)
+        self.botones_config["btn_alumnos"].clicked.connect(self.abrir_configurar_alumnos)
+        self.botones_config["btn_asignaturas"].clicked.connect(self.abrir_configurar_asignaturas)
+        self.botones_config["btn_parametros"].clicked.connect(self.abrir_configurar_parametros)
+        self.botones_config["btn_resultados"].clicked.connect(self.abrir_ver_resultados)
 
-        self.ejecutar = QtWidgets.QPushButton(self.centralwidget)
-        self.ejecutar.setGeometry(QtCore.QRect(650, y_pos, 180, 40))
-        self.ejecutar.setText("🚀 Generar Horarios")
-        self.ejecutar.setEnabled(False)
+        # Botones principales
+        self.botones_principales["btn_organizar"].clicked.connect(self.iniciar_organizacion)
+        self.botones_principales["btn_guardar"].clicked.connect(self.guardar_configuracion)
+        self.botones_principales["btn_cargar"].clicked.connect(self.cargar_configuracion_archivo)
+        self.botones_principales["btn_reset"].clicked.connect(self.reset_configuracion)
+        self.botones_principales["btn_ayuda"].clicked.connect(self.mostrar_ayuda)
 
-        self.btn_limpiar_log = QtWidgets.QPushButton(self.centralwidget)
-        self.btn_limpiar_log.setGeometry(QtCore.QRect(850, y_pos, 100, 40))
-        self.btn_limpiar_log.setText("🧹 Limpiar")
+    def cargar_configuracion(self):
+        """Cargar configuración desde archivo JSON - CORREGIDO"""
+        if os.path.exists(self.config_file):
+            try:
+                with open(self.config_file, 'r', encoding='utf-8') as f:
+                    config = json.load(f)
+                self.log_mensaje(f"✅ Configuración cargada desde {self.config_file}", "info")
+                return config
+            except Exception as e:
+                self.log_mensaje(f"❌ Error cargando configuración: {e}", "error")
 
-        self.btn_salir = QtWidgets.QPushButton(self.centralwidget)
-        self.btn_salir.setGeometry(QtCore.QRect(960, y_pos, 90, 40))
-        self.btn_salir.setText("❌ Salir")
+        # Configuración por defecto
+        return {
+            "metadata": {
+                "version": "1.0",
+                "timestamp": datetime.now().isoformat(),
+                "semestre_actual": 1
+            },
+            "configuracion": {
+                "horarios": {"configurado": False, "datos": {}, "archivo": ""},
+                "calendario": {"configurado": False, "datos": {}, "semanas_total": 0},
+                "aulas": {
+                    "configurado": False,
+                    "datos": {},
+                    "total_aulas": 0,  # ✅ CORREGIDO: era "total"
+                    "fecha_actualizacion": None  # ✅ AÑADIDO
+                },
+                "profesores": {"configurado": False, "datos": {}, "total": 0},
+                "alumnos": {"configurado": False, "datos": {}, "total": 0},
+                "asignaturas": {"configurado": False, "datos": {}, "total": 0}
+            },
+            "parametros_organizacion": {
+                "preferir_grupos_pares": True,
+                "peso_equilibrio_grupos": 10,
+                "peso_conflictos_horarios": 20,
+                "peso_capacidad_aulas": 25,
+                "peso_disponibilidad_profesores": 15,
+                "peso_compatibilidad_asignaturas": 30
+            }
+        }
 
-    def connect_signals(self):
-        """Conectar señales"""
-        # Archivos
-        for nombre in ['alumnos', 'asignaturas', 'laboratorios', 'profesores', 'restricciones']:
-            btn = getattr(self, f'btn_{nombre}')
-            btn.clicked.connect(lambda checked, n=nombre: self.seleccionar_archivo(n))
+    def actualizar_estado_visual(self):
+        """Actualizar indicadores visuales de estado"""
+        config = self.configuracion["configuracion"]
 
-        # Validación
-        for nombre in ['alumnos', 'asignaturas', 'laboratorios', 'profesores']:
-            btn = getattr(self, f'btn_{nombre}')
-            btn.clicked.connect(self.validar_ejecucion)
+        # Estados individuales
+        estados = {
+            "horarios": self.get_estado_horarios(),
+            "calendario": self.get_estado_calendario(),
+            "aulas": self.get_estado_aulas(),
+            "profesores": self.get_estado_profesores(),
+            "alumnos": self.get_estado_alumnos(),
+            "asignaturas": self.get_estado_asignaturas()
+        }
 
-        # Principal
-        self.ejecutar.clicked.connect(self.iniciar_programacion)
-        self.btn_limpiar_log.clicked.connect(self.limpiar_log)
-        self.btn_salir.clicked.connect(self.salir_aplicacion)
+        # Actualizar labels
+        for key, (icono, texto, color) in estados.items():
+            if key in self.labels_estado:
+                self.labels_estado[key].setText(f"{icono} {texto}")
+                self.labels_estado[key].setStyleSheet(f"font-size: 11px; color: {color};")
 
-        # Configuración (solo si disponible)
-        if INTERFACES_DISPONIBLES:
-            self.btn_config_calendario.clicked.connect(self.abrir_configurar_calendario)
-            self.btn_config_horarios.clicked.connect(self.abrir_configurar_horarios)
-            self.btn_ver_resultados.clicked.connect(self.abrir_ver_resultados)
+        # Estado global
+        configurados = sum(1 for estado in estados.values() if estado[0] == "✅")
+        total = len(estados)
 
-    def mostrar_log_inicial(self):
-        """Log inicial dinámico"""
-        log_inicial = f"""OPTIM - Sistema de Programación de Laboratorios v1.0
-Desarrollado por SoftVier para ETSIDI
+        if configurados == total:
+            estado_global = ("✅", "Todo configurado", "rgb(100,255,100)")
+            self.botones_principales["btn_organizar"].setEnabled(True)
+        elif configurados > 0:
+            estado_global = ("⚠️", f"{configurados}/{total} configurado", "rgb(255,200,100)")
+        else:
+            estado_global = ("❌", "Sin configurar", "rgb(255,100,100)")
 
-MODO: {'Completo' if INTERFACES_DISPONIBLES else 'Básico'}
-{'✅ Interfaces avanzadas disponibles' if INTERFACES_DISPONIBLES else '⚠️ Solo funcionalidad básica (interfaces no disponibles)'}
+        self.labels_estado["global"].setText(f"{estado_global[0]} {estado_global[1]}")
+        self.labels_estado["global"].setStyleSheet(f"font-size: 11px; color: {estado_global[2]};")
 
-INSTRUCCIONES:
-1. Credenciales UPM (OPCIONALES)
-2. Selecciona los 4 archivos obligatorios
-3. Configura parámetros
-4. Haz clic en 'Generar Horarios'
+        # Actualizar resumen
+        self.actualizar_resumen()
 
-ARCHIVOS OBLIGATORIOS:
-• Alumnos: Lista con DNI, nombre, asignatura
-• Asignaturas: Compatibilidad con laboratorios
-• Laboratorios: Capacidad y equipamiento
-• Profesores: Disponibilidad horaria
+    def get_estado_horarios(self):
+        """Obtener estado de configuración de horarios"""
+        horarios = self.configuracion["configuracion"]["horarios"]
+        if horarios["configurado"] and horarios.get("datos"):
+            total_asig = horarios.get("total_asignaturas", 0)
+            total_franjas = horarios.get("total_franjas", 0)
+            semestre = horarios.get("semestre_actual", "?")
 
-{'CONFIGURACIÓN AVANZADA DISPONIBLE:' if INTERFACES_DISPONIBLES else ''}
-{'• Configurar Calendario: Períodos académicos' if INTERFACES_DISPONIBLES else ''}
-{'• Configurar Horarios: Franjas horarias' if INTERFACES_DISPONIBLES else ''}
-{'• Ver Resultados: Análisis detallado' if INTERFACES_DISPONIBLES else ''}
+            if total_asig > 0:
+                return ("✅", f"S{semestre}: {total_asig} asig, {total_franjas} franjas", "rgb(100,255,100)")
+            else:
+                return ("⚠️", "Configurado sin datos", "rgb(255,200,100)")
+        return ("❌", "Sin configurar", "rgb(255,100,100)")
 
-Sistema listo..."""
+    def get_estado_calendario(self):
+        """Obtener estado de configuración de calendario"""
+        calendario = self.configuracion["configuracion"]["calendario"]
+        if calendario["configurado"]:
+            semanas = calendario.get("semanas_total", 0)
+            return ("✅", f"{semanas} semanas", "rgb(100,255,100)")
+        return ("❌", "Sin configurar", "rgb(255,100,100)")
 
-        self.info_area.setText(log_inicial)
+    def get_estado_aulas(self):
+        """Obtener estado de configuración de aulas"""
+        aulas = self.configuracion["configuracion"]["aulas"]
+        if aulas["configurado"] and aulas.get("total_aulas", 0) > 0:
+            return ("✅", f"{aulas['total_aulas']} aulas", "rgb(100,255,100)")
+        return ("❌", "Sin configurar", "rgb(255,100,100)")
 
-    # ========= MÉTODOS PRINCIPALES =========
+    def get_estado_profesores(self):
+        """Obtener estado de configuración de profesores"""
+        profesores = self.configuracion["configuracion"]["profesores"]
+        if profesores["configurado"] and profesores["total"] > 0:
+            return ("✅", f"{profesores['total']} profesores", "rgb(100,255,100)")
+        return ("❌", "Sin configurar", "rgb(255,100,100)")
 
-    def seleccionar_archivo(self, tipo):
-        """Seleccionar archivo"""
-        fname = QtWidgets.QFileDialog.getOpenFileName(
-            None, f'Seleccionar archivo de {tipo}', '', 'Archivos (*.csv *.xlsx *.xls)'
-        )
+    def get_estado_alumnos(self):
+        """Obtener estado de configuración de alumnos"""
+        alumnos = self.configuracion["configuracion"]["alumnos"]
+        if alumnos["configurado"] and alumnos["total"] > 0:
+            return ("✅", f"{alumnos['total']} alumnos", "rgb(100,255,100)")
+        return ("❌", "Sin configurar", "rgb(255,100,100)")
 
-        if fname[0]:
-            setattr(self, f'path_{tipo}', fname[0])
-            btn = getattr(self, f'btn_{tipo}')
-            btn.setText("✓ Cargado")
-            btn.setStyleSheet("background-color: #2ecc71; color: white;")
+    def get_estado_asignaturas(self):
+        """Obtener estado de configuración de asignaturas"""
+        asignaturas = self.configuracion["configuracion"]["asignaturas"]
+        if asignaturas["configurado"] and asignaturas.get("total", 0) > 0:
+            return ("✅", f"{asignaturas['total']} asignaturas", "rgb(100,255,100)")
+        return ("❌", "Sin configurar", "rgb(255,100,100)")
 
-            filename = fname[0].split('/')[-1].split('\\')[-1]
-            self.log_info(f"✓ {tipo.capitalize()} cargado: {filename}")
+    def actualizar_resumen(self):
+        """Actualizar área de resumen"""
+        config = self.configuracion["configuracion"]
+        resumen = []
 
-    def validar_ejecucion(self):
-        """Validar archivos obligatorios"""
-        archivos_ok = all([
-            self.path_alumnos, self.path_asignaturas,
-            self.path_laboratorios, self.path_profesores
-        ])
+        # SECCIÓN HORARIOS MEJORADA
+        if config["horarios"]["configurado"]:
+            horarios_info = config["horarios"]
+            total_asig = horarios_info.get("total_asignaturas", 0)
+            total_franjas = horarios_info.get("total_franjas", 0)
+            semestre = horarios_info.get("semestre_actual", "?")
+            timestamp = horarios_info.get("timestamp", "")
 
-        self.ejecutar.setEnabled(archivos_ok)
+            if timestamp:
+                fecha = datetime.fromisoformat(timestamp.replace('Z', '+00:00')).strftime("%d/%m/%Y %H:%M")
+            else:
+                fecha = "Fecha desconocida"
 
-        if archivos_ok and not self._validation_logged:
-            self.log_info("✅ Todos los archivos obligatorios cargados")
-            self._validation_logged = True
+            resumen.append(f"✅ HORARIOS: Semestre {semestre} - {total_asig} asignaturas, {total_franjas} franjas")
+            resumen.append(f"   📅 Última actualización: {fecha}")
 
-    def iniciar_programacion(self):
-        """Iniciar programación"""
-        self.ejecutar.setEnabled(False)
-        self.progress_bar.setVisible(True)
-        self.log_info("\n🚀 INICIANDO GENERACIÓN DE HORARIOS")
+            # Mostrar detalles por semestre si hay datos
+            datos_horarios = horarios_info.get("datos", {})
+            if datos_horarios:
+                for semestre_num, asignaturas in datos_horarios.items():
+                    if asignaturas:  # Solo mostrar semestres con datos
+                        franjas_sem = sum(
+                            sum(len(horarios_dia) for horarios_dia in asig_data.get("horarios", {}).values())
+                            for asig_data in asignaturas.values()
+                        )
+                        resumen.append(
+                            f"   • Semestre {semestre_num}: {len(asignaturas)} asignaturas, {franjas_sem} franjas")
+        else:
+            resumen.append("❌ HORARIOS: Sin configurar")
 
-        # Simular proceso
-        import time
-        pasos = [
-            (20, "📂 Cargando archivos..."),
-            (40, "⚖️ Generando grupos equilibrados..."),
-            (60, "🏢 Asignando laboratorios..."),
-            (80, "📅 Resolviendo conflictos..."),
-            (100, "💾 Exportando resultados...")
+        resumen.append("")
+
+        # Resto de configuraciones (igual que antes)
+        secciones = [
+            ("CALENDARIO", "calendario"),
+            ("AULAS", "aulas"),
+            ("PROFESORES", "profesores"),
+            ("ALUMNOS", "alumnos")
         ]
 
-        for progreso, mensaje in pasos:
-            self.log_info(mensaje)
-            self.progress_bar.setValue(progreso)
-            time.sleep(0.5)
-            QtCore.QCoreApplication.processEvents()
+        for nombre, key in secciones:
+            if config[key]["configurado"]:
+                if key == "aulas":
+                    total = config[key].get("total_aulas", 0)
+                else:
+                    total = config[key].get("total", 0)
+                resumen.append(f"✅ {nombre}: {total} elementos configurados")
+            else:
+                resumen.append(f"❌ {nombre}: Sin configurar")
 
-        self.log_info("✅ ¡Horarios generados exitosamente!")
-        self.progress_bar.setVisible(False)
-        self.ejecutar.setEnabled(True)
+        self.texto_resumen.setPlainText("\n".join(resumen))
 
-    # ========= MÉTODOS DE INTERFACES (✅ CORREGIDOS) =========
-
-    def abrir_configurar_calendario(self):
-        """Abrir configuración calendario"""
-        if not INTERFACES_DISPONIBLES:
-            self.mostrar_mensaje("⚠️ No Disponible", "Interfaces avanzadas no cargadas")
-            return
-
-        try:
-            if self.ventana_calendario is None:
-                # ✅ SOLUCIÓN: Pasar self.main_window en lugar de self
-                self.ventana_calendario = ConfigurarCalendario(parent=self.main_window)
-            self.ventana_calendario.show()
-            self.ventana_calendario.raise_()
-            self.ventana_calendario.activateWindow()
-            self.log_info("📅 Abriendo configuración de calendario...")
-        except Exception as e:
-            self.mostrar_mensaje("❌ Error", f"Error: {str(e)}")
-
-    def abrir_configurar_horarios(self):
-        """Abrir configuración horarios"""
-        if not INTERFACES_DISPONIBLES:
-            self.mostrar_mensaje("⚠️ No Disponible", "Interfaces avanzadas no cargadas")
-            return
-
-        try:
-            if self.ventana_horarios is None:
-                # ✅ SOLUCIÓN: Pasar self.main_window en lugar de self
-                self.ventana_horarios = ConfigurarHorarios(parent=self.main_window)
-            self.ventana_horarios.show()
-            self.ventana_horarios.raise_()
-            self.ventana_horarios.activateWindow()
-            self.log_info("⏰ Abriendo configuración de horarios...")
-        except Exception as e:
-            self.mostrar_mensaje("❌ Error", f"Error: {str(e)}")
-
-    def abrir_ver_resultados(self):
-        """Abrir resultados"""
-        if not INTERFACES_DISPONIBLES:
-            self.mostrar_mensaje("⚠️ No Disponible", "Interfaces avanzadas no cargadas")
-            return
-
-        try:
-            if self.ventana_resultados is None:
-                # ✅ SOLUCIÓN: Pasar self.main_window en lugar de self
-                self.ventana_resultados = VerResultados(parent=self.main_window)
-            self.ventana_resultados.show()
-            self.ventana_resultados.raise_()
-            self.ventana_resultados.activateWindow()
-            self.log_info("📊 Abriendo visualización de resultados...")
-        except Exception as e:
-            self.mostrar_mensaje("❌ Error", f"Error: {str(e)}")
-
-    # ========= MÉTODOS AUXILIARES =========
-
-    def log_info(self, mensaje):
-        """Log con timestamp"""
-        from datetime import datetime
+    def log_mensaje(self, mensaje, tipo="info"):
+        """Agregar mensaje al log"""
         timestamp = datetime.now().strftime("%H:%M:%S")
-        self.info_area.append(f"[{timestamp}] {mensaje}")
-        scrollbar = self.info_area.verticalScrollBar()
+        iconos = {"info": "ℹ️", "warning": "⚠️", "error": "❌", "success": "✅"}
+        icono = iconos.get(tipo, "ℹ️")
+
+        mensaje_completo = f"{timestamp} - {icono} {mensaje}"
+        self.texto_log.append(mensaje_completo)
+
+        # Auto-scroll al final
+        scrollbar = self.texto_log.verticalScrollBar()
         scrollbar.setValue(scrollbar.maximum())
 
-    def limpiar_log(self):
-        """Limpiar log"""
-        self.info_area.clear()
-        self.mostrar_log_inicial()
+    # ========= ACTUALIZACION DE CONFIGURACION =========
 
-    def mostrar_acerca_de(self):
-        """Acerca de"""
-        mensaje = f"""OPTIM by SoftVier v1.0
+    def actualizar_configuracion_calendario(self):
+        self.log_mensaje("📅 Abriendo configuración de calendario...", "info")
+        # TODO: Implementar ventana de calendario
 
-Modo: {'Completo' if INTERFACES_DISPONIBLES else 'Básico'}
-Stack: Python + PyQt6 + Pandas
+    def actualizar_configuracion_horarios(self, datos_horarios):
+        """Actualizar configuración cuando se completen los horarios - VERSIÓN SILENCIOSA"""
+        try:
+            # Extraer datos del diccionario recibido
+            asignaturas_data = datos_horarios.get("asignaturas", {})
+            metadata = datos_horarios.get("metadata", {})
 
-Desarrollado para ETSIDI (2025)"""
+            # Verificar que realmente hay datos nuevos
+            if not asignaturas_data:
+                self.log_mensaje("⚠️ No se recibieron datos de horarios para guardar", "warning")
+                return
 
-        msg_box = QtWidgets.QMessageBox()
-        msg_box.setWindowTitle("Acerca de OPTIM")
-        msg_box.setText(mensaje)
-        msg_box.exec()
+            # Actualizar configuración principal
+            self.configuracion["configuracion"]["horarios"] = {
+                "configurado": True,
+                "datos": asignaturas_data,
+                "archivo": "horarios_integrados.json",
+                "timestamp": metadata.get("timestamp", datetime.now().isoformat()),
+                "semestre_actual": datos_horarios.get("semestre_actual", "2"),
+                "total_asignaturas": metadata.get("total_asignaturas", 0),
+                "total_franjas": metadata.get("total_franjas", 0)
+            }
 
-    def mostrar_mensaje(self, titulo, mensaje):
-        """Mostrar mensaje"""
-        msg_box = QtWidgets.QMessageBox()
-        msg_box.setWindowTitle(titulo)
-        msg_box.setText(mensaje)
-        msg_box.exec()
+            # Actualizar metadata general
+            self.configuracion["metadata"]["timestamp"] = datetime.now().isoformat()
 
-    def salir_aplicacion(self):
-        """Salir"""
+            # Guardar automáticamente la configuración principal
+            self.guardar_configuracion()
+
+            # Actualizar interfaz visual
+            self.actualizar_estado_visual()
+
+            # SOLO LOG - SIN DIÁLOGOS MOLESTOS
+            total_asignaturas = metadata.get("total_asignaturas", 0)
+            total_franjas = metadata.get("total_franjas", 0)
+            semestre = datos_horarios.get("semestre_actual", "?")
+
+            self.log_mensaje(
+                f"✅ Horarios integrados silenciosamente: S{semestre}, {total_asignaturas} asignaturas, {total_franjas} franjas",
+                "success"
+            )
+
+
+        except Exception as e:
+            error_msg = f"Error integrando horarios: {str(e)}"
+            self.log_mensaje(f"❌ {error_msg}", "error")
+            # Solo mostrar error si realmente hay un problema
+            QtWidgets.QMessageBox.critical(
+                self, "Error de Integración",
+                f"{error_msg}\n\nPor favor, intenta guardar manualmente."
+            )
+
+    def actualizar_configuracion_aulas(self, aulas_data):
+        """Actualizar configuración de aulas en el sistema principal - Estilo idéntico a horarios"""
+        try:
+            # Verificar si es una cancelación de cambios
+            if isinstance(aulas_data, dict) and "metadata" in aulas_data:
+                metadata = aulas_data["metadata"]
+                if metadata.get("accion") == "CANCELAR_CAMBIOS":
+                    # Restaurar datos originales desde metadata
+                    if "laboratorios" in aulas_data:
+                        datos_aulas = aulas_data["laboratorios"]
+                    else:
+                        datos_aulas = {}
+
+                    self.log_mensaje("🔄 Restaurando configuración original de aulas", "warning")
+                else:
+                    # Datos normales con metadata
+                    datos_aulas = aulas_data.get("laboratorios", aulas_data)
+            else:
+                # Datos directos sin metadata
+                datos_aulas = aulas_data
+
+            # Actualizar configuración interna
+            aulas_config = self.configuracion["configuracion"]["aulas"]
+
+            aulas_config["configurado"] = True if datos_aulas else False
+            aulas_config["datos"] = datos_aulas
+            aulas_config["total_aulas"] = len(datos_aulas)
+            aulas_config["fecha_actualizacion"] = datetime.now().isoformat()
+
+            # Guardar configuración
+            self.guardar_configuracion()
+
+            # Log apropiado según el tipo de actualización
+            total = len(datos_aulas)
+            if isinstance(aulas_data, dict) and aulas_data.get("metadata", {}).get("accion") == "CANCELAR_CAMBIOS":
+                self.log_mensaje(
+                    f"🔄 Configuración de aulas restaurada: {total} laboratorios",
+                    "warning"
+                )
+            else:
+                self.log_mensaje(
+                    f"✅ Configuración de aulas actualizada: {total} laboratorios guardados",
+                    "success"
+                )
+
+            # Actualizar estado de botón si existe
+            if hasattr(self, 'btn_configurar_aulas'):
+                if total > 0:
+                    self.btn_configurar_aulas.setText(f"🏢 Aulas ({total})")
+                else:
+                    self.btn_configurar_aulas.setText("🏢 Configurar Aulas")
+
+        except Exception as e:
+            error_msg = f"Error al actualizar configuración de aulas: {str(e)}"
+            self.log_mensaje(f"❌ {error_msg}", "error")
+            QtWidgets.QMessageBox.critical(
+                self, "Error",
+                f"{error_msg}\n\nDetalles técnicos:\n{type(e).__name__}: {e}"
+            )
+
+    def actualizar_configuracion_profesores(self):
+        self.log_mensaje("👨‍🏫 Abriendo configuración de profesores...", "info")
+        # TODO: Implementar ventana de profesores
+
+    def actualizar_configuracion_alumnos(self, alumnos_data):
+        """Actualizar configuración de alumnos en el sistema principal - Estilo idéntico a horarios"""
+        try:
+            # Verificar si es una cancelación de cambios
+            if isinstance(alumnos_data, dict) and "metadata" in alumnos_data:
+                metadata = alumnos_data["metadata"]
+                if metadata.get("accion") == "CANCELAR_CAMBIOS":
+                    # Restaurar datos originales desde metadata
+                    if "alumnos" in alumnos_data:
+                        datos_alumnos = alumnos_data["alumnos"]
+                    else:
+                        datos_alumnos = {}
+
+                    self.log_mensaje("🔄 Restaurando configuración original de alumnos", "warning")
+                else:
+                    # Datos normales con metadata
+                    datos_alumnos = alumnos_data.get("alumnos", alumnos_data)
+            else:
+                # Datos directos sin metadata
+                datos_alumnos = alumnos_data
+
+            # Actualizar configuración interna
+            alumnos_config = self.configuracion["configuracion"]["alumnos"]
+
+            alumnos_config["configurado"] = True if datos_alumnos else False
+            alumnos_config["datos"] = datos_alumnos
+            alumnos_config["total"] = len(datos_alumnos)
+            alumnos_config["fecha_actualizacion"] = datetime.now().isoformat()
+
+            # Guardar configuración
+            self.guardar_configuracion()
+
+            # Log apropiado según el tipo de actualización
+            total = len(datos_alumnos)
+            if isinstance(alumnos_data, dict) and alumnos_data.get("metadata", {}).get("accion") == "CANCELAR_CAMBIOS":
+                self.log_mensaje(
+                    f"🔄 Configuración de alumnos restaurada: {total} alumnos",
+                    "warning"
+                )
+            else:
+                self.log_mensaje(
+                    f"✅ Configuración de alumnos actualizada: {total} alumnos guardados",
+                    "success"
+                )
+
+            # Actualizar estado visual
+            self.actualizar_estado_visual()
+
+        except Exception as e:
+            error_msg = f"Error al actualizar configuración de alumnos: {str(e)}"
+            self.log_mensaje(f"❌ {error_msg}", "error")
+            QtWidgets.QMessageBox.critical(
+                self, "Error",
+                f"{error_msg}\n\nDetalles técnicos:\n{type(e).__name__}: {e}"
+            )
+
+    def actualizar_configuracion_asignaturas(self, asignaturas_data):
+        """Actualizar configuración de asignaturas en el sistema principal - VERSIÓN CORREGIDA"""
+        try:
+            # Verificar si es una cancelación de cambios
+            if isinstance(asignaturas_data, dict) and "metadata" in asignaturas_data:
+                metadata = asignaturas_data["metadata"]
+                if metadata.get("accion") == "CANCELAR_CAMBIOS":
+                    # Restaurar datos originales desde metadata
+                    datos_asignaturas = asignaturas_data.get("asignaturas", {})
+                    self.log_mensaje("🔄 Restaurando configuración original de asignaturas", "warning")
+                else:
+                    # Datos normales con metadata - extraer las asignaturas
+                    datos_asignaturas = asignaturas_data.get("asignaturas", asignaturas_data)
+            else:
+                # CASO NORMAL: Datos directos de asignaturas SIN metadata
+                datos_asignaturas = asignaturas_data
+
+            # DEBUG: Verificar qué datos estamos recibiendo
+            self.log_mensaje(f"📥 Recibiendo datos de asignaturas: {len(datos_asignaturas)} elementos", "info")
+
+            # Actualizar configuración interna
+            asignaturas_config = self.configuracion["configuracion"]["asignaturas"]
+
+            asignaturas_config["configurado"] = True if datos_asignaturas else False
+            asignaturas_config["datos"] = datos_asignaturas
+            asignaturas_config["total"] = len(datos_asignaturas)
+            asignaturas_config["fecha_actualizacion"] = datetime.now().isoformat()
+
+            # IMPORTANTE: Guardar configuración en JSON
+            self.guardar_configuracion()
+
+            # Log apropiado según el tipo de actualización
+            total = len(datos_asignaturas)
+            if isinstance(asignaturas_data, dict) and asignaturas_data.get("metadata", {}).get(
+                    "accion") == "CANCELAR_CAMBIOS":
+                self.log_mensaje(
+                    f"🔄 Configuración de asignaturas restaurada: {total} asignaturas",
+                    "warning"
+                )
+            else:
+                self.log_mensaje(
+                    f"✅ Configuración de asignaturas actualizada: {total} asignaturas guardadas en JSON",
+                    "success"
+                )
+
+            # NUEVO: Después de actualizar, sincronizar con horarios
+            self.sincronizar_asignaturas_con_horarios()
+
+            # Actualizar estado visual
+            self.actualizar_estado_visual()
+
+        except Exception as e:
+            error_msg = f"Error al actualizar configuración de asignaturas: {str(e)}"
+            self.log_mensaje(f"❌ {error_msg}", "error")
+            QtWidgets.QMessageBox.critical(
+                self, "Error",
+                f"{error_msg}\n\nDetalles técnicos:\n{type(e).__name__}: {e}"
+            )
+
+    def sincronizar_asignaturas_con_horarios(self, datos_asignaturas=None):
+        """Sincronizar asignaturas con horarios - IMPLEMENTACIÓN REAL"""
+        try:
+            # Si horarios está abierto, recargar datos
+            if hasattr(self, 'ventana_horarios') and self.ventana_horarios:
+                self.ventana_horarios.recargar_asignaturas_desde_sistema()
+                self.log_mensaje("🔄 Horarios sincronizado con asignaturas", "info")
+
+            # Si se pasaron datos específicos, se podrían procesar aquí
+            if datos_asignaturas:
+                self.log_mensaje(f"📤 Sincronizando {len(datos_asignaturas)} asignaturas con horarios", "info")
+
+        except Exception as e:
+            self.log_mensaje(f"⚠️ Error en sincronización: {e}", "warning")
+
+    def actualizar_configuracion_parametros(self):
+        self.log_mensaje("🎯 Abriendo configuración de parámetros...", "info")
+        # TODO: Implementar ventana de parámetros
+
+    def actualizar_configuracion_resultados(self):
+        self.log_mensaje("📊 Abriendo resultados...", "info")
+        # TODO: Implementar ventana de resultados
+
+    # ========= MÉTODOS DE NAVEGACIÓN =========
+    def abrir_configurar_calendario(self):
+        self.log_mensaje("📅 Abriendo configuración de calendario...", "info")
+        # TODO: Implementar ventana de calendario
+
+    def abrir_configurar_horarios(self):
+        """Abrir ventana de configuración de horarios"""
+        try:
+            from modules.interfaces.configurar_horarios import ConfigurarHorarios
+            HORARIOS_DISPONIBLE = True
+        except ImportError as e:
+            print(f"⚠️ Módulo configurar_horarios no disponible: {e}")
+            HORARIOS_DISPONIBLE = False
+
+        if not HORARIOS_DISPONIBLE:
+            QtWidgets.QMessageBox.warning(
+                self, "Módulo no disponible",
+                "El módulo configurar_horarios.py no está disponible.\n"
+                "Verifica que esté en modules/interfaces/"
+            )
+            return
+
+        self.log_mensaje("⏰ Abriendo configuración de horarios...", "info")
+
+        try:
+            # Cerrar ventana anterior si existe
+            if hasattr(self, 'ventana_horarios') and self.ventana_horarios:
+                self.ventana_horarios.close()
+
+            # PREPARAR DATOS EXISTENTES PARA PASAR A LA VENTANA
+            datos_existentes = None
+            horarios_config = self.configuracion["configuracion"]["horarios"]
+
+            if horarios_config["configurado"] and horarios_config.get("datos"):
+                # Hay datos guardados, prepararlos para la ventana
+                datos_existentes = {
+                    "semestre_actual": horarios_config.get("semestre_actual", "2"),
+                    "asignaturas": horarios_config["datos"]
+                }
+
+                total_asig = horarios_config.get("total_asignaturas", 0)
+                total_franjas = horarios_config.get("total_franjas", 0)
+
+                self.log_mensaje(
+                    f"📥 Cargando configuración existente: {total_asig} asignaturas, {total_franjas} franjas",
+                    "info"
+                )
+            else:
+                self.log_mensaje("📝 Abriendo configuración nueva de horarios", "info")
+
+            # Crear ventana con datos existentes (o None si no hay)
+            self.ventana_horarios = ConfigurarHorarios(
+                parent=self,
+                datos_existentes=datos_existentes  # ← PASAR DATOS EXISTENTES
+            )
+
+            # Conectar señal para recibir configuración actualizada
+            self.ventana_horarios.configuracion_actualizada.connect(self.actualizar_configuracion_horarios)
+
+            self.ventana_horarios.show()
+
+            if datos_existentes:
+                self.log_mensaje("✅ Ventana de horarios abierta con datos existentes", "success")
+            else:
+                self.log_mensaje("✅ Ventana de horarios abierta (configuración nueva)", "success")
+
+        except Exception as e:
+            error_msg = f"Error al abrir configuración de horarios: {str(e)}"
+            self.log_mensaje(f"❌ {error_msg}", "error")
+            QtWidgets.QMessageBox.critical(
+                self, "Error",
+                f"{error_msg}\n\nDetalles técnicos:\n{type(e).__name__}: {e}"
+            )
+
+    def abrir_configurar_aulas(self):
+        """Abrir ventana de configuración de aulas/laboratorios - Estilo idéntico a horarios"""
+        # Verificar si el módulo está disponible
+        try:
+            from modules.interfaces.configurar_aulas import ConfigurarAulas
+            AULAS_DISPONIBLE = True
+        except ImportError:
+            AULAS_DISPONIBLE = False
+
+        if not AULAS_DISPONIBLE:
+            QtWidgets.QMessageBox.warning(
+                self, "Módulo no disponible",
+                "El módulo configurar_aulas.py no está disponible.\n"
+                "Verifica que esté en la misma carpeta que gui_labs.py"
+            )
+            return
+
+        self.log_mensaje("🏢 Abriendo configuración de aulas...", "info")
+
+        try:
+            # Cerrar ventana anterior si existe
+            if hasattr(self, 'ventana_aulas') and self.ventana_aulas:
+                self.ventana_aulas.close()
+
+            # PREPARAR DATOS EXISTENTES PARA PASAR A LA VENTANA
+            datos_existentes = None
+            aulas_config = self.configuracion["configuracion"]["aulas"]
+
+            if aulas_config["configurado"] and aulas_config.get("datos"):
+                # Hay datos guardados, prepararlos para la ventana
+                datos_existentes = aulas_config["datos"].copy()
+
+                total_aulas = aulas_config.get("total_aulas", 0)
+
+                self.log_mensaje(
+                    f"📥 Cargando configuración existente: {total_aulas} aulas configuradas",
+                    "info"
+                )
+            else:
+                self.log_mensaje("📝 Abriendo configuración nueva de aulas", "info")
+
+            # Crear ventana con datos existentes (o None si no hay)
+            self.ventana_aulas = ConfigurarAulas(
+                parent=self,
+                datos_existentes=datos_existentes  # ← PASAR DATOS EXISTENTES
+            )
+
+            # Conectar señal para recibir configuración actualizada
+            self.ventana_aulas.configuracion_actualizada.connect(self.actualizar_configuracion_aulas)
+
+            self.ventana_aulas.show()
+
+            if datos_existentes:
+                self.log_mensaje("✅ Ventana de aulas abierta con datos existentes", "success")
+            else:
+                self.log_mensaje("✅ Ventana de aulas abierta (configuración nueva)", "success")
+
+        except Exception as e:
+            error_msg = f"Error al abrir configuración de aulas: {str(e)}"
+            self.log_mensaje(f"❌ {error_msg}", "error")
+            QtWidgets.QMessageBox.critical(
+                self, "Error",
+                f"{error_msg}\n\nDetalles técnicos:\n{type(e).__name__}: {e}"
+            )
+
+    def abrir_configurar_profesores(self):
+        self.log_mensaje("👨‍🏫 Abriendo configuración de profesores...", "info")
+        # TODO: Implementar ventana de profesores
+
+    def abrir_configurar_alumnos(self):
+        """Abrir ventana de configuración de alumnos - Estilo idéntico a horarios"""
+        try:
+            from modules.interfaces.configuracion_alumnos import ConfigurarAlumnos
+            ALUMNOS_DISPONIBLE = True
+        except ImportError as e:
+            print(f"⚠️ Módulo configuracion_alumnos no disponible: {e}")
+            ALUMNOS_DISPONIBLE = False
+
+        if not ALUMNOS_DISPONIBLE:
+            QtWidgets.QMessageBox.warning(
+                self, "Módulo no disponible",
+                "El módulo configuracion_alumnos.py no está disponible.\n"
+                "Verifica que esté en la misma carpeta que gui_labs.py"
+            )
+            return
+
+        self.log_mensaje("👥 Abriendo configuración de alumnos...", "info")
+
+        try:
+            # Cerrar ventana anterior si existe
+            if hasattr(self, 'ventana_alumnos') and self.ventana_alumnos:
+                self.ventana_alumnos.close()
+
+            # PREPARAR DATOS EXISTENTES PARA PASAR A LA VENTANA
+            datos_existentes = None
+            alumnos_config = self.configuracion["configuracion"]["alumnos"]
+
+            if alumnos_config["configurado"] and alumnos_config.get("datos"):
+                datos_existentes = alumnos_config["datos"].copy()
+                total_alumnos = alumnos_config.get("total", 0)
+                self.log_mensaje(
+                    f"📥 Cargando configuración existente: {total_alumnos} alumnos configurados",
+                    "info"
+                )
+            else:
+                self.log_mensaje("📝 Abriendo configuración nueva de alumnos", "info")
+
+            # Crear ventana con datos existentes (o None si no hay)
+            self.ventana_alumnos = ConfigurarAlumnos(
+                parent=self,
+                datos_existentes=datos_existentes
+            )
+
+            # Conectar señal para recibir configuración actualizada
+            self.ventana_alumnos.configuracion_actualizada.connect(self.actualizar_configuracion_alumnos)
+
+            self.ventana_alumnos.show()
+
+            if datos_existentes:
+                self.log_mensaje("✅ Ventana de alumnos abierta con datos existentes", "success")
+            else:
+                self.log_mensaje("✅ Ventana de alumnos abierta (configuración nueva)", "success")
+
+        except Exception as e:
+            error_msg = f"Error al abrir configuración de alumnos: {str(e)}"
+            self.log_mensaje(f"❌ {error_msg}", "error")
+            QtWidgets.QMessageBox.critical(
+                self, "Error",
+                f"{error_msg}\n\nDetalles técnicos:\n{type(e).__name__}: {e}"
+            )
+
+    def abrir_configurar_asignaturas(self):
+        """Abrir ventana de configuración de asignaturas - Estilo idéntico a horarios"""
+        try:
+            from modules.interfaces.configurar_asignaturas import ConfigurarAsignaturas
+            ASIGNATURAS_DISPONIBLE = True
+        except ImportError as e:
+            print(f"⚠️ Módulo configuracion_asignaturas no disponible: {e}")
+            ASIGNATURAS_DISPONIBLE = False
+
+        if not ASIGNATURAS_DISPONIBLE:
+            QtWidgets.QMessageBox.warning(
+                self, "Módulo no disponible",
+                "El módulo configuracion_asignaturas.py no está disponible.\n"
+                "Verifica que esté en la misma carpeta que gui_labs.py"
+            )
+            return
+
+        self.log_mensaje("📋 Abriendo configuración de asignaturas...", "info")
+
+        try:
+            # Cerrar ventana anterior si existe
+            if hasattr(self, 'ventana_asignaturas') and self.ventana_asignaturas:
+                self.ventana_asignaturas.close()
+
+            # PREPARAR DATOS EXISTENTES PARA PASAR A LA VENTANA
+            datos_existentes = None
+            asignaturas_config = self.configuracion["configuracion"]["asignaturas"]
+
+            if asignaturas_config["configurado"] and asignaturas_config.get("datos"):
+                datos_existentes = asignaturas_config["datos"].copy()
+                total_asignaturas = asignaturas_config.get("total", 0)
+                self.log_mensaje(
+                    f"📥 Cargando configuración existente: {total_asignaturas} asignaturas configuradas",
+                    "info"
+                )
+            else:
+                self.log_mensaje("📝 Abriendo configuración nueva de asignaturas", "info")
+
+            # Crear ventana con datos existentes (o None si no hay)
+            self.ventana_asignaturas = ConfigurarAsignaturas(
+                parent=self,
+                datos_existentes=datos_existentes
+            )
+
+            # Conectar señal para recibir configuración actualizada
+            self.ventana_asignaturas.configuracion_actualizada.connect(self.actualizar_configuracion_asignaturas)
+
+            self.ventana_asignaturas.show()
+
+            if datos_existentes:
+                self.log_mensaje("✅ Ventana de asignaturas abierta con datos existentes", "success")
+            else:
+                self.log_mensaje("✅ Ventana de asignaturas abierta (configuración nueva)", "success")
+
+        except Exception as e:
+            error_msg = f"Error al abrir configuración de asignaturas: {str(e)}"
+            self.log_mensaje(f"❌ {error_msg}", "error")
+            QtWidgets.QMessageBox.critical(
+                self, "Error",
+                f"{error_msg}\n\nDetalles técnicos:\n{type(e).__name__}: {e}"
+            )
+
+    def abrir_configurar_parametros(self):
+        self.log_mensaje("🎯 Abriendo configuración de parámetros...", "info")
+        # TODO: Implementar ventana de parámetros
+
+    def abrir_ver_resultados(self):
+        self.log_mensaje("📊 Abriendo resultados...", "info")
+        # TODO: Implementar ventana de resultados
+
+    # ========= MÉTODOS DE ACCIÓN =========
+    def iniciar_organizacion(self):
+        self.log_mensaje("✨ Iniciando organización de laboratorios...", "info")
+        # TODO: Implementar motor de organización
+
+    def guardar_configuracion(self):
+        """Guardar configuración actual"""
+        try:
+            self.configuracion["metadata"]["timestamp"] = datetime.now().isoformat()
+            with open(self.config_file, 'w', encoding='utf-8') as f:
+                json.dump(self.configuracion, f, indent=2, ensure_ascii=False)
+            self.log_mensaje(f"✅ Configuración guardada en {self.config_file}", "success")
+        except Exception as e:
+            self.log_mensaje(f"❌ Error guardando configuración: {e}", "error")
+
+    def cargar_configuracion_archivo(self):
+        """Cargar configuración desde archivo"""
+        archivo, _ = QtWidgets.QFileDialog.getOpenFileName(
+            self, "Cargar Configuración", "", "JSON Files (*.json)"
+        )
+        if archivo:
+            try:
+                with open(archivo, 'r', encoding='utf-8') as f:
+                    self.configuracion = json.load(f)
+                self.actualizar_estado_visual()
+                self.log_mensaje(f"✅ Configuración cargada desde {archivo}", "success")
+            except Exception as e:
+                self.log_mensaje(f"❌ Error cargando configuración: {e}", "error")
+
+    def reset_configuracion(self):
+        """Reset completo de configuración"""
         reply = QtWidgets.QMessageBox.question(
-            None, 'Salir', '¿Salir de OPTIM?',
+            self, "Reset Configuración",
+            "¿Estás seguro de que quieres resetear toda la configuración?",
             QtWidgets.QMessageBox.StandardButton.Yes | QtWidgets.QMessageBox.StandardButton.No
         )
-        if reply == QtWidgets.QMessageBox.StandardButton.Yes:
-            QtWidgets.QApplication.quit()
 
-    def apply_dark_theme_tfg(self):
-        """Tema oscuro"""
-        self.centralwidget.setStyleSheet("""
+        if reply == QtWidgets.QMessageBox.StandardButton.Yes:
+            self.configuracion = self.cargar_configuracion()
+            if os.path.exists(self.config_file):
+                os.remove(self.config_file)
+            self.actualizar_estado_visual()
+            self.log_mensaje("🔄 Configuración reseteada completamente", "warning")
+
+    def mostrar_ayuda(self):
+        """Mostrar ayuda y soporte"""
+        QtWidgets.QMessageBox.information(
+            self, "Ayuda - OPTIM Labs",
+            "OPTIM - Sistema de Programación de Laboratorios\n\n"
+            "Flujo recomendado:\n"
+            "1️⃣ Configurar Calendario semestral\n"
+            "2️⃣ Configurar Horarios por asignatura\n"
+            "3️⃣ Configurar Aulas/Laboratorios\n"
+            "4️⃣ Configurar Profesores\n"
+            "5️⃣ Configurar Alumnos matriculados\n"
+            "6️⃣ Organizar Laboratorios\n\n"
+            "Desarrollado por SoftVier para ETSIDI (UPM)"
+        )
+
+    # ========= ESTILOS =========
+    def estilo_boton_configuracion(self):
+        return """
+            QPushButton {
+                background-color: rgb(53,53,53);
+                color: white;
+                border: 2px solid rgb(127,127,127);
+                border-radius: 8px;
+                padding: 10px;
+                font-size: 11px;
+                font-weight: bold;
+                text-align: center;
+            }
+            QPushButton:hover {
+                background-color: rgb(66,66,66);
+                border-color: rgb(42,130,218);
+            }
+            QPushButton:pressed {
+                background-color: rgb(42,130,218);
+            }
+        """
+
+    def estilo_boton_principal(self):
+        return """
+            QPushButton {
+                background-color: rgb(42,130,218);
+                color: white;
+                border: 2px solid rgb(42,130,218);
+                border-radius: 8px;
+                padding: 10px;
+                font-size: 12px;
+                font-weight: bold;
+            }
+            QPushButton:hover {
+                background-color: rgb(50,140,228);
+            }
+            QPushButton:pressed {
+                background-color: rgb(35,120,200);
+            }
+            QPushButton:disabled {
+                background-color: rgb(80,80,80);
+                border-color: rgb(100,100,100);
+                color: rgb(150,150,150);
+            }
+        """
+
+    def estilo_boton_secundario(self):
+        return """
+            QPushButton {
+                background-color: rgb(53,53,53);
+                color: white;
+                border: 1px solid rgb(127,127,127);
+                border-radius: 6px;
+                padding: 8px;
+                font-size: 11px;
+                font-weight: bold;
+            }
+            QPushButton:hover {
+                background-color: rgb(66,66,66);
+                border-color: rgb(42,130,218);
+            }
+        """
+
+    def aplicar_tema_oscuro(self):
+        """Aplicar tema oscuro idéntico al TFG"""
+        self.setStyleSheet("""
+            QMainWindow {
+                background-color: rgb(53,53,53);
+                color: white;
+            }
             QWidget {
                 background-color: rgb(53,53,53);
                 color: white;
                 font-family: 'Segoe UI', Arial, sans-serif;
             }
-            QLabel { color: white; font-size: 13px; }
-            QPushButton {
-                background-color: rgb(53,53,53);
-                color: white;
+            QFrame {
+                background-color: rgb(42,42,42);
                 border: 1px solid rgb(127,127,127);
-                padding: 5px;
+                border-radius: 6px;
+            }
+            QLabel {
+                color: white;
                 font-size: 12px;
+                background-color: transparent;
+                border: none;
             }
-            QPushButton:hover { background-color: rgb(66,66,66); }
-            QPushButton:disabled { background-color: rgb(60,60,60); color: rgb(140,140,140); }
-            QLineEdit, QComboBox, QSpinBox {
-                background-color: rgb(42,42,42);
-                color: white;
-                border: 1px solid rgb(127,127,127);
-                padding: 5px;
-            }
-            QTextEdit {
-                background-color: rgb(42,42,42);
-                color: white;
-                border: 1px solid rgb(127,127,127);
-                font-family: 'Consolas', monospace;
-                font-size: 12px;
-            }
-            QCheckBox { color: white; font-size: 13px; }
-            QProgressBar {
-                background-color: rgb(42,42,42);
-                border: 1px solid rgb(127,127,127);
-                text-align: center;
-                color: white;
-            }
-            QProgressBar::chunk { background-color: rgb(42,130,218); }
-            QMenuBar {
-                background-color: rgb(53,53,53);
-                color: white;
-                border-bottom: 1px solid rgb(127,127,127);
-            }
-            QMenuBar::item { background-color: transparent; padding: 8px 12px; }
-            QMenuBar::item:selected { background-color: rgb(42,130,218); }
-            QMenu {
-                background-color: rgb(42,42,42);
-                color: white;
-                border: 1px solid rgb(127,127,127);
-            }
-            QMenu::item { padding: 8px 20px; }
-            QMenu::item:selected { background-color: rgb(42,130,218); }
         """)
 
 
-if __name__ == "__main__":
+def main():
+    """Función principal"""
     app = QtWidgets.QApplication(sys.argv)
-    app.setApplicationName("OPTIM by SoftVier - ETSIDI")
+    app.setApplicationName("OPTIM Labs by SoftVier")
     app.setStyle('Fusion')
 
-    # Paleta oscura
+    # Aplicar paleta de colores oscura
     paleta = QtGui.QPalette()
     paleta.setColor(QtGui.QPalette.ColorRole.Window, QtGui.QColor(53, 53, 53))
     paleta.setColor(QtGui.QPalette.ColorRole.WindowText, QtGui.QColor(255, 255, 255))
     paleta.setColor(QtGui.QPalette.ColorRole.Base, QtGui.QColor(42, 42, 42))
     paleta.setColor(QtGui.QPalette.ColorRole.AlternateBase, QtGui.QColor(66, 66, 66))
+    paleta.setColor(QtGui.QPalette.ColorRole.ToolTipBase, QtGui.QColor(255, 255, 255))
+    paleta.setColor(QtGui.QPalette.ColorRole.ToolTipText, QtGui.QColor(255, 255, 255))
     paleta.setColor(QtGui.QPalette.ColorRole.Text, QtGui.QColor(255, 255, 255))
     paleta.setColor(QtGui.QPalette.ColorRole.Button, QtGui.QColor(53, 53, 53))
     paleta.setColor(QtGui.QPalette.ColorRole.ButtonText, QtGui.QColor(255, 255, 255))
+    paleta.setColor(QtGui.QPalette.ColorRole.BrightText, QtGui.QColor(255, 0, 0))
+    paleta.setColor(QtGui.QPalette.ColorRole.Link, QtGui.QColor(42, 130, 218))
     paleta.setColor(QtGui.QPalette.ColorRole.Highlight, QtGui.QColor(42, 130, 218))
     paleta.setColor(QtGui.QPalette.ColorRole.HighlightedText, QtGui.QColor(255, 255, 255))
     app.setPalette(paleta)
 
-    MainWindow = QtWidgets.QMainWindow()
-    ui = Ui_MainWindow()
-    ui.setupUi(MainWindow)
-    MainWindow.show()
+    # Crear y mostrar ventana principal
+    window = OptimLabsGUI()
+    window.show()
+
     sys.exit(app.exec())
+
+
+if __name__ == "__main__":
+    main()

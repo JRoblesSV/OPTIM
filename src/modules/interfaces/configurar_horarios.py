@@ -1,1136 +1,2123 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+"""
+Configurar Horarios - Sistema de Programación Automática de Laboratorios
+Desarrollado por SoftVier para ETSIDI (Universidad)
+
+MODIFICACIONES APLICADAS:
+1. Entrada manual de hora inicio y fin (sin cálculo automático)
+2. Funcionalidad completa de editar franja horaria
+"""
+
 import sys
-import json
 import os
-from PyQt6 import QtCore, QtGui, QtWidgets
+import json
 from datetime import datetime, time
+from PyQt6.QtWidgets import (
+    QApplication, QMainWindow, QWidget, QVBoxLayout, QHBoxLayout,
+    QGridLayout, QLabel, QPushButton, QComboBox, QSpinBox, QListWidget,
+    QListWidgetItem, QGroupBox, QFrame, QScrollArea, QMessageBox,
+    QTimeEdit, QDialog, QDialogButtonBox, QCheckBox, QFileDialog,
+    QLineEdit, QInputDialog
+)
+from PyQt6.QtCore import Qt, QTime, pyqtSignal
+from PyQt6.QtGui import QFont, QPalette, QColor
 
 
-class ConfigurarHorarios(QtWidgets.QMainWindow):
-    def __init__(self, parent=None):
+class GestionAsignaturaDialog(QDialog):
+    """Dialog para añadir/editar asignatura"""
+
+    def __init__(self, asignatura_existente=None, parent=None):
         super().__init__(parent)
-        self.parent = parent
-        self.config_path = "config/horarios_sistema.json"
-
-        # Datos del sistema
-        self.laboratorios = {}  # {nombre: {capacidad: 24, equipamiento: "..."}}
-        self.cursos = {}  # {codigo: {descripcion: "...", es_doble: bool, comparte_con: "..."}}
-        self.asignaciones = {}  # {id: {curso: "M204", laboratorio: "Lab_A", dia: "Lunes", inicio: "08:00", fin: "10:00"}}
-
-        self.setupUi()
-        self.cargar_configuracion()
-
-    def setupUi(self):
-        self.setObjectName("ConfigurarHorarios")
-        self.resize(1600, 900)
-        self.setMinimumSize(QtCore.QSize(1600, 900))
-        self.setWindowTitle("OPTIM - Configurar Horarios de Laboratorios")
-
-        # Centrar ventana en pantalla
-        self.center_window()
-
-        self.centralwidget = QtWidgets.QWidget(self)
-        self.setCentralWidget(self.centralwidget)
-
-        # ========= TÍTULO =========
-        self.titulo = QtWidgets.QLabel(self.centralwidget)
-        self.titulo.setGeometry(QtCore.QRect(50, 20, 1500, 40))
-        self.titulo.setText("Configuración de Horarios de Laboratorios por Curso")
-        self.titulo.setAlignment(QtCore.Qt.AlignmentFlag.AlignCenter)
-        self.titulo.setStyleSheet("""
-            QLabel {
-                color: rgb(42,130,218);
-                font-size: 18px;
-                font-weight: bold;
-                background-color: rgb(35,35,35);
-                border: 1px solid rgb(42,130,218);
-                border-radius: 5px;
-                padding: 10px;
-            }
-        """)
-
-        # ========= PANEL IZQUIERDO - RECURSOS =========
-        self.setup_panel_recursos()
-
-        # ========= PANEL CENTRO - ASIGNACIÓN =========
-        self.setup_panel_asignacion()
-
-        # ========= PANEL DERECHO - CALENDARIO =========
-        self.setup_panel_calendario()
-
-        # ========= BOTONES PRINCIPALES =========
-        self.setup_botones()
-
-        # ========= APLICAR TEMA OSCURO =========
+        self.asignatura_existente = asignatura_existente
+        self.setWindowTitle("Editar Asignatura" if asignatura_existente else "Nueva Asignatura")
+        self.setModal(True)
+        self.resize(400, 200)
+        self.setup_ui()
         self.apply_dark_theme()
 
-    def center_window(self):
-        """Centrar ventana en la pantalla"""
-        # Obtener información de la pantalla
-        screen = QtWidgets.QApplication.primaryScreen()
-        screen_geometry = screen.availableGeometry()
-
-        # Calcular posición para centrar
-        x = (screen_geometry.width() - self.width()) // 2
-        y = (screen_geometry.height() - self.height()) // 2
-
-        # Mover la ventana al centro
-        self.move(x, y)
-
-    def setup_panel_recursos(self):
-        """Panel izquierdo - Gestión de laboratorios y cursos"""
-
-        # ===== LABORATORIOS ===== (Alineado con ASIGNAR HORARIO)
-        self.label_labs = QtWidgets.QLabel(self.centralwidget)
-        self.label_labs.setGeometry(QtCore.QRect(20, 80, 350, 25))  # Misma altura que ASIGNAR HORARIO
-        self.label_labs.setText("🏢 LABORATORIOS DISPONIBLES")
-        self.label_labs.setStyleSheet("color: rgb(42,130,218); font-weight: bold; font-size: 14px;")
-
-        self.lista_laboratorios = QtWidgets.QListWidget(self.centralwidget)
-        self.lista_laboratorios.setGeometry(QtCore.QRect(20, 115, 350, 140))  # Más alta para acomodar botones
-        self.lista_laboratorios.currentRowChanged.connect(self.seleccionar_laboratorio)
-
-        # Botones laboratorios (ALINEADOS con botones de asignar/limpiar)
-        self.btn_nuevo_lab = QtWidgets.QPushButton(self.centralwidget)
-        self.btn_nuevo_lab.setGeometry(QtCore.QRect(20, 265, 100, 30))  # y=265 para alinear
-        self.btn_nuevo_lab.setText("➕ Nuevo")
-        self.btn_nuevo_lab.clicked.connect(self.nuevo_laboratorio)
-
-        self.btn_editar_lab = QtWidgets.QPushButton(self.centralwidget)
-        self.btn_editar_lab.setGeometry(QtCore.QRect(130, 265, 100, 30))  # y=265 para alinear
-        self.btn_editar_lab.setText("✏️ Editar")
-        self.btn_editar_lab.clicked.connect(self.editar_laboratorio)
-
-        self.btn_eliminar_lab = QtWidgets.QPushButton(self.centralwidget)
-        self.btn_eliminar_lab.setGeometry(QtCore.QRect(240, 265, 130, 30))  # y=265 para alinear
-        self.btn_eliminar_lab.setText("🗑️ Eliminar")
-        self.btn_eliminar_lab.clicked.connect(self.eliminar_laboratorio)
-
-        # ===== CURSOS ===== (Alineado con ASIGNACIONES ACTUALES)
-        self.label_cursos = QtWidgets.QLabel(self.centralwidget)
-        self.label_cursos.setGeometry(QtCore.QRect(20, 310, 350, 25))  # Movido hacia abajo
-        self.label_cursos.setText("👥 CURSOS DEL SISTEMA")
-        self.label_cursos.setStyleSheet("color: rgb(42,130,218); font-weight: bold; font-size: 14px;")
-
-        self.lista_cursos = QtWidgets.QListWidget(self.centralwidget)
-        self.lista_cursos.setGeometry(QtCore.QRect(20, 345, 350, 120))  # Movido hacia abajo
-        self.lista_cursos.currentRowChanged.connect(self.seleccionar_curso)
-
-        # Botones cursos
-        self.btn_nuevo_curso = QtWidgets.QPushButton(self.centralwidget)
-        self.btn_nuevo_curso.setGeometry(QtCore.QRect(20, 475, 100, 30))
-        self.btn_nuevo_curso.setText("➕ Nuevo")
-        self.btn_nuevo_curso.clicked.connect(self.nuevo_curso)
-
-        self.btn_editar_curso = QtWidgets.QPushButton(self.centralwidget)
-        self.btn_editar_curso.setGeometry(QtCore.QRect(130, 475, 100, 30))
-        self.btn_editar_curso.setText("✏️ Editar")
-        self.btn_editar_curso.clicked.connect(self.editar_curso)
-
-        self.btn_eliminar_curso = QtWidgets.QPushButton(self.centralwidget)
-        self.btn_eliminar_curso.setGeometry(QtCore.QRect(240, 475, 130, 30))
-        self.btn_eliminar_curso.setText("🗑️ Eliminar")
-        self.btn_eliminar_curso.clicked.connect(self.eliminar_curso)
-
-        # ===== INFORMACIÓN DEL RECURSO SELECCIONADO =====
-        self.info_recurso = QtWidgets.QTextEdit(self.centralwidget)
-        self.info_recurso.setGeometry(QtCore.QRect(20, 520, 350, 190))  # Expandido hasta casi los botones
-        self.info_recurso.setReadOnly(True)
-        self.info_recurso.setPlaceholderText("Selecciona un laboratorio o curso para ver detalles...")
-
-    def setup_panel_asignacion(self):
-        """Panel central - Asignación de horarios"""
-
-        self.label_asignacion = QtWidgets.QLabel(self.centralwidget)
-        self.label_asignacion.setGeometry(QtCore.QRect(400, 80, 550, 25))
-        self.label_asignacion.setText("🎯 ASIGNAR HORARIO DE LABORATORIO")
-        self.label_asignacion.setStyleSheet("color: rgb(42,130,218); font-weight: bold; font-size: 14px;")
-
-        # Formulario de asignación
-        self.setup_formulario_asignacion()
-
-        # Lista de asignaciones existentes (ALINEADA con CURSOS DEL SISTEMA)
-        self.label_asignaciones = QtWidgets.QLabel(self.centralwidget)
-        self.label_asignaciones.setGeometry(QtCore.QRect(400, 310, 550, 25))  # Alineada con cursos y=310
-        self.label_asignaciones.setText("📋 ASIGNACIONES ACTUALES")
-        self.label_asignaciones.setStyleSheet("color: white; font-weight: bold; font-size: 13px;")
-
-        self.tabla_asignaciones = QtWidgets.QTableWidget(self.centralwidget)
-        self.tabla_asignaciones.setGeometry(QtCore.QRect(400, 345, 550, 370))  # Ajustada para nueva posición
-        self.tabla_asignaciones.setColumnCount(6)
-        self.tabla_asignaciones.setHorizontalHeaderLabels(['Curso', 'Laboratorio', 'Día', 'Inicio', 'Fin', 'Acción'])
-
-        # Ajustar anchos de columna
-        self.tabla_asignaciones.setColumnWidth(0, 70)  # Curso
-        self.tabla_asignaciones.setColumnWidth(1, 140)  # Laboratorio
-        self.tabla_asignaciones.setColumnWidth(2, 80)  # Día
-        self.tabla_asignaciones.setColumnWidth(3, 60)  # Inicio
-        self.tabla_asignaciones.setColumnWidth(4, 60)  # Fin
-        self.tabla_asignaciones.setColumnWidth(5, 80)  # Acción
-
-    def setup_formulario_asignacion(self):
-        """Formulario para crear nueva asignación"""
-        y_base = 115
-
-        # Curso
-        self.label_form_curso = QtWidgets.QLabel(self.centralwidget)
-        self.label_form_curso.setGeometry(QtCore.QRect(400, y_base, 120, 25))
-        self.label_form_curso.setText("Curso:")
-
-        self.combo_form_curso = QtWidgets.QComboBox(self.centralwidget)
-        self.combo_form_curso.setGeometry(QtCore.QRect(530, y_base, 140, 30))
-        self.combo_form_curso.currentTextChanged.connect(self.validar_turno_curso)
-
-        # Laboratorio
-        self.label_form_lab = QtWidgets.QLabel(self.centralwidget)
-        self.label_form_lab.setGeometry(QtCore.QRect(400, y_base + 45, 120, 25))
-        self.label_form_lab.setText("Laboratorio:")
-
-        self.combo_form_lab = QtWidgets.QComboBox(self.centralwidget)
-        self.combo_form_lab.setGeometry(QtCore.QRect(530, y_base + 45, 140, 30))
-
-        # Día
-        self.label_form_dia = QtWidgets.QLabel(self.centralwidget)
-        self.label_form_dia.setGeometry(QtCore.QRect(400, y_base + 90, 120, 25))
-        self.label_form_dia.setText("Día:")
-
-        self.combo_form_dia = QtWidgets.QComboBox(self.centralwidget)
-        self.combo_form_dia.setGeometry(QtCore.QRect(530, y_base + 90, 140, 30))
-        self.combo_form_dia.addItems(['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes'])
-
-        # Hora inicio
-        self.label_form_inicio = QtWidgets.QLabel(self.centralwidget)
-        self.label_form_inicio.setGeometry(QtCore.QRect(690, y_base, 100, 25))
-        self.label_form_inicio.setText("Hora Inicio:")
-
-        self.time_form_inicio = QtWidgets.QTimeEdit(self.centralwidget)
-        self.time_form_inicio.setGeometry(QtCore.QRect(800, y_base, 100, 30))
-        self.time_form_inicio.setDisplayFormat("HH:mm")
-        self.time_form_inicio.setTime(QtCore.QTime(8, 0))
-
-        # Hora fin
-        self.label_form_fin = QtWidgets.QLabel(self.centralwidget)
-        self.label_form_fin.setGeometry(QtCore.QRect(690, y_base + 45, 100, 25))
-        self.label_form_fin.setText("Hora Fin:")
-
-        self.time_form_fin = QtWidgets.QTimeEdit(self.centralwidget)
-        self.time_form_fin.setGeometry(QtCore.QRect(800, y_base + 45, 100, 30))
-        self.time_form_fin.setDisplayFormat("HH:mm")
-        self.time_form_fin.setTime(QtCore.QTime(10, 0))
-
-        # Advertencia turno
-        self.label_turno_info = QtWidgets.QLabel(self.centralwidget)
-        self.label_turno_info.setGeometry(QtCore.QRect(690, y_base + 90, 210, 50))
-        self.label_turno_info.setText("")
-        self.label_turno_info.setWordWrap(True)
-        self.label_turno_info.setStyleSheet("color: orange; font-size: 12px; font-weight: bold;")
-
-        # Botones CENTRADOS en la sección
-        self.btn_asignar = QtWidgets.QPushButton(self.centralwidget)
-        self.btn_asignar.setGeometry(QtCore.QRect(540, y_base + 150, 130, 35))  # Centrado: x=540
-        self.btn_asignar.setText("➕ Asignar")
-        self.btn_asignar.clicked.connect(self.crear_asignacion)
-
-        self.btn_limpiar_form = QtWidgets.QPushButton(self.centralwidget)
-        self.btn_limpiar_form.setGeometry(QtCore.QRect(680, y_base + 150, 130, 35))  # Centrado: x=680
-        self.btn_limpiar_form.setText("🧹 Limpiar")
-        self.btn_limpiar_form.clicked.connect(self.limpiar_formulario)
-
-        # Detección automática doble grado (CENTRADA)
-        self.label_doble_info = QtWidgets.QLabel(self.centralwidget)
-        self.label_doble_info.setGeometry(QtCore.QRect(475, y_base + 195, 400, 45))  # Centrada en la sección
-        self.label_doble_info.setText("")
-        self.label_doble_info.setWordWrap(True)
-        self.label_doble_info.setStyleSheet("color: rgb(46,204,113); font-size: 12px; font-weight: bold;")
-
-    def setup_panel_calendario(self):
-        """Panel derecho - Vista calendario semanal"""
-
-        self.label_calendario = QtWidgets.QLabel(self.centralwidget)
-        self.label_calendario.setGeometry(QtCore.QRect(980, 80, 590, 25))
-        self.label_calendario.setText("📅 CALENDARIO SEMANAL DE LABORATORIOS")
-        self.label_calendario.setStyleSheet("color: rgb(42,130,218); font-weight: bold; font-size: 14px;")
-
-        # Tabs por día (AJUSTADO para nueva distribución)
-        self.tab_widget = QtWidgets.QTabWidget(self.centralwidget)
-        self.tab_widget.setGeometry(QtCore.QRect(980, 115, 590, 600))  # Mantenemos altura máxima
-
-        dias = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes']
-        self.tabs_dias = {}
-
-        for dia in dias:
-            tab = QtWidgets.QWidget()
-            self.tab_widget.addTab(tab, dia)
-
-            # Área de texto para cada día
-            texto_dia = QtWidgets.QTextEdit(tab)
-            texto_dia.setGeometry(QtCore.QRect(10, 10, 570, 560))
-            texto_dia.setReadOnly(True)
-            texto_dia.setStyleSheet("""
-                QTextEdit {
-                    background-color: rgb(35,35,35);
-                    color: white;
-                    border: 1px solid rgb(127,127,127);
-                    font-family: 'Consolas', monospace;
-                    font-size: 12px;
-                }
-            """)
-
-            self.tabs_dias[dia] = texto_dia
-
-    def setup_botones(self):
-        """Botones principales"""
-        self.btn_guardar = QtWidgets.QPushButton(self.centralwidget)
-        self.btn_guardar.setGeometry(QtCore.QRect(600, 730, 140, 45))
-        self.btn_guardar.setText("💾 Guardar")
-        self.btn_guardar.clicked.connect(self.guardar_configuracion)
-
-        self.btn_cargar = QtWidgets.QPushButton(self.centralwidget)
-        self.btn_cargar.setGeometry(QtCore.QRect(750, 730, 140, 45))
-        self.btn_cargar.setText("📂 Cargar")
-        self.btn_cargar.clicked.connect(lambda: self.cargar_configuracion(mostrar_mensaje=True))
-
-        self.btn_exportar = QtWidgets.QPushButton(self.centralwidget)
-        self.btn_exportar.setGeometry(QtCore.QRect(900, 730, 140, 45))
-        self.btn_exportar.setText("📤 Exportar")
-        self.btn_exportar.clicked.connect(self.exportar_horarios)
-
-        self.btn_cerrar = QtWidgets.QPushButton(self.centralwidget)
-        self.btn_cerrar.setGeometry(QtCore.QRect(1050, 730, 140, 45))
-        self.btn_cerrar.setText("✅ Cerrar")
-        self.btn_cerrar.clicked.connect(self.close)
-
-    # ========= MÉTODOS DE GESTIÓN DE LABORATORIOS =========
-
-    def nuevo_laboratorio(self):
-        """Crear nuevo laboratorio"""
-        dialog = DialogoLaboratorio(self)
-        if dialog.exec() == QtWidgets.QDialog.DialogCode.Accepted:
-            datos = dialog.get_datos()
-            self.laboratorios[datos['nombre']] = {
-                'capacidad': datos['capacidad'],
-                'equipamiento': datos['equipamiento'],
-                'edificio': datos['edificio']
-            }
-            self.actualizar_lista_laboratorios()
-            self.actualizar_combos()
-
-    def editar_laboratorio(self):
-        """Editar laboratorio seleccionado"""
-        item = self.lista_laboratorios.currentItem()
-        if item is None:
-            self.mostrar_mensaje("⚠️ Aviso", "Selecciona un laboratorio para editar")
-            return
-
-        nombre = item.text().split(' (')[0]
-        datos_actuales = self.laboratorios[nombre]
-
-        dialog = DialogoLaboratorio(self, datos_actuales, nombre)
-        if dialog.exec() == QtWidgets.QDialog.DialogCode.Accepted:
-            nuevos_datos = dialog.get_datos()
-
-            # Si cambió el nombre, actualizar clave
-            if nuevos_datos['nombre'] != nombre:
-                del self.laboratorios[nombre]
-                self.laboratorios[nuevos_datos['nombre']] = {
-                    'capacidad': nuevos_datos['capacidad'],
-                    'equipamiento': nuevos_datos['equipamiento'],
-                    'edificio': nuevos_datos['edificio']
-                }
-            else:
-                self.laboratorios[nombre].update({
-                    'capacidad': nuevos_datos['capacidad'],
-                    'equipamiento': nuevos_datos['equipamiento'],
-                    'edificio': nuevos_datos['edificio']
-                })
-
-            self.actualizar_lista_laboratorios()
-            self.actualizar_combos()
-
-    def eliminar_laboratorio(self):
-        """Eliminar laboratorio seleccionado"""
-        item = self.lista_laboratorios.currentItem()
-        if item is None:
-            self.mostrar_mensaje("⚠️ Aviso", "Selecciona un laboratorio para eliminar")
-            return
-
-        nombre = item.text().split(' (')[0]
-
-        reply = QtWidgets.QMessageBox.question(
-            self, "Confirmar", f"¿Eliminar laboratorio '{nombre}'?",
-            QtWidgets.QMessageBox.StandardButton.Yes | QtWidgets.QMessageBox.StandardButton.No
-        )
-
-        if reply == QtWidgets.QMessageBox.StandardButton.Yes:
-            del self.laboratorios[nombre]
-            self.actualizar_lista_laboratorios()
-            self.actualizar_combos()
-
-    # ========= MÉTODOS DE GESTIÓN DE CURSOS =========
-
-    def nuevo_curso(self):
-        """Crear nuevo curso"""
-        dialog = DialogoCurso(self, self.cursos)
-        if dialog.exec() == QtWidgets.QDialog.DialogCode.Accepted:
-            datos = dialog.get_datos()
-            self.cursos[datos['codigo']] = {
-                'descripcion': datos['descripcion'],
-                'es_doble_grado': datos['es_doble_grado'],
-                'comparte_con': datos['comparte_con']
-            }
-            self.actualizar_lista_cursos()
-            self.actualizar_combos()
-
-    def editar_curso(self):
-        """Editar curso seleccionado"""
-        item = self.lista_cursos.currentItem()
-        if item is None:
-            self.mostrar_mensaje("⚠️ Aviso", "Selecciona un curso para editar")
-            return
-
-        codigo = item.text().split(' -')[0]
-        datos_actuales = self.cursos[codigo]
-
-        dialog = DialogoCurso(self, self.cursos, datos_actuales, codigo)
-        if dialog.exec() == QtWidgets.QDialog.DialogCode.Accepted:
-            nuevos_datos = dialog.get_datos()
-
-            if nuevos_datos['codigo'] != codigo:
-                del self.cursos[codigo]
-                self.cursos[nuevos_datos['codigo']] = {
-                    'descripcion': nuevos_datos['descripcion'],
-                    'es_doble_grado': nuevos_datos['es_doble_grado'],
-                    'comparte_con': nuevos_datos['comparte_con']
-                }
-            else:
-                self.cursos[codigo].update({
-                    'descripcion': nuevos_datos['descripcion'],
-                    'es_doble_grado': nuevos_datos['es_doble_grado'],
-                    'comparte_con': nuevos_datos['comparte_con']
-                })
-
-            self.actualizar_lista_cursos()
-            self.actualizar_combos()
-
-    def eliminar_curso(self):
-        """Eliminar curso seleccionado"""
-        item = self.lista_cursos.currentItem()
-        if item is None:
-            self.mostrar_mensaje("⚠️ Aviso", "Selecciona un curso para eliminar")
-            return
-
-        codigo = item.text().split(' -')[0]
-
-        reply = QtWidgets.QMessageBox.question(
-            self, "Confirmar", f"¿Eliminar curso '{codigo}'?",
-            QtWidgets.QMessageBox.StandardButton.Yes | QtWidgets.QMessageBox.StandardButton.No
-        )
-
-        if reply == QtWidgets.QMessageBox.StandardButton.Yes:
-            del self.cursos[codigo]
-            self.actualizar_lista_cursos()
-            self.actualizar_combos()
-
-    # ========= MÉTODOS DE ASIGNACIÓN =========
-
-    def validar_turno_curso(self, codigo_curso):
-        """Validar y mostrar info del turno según código de curso"""
-        if not codigo_curso:
-            self.label_turno_info.setText("")
-            return
-
-        try:
-            # Extraer número de turno (últimos 2 dígitos)
-            numero_turno = int(codigo_curso[-2:])
-
-            if numero_turno < 5:
-                turno_teoria = "MAÑANA"
-                turno_labs = "TARDE (15:00-20:00)"
-                color = "orange"
-            else:
-                turno_teoria = "TARDE"
-                turno_labs = "MAÑANA (8:00-14:00)"
-                color = "lightblue"
-
-            info = f"Teoría: {turno_teoria}\nLabs: {turno_labs}"
-            self.label_turno_info.setText(info)
-            self.label_turno_info.setStyleSheet(f"color: {color}; font-size: 10px; font-weight: bold;")
-
-        except (ValueError, IndexError):
-            self.label_turno_info.setText("Código de curso inválido")
-            self.label_turno_info.setStyleSheet("color: red; font-size: 10px;")
-
-    def crear_asignacion(self):
-        """Crear nueva asignación de horario"""
-        curso = self.combo_form_curso.currentText()
-        laboratorio = self.combo_form_lab.currentText()
-        dia = self.combo_form_dia.currentText()
-        inicio = self.time_form_inicio.time().toString("HH:mm")
-        fin = self.time_form_fin.time().toString("HH:mm")
-
-        if not all([curso, laboratorio, dia]):
-            self.mostrar_mensaje("⚠️ Aviso", "Completa todos los campos")
-            return
-
-        if inicio >= fin:
-            self.mostrar_mensaje("❌ Error", "La hora de inicio debe ser anterior a la hora de fin")
-            return
-
-        # Verificar conflictos
-        if self.verificar_conflictos(curso, laboratorio, dia, inicio, fin):
-            return
-
-        # Crear ID único
-        asignacion_id = f"{curso}_{laboratorio}_{dia}_{inicio}"
-
-        self.asignaciones[asignacion_id] = {
-            'curso': curso,
-            'laboratorio': laboratorio,
-            'dia': dia,
-            'inicio': inicio,
-            'fin': fin
-        }
-
-        self.actualizar_tabla_asignaciones()
-        self.actualizar_calendario()
-        self.limpiar_formulario()
-
-        # Verificar dobles grados
-        self.verificar_dobles_grados(curso, laboratorio, dia, inicio, fin)
-
-    def verificar_conflictos(self, curso, laboratorio, dia, inicio, fin):
-        """Verificar conflictos de horario"""
-        for asignacion in self.asignaciones.values():
-            if (asignacion['laboratorio'] == laboratorio and
-                    asignacion['dia'] == dia):
-
-                # Verificar solapamiento de horarios
-                inicio_existente = asignacion['inicio']
-                fin_existente = asignacion['fin']
-
-                if not (fin <= inicio_existente or inicio >= fin_existente):
-                    self.mostrar_mensaje("❌ Conflicto",
-                                         f"Laboratorio {laboratorio} ya ocupado el {dia} de {inicio_existente} a {fin_existente}")
-                    return True
-        return False
-
-    def verificar_dobles_grados(self, curso_asignado, laboratorio, dia, inicio, fin):
-        """Verificar si hay cursos de doble grado que deberían compartir este laboratorio"""
-        cursos_que_comparten = []
-
-        for codigo, datos in self.cursos.items():
-            if (datos['es_doble_grado'] and
-                    datos['comparte_con'] == curso_asignado and
-                    codigo != curso_asignado):
-                cursos_que_comparten.append(codigo)
-
-        if cursos_que_comparten:
-            cursos_str = ", ".join(cursos_que_comparten)
-            mensaje = f"💡 Cursos de doble grado detectados: {cursos_str}\n"
-            mensaje += f"Pueden compartir laboratorio {laboratorio} el {dia}"
-            self.label_doble_info.setText(mensaje)
-        else:
-            self.label_doble_info.setText("")
-
-    def eliminar_asignacion(self, asignacion_id):
-        """Eliminar asignación"""
-        if asignacion_id in self.asignaciones:
-            del self.asignaciones[asignacion_id]
-            self.actualizar_tabla_asignaciones()
-            self.actualizar_calendario()
-
-    def limpiar_formulario(self):
-        """Limpiar formulario de asignación"""
-        self.combo_form_curso.setCurrentIndex(-1)
-        self.combo_form_lab.setCurrentIndex(-1)
-        self.combo_form_dia.setCurrentIndex(0)
-        self.time_form_inicio.setTime(QtCore.QTime(8, 0))
-        self.time_form_fin.setTime(QtCore.QTime(10, 0))
-        self.label_turno_info.setText("")
-        self.label_doble_info.setText("")
-
-    # ========= MÉTODOS DE ACTUALIZACIÓN =========
-
-    def actualizar_lista_laboratorios(self):
-        """Actualizar lista de laboratorios"""
-        self.lista_laboratorios.clear()
-        for nombre, datos in self.laboratorios.items():
-            texto = f"{nombre} (Cap: {datos['capacidad']})"
-            self.lista_laboratorios.addItem(texto)
-
-    def actualizar_lista_cursos(self):
-        """Actualizar lista de cursos"""
-        self.lista_cursos.clear()
-        for codigo, datos in self.cursos.items():
-            doble = " [DOBLE]" if datos['es_doble_grado'] else ""
-            texto = f"{codigo} - {datos['descripcion']}{doble}"
-            self.lista_cursos.addItem(texto)
-
-    def actualizar_combos(self):
-        """Actualizar combos del formulario"""
-        # Cursos
-        self.combo_form_curso.clear()
-        self.combo_form_curso.addItems(list(self.cursos.keys()))
-
-        # Laboratorios
-        self.combo_form_lab.clear()
-        self.combo_form_lab.addItems(list(self.laboratorios.keys()))
-
-    def actualizar_tabla_asignaciones(self):
-        """Actualizar tabla de asignaciones"""
-        self.tabla_asignaciones.setRowCount(len(self.asignaciones))
-
-        for row, (asignacion_id, datos) in enumerate(self.asignaciones.items()):
-            self.tabla_asignaciones.setItem(row, 0, QtWidgets.QTableWidgetItem(datos['curso']))
-            self.tabla_asignaciones.setItem(row, 1, QtWidgets.QTableWidgetItem(datos['laboratorio']))
-            self.tabla_asignaciones.setItem(row, 2, QtWidgets.QTableWidgetItem(datos['dia']))
-            self.tabla_asignaciones.setItem(row, 3, QtWidgets.QTableWidgetItem(datos['inicio']))
-            self.tabla_asignaciones.setItem(row, 4, QtWidgets.QTableWidgetItem(datos['fin']))
-
-            # Botón eliminar
-            btn_eliminar = QtWidgets.QPushButton("🗑️")
-            btn_eliminar.clicked.connect(lambda checked, aid=asignacion_id: self.eliminar_asignacion(aid))
-            self.tabla_asignaciones.setCellWidget(row, 5, btn_eliminar)
-
-    def actualizar_calendario(self):
-        """Actualizar vista calendario"""
-        dias = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes']
-
-        for dia in dias:
-            asignaciones_dia = [a for a in self.asignaciones.values() if a['dia'] == dia]
-            asignaciones_dia.sort(key=lambda x: x['inicio'])
-
-            texto = f"📅 {dia.upper()}\n"
-            texto += "=" * 30 + "\n\n"
-
-            if not asignaciones_dia:
-                texto += "Sin laboratorios programados\n"
-            else:
-                for asig in asignaciones_dia:
-                    curso_info = ""
-                    if asig['curso'] in self.cursos:
-                        curso_data = self.cursos[asig['curso']]
-                        if curso_data['es_doble_grado']:
-                            curso_info = f" [DOBLE con {curso_data['comparte_con']}]"
-
-                    texto += f"⏰ {asig['inicio']}-{asig['fin']}\n"
-                    texto += f"🏢 {asig['laboratorio']}\n"
-                    texto += f"👥 {asig['curso']}{curso_info}\n\n"
-
-            self.tabs_dias[dia].setText(texto)
-
-    def seleccionar_laboratorio(self, row):
-        """Mostrar información del laboratorio seleccionado"""
-        if row == -1:
-            return
-
-        item = self.lista_laboratorios.item(row)
-        nombre = item.text().split(' (')[0]
-        datos = self.laboratorios[nombre]
-
-        info = f"🏢 LABORATORIO: {nombre}\n\n"
-        info += f"👥 Capacidad: {datos['capacidad']} alumnos\n"
-        info += f"🔧 Equipamiento: {datos['equipamiento']}\n"
-        info += f"🏗️ Edificio: {datos['edificio']}\n\n"
-
-        # Contar asignaciones
-        asignaciones_lab = [a for a in self.asignaciones.values() if a['laboratorio'] == nombre]
-        info += f"📅 Horarios asignados: {len(asignaciones_lab)}\n"
-
-        self.info_recurso.setText(info)
-
-    def seleccionar_curso(self, row):
-        """Mostrar información del curso seleccionado"""
-        if row == -1:
-            return
-
-        item = self.lista_cursos.item(row)
-        codigo = item.text().split(' -')[0]
-        datos = self.cursos[codigo]
-
-        info = f"👥 CURSO: {codigo}\n\n"
-        info += f"📝 Descripción: {datos['descripcion']}\n"
-        info += f"🎓 Doble grado: {'Sí' if datos['es_doble_grado'] else 'No'}\n"
-
-        if datos['es_doble_grado']:
-            info += f"🔗 Comparte con: {datos['comparte_con']}\n"
-
-        # Analizar código
-        try:
-            numero_turno = int(codigo[-2:])
-            turno_teoria = "MAÑANA" if numero_turno < 5 else "TARDE"
-            turno_labs = "TARDE" if numero_turno < 5 else "MAÑANA"
-            info += f"\n⏰ Teoría: {turno_teoria}\n"
-            info += f"🔬 Laboratorios: {turno_labs}\n"
-        except:
-            pass
-
-        # Contar asignaciones
-        asignaciones_curso = [a for a in self.asignaciones.values() if a['curso'] == codigo]
-        info += f"\n📅 Laboratorios asignados: {len(asignaciones_curso)}\n"
-
-        self.info_recurso.setText(info)
-
-    # ========= MÉTODOS DE PERSISTENCIA =========
-
-    def guardar_configuracion(self):
-        """Guardar configuración"""
-        try:
-            os.makedirs("config", exist_ok=True)
-
-            config_data = {
-                'laboratorios': self.laboratorios,
-                'cursos': self.cursos,
-                'asignaciones': self.asignaciones,
-                'fecha_guardado': datetime.now().isoformat()
-            }
-
-            with open(self.config_path, 'w', encoding='utf-8') as f:
-                json.dump(config_data, f, indent=2, ensure_ascii=False)
-
-            self.mostrar_mensaje("✅ Éxito", f"Configuración guardada en:\n{self.config_path}")
-
-        except Exception as e:
-            self.mostrar_mensaje("❌ Error", f"Error guardando:\n{str(e)}")
-
-    def cargar_configuracion(self, mostrar_mensaje=False):
-        """Cargar configuración"""
-        try:
-            if not os.path.exists(self.config_path):
-                self.cargar_datos_ejemplo()
-                return
-
-            with open(self.config_path, 'r', encoding='utf-8') as f:
-                config_data = json.load(f)
-
-            self.laboratorios = config_data.get('laboratorios', {})
-            self.cursos = config_data.get('cursos', {})
-            self.asignaciones = config_data.get('asignaciones', {})
-
-            self.actualizar_lista_laboratorios()
-            self.actualizar_lista_cursos()
-            self.actualizar_combos()
-            self.actualizar_tabla_asignaciones()
-            self.actualizar_calendario()
-
-            if mostrar_mensaje:
-                self.mostrar_mensaje("✅ Éxito", "Configuración cargada correctamente")
-
-        except Exception as e:
-            self.mostrar_mensaje("❌ Error", f"Error cargando:\n{str(e)}")
-            self.cargar_datos_ejemplo()
-
-    def cargar_datos_ejemplo(self):
-        """Cargar datos de ejemplo"""
-        self.laboratorios = {
-            'Lab_Fisica_A': {'capacidad': 24, 'equipamiento': 'Equipos medición básicos', 'edificio': 'Edificio A'},
-            'Lab_Fisica_B': {'capacidad': 20, 'equipamiento': 'Equipos medición avanzados', 'edificio': 'Edificio A'},
-            'Lab_Quimica_A': {'capacidad': 18, 'equipamiento': 'Campana extractora', 'edificio': 'Edificio B'},
-            'Lab_Expresion_Grafica': {'capacidad': 30, 'equipamiento': 'Ordenadores + CAD', 'edificio': 'Edificio C'}
-        }
-
-        self.cursos = {
-            'M204': {'descripcion': 'Mecánica 2º Mañana', 'es_doble_grado': False, 'comparte_con': ''},
-            'M206': {'descripcion': 'Mecánica 2º Tarde', 'es_doble_grado': False, 'comparte_con': ''},
-            'E104': {'descripcion': 'Electrónica 1º Mañana', 'es_doble_grado': False, 'comparte_con': ''},
-            'EE204': {'descripcion': 'Doble Electr. 2º Mañana', 'es_doble_grado': True, 'comparte_con': 'E204'}
-        }
-
-        self.asignaciones = {}
-
-        self.actualizar_lista_laboratorios()
-        self.actualizar_lista_cursos()
-        self.actualizar_combos()
-        self.actualizar_calendario()
-
-    def exportar_horarios(self):
-        """Exportar horarios a Excel"""
-        try:
-            import pandas as pd
-
-            # Convertir asignaciones a DataFrame
-            data = []
-            for asignacion in self.asignaciones.values():
-                data.append([
-                    asignacion['curso'],
-                    asignacion['laboratorio'],
-                    asignacion['dia'],
-                    asignacion['inicio'],
-                    asignacion['fin']
-                ])
-
-            df = pd.DataFrame(data, columns=['Curso', 'Laboratorio', 'Día', 'Hora_Inicio', 'Hora_Fin'])
-
-            filename = f"horarios_laboratorios_{datetime.now().strftime('%Y%m%d_%H%M')}.xlsx"
-            df.to_excel(filename, index=False)
-
-            self.mostrar_mensaje("✅ Éxito", f"Horarios exportados a:\n{filename}")
-
-        except ImportError:
-            self.mostrar_mensaje("❌ Error", "Pandas no está instalado.\nNo se puede exportar a Excel.")
-        except Exception as e:
-            self.mostrar_mensaje("❌ Error", f"Error exportando:\n{str(e)}")
-
-    def mostrar_mensaje(self, titulo, mensaje):
-        """Mostrar mensaje"""
-        msg_box = QtWidgets.QMessageBox(self)
-        msg_box.setWindowTitle(titulo)
-        msg_box.setText(mensaje)
-        msg_box.exec()
+    def setup_ui(self):
+        layout = QVBoxLayout()
+
+        # Nombre de asignatura
+        nombre_layout = QHBoxLayout()
+        nombre_layout.addWidget(QLabel("Nombre de Asignatura:"))
+        self.edit_nombre = QLineEdit()
+        if self.asignatura_existente:
+            self.edit_nombre.setText(self.asignatura_existente)
+        nombre_layout.addWidget(self.edit_nombre)
+        layout.addLayout(nombre_layout)
+
+        # Botones
+        buttons = QDialogButtonBox(QDialogButtonBox.StandardButton.Ok | QDialogButtonBox.StandardButton.Cancel)
+        buttons.accepted.connect(self.accept)
+        buttons.rejected.connect(self.reject)
+        layout.addWidget(buttons)
+
+        self.setLayout(layout)
+
+    def get_nombre(self):
+        return self.edit_nombre.text().strip()
 
     def apply_dark_theme(self):
-        """Aplicar tema oscuro"""
         self.setStyleSheet("""
-            QMainWindow { background-color: rgb(53,53,53); color: white; }
-            QWidget { 
-                background-color: rgb(53,53,53); 
-                color: white; 
-                font-family: 'Segoe UI', Arial, sans-serif; 
-                font-size: 12px;
+            QDialog {
+                background-color: #2b2b2b;
+                color: #ffffff;
             }
-            QLabel { color: white; font-size: 13px; }
-            QPushButton { 
-                background-color: rgb(53,53,53); 
-                color: white; 
-                border: 1px solid rgb(127,127,127); 
-                padding: 8px; 
-                font-size: 12px; 
-                border-radius: 3px; 
-                font-weight: bold;
+            QLabel {
+                color: #ffffff;
             }
-            QPushButton:hover { background-color: rgb(66,66,66); }
-            QListWidget { 
-                background-color: rgb(42,42,42); 
-                color: white; 
-                border: 1px solid rgb(127,127,127);
-                selection-background-color: rgb(42,130,218);
-                font-size: 12px;
+            QLineEdit {
+                background-color: #3c3c3c;
+                color: #ffffff;
+                border: 1px solid #555555;
+                padding: 5px;
+                border-radius: 3px;
             }
-            QTableWidget { 
-                background-color: rgb(42,42,42); 
-                color: white; 
-                border: 1px solid rgb(127,127,127);
-                gridline-color: rgb(127,127,127);
-                font-size: 12px;
-            }
-            QTableWidget::item { 
-                border-bottom: 1px solid rgb(127,127,127); 
-                padding: 8px; 
-            }
-            QTableWidget::item:selected { background-color: rgb(42,130,218); }
-            QHeaderView::section { 
-                background-color: rgb(35,35,35); 
-                color: white; 
-                border: 1px solid rgb(127,127,127); 
-                padding: 8px;
-                font-size: 12px;
-                font-weight: bold;
-            }
-            QTextEdit { 
-                background-color: rgb(42,42,42); 
-                color: white; 
-                border: 1px solid rgb(127,127,127);
-                font-family: 'Consolas', monospace; 
-                font-size: 12px; 
-            }
-            QComboBox, QTimeEdit { 
-                background-color: rgb(42,42,42); 
-                color: white; 
-                border: 1px solid rgb(127,127,127); 
-                padding: 8px;
-                font-size: 12px;
-            }
-            QComboBox::drop-down { background-color: rgb(53,53,53); }
-            QComboBox QAbstractItemView { 
-                background-color: rgb(42,42,42); 
-                color: white; 
-                selection-background-color: rgb(42,130,218);
-                font-size: 12px;
-            }
-            QTabWidget::pane { 
-                border: 1px solid rgb(127,127,127); 
-                background-color: rgb(42,42,42); 
-            }
-            QTabBar::tab { 
-                background-color: rgb(53,53,53); 
-                color: white; 
-                border: 1px solid rgb(127,127,127);
-                padding: 10px 20px; 
-                margin-right: 2px;
-                font-size: 12px;
-                font-weight: bold;
-            }
-            QTabBar::tab:selected { 
-                background-color: rgb(42,130,218); 
-                color: white; 
-            }
-            QTabBar::tab:hover { background-color: rgb(66,66,66); }
         """)
 
 
-# ========= DIÁLOGOS AUXILIARES =========
+class AnadirFranjaDialog(QDialog):
+    """Dialog para añadir/editar franja horaria - VERSIÓN MODIFICADA"""
 
-class DialogoLaboratorio(QtWidgets.QDialog):
-    """Diálogo para crear/editar laboratorio"""
-
-    def __init__(self, parent=None, datos=None, nombre_actual=""):
+    def __init__(self, asignatura_actual, parent=None, franja_existente=None):
         super().__init__(parent)
-        self.datos_actuales = datos or {}
-        self.nombre_actual = nombre_actual
-        self.setupUi()
-        if datos:
-            self.cargar_datos()
+        self.asignatura_actual = asignatura_actual
+        self.franja_existente = franja_existente  # Para modo edición
 
-    def setupUi(self):
-        self.setWindowTitle("Configurar Laboratorio")
+        # Determinar si es edición o creación nueva
+        self.es_edicion = franja_existente is not None
+
+        titulo = f"Editar Franja - {asignatura_actual}" if self.es_edicion else f"Añadir Franja - {asignatura_actual}"
+        self.setWindowTitle(titulo)
         self.setModal(True)
-        self.resize(450, 350)
+        self.resize(300, 200)
+        self.setup_ui()
+        self.apply_dark_theme()
 
-        # Aplicar tema oscuro al diálogo
-        self.setStyleSheet("""
-            QDialog { 
-                background-color: rgb(53,53,53); 
-                color: white; 
-                font-size: 12px;
-            }
-            QLabel { 
-                color: white; 
-                font-size: 13px; 
-                font-weight: bold; 
-            }
-            QLineEdit, QSpinBox, QTextEdit { 
-                background-color: rgb(42,42,42); 
-                color: white; 
-                border: 1px solid rgb(127,127,127); 
-                padding: 8px;
-                font-size: 12px;
-            }
-            QPushButton { 
-                background-color: rgb(53,53,53); 
-                color: white; 
-                border: 1px solid rgb(127,127,127); 
-                padding: 8px; 
-                font-size: 12px; 
-            }
-            QPushButton:hover { background-color: rgb(66,66,66); }
-        """)
+        # Si es edición, cargar datos existentes
+        if self.es_edicion:
+            self.cargar_datos_existentes()
 
-        layout = QtWidgets.QVBoxLayout(self)
-        layout.setSpacing(15)
+    def setup_ui(self):
+        layout = QVBoxLayout()
 
-        # Nombre
-        layout.addWidget(QtWidgets.QLabel("Nombre del Laboratorio:"))
-        self.line_nombre = QtWidgets.QLineEdit()
-        self.line_nombre.setMinimumHeight(30)
-        layout.addWidget(self.line_nombre)
+        # Día de la semana
+        dia_layout = QHBoxLayout()
+        dia_layout.addWidget(QLabel("Día:"))
+        self.combo_dia = QComboBox()
+        self.combo_dia.addItems(["Lunes", "Martes", "Miércoles", "Jueves", "Viernes"])
+        dia_layout.addWidget(self.combo_dia)
+        layout.addLayout(dia_layout)
 
-        # Capacidad
-        layout.addWidget(QtWidgets.QLabel("Capacidad (número de alumnos):"))
-        self.spin_capacidad = QtWidgets.QSpinBox()
-        self.spin_capacidad.setMinimumHeight(30)
-        self.spin_capacidad.setMinimum(1)
-        self.spin_capacidad.setMaximum(100)
-        self.spin_capacidad.setValue(24)
-        layout.addWidget(self.spin_capacidad)
+        # MODIFICACIÓN 1: Hora inicio - entrada manual
+        inicio_layout = QHBoxLayout()
+        inicio_layout.addWidget(QLabel("Hora Inicio:"))
+        self.time_inicio = QTimeEdit()
+        self.time_inicio.setTime(QTime(9, 0))
+        self.time_inicio.setDisplayFormat("HH:mm")
+        inicio_layout.addWidget(self.time_inicio)
+        layout.addLayout(inicio_layout)
 
-        # Equipamiento
-        layout.addWidget(QtWidgets.QLabel("Equipamiento disponible:"))
-        self.text_equipamiento = QtWidgets.QTextEdit()
-        self.text_equipamiento.setMaximumHeight(100)
-        layout.addWidget(self.text_equipamiento)
+        # Hora fin - calculada automáticamente (2h después del inicio)
+        fin_layout = QHBoxLayout()
+        fin_layout.addWidget(QLabel("Hora Fin:"))
+        self.label_hora_fin = QLabel("11:00")
+        self.label_hora_fin.setStyleSheet(
+            "color: #4a9eff; font-weight: bold; background-color: #3c3c3c; padding: 5px; border: 1px solid #555555; border-radius: 3px;")
+        fin_layout.addWidget(self.label_hora_fin)
+        fin_layout.addWidget(QLabel("(automático: +2h)"))
+        layout.addLayout(fin_layout)
 
-        # Edificio
-        layout.addWidget(QtWidgets.QLabel("Edificio/Ubicación:"))
-        self.line_edificio = QtWidgets.QLineEdit()
-        self.line_edificio.setMinimumHeight(30)
-        layout.addWidget(self.line_edificio)
+        # Grados que cursan esta asignatura
+        grados_group = QGroupBox(f"Grados que cursan '{self.asignatura_actual}':")
+        grados_layout = QVBoxLayout()
+
+        self.check_grados = {}
+        # Obtener grados desde la configuración de la asignatura
+        grados_asignatura = self.parent().obtener_grados_asignatura(self.asignatura_actual)
+        for grado in grados_asignatura:
+            check = QCheckBox(grado)
+            self.check_grados[grado] = check
+            grados_layout.addWidget(check)
+
+        if not grados_asignatura:
+            label_info = QLabel("⚠️ No hay grados configurados para esta asignatura")
+            label_info.setStyleSheet("color: #ffaa00;")
+            grados_layout.addWidget(label_info)
+
+        grados_group.setLayout(grados_layout)
+        layout.addWidget(grados_group)
 
         # Botones
-        botones = QtWidgets.QDialogButtonBox(
-            QtWidgets.QDialogButtonBox.StandardButton.Ok | QtWidgets.QDialogButtonBox.StandardButton.Cancel
-        )
-        botones.accepted.connect(self.accept)
-        botones.rejected.connect(self.reject)
-        layout.addWidget(botones)
+        buttons = QDialogButtonBox(QDialogButtonBox.StandardButton.Ok | QDialogButtonBox.StandardButton.Cancel)
+        buttons.accepted.connect(self.validar_y_aceptar)  # CAMBIADO: Validación antes de aceptar
+        buttons.rejected.connect(self.reject)
+        layout.addWidget(buttons)
 
-    def cargar_datos(self):
-        """Cargar datos existentes"""
-        self.line_nombre.setText(self.nombre_actual)
-        self.spin_capacidad.setValue(self.datos_actuales.get('capacidad', 24))
-        self.text_equipamiento.setText(self.datos_actuales.get('equipamiento', ''))
-        self.line_edificio.setText(self.datos_actuales.get('edificio', ''))
+        self.setLayout(layout)
 
-    def get_datos(self):
-        """Obtener datos del formulario"""
+        # Conectar señal para calcular hora fin automáticamente
+        self.time_inicio.timeChanged.connect(self.actualizar_hora_fin_automatica)
+        self.actualizar_hora_fin_automatica()  # Calcular inicial
+
+    def cargar_datos_existentes(self):
+        """Carga los datos de la franja existente para edición"""
+        if not self.franja_existente:
+            return
+
+        # Determinar el día desde el widget padre
+        dia_franja = self.obtener_dia_franja()
+        if dia_franja:
+            self.combo_dia.setCurrentText(dia_franja)
+
+        # Cargar horas
+        hora_inicio = QTime.fromString(self.franja_existente.hora_inicio, "HH:mm")
+        hora_fin = QTime.fromString(self.franja_existente.hora_fin, "HH:mm")
+
+        self.time_inicio.setTime(hora_inicio)
+        # La hora fin se calculará automáticamente al cambiar la hora de inicio
+
+        # Cargar grados seleccionados
+        for grado in self.franja_existente.grados:
+            if grado in self.check_grados:
+                self.check_grados[grado].setChecked(True)
+
+    def obtener_dia_franja(self):
+        """Obtiene el día de la semana de la franja desde el widget padre"""
+        if not self.franja_existente:
+            return None
+
+        # Buscar en qué día está esta franja
+        for dia, widgets in self.parent().franjas_widgets.items():
+            if self.franja_existente in widgets:
+                return dia
+        return None
+
+    def actualizar_hora_fin_automatica(self):
+        """Calcula automáticamente la hora fin sumando 2h a la hora de inicio"""
+        hora_inicio = self.time_inicio.time()
+        hora_fin = hora_inicio.addSecs(2 * 3600)  # +2 horas
+        self.label_hora_fin.setText(hora_fin.toString("HH:mm"))
+
+    def actualizar_info_duracion(self):
+        """Método legacy - ya no necesario"""
+        pass
+
+    def validar_y_aceptar(self):
+        """Valida los datos antes de aceptar el diálogo"""
+        # La validación de hora inicio < hora fin ya no es necesaria porque es automática
+
+        # Validar que al menos un grado esté seleccionado
+        grados_seleccionados = [grado for grado, check in self.check_grados.items() if check.isChecked()]
+        if not grados_seleccionados:
+            QMessageBox.warning(self, "Error de Grados",
+                                "Debe seleccionar al menos un grado.")
+            return
+
+        # Si todo está correcto, aceptar
+        self.accept()
+
+    def get_datos_franja(self):
+        """Obtiene los datos configurados en el diálogo"""
+        grados_seleccionados = []
+        for grado, check in self.check_grados.items():
+            if check.isChecked():
+                grados_seleccionados.append(grado)
+
         return {
-            'nombre': self.line_nombre.text().strip(),
-            'capacidad': self.spin_capacidad.value(),
-            'equipamiento': self.text_equipamiento.toPlainText().strip(),
-            'edificio': self.line_edificio.text().strip()
+            'dia': self.combo_dia.currentText(),
+            'hora_inicio': self.time_inicio.time().toString("HH:mm"),
+            'hora_fin': self.label_hora_fin.text(),  # CAMBIADO: usar label en lugar de QTimeEdit
+            'grados': grados_seleccionados
         }
 
-
-class DialogoCurso(QtWidgets.QDialog):
-    """Diálogo para crear/editar curso"""
-
-    def __init__(self, parent=None, cursos_existentes=None, datos=None, codigo_actual=""):
-        super().__init__(parent)
-        self.cursos_existentes = cursos_existentes or {}
-        self.datos_actuales = datos or {}
-        self.codigo_actual = codigo_actual
-        self.setupUi()
-        if datos:
-            self.cargar_datos()
-
-    def setupUi(self):
-        self.setWindowTitle("Configurar Curso")
-        self.setModal(True)
-        self.resize(500, 400)
-
-        # Aplicar tema oscuro al diálogo
+    def apply_dark_theme(self):
+        """Aplica tema oscuro al dialog"""
         self.setStyleSheet("""
-            QDialog { 
-                background-color: rgb(53,53,53); 
-                color: white; 
-                font-size: 12px;
+            QDialog {
+                background-color: #2b2b2b;
+                color: #ffffff;
             }
-            QLabel { 
-                color: white; 
-                font-size: 13px; 
-                font-weight: bold; 
+            QLabel {
+                color: #ffffff;
             }
-            QLineEdit, QComboBox { 
-                background-color: rgb(42,42,42); 
-                color: white; 
-                border: 1px solid rgb(127,127,127); 
-                padding: 8px;
-                font-size: 12px;
+            QComboBox, QTimeEdit, QCheckBox {
+                background-color: #3c3c3c;
+                color: #ffffff;
+                border: 1px solid #555555;
+                padding: 5px;
+                border-radius: 3px;
             }
-            QCheckBox { 
-                color: white; 
-                font-size: 12px; 
-                font-weight: bold;
+            QGroupBox {
+                color: #ffffff;
+                border: 1px solid #555555;
+                margin-top: 10px;
+                padding-top: 10px;
+                border-radius: 3px;
             }
-            QCheckBox::indicator {
-                width: 16px;
-                height: 16px;
-                background-color: rgb(42,42,42);
-                border: 1px solid rgb(127,127,127);
+            QGroupBox::title {
+                subcontrol-origin: margin;
+                left: 10px;
+                padding: 0 5px 0 5px;
             }
-            QCheckBox::indicator:checked {
-                background-color: rgb(42,130,218);
-                border: 1px solid rgb(42,130,218);
-            }
-            QPushButton { 
-                background-color: rgb(53,53,53); 
-                color: white; 
-                border: 1px solid rgb(127,127,127); 
-                padding: 8px; 
-                font-size: 12px; 
-            }
-            QPushButton:hover { background-color: rgb(66,66,66); }
         """)
 
-        layout = QtWidgets.QVBoxLayout(self)
-        layout.setSpacing(15)
 
-        # Código
-        layout.addWidget(QtWidgets.QLabel("Código del Curso (ej: M204, EE206):"))
-        self.line_codigo = QtWidgets.QLineEdit()
-        self.line_codigo.setMinimumHeight(30)
-        self.line_codigo.textChanged.connect(self.validar_codigo)
-        layout.addWidget(self.line_codigo)
+class FranjaWidget(QFrame):
+    """Widget personalizado para mostrar una franja horaria"""
 
-        self.label_codigo_info = QtWidgets.QLabel("")
-        self.label_codigo_info.setStyleSheet("color: orange; font-size: 12px; font-weight: bold;")
-        layout.addWidget(self.label_codigo_info)
+    # Señal para comunicar eliminación
+    eliminado = pyqtSignal(object)
+    editado = pyqtSignal(object)
 
-        # Descripción
-        layout.addWidget(QtWidgets.QLabel("Descripción del Curso:"))
-        self.line_descripcion = QtWidgets.QLineEdit()
-        self.line_descripcion.setMinimumHeight(30)
-        layout.addWidget(self.line_descripcion)
+    def __init__(self, franja_id, hora_inicio, hora_fin, grados, parent=None):
+        super().__init__(parent)
+        self.franja_id = franja_id
+        self.hora_inicio = hora_inicio
+        self.hora_fin = hora_fin
+        self.grados = grados
+        self.setup_ui()
+        self.apply_style()
 
-        # Es doble grado
-        self.check_doble = QtWidgets.QCheckBox("Es un curso de doble grado")
-        self.check_doble.toggled.connect(self.toggle_doble_grado)
-        layout.addWidget(self.check_doble)
+    def setup_ui(self):
+        layout = QVBoxLayout()
+        layout.setContentsMargins(5, 5, 5, 5)
+        layout.setSpacing(2)
 
-        # Comparte con
-        self.label_comparte = QtWidgets.QLabel("Comparte laboratorio con:")
-        self.combo_comparte = QtWidgets.QComboBox()
-        self.combo_comparte.setMinimumHeight(30)
-        layout.addWidget(self.label_comparte)
-        layout.addWidget(self.combo_comparte)
+        # Horario
+        hora_label = QLabel(f"{self.hora_inicio} - {self.hora_fin}")
+        hora_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        hora_label.setFont(QFont("Arial", 9, QFont.Weight.Bold))
+        layout.addWidget(hora_label)
 
-        # Inicialmente ocultar
-        self.label_comparte.setVisible(False)
-        self.combo_comparte.setVisible(False)
+        # Separador
+        separador = QFrame()
+        separador.setFrameShape(QFrame.Shape.HLine)
+        separador.setStyleSheet("color: #555555;")
+        layout.addWidget(separador)
+
+        # Grados
+        if self.grados:
+            for grado in self.grados:
+                grado_label = QLabel(f"📚 {grado}")
+                grado_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
+                grado_label.setFont(QFont("Arial", 8))
+                layout.addWidget(grado_label)
+        else:
+            vacio_label = QLabel("Sin grados")
+            vacio_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
+            vacio_label.setStyleSheet("color: #888888; font-style: italic;")
+            layout.addWidget(vacio_label)
 
         # Botones
-        botones = QtWidgets.QDialogButtonBox(
-            QtWidgets.QDialogButtonBox.StandardButton.Ok | QtWidgets.QDialogButtonBox.StandardButton.Cancel
-        )
-        botones.accepted.connect(self.accept)
-        botones.rejected.connect(self.reject)
-        layout.addWidget(botones)
+        btn_layout = QHBoxLayout()
+        btn_layout.setSpacing(2)
 
-    def validar_codigo(self, codigo):
-        """Validar código de curso"""
-        if not codigo:
-            self.label_codigo_info.setText("")
+        # Botón EDITAR - Color verde/azul más suave
+        btn_editar = QPushButton("✏️")
+        btn_editar.setMinimumSize(30, 30)
+        btn_editar.setMaximumSize(40, 40)
+        btn_editar.setStyleSheet("""
+            QPushButton {
+                font-size: 14px;
+                font-weight: bold;
+                border: 1px solid #555;
+                border-radius: 4px;
+                background-color: #333;
+                color: #2196F3;  /* Azul Material Design */
+                padding: 2px;
+                margin: 0px;
+                text-align: center;
+            }
+            QPushButton:hover {
+                background-color: rgba(33, 150, 243, 0.3);  /* Azul difuminado */
+                border-color: #2196F3;
+                color: #2196F3;
+            }
+            QPushButton:pressed {
+                background-color: rgba(33, 150, 243, 0.5);
+                border-color: #1976D2;
+            }
+        """)
+        btn_editar.setToolTip("Editar franja")
+        btn_editar.clicked.connect(self.editar_franja)
+
+        # Botón ELIMINAR - Color rojo
+        btn_eliminar = QPushButton("🗑️")
+        btn_eliminar.setMinimumSize(30, 30)
+        btn_eliminar.setMaximumSize(40, 40)
+        btn_eliminar.setStyleSheet("""
+            QPushButton {
+                font-size: 14px;
+                font-weight: bold;
+                border: 1px solid #555;
+                border-radius: 4px;
+                background-color: #333;
+                color: #f44336;  /* Rojo */
+                padding: 4px;
+                margin: 0px;
+                text-align: center;
+            }
+            QPushButton:hover {
+                background-color: rgba(244, 67, 54, 0.3);  /* Rojo difuminado */
+                border-color: #f44336;
+                color: #f44336;
+            }
+            QPushButton:pressed {
+                background-color: rgba(244, 67, 54, 0.5);
+                border-color: #d32f2f;
+            }
+        """)
+        btn_eliminar.setToolTip("Eliminar franja")
+        btn_eliminar.clicked.connect(self.eliminar_franja)
+
+        btn_layout.addWidget(btn_editar)
+        btn_layout.addWidget(btn_eliminar)
+        btn_layout.addStretch()
+        layout.addLayout(btn_layout)
+
+        self.setLayout(layout)
+
+    def apply_style(self):
+        self.setStyleSheet("""
+            FranjaWidget {
+                background-color: #3c3c3c;
+                border: 1px solid #555555;
+                border-radius: 5px;
+                margin: 2px;
+            }
+            QLabel {
+                color: #ffffff;
+                background-color: transparent;
+                border: none;
+            }
+            QPushButton {
+                background-color: #4a4a4a;
+                border: 1px solid #666666;
+                border-radius: 3px;
+                color: #ffffff;
+                font-size: 10px;
+            }
+            QPushButton:hover {
+                background-color: #5a5a5a;
+            }
+        """)
+
+    def editar_franja(self):
+        """Emite señal para editar esta franja"""
+        self.editado.emit(self)
+
+    def eliminar_franja(self):
+        """Confirma y emite señal para eliminar esta franja"""
+        respuesta = QMessageBox.question(
+            self, "Eliminar Franja",
+            f"¿Eliminar franja {self.hora_inicio}-{self.hora_fin}?\n\nGrados: {', '.join(self.grados)}",
+            QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No
+        )
+        if respuesta == QMessageBox.StandardButton.Yes:
+            self.eliminado.emit(self)
+
+
+class ConfigurarHorarios(QMainWindow):
+    """Ventana principal para configurar horarios de laboratorios"""
+    configuracion_actualizada = pyqtSignal(dict)
+    def __init__(self, parent=None, datos_existentes=None):
+        super().__init__()
+        self.parent_window = parent
+        self.setWindowTitle("Configurar Horarios - OPTIM Labs")
+        self.setGeometry(100, 100, 1400, 800)
+
+        # Estructura de datos principal
+        if datos_existentes:
+            # Cargar datos existentes del sistema principal
+            self.datos_configuracion = {
+                "semestre_actual": datos_existentes.get("semestre_actual", "1"),
+                "asignaturas": datos_existentes.get("asignaturas", {
+                    "1": {},
+                    "2": {}
+                })
+            }
+            self.log_mensaje("📥 Cargando configuración existente del sistema...", "info")
+        else:
+            # Datos por defecto si no hay nada
+            self.datos_configuracion = {
+                "semestre_actual": "1",
+                "asignaturas": {
+                    "1": {},
+                    "2": {}
+                }
+            }
+            self.log_mensaje("📝 Iniciando configuración nueva...", "info")
+
+        # Variables para rastrear cambios
+        self.datos_iniciales = json.dumps(self.datos_configuracion, sort_keys=True)  # Snapshot inicial
+        self.datos_guardados_en_sistema = datos_existentes is not None  # Si se cargó del sistema
+
+        self.asignatura_actual = None
+        self.contador_franjas = 0  # Para IDs únicos
+        self.franjas_widgets = {dia: [] for dia in ["Lunes", "Martes", "Miércoles", "Jueves", "Viernes"]}
+
+        self.setup_ui()
+        self.apply_dark_theme()
+        self.conectar_signals()
+        self.cargar_datos_iniciales()
+
+    def cargar_datos_iniciales(self):
+        """Carga los datos existentes al inicializar la ventana - CON ORDENAMIENTO INICIAL"""
+        try:
+            # Configurar semestre actual
+            semestre_actual = self.datos_configuracion.get("semestre_actual", "2")
+            if semestre_actual == "1":
+                self.radio_sem1.setChecked(True)
+                self.radio_sem2.setChecked(False)
+            else:
+                self.radio_sem1.setChecked(False)
+                self.radio_sem2.setChecked(True)
+
+            # 🔑 ORDENAR TODO AL CARGAR
+            self.ordenar_asignaturas_alfabeticamente()
+
+            # Cargar lista de asignaturas
+            self.cargar_asignaturas()
+
+            # Mostrar resumen de datos cargados
+            total_asignaturas = 0
+            total_franjas = 0
+
+            for semestre, asignaturas in self.datos_configuracion["asignaturas"].items():
+                total_asignaturas += len(asignaturas)
+                for asig_data in asignaturas.values():
+                    horarios = asig_data.get("horarios", {})
+                    for dia_franjas in horarios.values():
+                        total_franjas += len(dia_franjas)
+
+            if total_asignaturas > 0:
+                self.log_mensaje(
+                    f"✅ Datos cargados y ordenados: {total_asignaturas} asignaturas, {total_franjas} franjas horarias",
+                    "success"
+                )
+
+                # Auto-seleccionar la primera asignatura del semestre actual
+                self.auto_seleccionar_primera_asignatura()
+            else:
+                self.log_mensaje("📝 No hay datos previos - configuración nueva", "info")
+
+        except Exception as e:
+            self.log_mensaje(f"⚠️ Error cargando datos iniciales: {e}", "warning")
+
+    def auto_seleccionar_primera_asignatura(self):
+        """Auto-selecciona la primera asignatura disponible"""
+        try:
+            if self.list_asignaturas.count() > 0:
+                # Seleccionar primer item
+                primer_item = self.list_asignaturas.item(0)
+                self.list_asignaturas.setCurrentItem(primer_item)
+                self.seleccionar_asignatura(primer_item)
+
+                self.log_mensaje(f"🎯 Auto-seleccionada: {primer_item.text()}", "info")
+        except Exception as e:
+            self.log_mensaje(f"⚠️ Error auto-seleccionando asignatura: {e}", "warning")
+
+    def setup_ui(self):
+        central_widget = QWidget()
+        self.setCentralWidget(central_widget)
+
+        main_layout = QVBoxLayout()
+
+        # Selector de semestre
+        semestre_group = QGroupBox("📚 SELECCIÓN DE SEMESTRE")
+        semestre_layout = QHBoxLayout()
+
+        self.radio_sem1 = QPushButton("1º Cuatrimestre")
+        self.radio_sem1.setCheckable(True)
+        self.radio_sem2 = QPushButton("2º Cuatrimestre")
+        self.radio_sem2.setCheckable(True)
+        self.radio_sem1.setChecked(True)  # Por defecto
+
+        semestre_layout.addWidget(self.radio_sem1)
+        semestre_layout.addWidget(self.radio_sem2)
+        semestre_layout.addStretch()
+
+        semestre_group.setLayout(semestre_layout)
+        main_layout.addWidget(semestre_group)
+
+        # Contenido principal en tres columnas
+        content_layout = QHBoxLayout()
+
+        # Columna izquierda - Lista de asignaturas
+        left_panel = QGroupBox("📋 ASIGNATURAS DEL SEMESTRE")
+        left_layout = QVBoxLayout()
+
+        # Lista de asignaturas con botones de gestión
+        asignatura_header = QHBoxLayout()
+        asignatura_header.addWidget(QLabel("Asignaturas:"))
+        asignatura_header.addStretch()
+
+        btn_add_asignatura = QPushButton("➕")
+        btn_add_asignatura.setMinimumSize(40, 30)
+        btn_add_asignatura.setMaximumSize(50, 50)
+        btn_add_asignatura.setStyleSheet("""
+            QPushButton {
+                font-size: 16px;
+                font-weight: bold;
+                border: 2px solid #666;
+                border-radius: 6px;
+                background-color: #444;
+                color: #4CAF50;
+                padding: 4px;
+                margin: 0px;
+                text-align: center;
+            }
+            QPushButton:hover {
+                background-color: rgba(76, 175, 80, 0.3);
+                border-color: #4CAF50;
+                color: #4CAF50;
+            }
+            QPushButton:pressed {
+                background-color: rgba(76, 175, 80, 0.5);
+                border-color: #45a049;
+            }
+        """)
+        btn_add_asignatura.setToolTip("Añadir nueva asignatura")
+        btn_add_asignatura.clicked.connect(self.anadir_asignatura)
+        asignatura_header.addWidget(btn_add_asignatura)
+
+        # BOTÓN EDITAR - Azul
+        btn_edit_asignatura = QPushButton("✏️")
+        btn_edit_asignatura.setMinimumSize(40, 30)
+        btn_edit_asignatura.setMaximumSize(50, 50)
+        btn_edit_asignatura.setStyleSheet("""
+            QPushButton {
+                font-size: 16px;
+                font-weight: bold;
+                border: 2px solid #666;
+                border-radius: 6px;
+                background-color: #444;
+                color: #2196F3;
+                padding: 4px;
+                margin: 0px;
+                text-align: center;
+            }
+            QPushButton:hover {
+                background-color: rgba(33, 150, 243, 0.3);
+                border-color: #2196F3;
+                color: #2196F3;
+            }
+            QPushButton:pressed {
+                background-color: rgba(33, 150, 243, 0.5);
+                border-color: #1976D2;
+            }
+        """)
+        btn_edit_asignatura.setToolTip("Editar asignatura seleccionada")
+        btn_edit_asignatura.clicked.connect(self.editar_asignatura_seleccionada)
+        asignatura_header.addWidget(btn_edit_asignatura)
+
+        # BOTÓN ELIMINAR - Rojo
+        btn_delete_asignatura = QPushButton("🗑️")
+        btn_delete_asignatura.setMinimumSize(40, 30)
+        btn_delete_asignatura.setMaximumSize(50, 50)
+        btn_delete_asignatura.setStyleSheet("""
+            QPushButton {
+                font-size: 16px;
+                font-weight: bold;
+                border: 2px solid #666;
+                border-radius: 6px;
+                background-color: #444;
+                color: #f44336;
+                padding: 4px;
+                margin: 0px;
+                text-align: center;
+            }
+            QPushButton:hover {
+                background-color: rgba(244, 67, 54, 0.3);
+                border-color: #f44336;
+                color: #f44336;
+            }
+            QPushButton:pressed {
+                background-color: rgba(244, 67, 54, 0.5);
+                border-color: #d32f2f;
+            }
+        """)
+        btn_delete_asignatura.setToolTip("Eliminar asignatura seleccionada")
+        btn_delete_asignatura.clicked.connect(self.eliminar_asignatura_seleccionada)
+        asignatura_header.addWidget(btn_delete_asignatura)
+
+        left_layout.addLayout(asignatura_header)
+
+        self.list_asignaturas = QListWidget()
+        self.list_asignaturas.setMaximumWidth(300)
+        left_layout.addWidget(self.list_asignaturas)
+
+        left_panel.setLayout(left_layout)
+        content_layout.addWidget(left_panel)
+
+        # Columna central - Gestión de grados
+        center_panel = QGroupBox("🎓 GRADOS DE LA ASIGNATURA")
+        center_layout = QVBoxLayout()
+
+        # Asignatura seleccionada
+        self.label_asignatura_grados = QLabel("Seleccione una asignatura")
+        self.label_asignatura_grados.setStyleSheet("color: #4a9eff; font-weight: bold;")
+        center_layout.addWidget(self.label_asignatura_grados)
+
+        # Lista de grados con botones de gestión
+        grados_header = QHBoxLayout()
+        grados_header.addWidget(QLabel("Grados:"))
+        grados_header.addStretch()
+
+        btn_add_grado = QPushButton("➕")
+        btn_add_grado.setMinimumSize(40, 30)
+        btn_add_grado.setMaximumSize(50, 50)
+        btn_add_grado.setStyleSheet("""
+                    QPushButton {
+                        font-size: 16px;
+                        font-weight: bold;
+                        border: 2px solid #666;
+                        border-radius: 6px;
+                        background-color: #444;
+                        color: #4CAF50;
+                        padding: 4px;
+                        margin: 0px;
+                        text-align: center;
+                    }
+                    QPushButton:hover {
+                        background-color: rgba(76, 175, 80, 0.3);
+                        border-color: #4CAF50;
+                        color: #4CAF50;
+                    }
+                    QPushButton:pressed {
+                        background-color: rgba(76, 175, 80, 0.5);
+                        border-color: #45a049;
+                    }
+                """)
+        btn_add_grado.setToolTip("Añadir nuevo grado")
+        btn_add_grado.clicked.connect(self.anadir_grado)
+        grados_header.addWidget(btn_add_grado)
+
+        # Botones de gestión de grados
+        btn_edit_grado = QPushButton("✏️")
+        btn_edit_grado.setMinimumSize(40, 30)
+        btn_edit_grado.setMaximumSize(50, 50)
+        btn_edit_grado.setStyleSheet("""
+                    QPushButton {
+                        font-size: 16px;
+                        font-weight: bold;
+                        border: 2px solid #666;
+                        border-radius: 6px;
+                        background-color: #444;
+                        color: #2196F3;
+                        padding: 4px;
+                        margin: 0px;
+                        text-align: center;
+                    }
+                    QPushButton:hover {
+                        background-color: rgba(33, 150, 243, 0.3);
+                        border-color: #2196F3;
+                        color: #2196F3;
+                    }
+                    QPushButton:pressed {
+                        background-color: rgba(33, 150, 243, 0.5);
+                        border-color: #1976D2;
+                    }
+                """)
+        btn_edit_grado.setToolTip("Editar grado seleccionado")
+        btn_edit_grado.clicked.connect(self.editar_grado_seleccionado)
+        grados_header.addWidget(btn_edit_grado)
+
+        btn_delete_grado = QPushButton("🗑️")
+        btn_delete_grado.setMinimumSize(40, 30)
+        btn_delete_grado.setMaximumSize(50, 50)
+        btn_delete_grado.setStyleSheet("""
+                    QPushButton {
+                        font-size: 16px;
+                        font-weight: bold;
+                        border: 2px solid #666;
+                        border-radius: 6px;
+                        background-color: #444;
+                        color: #f44336;
+                        padding: 4px;
+                        margin: 0px;
+                        text-align: center;
+                    }
+                    QPushButton:hover {
+                        background-color: rgba(244, 67, 54, 0.3);
+                        border-color: #f44336;
+                        color: #f44336;
+                    }
+                    QPushButton:pressed {
+                        background-color: rgba(244, 67, 54, 0.5);
+                        border-color: #d32f2f;
+                    }
+                """)
+        btn_delete_grado.setToolTip("Eliminar grado seleccionado")
+        btn_delete_grado.clicked.connect(self.eliminar_grado_seleccionado)
+        grados_header.addWidget(btn_delete_grado)
+
+        center_layout.addLayout(grados_header)
+
+        self.list_grados = QListWidget()
+        self.list_grados.setMaximumWidth(250)
+        center_layout.addWidget(self.list_grados)
+
+        center_panel.setLayout(center_layout)
+        content_layout.addWidget(center_panel)
+
+        # Columna derecha - Configuración de horarios
+        right_panel = QGroupBox("⚙️ CONFIGURACIÓN DE HORARIOS")
+        right_layout = QVBoxLayout()
+
+        # Asignatura seleccionada
+        self.label_asignatura = QLabel("Seleccione una asignatura")
+        self.label_asignatura.setStyleSheet("color: #4a9eff; font-weight: bold; font-size: 14px;")
+        right_layout.addWidget(self.label_asignatura)
+
+        # Vista calendario semanal
+        calendario_group = QGroupBox("🗓️ HORARIOS DE LABORATORIO - Vista Semanal")
+        calendario_layout = QVBoxLayout()
+
+        # Encabezados de días
+        dias_layout = QHBoxLayout()
+        dias = ["LUNES", "MARTES", "MIÉRCOLES", "JUEVES", "VIERNES"]
+
+        self.columnas_dias = {}
+        for dia in dias:
+            columna = QVBoxLayout()
+
+            # Encabezado del día
+            header = QLabel(dia)
+            header.setAlignment(Qt.AlignmentFlag.AlignCenter)
+            header.setFont(QFont("Arial", 10, QFont.Weight.Bold))
+            header.setStyleSheet("background-color: #4a4a4a; padding: 10px; border-radius: 5px;")
+            columna.addWidget(header)
+
+            # Scroll area para las franjas
+            scroll = QScrollArea()
+            scroll.setWidgetResizable(True)
+            scroll.setMinimumHeight(400)
+
+            franjas_widget = QWidget()
+            franjas_layout = QVBoxLayout()
+            franjas_layout.setAlignment(Qt.AlignmentFlag.AlignTop)
+
+            # Botón añadir franja
+            btn_add = QPushButton(f"➕ Añadir\nFranja")
+            btn_add.setMinimumHeight(50)
+            btn_add.setStyleSheet("""
+                QPushButton {
+                    background-color: #4a4a4a;
+                    color: #ffffff;
+                    border: 1px solid #666666;
+                    border-radius: 5px;
+                    padding: 8px 16px;
+                    font-weight: bold;
+                    font-size: 12px;
+                }
+                QPushButton:hover {
+                    background-color: rgba(76, 175, 80, 0.3);
+                    border-color: #4CAF50;
+                    color: #ffffff;
+                }
+                QPushButton:pressed {
+                    background-color: #45a049;
+                    border-color: #3d8b40;
+                }
+            """)
+            btn_add.clicked.connect(lambda checked, d=dia.lower().capitalize(): self.anadir_franja(d))
+            franjas_layout.addWidget(btn_add)
+
+            franjas_layout.addStretch()
+            franjas_widget.setLayout(franjas_layout)
+            scroll.setWidget(franjas_widget)
+
+            columna.addWidget(scroll)
+            self.columnas_dias[dia.lower().capitalize()] = franjas_layout
+
+            dias_layout.addLayout(columna)
+
+        calendario_layout.addLayout(dias_layout)
+        calendario_group.setLayout(calendario_layout)
+        right_layout.addWidget(calendario_group)
+
+        # Botones de acción
+        buttons_layout = QHBoxLayout()
+
+        self.btn_cargar = QPushButton("📁 Cargar")
+        self.btn_cargar.setStyleSheet("""
+            QPushButton {
+                background-color: #4a4a4a;
+                color: #ffffff;
+                border: 1px solid #666666;
+                border-radius: 5px;
+                padding: 8px 16px;
+                font-weight: bold;
+                font-size: 12px;
+            }
+            QPushButton:hover {
+                background-color: #5a5a5a;
+            }
+        """)
+
+        self.btn_guardar = QPushButton("💾 Guardar Archivo")
+        self.btn_guardar.setStyleSheet("""
+            QPushButton {
+                background-color: #4a4a4a;
+                color: #ffffff;
+                border: 1px solid #666666;
+                border-radius: 5px;
+                padding: 8px 16px;
+                font-weight: bold;
+                font-size: 12px;
+            }
+            QPushButton:hover {
+                background-color: #5a5a5a;
+            }
+        """)
+
+        self.btn_guardar_sistema = QPushButton("✅ Guardar en Sistema")
+        self.btn_guardar_sistema.setStyleSheet("""
+                    QPushButton {
+                        background-color: #4CAF50;  /* Verde */
+                        color: #ffffff;
+                        border: 1px solid #45a049;
+                        border-radius: 5px;
+                        padding: 8px 16px;
+                        font-weight: bold;
+                        font-size: 12px;
+                    }
+                    QPushButton:hover {
+                        background-color: #45a049;
+                        border-color: #3d8b40;
+                    }
+                    QPushButton:pressed {
+                        background-color: #3d8b40;
+                    }
+                """)
+        self.btn_guardar_sistema.setToolTip("Guardar configuración en el sistema principal y cerrar ventana")
+
+        self.btn_borrar_horarios = QPushButton("🗑️ Borrar Horarios")
+        self.btn_borrar_horarios.setStyleSheet("""
+            QPushButton {
+                background-color: #d32f2f;  /* Rojo más visible */
+                color: #ffffff;
+                border: 1px solid #b71c1c;
+                border-radius: 5px;
+                padding: 8px 16px;
+                font-weight: bold;
+                font-size: 12px;
+            }
+            QPushButton:hover {
+                background-color: #f44336;
+                border-color: #d32f2f;
+            }
+            QPushButton:pressed {
+                background-color: #b71c1c;
+            }
+        """)
+        self.btn_borrar_horarios.setToolTip("Borrar todos los horarios configurados (sin guardar automáticamente)")
+
+        buttons_layout.addWidget(self.btn_cargar)
+        buttons_layout.addWidget(self.btn_guardar)
+        buttons_layout.addWidget(self.btn_guardar_sistema)
+        buttons_layout.addWidget(self.btn_borrar_horarios)
+        buttons_layout.addStretch()
+
+        right_layout.addLayout(buttons_layout)
+        right_panel.setLayout(right_layout)
+        content_layout.addWidget(right_panel)
+
+        main_layout.addLayout(content_layout)
+        central_widget.setLayout(main_layout)
+
+    def apply_dark_theme(self):
+        """Aplica tema oscuro idéntico al TFG original"""
+        self.setStyleSheet("""
+            QMainWindow {
+                background-color: #2b2b2b;
+                color: #ffffff;
+            }
+            QGroupBox {
+                color: #ffffff;
+                border: 2px solid #4a4a4a;
+                border-radius: 5px;
+                margin-top: 10px;
+                padding-top: 10px;
+                font-weight: bold;
+            }
+            QGroupBox::title {
+                subcontrol-origin: margin;
+                left: 10px;
+                padding: 0 5px 0 5px;
+            }
+            QListWidget {
+                background-color: #3c3c3c;
+                color: #ffffff;
+                border: 1px solid #555555;
+                border-radius: 5px;
+                padding: 5px;
+            }
+            QListWidget::item {
+                padding: 8px;
+                border-radius: 3px;
+                margin: 1px;
+            }
+            QListWidget::item:selected {
+                background-color: #4a9eff;
+                color: #ffffff;
+            }
+            QListWidget::item:hover {
+                background-color: #4a4a4a;
+            }
+            QPushButton {
+                background-color: #4a4a4a;
+                color: #ffffff;
+                border: 1px solid #666666;
+                border-radius: 5px;
+                padding: 8px 16px;
+                font-weight: bold;
+            }
+            QPushButton:hover {
+                background-color: #5a5a5a;
+            }
+            QPushButton:pressed {
+                background-color: #3a3a3a;
+            }
+            QPushButton:checked {
+                background-color: #4a9eff;
+                border-color: #3a8eef;
+            }
+            QSpinBox {
+                background-color: #3c3c3c;
+                color: #ffffff;
+                border: 1px solid #555555;
+                border-radius: 3px;
+                padding: 5px;
+                min-width: 60px;
+            }
+            QLabel {
+                color: #ffffff;
+            }
+            QScrollArea {
+                border: 1px solid #555555;
+                border-radius: 5px;
+                background-color: #3c3c3c;
+            }
+        """)
+
+    def conectar_signals(self):
+        """Conecta las señales de los widgets - VERSIÓN SIMPLIFICADA"""
+        self.radio_sem1.clicked.connect(self.cambiar_semestre)
+        self.radio_sem2.clicked.connect(self.cambiar_semestre)
+        self.list_asignaturas.itemClicked.connect(self.seleccionar_asignatura)
+
+        self.btn_cargar.clicked.connect(self.cargar_configuracion)
+        self.btn_guardar.clicked.connect(self.guardar_configuracion)
+        self.btn_guardar_sistema.clicked.connect(self.guardar_en_sistema)
+        self.btn_borrar_horarios.clicked.connect(self.borrar_horarios_configurados)
+
+    def cambiar_semestre(self):
+        """Cambia entre semestres y actualiza la lista de asignaturas"""
+        sender = self.sender()
+
+        # Lógica de radio buttons exclusivos
+        if sender == self.radio_sem1:
+            self.radio_sem2.setChecked(False)
+            self.datos_configuracion["semestre_actual"] = "1"
+        else:
+            self.radio_sem1.setChecked(False)
+            self.datos_configuracion["semestre_actual"] = "2"
+
+        self.cargar_asignaturas()
+        self.limpiar_horarios()
+        self.asignatura_actual = None
+        self.label_asignatura.setText("Seleccione una asignatura")
+        self.label_asignatura_grados.setText("Seleccione una asignatura")
+        self.list_grados.clear()
+        self.marcar_cambio_realizado()
+
+    def cargar_asignaturas(self):
+        """Carga asignaturas SOLO del semestre actual desde el sistema central"""
+        self.list_asignaturas.clear()
+
+        try:
+            # Obtener asignaturas desde el sistema central
+            if self.parent_window and hasattr(self.parent_window, 'configuracion'):
+                asignaturas_sistema = self.parent_window.configuracion["configuracion"]["asignaturas"]["datos"]
+
+                if not asignaturas_sistema:
+                    item = QListWidgetItem("📭 No hay asignaturas en el sistema")
+                    item.setFlags(Qt.ItemFlag.NoItemFlags)
+                    self.list_asignaturas.addItem(item)
+                    return
+
+                # FILTRAR por semestre actual
+                semestre_actual = self.datos_configuracion["semestre_actual"]
+                semestre_texto = f"{semestre_actual}º Cuatrimestre"
+
+                asignaturas_filtradas = []
+                for codigo, datos in asignaturas_sistema.items():
+                    # Solo mostrar asignaturas del semestre actual
+                    if datos.get('semestre') == semestre_texto:
+                        asignaturas_filtradas.append((codigo, datos))
+
+                if not asignaturas_filtradas:
+                    item = QListWidgetItem(f"📭 No hay asignaturas para {semestre_texto}")
+                    item.setFlags(Qt.ItemFlag.NoItemFlags)
+                    self.list_asignaturas.addItem(item)
+                    return
+
+                # Mostrar asignaturas filtradas
+                for codigo, datos in sorted(asignaturas_filtradas):
+                    nombre = datos.get('nombre', codigo)
+                    grados = datos.get('grados_que_cursan', [])
+
+                    texto = f"📚 {nombre} ({codigo})"
+                    if grados:
+                        texto += f"\n   Grados: {', '.join(grados)}"
+
+                    item = QListWidgetItem(texto)
+                    item.setData(Qt.ItemDataRole.UserRole, nombre)
+                    self.list_asignaturas.addItem(item)
+
+                self.log_mensaje(f"✅ Cargadas {len(asignaturas_filtradas)} asignaturas de {semestre_texto}", "info")
+            else:
+                # Fallback: usar estructura interna
+                semestre = self.datos_configuracion["semestre_actual"]
+                asignaturas = self.datos_configuracion["asignaturas"].get(semestre, {})
+
+                for asignatura in asignaturas.keys():
+                    item = QListWidgetItem(asignatura)
+                    item.setData(Qt.ItemDataRole.UserRole, asignatura)
+                    self.list_asignaturas.addItem(item)
+
+        except Exception as e:
+            self.log_mensaje(f"⚠️ Error cargando asignaturas: {e}", "warning")
+
+    def recargar_asignaturas_desde_sistema(self):
+        """Recarga asignaturas cuando el sistema central cambia"""
+        try:
+            self.log_mensaje("🔄 Recargando asignaturas desde sistema central...", "info")
+            self.cargar_asignaturas()
+
+            # Si había una asignatura seleccionada, intentar mantenerla
+            if self.asignatura_actual:
+                self.auto_seleccionar_asignatura(self.asignatura_actual)
+
+        except Exception as e:
+            self.log_mensaje(f"⚠️ Error recargando asignaturas: {e}", "warning")
+
+    def anadir_asignatura(self):
+        """Añade una nueva asignatura - CON AUTO-ORDENAMIENTO"""
+        dialog = GestionAsignaturaDialog(parent=self)
+
+        if dialog.exec() == QDialog.DialogCode.Accepted:
+            nombre = dialog.get_nombre()
+            if not nombre:
+                QMessageBox.warning(self, "Error", "El nombre de la asignatura no puede estar vacío")
+                return
+
+            semestre = self.datos_configuracion["semestre_actual"]
+
+            if nombre in self.datos_configuracion["asignaturas"][semestre]:
+                QMessageBox.warning(self, "Error", "Ya existe una asignatura con ese nombre")
+                return
+
+            # Añadir nueva asignatura
+            self.datos_configuracion["asignaturas"][semestre][nombre] = {
+                "grados": [],
+                "horarios": {}
+            }
+
+            # 🔑 AUTO-ORDENAR: Reordenar automáticamente después de añadir
+            self.ordenar_asignaturas_alfabeticamente()
+
+            self.cargar_asignaturas()
+            self.marcar_cambio_realizado()
+
+            # Auto-seleccionar la asignatura recién añadida
+            self.auto_seleccionar_asignatura(nombre)
+
+            QMessageBox.information(self, "Éxito", f"Asignatura '{nombre}' añadida correctamente")
+
+    def editar_asignatura_directa(self, asignatura_original):
+        """Edita el nombre de una asignatura - CON AUTO-ORDENAMIENTO"""
+        dialog = GestionAsignaturaDialog(asignatura_original, self)
+
+        if dialog.exec() == QDialog.DialogCode.Accepted:
+            nuevo_nombre = dialog.get_nombre()
+            if not nuevo_nombre:
+                QMessageBox.warning(self, "Error", "El nombre de la asignatura no puede estar vacío")
+                return
+
+            if nuevo_nombre == asignatura_original:
+                return
+
+            semestre = self.datos_configuracion["semestre_actual"]
+
+            if nuevo_nombre in self.datos_configuracion["asignaturas"][semestre]:
+                QMessageBox.warning(self, "Error", "Ya existe una asignatura con ese nombre")
+                return
+
+            # Renombrar asignatura
+            asignaturas = self.datos_configuracion["asignaturas"][semestre]
+            asignaturas[nuevo_nombre] = asignaturas.pop(asignatura_original)
+
+            # 🔑 AUTO-ORDENAR: Reordenar después de renombrar
+            self.ordenar_asignaturas_alfabeticamente()
+
+            # Actualizar asignatura actual si era la seleccionada
+            if self.asignatura_actual == asignatura_original:
+                self.asignatura_actual = nuevo_nombre
+                self.label_asignatura.setText(f"📚 {nuevo_nombre}")
+                self.label_asignatura_grados.setText(nuevo_nombre)
+
+            self.cargar_asignaturas()
+
+            # Auto-seleccionar la asignatura renombrada
+            self.auto_seleccionar_asignatura(nuevo_nombre)
+
+            self.marcar_cambio_realizado()
+            QMessageBox.information(self, "Éxito", f"Asignatura renombrada a '{nuevo_nombre}'")
+
+    def eliminar_asignatura(self, asignatura):
+        """Elimina una asignatura completa"""
+        respuesta = QMessageBox.question(
+            self, "Eliminar Asignatura",
+            f"¿Está seguro de eliminar la asignatura '{asignatura}'?\n\n"
+            "Se perderán todos sus grados, horarios y configuración.\n"
+            "Esta acción no se puede deshacer.",
+            QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No
+        )
+
+        if respuesta == QMessageBox.StandardButton.Yes:
+            semestre = self.datos_configuracion["semestre_actual"]
+
+            # Eliminar asignatura de los datos
+            if asignatura in self.datos_configuracion["asignaturas"][semestre]:
+                del self.datos_configuracion["asignaturas"][semestre][asignatura]
+
+            # Si era la asignatura actual, limpiar selección
+            if self.asignatura_actual == asignatura:
+                self.asignatura_actual = None
+                self.label_asignatura.setText("Seleccione una asignatura")
+                self.label_asignatura_grados.setText("Seleccione una asignatura")
+                self.list_grados.clear()
+                self.limpiar_horarios()
+
+            self.cargar_asignaturas()
+            self.marcar_cambio_realizado()
+            QMessageBox.information(self, "Éxito", f"Asignatura '{asignatura}' eliminada correctamente")
+
+    def seleccionar_asignatura(self, item):
+        """Selecciona una asignatura y carga/inicializa su configuración"""
+        if not item:
+            return
+
+        # Obtener el nombre de la asignatura
+        asignatura = item.data(Qt.ItemDataRole.UserRole) or item.text()
+        if not asignatura:
+            return
+
+        self.asignatura_actual = asignatura
+        self.label_asignatura.setText(f"📚 {self.asignatura_actual}")
+        self.label_asignatura_grados.setText(self.asignatura_actual)
+
+        # NUEVO: Inicializar estructura si no existe
+        self.inicializar_estructura_asignatura()
+
+        # Limpiar horarios anteriores
+        self.limpiar_horarios()
+
+        # Cargar configuración de la asignatura
+        self.cargar_config_asignatura()
+
+        # Cargar grados de la asignatura
+        self.cargar_grados_asignatura()
+
+        # Cargar horarios de la asignatura
+        self.cargar_horarios_asignatura()
+
+    def inicializar_estructura_asignatura(self):
+        """Inicializa la estructura interna para una asignatura del sistema central"""
+        if not self.asignatura_actual:
             return
 
         try:
-            if len(codigo) >= 3:
-                numero_turno = int(codigo[-2:])
-                if numero_turno < 5:
-                    info = "Teoría: MAÑANA → Labs: TARDE"
-                else:
-                    info = "Teoría: TARDE → Labs: MAÑANA"
-                self.label_codigo_info.setText(info)
+            semestre = self.datos_configuracion["semestre_actual"]
+
+            # Verificar si la asignatura ya existe en la estructura interna
+            if semestre not in self.datos_configuracion["asignaturas"]:
+                self.datos_configuracion["asignaturas"][semestre] = {}
+
+            if self.asignatura_actual not in self.datos_configuracion["asignaturas"][semestre]:
+                # Obtener grados desde el sistema central
+                grados_sistema = self.obtener_grados_asignatura(self.asignatura_actual)
+
+                # Crear estructura inicial
+                self.datos_configuracion["asignaturas"][semestre][self.asignatura_actual] = {
+                    "grados": grados_sistema.copy(),  # Copiar desde sistema central
+                    "horarios": {}
+                }
+
+                self.log_mensaje(
+                    f"🔧 Estructura inicializada para '{self.asignatura_actual}' con {len(grados_sistema)} grados",
+                    "info")
+
+        except Exception as e:
+            self.log_mensaje(f"⚠️ Error inicializando estructura: {e}", "warning")
+
+    def cargar_grados_asignatura(self):
+        """Carga los grados de la asignatura actual"""
+        self.list_grados.clear()
+
+        if not self.asignatura_actual:
+            return
+
+        grados = self.obtener_grados_asignatura(self.asignatura_actual)
+
+        for grado in grados:
+            item = QListWidgetItem(grado)
+            item.setData(Qt.ItemDataRole.UserRole, grado)
+            self.list_grados.addItem(item)
+
+    def editar_asignatura_seleccionada(self):
+        """Edita la asignatura seleccionada"""
+        item_actual = self.list_asignaturas.currentItem()
+        if not item_actual:
+            QMessageBox.warning(self, "Advertencia", "Seleccione una asignatura para editar")
+            return
+
+        asignatura_original = item_actual.data(Qt.ItemDataRole.UserRole) or item_actual.text()
+        self.editar_asignatura_directa(asignatura_original)
+
+    def eliminar_asignatura_seleccionada(self):
+        """Elimina la asignatura seleccionada"""
+        item_actual = self.list_asignaturas.currentItem()
+        if not item_actual:
+            QMessageBox.warning(self, "Advertencia", "Seleccione una asignatura para eliminar")
+            return
+
+        asignatura = item_actual.data(Qt.ItemDataRole.UserRole) or item_actual.text()
+        self.eliminar_asignatura(asignatura)
+
+    def editar_grado_seleccionado(self):
+        """Edita el grado seleccionado"""
+        if not self.asignatura_actual:
+            QMessageBox.warning(self, "Advertencia", "Seleccione primero una asignatura")
+            return
+
+        item_actual = self.list_grados.currentItem()
+        if not item_actual:
+            QMessageBox.warning(self, "Advertencia", "Seleccione un grado para editar")
+            return
+
+        grado_original = item_actual.data(Qt.ItemDataRole.UserRole) or item_actual.text()
+        self.editar_grado(grado_original)
+
+    def eliminar_grado_seleccionado(self):
+        """Elimina el grado seleccionado"""
+        if not self.asignatura_actual:
+            QMessageBox.warning(self, "Advertencia", "Seleccione primero una asignatura")
+            return
+
+        item_actual = self.list_grados.currentItem()
+        if not item_actual:
+            QMessageBox.warning(self, "Advertencia", "Seleccione un grado para eliminar")
+            return
+
+        grado = item_actual.data(Qt.ItemDataRole.UserRole) or item_actual.text()
+        self.eliminar_grado(grado)
+
+    def editar_grado(self, grado_original):
+        """Edita un grado existente - CON AUTO-ORDENAMIENTO"""
+        nuevo_grado, ok = QInputDialog.getText(
+            self, "Editar Grado",
+            f"Editar código del grado:",
+            text=grado_original
+        )
+
+        if ok and nuevo_grado.strip():
+            nuevo_grado = nuevo_grado.strip().upper()
+
+            if nuevo_grado == grado_original:
+                return
+
+            semestre = self.datos_configuracion["semestre_actual"]
+            asignaturas = self.datos_configuracion["asignaturas"][semestre]
+            grados_list = asignaturas[self.asignatura_actual]["grados"]
+
+            if nuevo_grado in grados_list:
+                QMessageBox.warning(self, "Error", "Este grado ya existe en la asignatura")
+                return
+
+            # Reemplazar grado
+            try:
+                index = grados_list.index(grado_original)
+                grados_list[index] = nuevo_grado
+
+                # 🔑 AUTO-ORDENAR: Reordenar después de editar
+                grados_list.sort()
+
+                self.cargar_grados_asignatura()
+
+                # Auto-seleccionar el grado editado
+                self.auto_seleccionar_grado(nuevo_grado)
+
+                self.marcar_cambio_realizado()
+                QMessageBox.information(self, "Éxito", f"Grado actualizado: {grado_original} → {nuevo_grado}")
+            except ValueError:
+                QMessageBox.warning(self, "Error", "No se pudo encontrar el grado original")
+
+    def eliminar_grado(self, grado):
+        """Elimina un grado de la asignatura actual"""
+        respuesta = QMessageBox.question(
+            self, "Eliminar Grado",
+            f"¿Está seguro de eliminar el grado '{grado}' de la asignatura '{self.asignatura_actual}'?\n\n"
+            "También se eliminarán todas sus franjas horarias asociadas.",
+            QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No
+        )
+
+        if respuesta == QMessageBox.StandardButton.Yes:
+            semestre = self.datos_configuracion["semestre_actual"]
+            asignaturas = self.datos_configuracion["asignaturas"][semestre]
+
+            # Eliminar grado de la lista
+            if grado in asignaturas[self.asignatura_actual]["grados"]:
+                asignaturas[self.asignatura_actual]["grados"].remove(grado)
+
+            # Eliminar grado de todas las franjas horarias
+            horarios = asignaturas[self.asignatura_actual].get("horarios", {})
+            for dia, franjas in horarios.items():
+                for franja in franjas:
+                    if grado in franja["grados"]:
+                        franja["grados"].remove(grado)
+
+            # Recargar interfaz
+            self.cargar_grados_asignatura()
+            self.cargar_horarios_asignatura()
+            self.marcar_cambio_realizado()
+
+            QMessageBox.information(self, "Éxito", f"Grado '{grado}' eliminado correctamente")
+
+    def anadir_grado(self):
+        """Añade un nuevo grado - CON INICIALIZACIÓN SEGURA"""
+        if not self.asignatura_actual:
+            QMessageBox.warning(self, "Advertencia", "Seleccione primero una asignatura")
+            return
+
+        # NUEVO: Asegurar que la estructura existe
+        self.inicializar_estructura_asignatura()
+
+        grado, ok = QInputDialog.getText(self, "Nuevo Grado", "Código del grado (ej: A302, EE309):")
+
+        if ok and grado.strip():
+            grado = grado.strip().upper()
+
+            semestre = self.datos_configuracion["semestre_actual"]
+            asignaturas = self.datos_configuracion["asignaturas"][semestre]
+
+            if grado not in asignaturas[self.asignatura_actual]["grados"]:
+                asignaturas[self.asignatura_actual]["grados"].append(grado)
+                asignaturas[self.asignatura_actual]["grados"].sort()
+
+                self.cargar_grados_asignatura()
+                self.auto_seleccionar_grado(grado)
+                self.marcar_cambio_realizado()
+                QMessageBox.information(self, "Éxito", f"Grado '{grado}' añadido correctamente")
             else:
-                self.label_codigo_info.setText("Código incompleto")
-        except ValueError:
-            self.label_codigo_info.setText("Formato inválido")
+                QMessageBox.warning(self, "Error", "Este grado ya existe en la asignatura")
 
-    def toggle_doble_grado(self, checked):
-        """Mostrar/ocultar opciones de doble grado"""
-        self.label_comparte.setVisible(checked)
-        self.combo_comparte.setVisible(checked)
+    def obtener_asignaturas_del_sistema(self):
+        if self.parent_window:
+            return self.parent_window.configuracion["configuracion"]["asignaturas"]["datos"]
+        return {}
 
-        if checked:
-            # Actualizar lista de cursos disponibles
-            self.combo_comparte.clear()
-            cursos_disponibles = [c for c in self.cursos_existentes.keys() if c != self.codigo_actual]
-            self.combo_comparte.addItems(cursos_disponibles)
+    def obtener_grados_asignatura(self, asignatura):
+        """Obtiene grados desde el sistema central de asignaturas"""
+        try:
+            if self.parent_window and hasattr(self.parent_window, 'configuracion'):
+                asignaturas_sistema = self.parent_window.configuracion["configuracion"]["asignaturas"]["datos"]
 
-    def cargar_datos(self):
-        """Cargar datos existentes"""
-        self.line_codigo.setText(self.codigo_actual)
-        self.line_descripcion.setText(self.datos_actuales.get('descripcion', ''))
-        self.check_doble.setChecked(self.datos_actuales.get('es_doble_grado', False))
+                # Buscar por nombre o código de asignatura
+                for codigo, datos in asignaturas_sistema.items():
+                    if datos.get('nombre') == asignatura or codigo == asignatura:
+                        return datos.get('grados_que_cursan', [])
 
-        if self.datos_actuales.get('es_doble_grado', False):
-            comparte_con = self.datos_actuales.get('comparte_con', '')
-            if comparte_con:
-                index = self.combo_comparte.findText(comparte_con)
-                if index >= 0:
-                    self.combo_comparte.setCurrentIndex(index)
+                self.log_mensaje(f"⚠️ Asignatura '{asignatura}' no encontrada en sistema central", "warning")
+                return []
+            return []
+        except Exception as e:
+            self.log_mensaje(f"⚠️ Error obteniendo grados: {e}", "warning")
+            return []
 
-    def get_datos(self):
-        """Obtener datos del formulario"""
-        return {
-            'codigo': self.line_codigo.text().strip(),
-            'descripcion': self.line_descripcion.text().strip(),
-            'es_doble_grado': self.check_doble.isChecked(),
-            'comparte_con': self.combo_comparte.currentText() if self.check_doble.isChecked() else ''
+    def cargar_config_asignatura(self):
+        """Carga la configuración específica de una asignatura - SIMPLIFICADO"""
+        if not self.asignatura_actual:
+            return
+
+        # Ya no hay configuración específica de asignatura que cargar
+        # Solo se mantiene la estructura para compatibilidad futura
+        pass
+
+    def guardar_config_asignatura(self):
+        """Guarda la configuración básica de la asignatura actual - SIMPLIFICADO"""
+        if not self.asignatura_actual:
+            return
+
+        # Ya no hay configuración específica de asignatura que guardar
+        # Solo se mantiene la estructura para compatibilidad futura
+        pass
+
+    def cargar_horarios_asignatura(self):
+        """Carga los horarios configurados para la asignatura actual"""
+        if not self.asignatura_actual:
+            return
+
+        try:
+            semestre = self.datos_configuracion["semestre_actual"]
+            asignaturas = self.datos_configuracion["asignaturas"].get(semestre, {})
+
+            # Si la asignatura existe en la estructura interna, cargar sus horarios
+            if self.asignatura_actual in asignaturas:
+                horarios = asignaturas[self.asignatura_actual].get("horarios", {})
+
+                # Cargar franjas existentes
+                total_franjas = 0
+                for dia, franjas in horarios.items():
+                    if dia in self.columnas_dias:
+                        for franja_data in franjas:
+                            self.crear_franja_widget(
+                                dia,
+                                franja_data["hora_inicio"],
+                                franja_data["hora_fin"],
+                                franja_data["grados"],
+                                franja_data.get("id", self.generar_id_franja())
+                            )
+                            total_franjas += 1
+
+                if total_franjas > 0:
+                    self.log_mensaje(f"✅ Cargadas {total_franjas} franjas horarias para '{self.asignatura_actual}'",
+                                     "info")
+                else:
+                    self.log_mensaje(f"📝 No hay horarios previos para '{self.asignatura_actual}'", "info")
+            else:
+                self.log_mensaje(f"⚠️ Asignatura '{self.asignatura_actual}' no encontrada en estructura interna",
+                                 "warning")
+
+        except Exception as e:
+            self.log_mensaje(f"⚠️ Error cargando horarios: {e}", "warning")
+
+    def generar_id_franja(self):
+        """Genera un ID único para una franja"""
+        self.contador_franjas += 1
+        return f"franja_{self.contador_franjas}"
+
+    def anadir_franja(self, dia):
+        """Abre dialog para añadir nueva franja horaria - VERSIÓN MODIFICADA"""
+        if not self.asignatura_actual:
+            QMessageBox.warning(self, "Advertencia", "Seleccione primero una asignatura")
+            return
+
+        dialog = AnadirFranjaDialog(self.asignatura_actual, self)
+        dialog.combo_dia.setCurrentText(dia)
+
+        if dialog.exec() == QDialog.DialogCode.Accepted:
+            # Obtener datos del dialog
+            datos_franja = dialog.get_datos_franja()
+
+            # MODIFICACIÓN: Usar las horas tal como las configuró el usuario
+            hora_inicio = datos_franja['hora_inicio']
+            hora_fin = datos_franja['hora_fin']
+            grados_seleccionados = datos_franja['grados']
+
+            # Crear franja y manejar solapamientos
+            self.procesar_nueva_franja(dia, hora_inicio, hora_fin, grados_seleccionados)
+
+    def tiempo_a_minutos(self, hora_str):
+        """Convierte una hora en formato HH:MM a minutos desde medianoche"""
+        h, m = map(int, hora_str.split(':'))
+        return h * 60 + m
+
+    def minutos_a_tiempo(self, minutos):
+        """Convierte minutos desde medianoche a formato HH:MM"""
+        h = minutos // 60
+        m = minutos % 60
+        return f"{h:02d}:{m:02d}"
+
+    def procesar_nueva_franja(self, dia, hora_inicio, hora_fin, grados):
+        """Procesa nueva franja manejando solapamientos automáticamente"""
+        # NUEVO: Asegurar que la estructura existe
+        self.inicializar_estructura_asignatura()
+
+        inicio_minutos = self.tiempo_a_minutos(hora_inicio)
+        fin_minutos = self.tiempo_a_minutos(hora_fin)
+
+        # Obtener franjas existentes para este día y asignatura
+        semestre = self.datos_configuracion["semestre_actual"]
+        asignaturas = self.datos_configuracion["asignaturas"].get(semestre, {})
+
+        # VERIFICAR que la asignatura existe
+        if self.asignatura_actual not in asignaturas:
+            self.log_mensaje(f"⚠️ Inicializando estructura para {self.asignatura_actual}", "warning")
+            self.inicializar_estructura_asignatura()
+            asignaturas = self.datos_configuracion["asignaturas"][semestre]
+
+        horarios_dia = asignaturas.get(self.asignatura_actual, {}).get("horarios", {}).get(dia, [])
+
+        # Convertir a formato de trabajo (minutos)
+        franjas_existentes = []
+        for franja in horarios_dia:
+            franjas_existentes.append({
+                'id': franja['id'],
+                'inicio': self.tiempo_a_minutos(franja['hora_inicio']),
+                'fin': self.tiempo_a_minutos(franja['hora_fin']),
+                'grados': set(franja['grados'])
+            })
+
+        # Procesar solapamientos
+        nueva_franja = {
+            'id': self.generar_id_franja(),
+            'inicio': inicio_minutos,
+            'fin': fin_minutos,
+            'grados': set(grados)
         }
 
+        franjas_finales = self.fusionar_franjas(franjas_existentes, nueva_franja)
 
-if __name__ == "__main__":
-    app = QtWidgets.QApplication(sys.argv)
+        # Limpiar widgets del día
+        self.limpiar_horarios_dia(dia)
+
+        # Actualizar datos
+        asignaturas[self.asignatura_actual]["horarios"][dia] = []
+
+        # Crear nuevos widgets y guardar datos
+        for franja in franjas_finales:
+            hora_inicio_str = self.minutos_a_tiempo(franja['inicio'])
+            hora_fin_str = self.minutos_a_tiempo(franja['fin'])
+            grados_list = list(franja['grados'])
+
+            self.crear_franja_widget(dia, hora_inicio_str, hora_fin_str, grados_list, franja['id'])
+            self.guardar_franja_en_datos(dia, franja['id'], hora_inicio_str, hora_fin_str, grados_list)
+
+        # Marcar que se han realizado cambios
+        self.marcar_cambio_realizado()
+
+    def fusionar_franjas(self, franjas_existentes, nueva_franja):
+        """Fusiona las franjas manejando solapamientos"""
+        todas_franjas = franjas_existentes + [nueva_franja]
+
+        # Crear eventos de inicio y fin
+        eventos = []
+        for i, franja in enumerate(todas_franjas):
+            eventos.append((franja['inicio'], 'inicio', i, franja))
+            eventos.append((franja['fin'], 'fin', i, franja))
+
+        # Ordenar eventos por tiempo
+        eventos.sort(key=lambda x: (x[0], x[1] == 'fin'))  # Priorizar inicio sobre fin en empates
+
+        # Procesar eventos para crear franjas fusionadas
+        franjas_activas = []  # Usar lista en lugar de set
+        franjas_resultado = []
+        tiempo_anterior = None
+
+        for tiempo, tipo, indice, franja in eventos:
+            # Si hay un gap de tiempo y hay franjas activas, crear franja resultado
+            if tiempo_anterior is not None and tiempo > tiempo_anterior and franjas_activas:
+                grados_combinados = set()
+                for f_activa in franjas_activas:
+                    grados_combinados.update(f_activa['grados'])
+
+                franjas_resultado.append({
+                    'id': self.generar_id_franja(),
+                    'inicio': tiempo_anterior,
+                    'fin': tiempo,
+                    'grados': grados_combinados
+                })
+
+            # Actualizar franjas activas
+            if tipo == 'inicio':
+                franjas_activas.append(franja)
+            else:
+                # Eliminar franja específica de la lista
+                franjas_activas = [f for f in franjas_activas if f['id'] != franja['id']]
+
+            tiempo_anterior = tiempo
+
+        return franjas_resultado
+
+    def limpiar_horarios_dia(self, dia):
+        """Limpia los horarios de un día específico"""
+        widgets = self.franjas_widgets[dia].copy()
+        for widget in widgets:
+            widget.setParent(None)
+            widget.deleteLater()
+        self.franjas_widgets[dia].clear()
+
+    def crear_franja_widget(self, dia, hora_inicio, hora_fin, grados, franja_id):
+        """Crea y añade un widget de franja al calendario"""
+        franja_widget = FranjaWidget(franja_id, hora_inicio, hora_fin, grados, self)
+
+        # Conectar señales
+        franja_widget.eliminado.connect(self.eliminar_franja_widget)
+        franja_widget.editado.connect(self.editar_franja_widget)
+
+        # Insertar antes del botón "Añadir" y el stretch
+        layout = self.columnas_dias[dia]
+        layout.insertWidget(layout.count() - 2, franja_widget)
+
+        # Guardar referencia
+        self.franjas_widgets[dia].append(franja_widget)
+
+    def guardar_franja_en_datos(self, dia, franja_id, hora_inicio, hora_fin, grados):
+        """Guarda una franja en la estructura de datos"""
+        if not self.asignatura_actual:
+            return
+
+        semestre = self.datos_configuracion["semestre_actual"]
+        asignaturas = self.datos_configuracion["asignaturas"].get(semestre, {})
+
+        if self.asignatura_actual not in asignaturas:
+            return
+
+        # Inicializar horarios si no existen
+        if "horarios" not in asignaturas[self.asignatura_actual]:
+            asignaturas[self.asignatura_actual]["horarios"] = {}
+
+        if dia not in asignaturas[self.asignatura_actual]["horarios"]:
+            asignaturas[self.asignatura_actual]["horarios"][dia] = []
+
+        # Añadir franja
+        franja_data = {
+            "id": franja_id,
+            "hora_inicio": hora_inicio,
+            "hora_fin": hora_fin,
+            "grados": grados.copy()
+        }
+
+        asignaturas[self.asignatura_actual]["horarios"][dia].append(franja_data)
+
+    def eliminar_franja_widget(self, franja_widget):
+        """Elimina un widget de franja del calendario y de los datos"""
+        # Eliminar de los datos
+        self.eliminar_franja_de_datos(franja_widget.franja_id)
+
+        # Eliminar de la lista de widgets
+        for dia, widgets in self.franjas_widgets.items():
+            if franja_widget in widgets:
+                widgets.remove(franja_widget)
+                break
+
+        # Eliminar del layout
+        franja_widget.setParent(None)
+        franja_widget.deleteLater()
+
+        # MArcar que se han realizado cambios
+        self.marcar_cambio_realizado()
+
+    def eliminar_franja_de_datos(self, franja_id):
+        """Elimina una franja de la estructura de datos"""
+        if not self.asignatura_actual:
+            return
+
+        semestre = self.datos_configuracion["semestre_actual"]
+        asignaturas = self.datos_configuracion["asignaturas"].get(semestre, {})
+
+        if self.asignatura_actual not in asignaturas:
+            return
+
+        horarios = asignaturas[self.asignatura_actual].get("horarios", {})
+
+        for dia, franjas in horarios.items():
+            franjas[:] = [f for f in franjas if f.get("id") != franja_id]
+
+    def editar_franja_widget(self, franja_widget):
+        """Edita una franja existente - IMPLEMENTACIÓN COMPLETA"""
+        if not self.asignatura_actual:
+            QMessageBox.warning(self, "Error", "No hay asignatura seleccionada")
+            return
+
+        # Crear diálogo de edición usando el mismo diálogo pero en modo edición
+        dialog = AnadirFranjaDialog(self.asignatura_actual, self, franja_widget)
+
+        if dialog.exec() == QDialog.DialogCode.Accepted:
+            # Obtener nuevos datos
+            datos_nuevos = dialog.get_datos_franja()
+
+            # Obtener día original de la franja
+            dia_original = None
+            for dia, widgets in self.franjas_widgets.items():
+                if franja_widget in widgets:
+                    dia_original = dia
+                    break
+
+            if not dia_original:
+                QMessageBox.warning(self, "Error", "No se pudo determinar el día de la franja")
+                return
+
+            # Eliminar franja original
+            self.eliminar_franja_widget(franja_widget)
+
+            # Crear nueva franja con los datos actualizados
+            dia_nuevo = datos_nuevos['dia']
+            self.procesar_nueva_franja(
+                dia_nuevo,
+                datos_nuevos['hora_inicio'],
+                datos_nuevos['hora_fin'],
+                datos_nuevos['grados']
+            )
+
+            # Mostrar mensaje de confirmación
+            mensaje = f"Franja editada correctamente:\n"
+            mensaje += f"• Horario: {datos_nuevos['hora_inicio']} - {datos_nuevos['hora_fin']}\n"
+            mensaje += f"• Día: {dia_nuevo}\n"
+            mensaje += f"• Grados: {', '.join(datos_nuevos['grados'])}"
+
+            QMessageBox.information(self, "Franja Actualizada", mensaje)
+
+    def limpiar_horarios(self):
+        """Limpia todos los horarios del calendario"""
+        for dia, widgets in self.franjas_widgets.items():
+            for widget in widgets:
+                widget.setParent(None)
+                widget.deleteLater()
+            widgets.clear()
+
+    def cargar_configuracion(self):
+        """Carga configuración desde archivo JSON"""
+        file_path, _ = QFileDialog.getOpenFileName(
+            self, "Cargar Configuración de Horarios",
+            "", "Archivos JSON (*.json)"
+        )
+
+        if file_path:
+            try:
+                with open(file_path, 'r', encoding='utf-8') as f:
+                    datos_cargados = json.load(f)
+
+                # Validar estructura básica
+                if "asignaturas" not in datos_cargados:
+                    raise ValueError("Archivo JSON inválido: falta 'asignaturas'")
+
+                # Cargar datos
+                self.datos_configuracion = datos_cargados
+
+                # 🔑 ORDENAR TODO AL CARGAR DESDE ARCHIVO
+                self.ordenar_asignaturas_alfabeticamente()
+
+                # Actualizar interfaz
+                semestre = self.datos_configuracion.get("semestre_actual", "2")
+                if semestre == "1":
+                    self.radio_sem1.setChecked(True)
+                    self.radio_sem2.setChecked(False)
+                else:
+                    self.radio_sem1.setChecked(False)
+                    self.radio_sem2.setChecked(True)
+
+                self.cargar_asignaturas()
+                self.limpiar_horarios()
+                self.asignatura_actual = None
+                self.label_asignatura.setText("Seleccione una asignatura")
+                self.label_asignatura_grados.setText("Seleccione una asignatura")
+                self.list_grados.clear()
+
+                QMessageBox.information(self, "Éxito", "Configuración cargada correctamente")
+
+            except Exception as e:
+                QMessageBox.critical(self, "Error", f"Error al cargar configuración:\n{str(e)}")
+
+    def guardar_configuracion(self):
+        """Guarda configuración actual en archivo JSON"""
+        file_path, _ = QFileDialog.getSaveFileName(
+            self, "Guardar Configuración de Horarios",
+            f"horarios_config_{datetime.now().strftime('%Y%m%d_%H%M%S')}.json",
+            "Archivos JSON (*.json)"
+        )
+
+        if file_path:
+            try:
+                # Guardar configuración actual de la asignatura
+                if self.asignatura_actual:
+                    self.guardar_config_asignatura()
+
+                # Añadir metadatos
+                config_data = self.datos_configuracion.copy()
+                config_data["metadata"] = {
+                    "version": "1.0",
+                    "timestamp": datetime.now().isoformat(),
+                    "asignatura_actual": self.asignatura_actual,
+                    "generado_por": "OPTIM Labs - Configurar Horarios"
+                }
+
+                with open(file_path, 'w', encoding='utf-8') as f:
+                    json.dump(config_data, f, ensure_ascii=False, indent=2)
+
+                QMessageBox.information(self, "Éxito", f"Configuración guardada correctamente en:\n{file_path}")
+
+            except Exception as e:
+                QMessageBox.critical(self, "Error", f"Error al guardar configuración:\n{str(e)}")
+
+    def guardar_en_sistema(self):
+        """Guarda la configuración en el sistema principal y cierra la ventana - VERSIÓN SIMPLIFICADA"""
+        try:
+            # Verificar que hay datos para guardar
+            if not self.datos_configuracion["asignaturas"]:
+                QMessageBox.warning(
+                    self, "Sin datos",
+                    "No hay asignaturas configuradas para guardar."
+                )
+                return
+
+            # Contar asignaturas y franjas
+            total_asignaturas = 0
+            total_franjas = 0
+
+            for semestre, asignaturas in self.datos_configuracion["asignaturas"].items():
+                total_asignaturas += len(asignaturas)
+                for asig_data in asignaturas.values():
+                    horarios = asig_data.get("horarios", {})
+                    for dia_franjas in horarios.values():
+                        total_franjas += len(dia_franjas)
+
+            # UNA SOLA CONFIRMACIÓN
+            respuesta = QMessageBox.question(
+                self, "Guardar y Cerrar",
+                f"¿Guardar configuración en el sistema y cerrar?\n\n"
+                f"📊 Resumen:\n"
+                f"• {total_asignaturas} asignaturas configuradas\n"
+                f"• {total_franjas} franjas horarias totales\n\n"
+                f"La configuración se integrará con OPTIM y la ventana se cerrará.",
+                QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No
+            )
+
+            if respuesta == QMessageBox.StandardButton.Yes:
+                # Preparar datos para enviar al sistema principal
+                datos_para_sistema = {
+                    "semestre_actual": self.datos_configuracion["semestre_actual"],
+                    "asignaturas": self.datos_configuracion["asignaturas"],
+                    "metadata": {
+                        "total_asignaturas": total_asignaturas,
+                        "total_franjas": total_franjas,
+                        "timestamp": datetime.now().isoformat(),
+                        "origen": "ConfigurarHorarios"
+                    }
+                }
+
+                # Enviar señal al sistema principal (SILENCIOSO - sin más diálogos)
+                self.configuracion_actualizada.emit(datos_para_sistema)
+
+                # Marcar como guardado para evitar preguntas al cerrar
+                self.datos_guardados_en_sistema = True
+                self.datos_iniciales = json.dumps(self.datos_configuracion, sort_keys=True)
+
+                # Cerrar directamente SIN MÁS MENSAJES
+                self.close()
+
+        except Exception as e:
+            QMessageBox.critical(
+                self, "❌ Error",
+                f"Error al guardar en el sistema:\n{str(e)}"
+            )
+
+    def borrar_horarios_configurados(self):
+        """Borra todos los horarios configurados SIN guardar automáticamente"""
+        respuesta = QMessageBox.question(
+            self, "Borrar Horarios",
+            "¿Está seguro de que desea borrar todos los horarios configurados?\n\n"
+            "⚠️ Se eliminarán todas las franjas horarias de todas las asignaturas.\n"
+            "💡 Los cambios NO se guardarán automáticamente.",
+            QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
+            QMessageBox.StandardButton.No  # Por defecto NO borrar
+        )
+
+        if respuesta == QMessageBox.StandardButton.Yes:
+            # Limpiar horarios de todas las asignaturas
+            for semestre in self.datos_configuracion["asignaturas"]:
+                for asignatura in self.datos_configuracion["asignaturas"][semestre]:
+                    self.datos_configuracion["asignaturas"][semestre][asignatura]["horarios"] = {}
+
+            # Limpiar interfaz visual
+            self.limpiar_horarios()
+            self.list_asignaturas.setCurrentRow(-1)
+            self.list_grados.clear()
+            self.asignatura_actual = None
+            self.label_asignatura.setText("Seleccione una asignatura")
+            self.label_asignatura_grados.setText("Seleccione una asignatura")
+
+            # 🔑 MARCAR COMO CAMBIO SIN GUARDAR
+            self.marcar_cambio_realizado()
+
+            # Mostrar confirmación
+            QMessageBox.information(
+                self, "Horarios Borrados",
+                "✅ Todos los horarios han sido borrados.\n\n"
+                "💡 Recuerda usar 'Guardar en Sistema' para aplicar los cambios permanentemente."
+            )
+
+            self.log_mensaje("🗑️ Horarios borrados (cambios sin guardar)", "warning")
+
+    def log_mensaje(self, mensaje, tipo="info"):
+        """Método simple de logging para la ventana de horarios"""
+        # Si la ventana padre tiene logging, usarlo
+        if self.parent_window and hasattr(self.parent_window, 'log_mensaje'):
+            self.parent_window.log_mensaje(mensaje, tipo)
+        else:
+            # Sino, imprimir en consola
+            iconos = {"info": "ℹ️", "warning": "⚠️", "error": "❌", "success": "✅"}
+            icono = iconos.get(tipo, "ℹ️")
+            print(f"{icono} {mensaje}")
+
+    def hay_cambios_sin_guardar(self):
+        """Detecta si hay cambios sin guardar"""
+        datos_actuales = json.dumps(self.datos_configuracion, sort_keys=True)
+        hay_cambios = datos_actuales != self.datos_iniciales
+
+        # Si hay cambios y no se han guardado en sistema, hay cambios pendientes
+        if hay_cambios and not self.datos_guardados_en_sistema:
+            return True
+
+        # Si había datos guardados pero ahora hay cambios, también hay pendientes
+        if self.datos_guardados_en_sistema and hay_cambios:
+            return True
+
+        return False
+
+    def marcar_cambio_realizado(self):
+        """Marcar que se hizo un cambio (llamar desde métodos que modifican datos)"""
+        # Actualizar el snapshot de datos guardados si es necesario
+        self.datos_guardados_en_sistema = False
+
+    def closeEvent(self, event):
+        """Manejar el cierre de la ventana - SOLO pregunta si hay cambios sin guardar"""
+
+        # Si no hay cambios pendientes, cerrar directamente
+        if not self.hay_cambios_sin_guardar():
+            self.log_mensaje("🔚 Cerrando configuración de horarios", "info")
+            event.accept()
+            return
+
+        # Solo preguntar si HAY cambios sin guardar
+        respuesta = QMessageBox.question(
+            self, "Cambios sin Guardar",
+            "Hay cambios sin guardar en la configuración.\n\n"
+            "¿Cerrar sin guardar?\n\n"
+            "💡 Tip: Usa 'Guardar en Sistema' para conservar los cambios.",
+            QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
+            QMessageBox.StandardButton.No  # Por defecto NO cerrar
+        )
+
+        if respuesta == QMessageBox.StandardButton.Yes:
+            self.cancelar_cambios_en_sistema()
+            self.log_mensaje("🔚 Cerrando sin guardar cambios - datos restablecidos", "warning")
+            event.accept()
+        else:
+            event.ignore()
+
+    def cancelar_cambios_en_sistema(self):
+        """Cancela los cambios enviando datos originales al sistema principal"""
+        try:
+            # Restaurar desde el snapshot inicial
+            datos_originales = json.loads(self.datos_iniciales)
+
+            # Preparar datos originales con metadata de cancelación
+            datos_para_sistema = {
+                "semestre_actual": datos_originales["semestre_actual"],
+                "asignaturas": datos_originales["asignaturas"],
+                "metadata": {
+                    "accion": "CANCELAR_CAMBIOS",  # ← IMPORTANTE: Indica cancelación
+                    "timestamp": datetime.now().isoformat(),
+                    "origen": "ConfigurarHorarios",
+                    "cambios_descartados": True,
+                    "restaurar_estado_original": True
+                }
+            }
+
+            # 🔑 CLAVE: ENVIAR SEÑAL CON DATOS ORIGINALES
+            self.configuracion_actualizada.emit(datos_para_sistema)
+
+            # Solo ahora restaurar datos locales
+            self.datos_configuracion = datos_originales
+            self.datos_guardados_en_sistema = False  # ← CORREGIDO: NO marcar como guardado
+            self.datos_iniciales = json.dumps(datos_originales, sort_keys=True)
+
+            self.log_mensaje("📤 Señal de cancelación enviada al sistema principal", "info")
+
+        except Exception as e:
+            self.log_mensaje(f"⚠️ Error cancelando cambios: {e}", "warning")
+
+            # Fallback: enviar señal con datos vacíos
+            datos_vacios = {
+                "semestre_actual": "1",
+                "asignaturas": {"1": {}, "2": {}},
+                "metadata": {
+                    "accion": "CANCELAR_CAMBIOS",
+                    "error_restauracion": True,
+                    "timestamp": datetime.now().isoformat()
+                }
+            }
+            self.configuracion_actualizada.emit(datos_vacios)
+
+    def ordenar_asignaturas_alfabeticamente(self):
+        """Reordena todas las asignaturas alfabéticamente manteniendo datos"""
+        for semestre in ["1", "2"]:
+            if semestre in self.datos_configuracion["asignaturas"]:
+                # Obtener diccionario actual
+                asignaturas_dict = self.datos_configuracion["asignaturas"][semestre]
+
+                # Crear nuevo diccionario ordenado
+                asignaturas_ordenadas = {}
+                for nombre in sorted(asignaturas_dict.keys()):
+                    asignaturas_ordenadas[nombre] = asignaturas_dict[nombre]
+
+                    # También ordenar grados dentro de cada asignatura
+                    if "grados" in asignaturas_ordenadas[nombre]:
+                        asignaturas_ordenadas[nombre]["grados"].sort()
+
+                # Reemplazar con la versión ordenada
+                self.datos_configuracion["asignaturas"][semestre] = asignaturas_ordenadas
+
+    def auto_seleccionar_asignatura(self, nombre_asignatura):
+        """Auto-selecciona una asignatura por nombre"""
+        try:
+            for i in range(self.list_asignaturas.count()):
+                item = self.list_asignaturas.item(i)
+                if item.text() == nombre_asignatura:
+                    self.list_asignaturas.setCurrentItem(item)
+                    self.seleccionar_asignatura(item)
+                    break
+        except Exception as e:
+            self.log_mensaje(f"⚠️ Error auto-seleccionando asignatura: {e}", "warning")
+
+    def auto_seleccionar_grado(self, codigo_grado):
+        """Auto-selecciona un grado por código"""
+        try:
+            for i in range(self.list_grados.count()):
+                item = self.list_grados.item(i)
+                if item.text() == codigo_grado:
+                    self.list_grados.setCurrentItem(item)
+                    break
+        except Exception as e:
+            self.log_mensaje(f"⚠️ Error auto-seleccionando grado: {e}", "warning")
+
+
+
+
+
+def main():
+    app = QApplication(sys.argv)
+
+    # Aplicar tema oscuro a nivel de aplicación
     app.setStyle('Fusion')
+    palette = QPalette()
+    palette.setColor(QPalette.ColorRole.Window, QColor(43, 43, 43))
+    palette.setColor(QPalette.ColorRole.WindowText, QColor(255, 255, 255))
+    app.setPalette(palette)
 
     window = ConfigurarHorarios()
     window.show()
+
     sys.exit(app.exec())
+
+
+if __name__ == "__main__":
+    main()
