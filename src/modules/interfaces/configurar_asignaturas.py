@@ -1,16 +1,20 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-Configurar Asignaturas - Sistema de Programación Automática de Laboratorios
-Desarrollado por SoftVier para ETSIDI (Universidad)
+Configurar Asignaturas - OPTIM - Sistema de Programación Automática de Laboratorios
+Desarrollado por SoftVier para ETSIDI (UPM)
 
 FUNCIONALIDADES IMPLEMENTADAS:
-1. Gestión completa de asignaturas con datos académicos y de laboratorio
-2. Configuración de grados que cursan cada asignatura
-3. Planificación de grupos y clases con estadísticas automáticas
-4. Sincronización bidireccional con módulos de alumnos y horarios
-5. Cálculo automático de necesidades reales basado en matriculaciones
-6. Validación de equipamiento contra aulas disponibles
+1. Gestión integral de asignaturas con datos académicos completos
+2. Configuración dinámica de grados que cursan cada asignatura
+3. Planificación automática de grupos basada en matriculaciones reales
+4. Estadísticas automáticas sincronizadas con datos de alumnos
+5. Configuración detallada de laboratorio y equipamiento requerido
+6. Cálculo inteligente de grupos recomendados por capacidad
+7. Validación de equipamiento contra aulas disponibles
+8. Sincronización bidireccional con módulos de horarios y alumnos
+9. Import/Export desde CSV con preservación de relaciones
+10. Integración completa con sistema de configuración global
 
 Autor: Javier Robles Molina - SoftVier
 Universidad: ETSIDI (UPM)
@@ -19,6 +23,7 @@ Universidad: ETSIDI (UPM)
 import sys
 import os
 import json
+import pandas as pd
 from datetime import datetime
 from PyQt6.QtWidgets import (
     QApplication, QMainWindow, QWidget, QVBoxLayout, QHBoxLayout,
@@ -29,6 +34,34 @@ from PyQt6.QtWidgets import (
 )
 from PyQt6.QtCore import Qt, pyqtSignal
 from PyQt6.QtGui import QFont, QPalette, QColor
+
+
+def center_window_on_screen_immediate(window, width, height):
+    """Centrar ventana a la pantalla"""
+    try:
+        # Obtener información de la pantalla
+        screen = QApplication.primaryScreen()
+        if screen:
+            screen_geometry = screen.availableGeometry()  # Considera la barra de tareas
+
+            # Calcular posición centrada usando las dimensiones proporcionadas
+            center_x = (screen_geometry.width() - width) // 2 + screen_geometry.x()
+            center_y = (screen_geometry.height() - height) // 2 + screen_geometry.y()
+
+            # Asegurar que la ventana no se salga de la pantalla
+            final_x = max(screen_geometry.x(), min(center_x, screen_geometry.x() + screen_geometry.width() - width))
+            final_y = max(screen_geometry.y(), min(center_y, screen_geometry.y() + screen_geometry.height() - height))
+
+            # Establecer geometría completa de una vez (posición + tamaño)
+            window.setGeometry(final_x, final_y, width, height)
+
+        else:
+            # Fallback si no se puede obtener la pantalla
+            window.setGeometry(100, 100, width, height)
+
+    except Exception as e:
+        # Fallback en caso de error
+        window.setGeometry(100, 100, width, height)
 
 
 class GestionAsignaturaDialog(QDialog):
@@ -42,9 +75,15 @@ class GestionAsignaturaDialog(QDialog):
         self.parent_window = parent
         self.setWindowTitle("Editar Asignatura" if asignatura_existente else "Nueva Asignatura")
         self.setModal(True)
-        self.resize(700, 600)
+
+        window_width = 700
+        window_height = 800
+        center_window_on_screen_immediate(self, window_width, window_height)
+
         self.setup_ui()
         self.apply_dark_theme()
+
+
 
         if self.asignatura_existente:
             self.cargar_datos_existentes()
@@ -305,8 +344,6 @@ class GestionAsignaturaDialog(QDialog):
 
     def anadir_grado(self):
         """Añadir nuevo grado a la asignatura"""
-        from PyQt6.QtWidgets import QInputDialog
-
         grado, ok = QInputDialog.getText(self, "Nuevo Grado", "Código del grado (ej: GII, GIOI, DOBLE):")
 
         if ok and grado.strip():
@@ -338,7 +375,7 @@ class GestionAsignaturaDialog(QDialog):
 
         grado_original = item_actual.text()
 
-        from PyQt6.QtWidgets import QInputDialog
+
         nuevo_grado, ok = QInputDialog.getText(
             self, "Editar Grado",
             f"Editar código del grado:",
@@ -510,7 +547,9 @@ class ConfigurarAsignaturas(QMainWindow):
         super().__init__()
         self.parent_window = parent
         self.setWindowTitle("Configurar Asignaturas - OPTIM Labs")
-        self.setGeometry(100, 100, 1400, 750)
+        window_width = 1400
+        window_height = 750
+        center_window_on_screen_immediate(self, window_width, window_height)
 
         # Obtener datos relacionados desde el sistema global
         self.alumnos_disponibles = self.obtener_alumnos_del_sistema()
@@ -736,7 +775,7 @@ class ConfigurarAsignaturas(QMainWindow):
         acciones_group.setLayout(acciones_layout)
         right_layout.addWidget(acciones_group)
 
-        # Import/Export
+        # Import
         importar_group = QGroupBox("📥 IMPORTAR DATOS")
         importar_layout = QVBoxLayout()
 
@@ -1539,7 +1578,6 @@ class ConfigurarAsignaturas(QMainWindow):
             return
 
         try:
-            import pandas as pd
             df = pd.read_csv(archivo)
 
             # Verificar columnas requeridas
@@ -1637,8 +1675,6 @@ class ConfigurarAsignaturas(QMainWindow):
             return
 
         try:
-            import pandas as pd
-
             datos_export = []
             for codigo, datos in self.datos_configuracion.items():
                 # Convertir grados a string
