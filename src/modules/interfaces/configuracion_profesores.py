@@ -284,9 +284,9 @@ class GestionProfesorDialog(QDialog):
             self.asignaturas_scroll_layout.addWidget(no_asig_label)
             return
 
-        # 1º Cuatrimestre
+        # 1º Semestre
         if sem1:
-            sem1_label = QLabel("📋 1º CUATRIMESTRE")
+            sem1_label = QLabel("📋 1º SEMESTRE")
             sem1_label.setStyleSheet("""
                 color: #90EE90; 
                 font-weight: bold; 
@@ -301,10 +301,10 @@ class GestionProfesorDialog(QDialog):
             sem1_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
             self.asignaturas_scroll_layout.addWidget(sem1_label)
 
-            # Crear GRID para 1º cuatrimestre
+            # Crear GRID para 1º semestre
             self.crear_grid_asignaturas(sem1, "1")
 
-        # 2º Cuatrimestre
+        # 2º Semestre
         if sem2:
             # Espaciador entre semestres
             if sem1:
@@ -312,7 +312,7 @@ class GestionProfesorDialog(QDialog):
                 espaciador.setFixedHeight(15)
                 self.asignaturas_scroll_layout.addWidget(espaciador)
 
-            sem2_label = QLabel("📋 2º CUATRIMESTRE")
+            sem2_label = QLabel("📋 2º SEMESTRE")
             sem2_label.setStyleSheet("""
                 color: #FFB347; 
                 font-weight: bold; 
@@ -327,7 +327,7 @@ class GestionProfesorDialog(QDialog):
             sem2_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
             self.asignaturas_scroll_layout.addWidget(sem2_label)
 
-            # Crear GRID para 2º cuatrimestre
+            # Crear GRID para 2º semestre
             self.crear_grid_asignaturas(sem2, "2")
 
         # Añadir stretch al final
@@ -823,9 +823,9 @@ class ConfigurarProfesores(QMainWindow):
 
                     for codigo, asig_data in config_asignaturas["datos"].items():
                         nombre = asig_data.get("nombre", "")
-                        semestre_str = asig_data.get("semestre", "1º Cuatrimestre")
+                        semestre_str = asig_data.get("semestre", "1º Semestre")
 
-                        # Detectar semestre: "1º Cuatrimestre" -> "1", "2º Cuatrimestre" -> "2"
+                        # Detectar semestre: "1º Semestre" -> "1", "2º Semestre" -> "2"
                         if "1º" in semestre_str or "primer" in semestre_str.lower():
                             semestre = "1"
                         elif "2º" in semestre_str or "segundo" in semestre_str.lower():
@@ -1666,8 +1666,8 @@ class ConfigurarProfesores(QMainWindow):
 
         QMessageBox.information(self, "Sincronización Exitosa",
                                 f"✅ Asignaturas sincronizadas:\n"
-                                f"• 1º Cuatrimestre: {sem1_count} asignaturas\n"
-                                f"• 2º Cuatrimestre: {sem2_count} asignaturas")
+                                f"• 1º Semestre: {sem1_count} asignaturas\n"
+                                f"• 2º Semestre: {sem2_count} asignaturas")
 
     def actualizar_estadisticas(self):
         """Actualizar estadísticas por asignatura"""

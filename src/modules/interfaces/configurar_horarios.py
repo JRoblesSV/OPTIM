@@ -573,9 +573,9 @@ class ConfigurarHorarios(QMainWindow):
         semestre_group = QGroupBox("📚 SELECCIÓN DE SEMESTRE")
         semestre_layout = QHBoxLayout()
 
-        self.radio_sem1 = QPushButton("1º Cuatrimestre")
+        self.radio_sem1 = QPushButton("1º Semestre")
         self.radio_sem1.setCheckable(True)
-        self.radio_sem2 = QPushButton("2º Cuatrimestre")
+        self.radio_sem2 = QPushButton("2º Semestre")
         self.radio_sem2.setCheckable(True)
         self.radio_sem1.setChecked(True)  # Por defecto
 
@@ -1096,7 +1096,7 @@ class ConfigurarHorarios(QMainWindow):
 
                 # FILTRAR por semestre actual
                 semestre_actual = self.datos_configuracion["semestre_actual"]
-                semestre_texto = f"{semestre_actual}º Cuatrimestre"
+                semestre_texto = f"{semestre_actual}º Semestre"
 
                 asignaturas_filtradas = []
                 for codigo, datos in asignaturas_sistema.items():

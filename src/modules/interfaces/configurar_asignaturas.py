@@ -102,7 +102,7 @@ class GestionAsignaturaDialog(QDialog):
         self.edit_nombre.setPlaceholderText("Física I, Química Orgánica, etc.")
 
         self.combo_semestre = QComboBox()
-        self.combo_semestre.addItems(["1º Cuatrimestre", "2º Cuatrimestre"])
+        self.combo_semestre.addItems(["1º Semestre", "2º Semestre"])
 
         self.combo_curso = QComboBox()
         self.combo_curso.addItems(["1º Curso", "2º Curso", "3º Curso", "4º Curso", "Master"])
@@ -254,7 +254,7 @@ class GestionAsignaturaDialog(QDialog):
         self.edit_nombre.setText(datos.get('nombre', ''))
 
         # Semestre
-        semestre = datos.get('semestre', '1º Cuatrimestre')
+        semestre = datos.get('semestre', '1º Semestre')
         index = self.combo_semestre.findText(semestre)
         if index >= 0:
             self.combo_semestre.setCurrentIndex(index)
@@ -1455,7 +1455,7 @@ class ConfigurarAsignaturas(QMainWindow):
                     self.datos_configuracion[codigo_asig] = {
                         'codigo': codigo_asig,
                         'nombre': nombre_asig,
-                        'semestre': f"{semestre}º Cuatrimestre",
+                        'semestre': f"{semestre}º Semestre",
                         'curso': "1º Curso",  # Por defecto
                         'tipo': "Laboratorio",
                         'descripcion': f"Importada desde configuración de horarios",
@@ -1514,7 +1514,7 @@ class ConfigurarAsignaturas(QMainWindow):
                     'grados': grados,
                     'grupos_recomendados': stats.get('grupos_recomendados', 0),
                     'alumnos_reales': stats.get('sin_lab_anterior', 0),
-                    'semestre': datos.get('semestre', '1º Cuatrimestre').split('º')[0]
+                    'semestre': datos.get('semestre', '1º Semestre').split('º')[0]
                 }
 
             # Enviar datos al sistema principal para sincronización
@@ -1547,7 +1547,7 @@ class ConfigurarAsignaturas(QMainWindow):
 
                 # Organizar por semestres
                 for codigo, datos in self.datos_configuracion.items():
-                    semestre_num = "1" if "1º" in datos.get('semestre', '1º Cuatrimestre') else "2"
+                    semestre_num = "1" if "1º" in datos.get('semestre', '1º Semestre') else "2"
                     nombre = datos.get('nombre', codigo)
                     grados = datos.get('grados_que_cursan', [])
 
@@ -1614,7 +1614,7 @@ class ConfigurarAsignaturas(QMainWindow):
                 self.datos_configuracion[codigo] = {
                     'codigo': codigo,
                     'nombre': str(row['nombre']).strip(),
-                    'semestre': str(row.get('semestre', '1º Cuatrimestre')).strip(),
+                    'semestre': str(row.get('semestre', '1º Semestre')).strip(),
                     'curso': str(row.get('curso', '1º Curso')).strip(),
                     'tipo': str(row['tipo']).strip(),
                     'descripcion': str(row.get('descripcion', '')).strip(),
@@ -2036,7 +2036,7 @@ def main():
         "FIS001": {
             "codigo": "FIS001",
             "nombre": "Física I",
-            "semestre": "1º Cuatrimestre",
+            "semestre": "1º Semestre",
             "curso": "1º Curso",
             "tipo": "Laboratorio",
             "descripcion": "Introducción a la física experimental",
@@ -2062,7 +2062,7 @@ def main():
         "QUI200": {
             "codigo": "QUI200",
             "nombre": "Química Orgánica",
-            "semestre": "2º Cuatrimestre",
+            "semestre": "2º Semestre",
             "curso": "2º Curso",
             "tipo": "Laboratorio",
             "descripcion": "Síntesis y análisis de compuestos orgánicos",

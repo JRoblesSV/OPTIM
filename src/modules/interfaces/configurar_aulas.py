@@ -148,7 +148,7 @@ class GestionAulaDialog(QDialog):
             asignaturas_sem2 = self.asignaturas_disponibles.get("2", {})
 
             if asignaturas_sem1:
-                sem1_label = QLabel("📋 1º Cuatrimestre:")
+                sem1_label = QLabel("📋 1º Semestre:")
                 sem1_label.setStyleSheet("color: #4a9eff; font-weight: bold; margin-top: 8px;")
                 asignaturas_layout.addWidget(sem1_label)
 
@@ -158,7 +158,7 @@ class GestionAulaDialog(QDialog):
                     asignaturas_layout.addWidget(check)
 
             if asignaturas_sem2:
-                sem2_label = QLabel("📋 2º Cuatrimestre:")
+                sem2_label = QLabel("📋 2º Semestre:")
                 sem2_label.setStyleSheet("color: #4a9eff; font-weight: bold; margin-top: 8px;")
                 asignaturas_layout.addWidget(sem2_label)
 

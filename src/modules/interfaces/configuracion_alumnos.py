@@ -441,7 +441,7 @@ class GestionAlumnoDialog(QDialog):
                     if config_asignaturas.get("configurado") and config_asignaturas.get("datos"):
                         for codigo, asig_data in config_asignaturas["datos"].items():
                             nombre_asig = asig_data.get("nombre", "")
-                            semestre_str = asig_data.get("semestre", "1º Cuatrimestre")
+                            semestre_str = asig_data.get("semestre", "1º Semestre")
 
                             # Detectar semestre
                             if "1º" in semestre_str or "primer" in semestre_str.lower():
@@ -496,9 +496,9 @@ class GestionAlumnoDialog(QDialog):
             self.actualizar_scroll_asignaturas()
             return
 
-        # 1º Cuatrimestre
+        # 1º Semestre
         if asignaturas_data.get("1"):
-            sem1_label = QLabel("📋 1º Cuatrimestre:")
+            sem1_label = QLabel("📋 1º Semestre:")
             sem1_label.setStyleSheet("""
                 color: #90EE90; 
                 font-weight: bold; 
@@ -513,9 +513,9 @@ class GestionAlumnoDialog(QDialog):
             for asignatura in sorted(asignaturas_data["1"].keys()):
                 self.crear_fila_asignatura(asignatura, "1")
 
-        # 2º Cuatrimestre
+        # 2º Semestre
         if asignaturas_data.get("2"):
-            sem2_label = QLabel("📋 2º Cuatrimestre:")
+            sem2_label = QLabel("📋 2º Semestre:")
             sem2_label.setStyleSheet("""
                 color: #90EE90; 
                 font-weight: bold; 
@@ -935,9 +935,9 @@ class ConfigurarAlumnos(QMainWindow):
 
                     for codigo, asig_data in config_asignaturas["datos"].items():
                         nombre = asig_data.get("nombre", "")
-                        semestre_str = asig_data.get("semestre", "1º Cuatrimestre")
+                        semestre_str = asig_data.get("semestre", "1º Semestre")
 
-                        # Detectar semestre: "1º Cuatrimestre" -> "1", "2º Cuatrimestre" -> "2"
+                        # Detectar semestre: "1º Semestre" -> "1", "2º Semestre" -> "2"
                         if "1º" in semestre_str or "primer" in semestre_str.lower():
                             semestre = "1"
                         elif "2º" in semestre_str or "segundo" in semestre_str.lower():
@@ -1810,8 +1810,8 @@ class ConfigurarAlumnos(QMainWindow):
 
         QMessageBox.information(self, "Sincronización Exitosa",
                                 f"✅ Asignaturas sincronizadas:\n"
-                                f"• 1º Cuatrimestre: {sem1_count} asignaturas\n"
-                                f"• 2º Cuatrimestre: {sem2_count} asignaturas")
+                                f"• 1º Semestre: {sem1_count} asignaturas\n"
+                                f"• 2º Semestre: {sem2_count} asignaturas")
 
     def actualizar_estadisticas(self):
         """Actualizar estadísticas por asignatura con nueva estructura"""
