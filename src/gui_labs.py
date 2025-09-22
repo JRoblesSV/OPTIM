@@ -82,9 +82,9 @@ class OptimLabsGUI(QtWidgets.QMainWindow):
     def setupUi(self):
         """Configurar interfaz principal"""
         self.setObjectName("OptimLabsGUI")
-        self.setMinimumSize(QtCore.QSize(1200, 850))
+        self.setMinimumSize(QtCore.QSize(1200, 940))
         window_width = 1200
-        window_height = 850
+        window_height = 920
         center_window_on_screen_immediate(self, window_width, window_height)
 
         self.setWindowTitle("OPTIM by SoftVier - ETSIDI")
@@ -99,6 +99,7 @@ class OptimLabsGUI(QtWidgets.QMainWindow):
         self.setup_botones_configuracion()
         self.setup_resumen_configuracion()
         self.setup_botones_principales()
+        self.setup_botones_secundarios()
         self.setup_area_log()
 
         # Aplicar tema oscuro del TFG
@@ -164,18 +165,18 @@ class OptimLabsGUI(QtWidgets.QMainWindow):
 
         # Primera fila de botones
         botones_fila1 = [
-            ("btn_asignaturas", "📋 ASIGNATURAS\nLímites y grupos", 50, 20),
-            ("btn_profesores", "👨‍🏫 PROFESORES\nDisponibilidad horaria", 300, 20),
-            ("btn_alumnos", "👥 ALUMNOS\nMatrículas por asignatura", 550, 20),
-            ("btn_aulas", "🏢 AULAS\nLaboratorios disponibles", 800, 20)
+            ("btn_cursos", "🎓 CURSOS\nGrados y titulaciones", 50, 20),
+            ("btn_asignaturas", "📋 ASIGNATURAS\nLímites y grupos", 300, 20),
+            ("btn_profesores", "👨‍🏫 PROFESORES\nDisponibilidad horaria", 550, 20),
+            ("btn_alumnos", "👥 ALUMNOS\nMatrículas por asignatura", 800, 20)
         ]
 
         # Segunda fila de botones
         botones_fila2 = [
             ("btn_calendario", "📅 CALENDARIO\nConfigurar semestre", 50, 100),
             ("btn_horarios", "⏰ HORARIOS\nFranjas por asignatura", 300, 100),
-            ("btn_parametros", "🎯 PARÁMETROS\nPesos optimización", 550, 100),
-            ("btn_resultados", "📊 RESULTADOS\nVer última ejecución", 800, 100)
+            ("btn_aulas", "🏢 AULAS\nLaboratorios disponibles", 550, 100),
+            ("btn_parametros", "🎯 PARÁMETROS\nPesos optimización", 800, 100)
         ]
 
         self.botones_config = {}
@@ -218,11 +219,10 @@ class OptimLabsGUI(QtWidgets.QMainWindow):
 
         # Botones principales
         botones_principales = [
-            ("btn_organizar", "✨ ORGANIZAR\nLABORATORIOS", 50, 15, 200, True),
-            ("btn_guardar", "💾 GUARDAR\nCONFIGURACIÓN", 300, 15, 180, False),
-            ("btn_cargar", "📂 CARGAR\nCONFIGURACIÓN", 520, 15, 180, False),
-            ("btn_reset", "🔄 RESET\nTODO", 740, 15, 140, False),
-            ("btn_ayuda", "❓ AYUDA\nY SOPORTE", 920, 15, 140, False)
+            ("btn_organizar", "✨ ORGANIZAR\nLABORATORIOS", 50, 15, 220, True),
+            ("btn_guardar", "💾 GUARDAR\nCONFIGURACIÓN", 300, 15, 220, False),
+            ("btn_cargar", "📂 CARGAR\nCONFIGURACIÓN", 550, 15, 220, False),
+            ("btn_reset", "🔄 RESET\nTODO", 800, 15, 220, False),
         ]
 
         self.botones_principales = {}
@@ -238,6 +238,27 @@ class OptimLabsGUI(QtWidgets.QMainWindow):
                 btn.setStyleSheet(self.estilo_boton_secundario())
 
             self.botones_principales[key] = btn
+
+    def setup_botones_secundarios(self):
+        """Botones secundarios en la parte inferior derecha"""
+        # Frame contenedor
+        self.frame_secundarios = QtWidgets.QFrame(self.centralwidget)
+        self.frame_secundarios.setGeometry(QtCore.QRect(50, 840, 1100, 80))
+
+        # Botones alineados a la derecha
+        botones_secundarios = [
+            ("btn_resultados", "📊 RESULTADOS\nVer última ejecución", 550, 15, 220),
+            ("btn_ayuda", "❓ AYUDA\nY SOPORTE", 800, 15, 220)
+        ]
+
+        self.botones_secundarios = {}
+        for key, texto, x, y, width in botones_secundarios:
+            btn = QtWidgets.QPushButton(self.frame_secundarios)
+            btn.setGeometry(QtCore.QRect(x, y, width, 50))
+            btn.setText(texto)
+            btn.setStyleSheet(self.estilo_boton_secundario())
+            self.botones_secundarios[key] = btn
+
 
     def setup_area_log(self):
         """Área de log de actividad"""
@@ -265,21 +286,25 @@ class OptimLabsGUI(QtWidgets.QMainWindow):
     def conectar_signals(self):
         """Conectar señales de botones"""
         # Botones de configuración
+        self.botones_config["btn_cursos"].clicked.connect(self.abrir_configurar_cursos)
+        self.botones_config["btn_asignaturas"].clicked.connect(self.abrir_configurar_asignaturas)
+        self.botones_config["btn_profesores"].clicked.connect(self.abrir_configurar_profesores)
+        self.botones_config["btn_alumnos"].clicked.connect(self.abrir_configurar_alumnos)
+
         self.botones_config["btn_calendario"].clicked.connect(self.abrir_configurar_calendario)
         self.botones_config["btn_horarios"].clicked.connect(self.abrir_configurar_horarios)
         self.botones_config["btn_aulas"].clicked.connect(self.abrir_configurar_aulas)
-        self.botones_config["btn_profesores"].clicked.connect(self.abrir_configurar_profesores)
-        self.botones_config["btn_alumnos"].clicked.connect(self.abrir_configurar_alumnos)
-        self.botones_config["btn_asignaturas"].clicked.connect(self.abrir_configurar_asignaturas)
         self.botones_config["btn_parametros"].clicked.connect(self.abrir_configurar_parametros)
-        self.botones_config["btn_resultados"].clicked.connect(self.abrir_ver_resultados)
 
         # Botones principales
         self.botones_principales["btn_organizar"].clicked.connect(self.iniciar_organizacion)
         self.botones_principales["btn_guardar"].clicked.connect(self.guardar_configuracion)
         self.botones_principales["btn_cargar"].clicked.connect(self.cargar_configuracion_archivo)
         self.botones_principales["btn_reset"].clicked.connect(self.reset_configuracion)
-        self.botones_principales["btn_ayuda"].clicked.connect(self.mostrar_ayuda)
+
+        # Botones secundarios
+        self.botones_secundarios["btn_resultados"].clicked.connect(self.abrir_ver_resultados)
+        self.botones_secundarios["btn_ayuda"].clicked.connect(self.mostrar_ayuda)
 
     def cargar_configuracion(self):
         """Cargar configuración desde archivo JSON"""
@@ -328,12 +353,13 @@ class OptimLabsGUI(QtWidgets.QMainWindow):
 
         # Estados individuales
         estados = {
-            "horarios": self.get_estado_horarios(),
-            "calendario": self.get_estado_calendario(),
-            "aulas": self.get_estado_aulas(),
+            "cursos": self.get_estado_cursos(),
+            "asignaturas": self.get_estado_asignaturas(),
             "profesores": self.get_estado_profesores(),
             "alumnos": self.get_estado_alumnos(),
-            "asignaturas": self.get_estado_asignaturas()
+            "horarios": self.get_estado_horarios(),
+            "calendario": self.get_estado_calendario(),
+            "aulas": self.get_estado_aulas()
         }
 
         # Actualizar labels
@@ -359,6 +385,13 @@ class OptimLabsGUI(QtWidgets.QMainWindow):
 
         # Actualizar resumen
         self.actualizar_resumen()
+
+    def get_estado_cursos(self):
+        """Obtener estado de configuración de cursos"""
+        cursos = self.configuracion["configuracion"].get("cursos", {})
+        if cursos.get("configurado", False) and cursos.get("total", 0) > 0:
+            return ("✅", f"{cursos['total']} cursos", "rgb(100,255,100)")
+        return ("❌", "Sin configurar", "rgb(255,100,100)")
 
     def get_estado_horarios(self):
         """Obtener estado de configuración de horarios"""
@@ -487,6 +520,10 @@ class OptimLabsGUI(QtWidgets.QMainWindow):
         scrollbar.setValue(scrollbar.maximum())
 
     # ========= ACTUALIZACION DE CONFIGURACION =========
+    def actualizar_configuracion_cursos(self, cursos_data):
+        """Actualizar configuración de cursos en el sistema principal"""
+        # TODO: Implementar actualización de cursos
+        pass
 
     def actualizar_configuracion_calendario(self, calendario_data):
         """Actualizar configuración de calendario en el sistema principal - Estilo idéntico a horarios"""
@@ -859,6 +896,11 @@ class OptimLabsGUI(QtWidgets.QMainWindow):
         # TODO: Implementar ventana de resultados
 
     # ========= MÉTODOS DE NAVEGACIÓN =========
+    def abrir_configurar_cursos(self):
+        """Abrir ventana de configuración de cursos"""
+        self.log_mensaje("🎓 Abriendo configuración de cursos...", "info")
+        # TODO: Implementar ventana de cursos
+
     def abrir_configurar_calendario(self):
         """Abrir ventana de configuración de calendario - Estilo idéntico a horarios"""
         try:
