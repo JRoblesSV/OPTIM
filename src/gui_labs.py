@@ -335,7 +335,8 @@ class OptimLabsGUI(QtWidgets.QMainWindow):
                 },
                 "profesores": {"configurado": False, "datos": {}, "total": 0},
                 "alumnos": {"configurado": False, "datos": {}, "total": 0},
-                "asignaturas": {"configurado": False, "datos": {}, "total": 0}
+                "asignaturas": {"configurado": False, "datos": {}, "total": 0},
+                "cursos": {"configurado": False, "datos": {}, "total": 0}
             },
             "parametros_organizacion": {
                 "preferir_grupos_pares": True,
@@ -522,8 +523,61 @@ class OptimLabsGUI(QtWidgets.QMainWindow):
     # ========= ACTUALIZACION DE CONFIGURACION =========
     def actualizar_configuracion_cursos(self, cursos_data):
         """Actualizar configuración de cursos en el sistema principal"""
-        # TODO: Implementar actualización de cursos
-        pass
+        try:
+            # Verificar si es una cancelación de cambios
+            if isinstance(cursos_data, dict) and "metadata" in cursos_data:
+                metadata = cursos_data["metadata"]
+                if metadata.get("accion") == "CANCELAR_CAMBIOS":
+                    # Restaurar datos originales desde metadata
+                    datos_cursos = cursos_data.get("cursos", {})
+                    self.log_mensaje("🔄 Restaurando configuración original de cursos", "warning")
+                else:
+                    # Datos normales con metadata
+                    datos_cursos = cursos_data.get("cursos", cursos_data)
+            else:
+                # CASO NORMAL: Datos directos de cursos SIN metadata
+                datos_cursos = cursos_data
+
+            # DEBUG: Verificar qué datos estamos recibiendo
+            self.log_mensaje(f"📥 Recibiendo datos de cursos: {len(datos_cursos)} elementos", "info")
+
+            # Actualizar configuración interna
+            if "cursos" not in self.configuracion["configuracion"]:
+                self.configuracion["configuracion"]["cursos"] = {}
+
+            cursos_config = self.configuracion["configuracion"]["cursos"]
+
+            cursos_config["configurado"] = True if datos_cursos else False
+            cursos_config["datos"] = datos_cursos
+            cursos_config["total"] = len(datos_cursos)
+            cursos_config["fecha_actualizacion"] = datetime.now().isoformat()
+
+            # IMPORTANTE: Guardar configuración en JSON
+            self.guardar_configuracion()
+
+            # Log apropiado según el tipo de actualización
+            total = len(datos_cursos)
+            if isinstance(cursos_data, dict) and cursos_data.get("metadata", {}).get("accion") == "CANCELAR_CAMBIOS":
+                self.log_mensaje(
+                    f"🔄 Configuración de cursos restaurada: {total} cursos",
+                    "warning"
+                )
+            else:
+                self.log_mensaje(
+                    f"✅ Configuración de cursos actualizada: {total} cursos guardados en JSON",
+                    "success"
+                )
+
+            # Actualizar estado visual
+            self.actualizar_estado_visual()
+
+        except Exception as e:
+            error_msg = f"Error al actualizar configuración de cursos: {str(e)}"
+            self.log_mensaje(f"❌ {error_msg}", "error")
+            QtWidgets.QMessageBox.critical(
+                self, "Error",
+                f"{error_msg}\n\nDetalles técnicos:\n{type(e).__name__}: {e}"
+            )
 
     def actualizar_configuracion_calendario(self, calendario_data):
         """Actualizar configuración de calendario en el sistema principal - Estilo idéntico a horarios"""
@@ -897,9 +951,66 @@ class OptimLabsGUI(QtWidgets.QMainWindow):
 
     # ========= MÉTODOS DE NAVEGACIÓN =========
     def abrir_configurar_cursos(self):
-        """Abrir ventana de configuración de cursos"""
+        """Abrir ventana de configuración de cursos - Estilo idéntico a asignaturas"""
+        try:
+            from modules.interfaces.configurar_cursos import ConfigurarCursos
+            CURSOS_DISPONIBLE = True
+        except ImportError as e:
+            print(f"⚠️ Módulo configurar_cursos no disponible: {e}")
+            CURSOS_DISPONIBLE = False
+
+        if not CURSOS_DISPONIBLE:
+            QtWidgets.QMessageBox.warning(
+                self, "Módulo no disponible",
+                "El módulo configurar_cursos.py no está disponible.\n"
+                "Verifica que esté en la misma carpeta que gui_labs.py"
+            )
+            return
+
         self.log_mensaje("🎓 Abriendo configuración de cursos...", "info")
-        # TODO: Implementar ventana de cursos
+
+        try:
+            # Cerrar ventana anterior si existe
+            if hasattr(self, 'ventana_cursos') and self.ventana_cursos:
+                self.ventana_cursos.close()
+
+            # PREPARAR DATOS EXISTENTES PARA PASAR A LA VENTANA
+            datos_existentes = None
+            cursos_config = self.configuracion["configuracion"].get("cursos", {})
+
+            if cursos_config.get("configurado") and cursos_config.get("datos"):
+                datos_existentes = cursos_config["datos"].copy()
+                total_cursos = cursos_config.get("total", 0)
+                self.log_mensaje(
+                    f"📥 Cargando configuración existente: {total_cursos} cursos configurados",
+                    "info"
+                )
+            else:
+                self.log_mensaje("📝 Abriendo configuración nueva de cursos", "info")
+
+            # Crear ventana con datos existentes (o None si no hay)
+            self.ventana_cursos = ConfigurarCursos(
+                parent=self,
+                datos_existentes=datos_existentes
+            )
+
+            # Conectar señal para recibir configuración actualizada
+            self.ventana_cursos.configuracion_actualizada.connect(self.actualizar_configuracion_cursos)
+
+            self.ventana_cursos.show()
+
+            if datos_existentes:
+                self.log_mensaje("✅ Ventana de cursos abierta con datos existentes", "success")
+            else:
+                self.log_mensaje("✅ Ventana de cursos abierta (configuración nueva)", "success")
+
+        except Exception as e:
+            error_msg = f"Error al abrir configuración de cursos: {str(e)}"
+            self.log_mensaje(f"❌ {error_msg}", "error")
+            QtWidgets.QMessageBox.critical(
+                self, "Error",
+                f"{error_msg}\n\nDetalles técnicos:\n{type(e).__name__}: {e}"
+            )
 
     def abrir_configurar_calendario(self):
         """Abrir ventana de configuración de calendario - Estilo idéntico a horarios"""
