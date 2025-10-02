@@ -211,7 +211,7 @@ class GestionAulaDialog(QDialog):
                                                 key=lambda x: x[1].get('nombre', x[0])):
                     nombre = asig_data.get('nombre', codigo)
                     curso = asig_data.get('curso', '')
-                    texto_checkbox = f"{nombre} ({codigo})"
+                    texto_checkbox = f"{codigo} - {nombre}"
                     if curso:
                         texto_checkbox += f" - {curso}"
 
@@ -267,7 +267,7 @@ class GestionAulaDialog(QDialog):
                                                 key=lambda x: x[1].get('nombre', x[0])):
                     nombre = asig_data.get('nombre', codigo)
                     curso = asig_data.get('curso', '')
-                    texto_checkbox = f"{nombre} ({codigo})"
+                    texto_checkbox = f"{codigo} - {nombre}"
                     if curso:
                         texto_checkbox += f" - {curso}"
 
@@ -1107,7 +1107,7 @@ class ConfigurarAulas(QMainWindow):
                     asig_data = self.asignaturas_disponibles[codigo_asig]
                     nombre_asig = asig_data.get('nombre', codigo_asig)
                     semestre = asig_data.get('semestre', '')
-                    info += f"  • {nombre_asig} ({codigo_asig}) - {semestre}\n"
+                    info += f"  • {codigo_asig} - {nombre_asig} ({semestre})\n"
                 else:
                     info += f"  • {codigo_asig}\n"
         else:

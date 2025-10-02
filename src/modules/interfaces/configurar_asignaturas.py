@@ -274,7 +274,13 @@ class GestionAsignaturaDialog(QDialog):
         cursos = datos.get('cursos_que_cursan', [])
         self.list_cursos_dialog.clear()
         for curso in sorted(cursos):
-            item = QListWidgetItem(curso)
+            # Buscar nombre del curso
+            nombre_curso = curso
+            if self.cursos_disponibles and curso in self.cursos_disponibles:
+                nombre_curso = self.cursos_disponibles[curso].get('nombre', curso)
+
+            texto_display = f"{curso} - {nombre_curso}"
+            item = QListWidgetItem(texto_display)
             item.setData(Qt.ItemDataRole.UserRole, curso)
             self.list_cursos_dialog.addItem(item)
 
@@ -1209,7 +1215,17 @@ class ConfigurarAsignaturas(QMainWindow):
 
             # Mostrar cursos que la cursan
             cursos = datos.get('cursos_que_cursan', [])
-            cursos_str = ', '.join(cursos) if cursos else 'Sin cursos'
+            if cursos:
+                cursos_con_nombre = []
+                for curso in cursos:
+                    # Buscar nombre del curso
+                    nombre_curso = curso
+                    if curso in self.cursos_disponibles:
+                        nombre_curso = self.cursos_disponibles[curso].get('nombre', curso)
+                    cursos_con_nombre.append(f"{curso} - {nombre_curso}")
+                cursos_str = ', '.join(cursos_con_nombre)
+            else:
+                cursos_str = 'Sin cursos'
 
             # Estadísticas
             stats = datos.get('estadisticas_calculadas', {})
@@ -1256,9 +1272,13 @@ class ConfigurarAsignaturas(QMainWindow):
         # cursos que la cursan
         cursos = datos.get('cursos_que_cursan', [])
         if cursos:
-            info += f"🎓 CURSOSS QUE LA CURSAN ({len(cursos)}):\n"
+            info += f"🎓 CURSOS QUE LA CURSAN ({len(cursos)}):\n"
             for curso in cursos:
-                info += f"  • {curso}\n"
+                # Buscar nombre del curso
+                nombre_curso = curso
+                if curso in self.cursos_disponibles:
+                    nombre_curso = self.cursos_disponibles[curso].get('nombre', curso)
+                info += f"  • {curso} - {nombre_curso}\n"
         else:
             info += f"🎓 CURSOS: Sin cursos asignados\n"
         info += "\n"
