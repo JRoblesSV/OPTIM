@@ -141,12 +141,22 @@ class EditarCursosDialog(QDialog):
             info_label.setStyleSheet("color: #ffaa00;")
             cursos_layout.addWidget(info_label)
         else:
-            for curso in sorted(self.cursos_disponibles):
-                check = QCheckBox(curso)
-                if curso in self.cursos_actuales:
-                    check.setChecked(True)
-                self.check_cursos[curso] = check
-                cursos_layout.addWidget(check)
+            if isinstance(self.cursos_disponibles, dict):
+                for codigo, nombre in sorted(self.cursos_disponibles.items()):
+                    texto_check = f"{codigo} - {nombre}"
+                    check = QCheckBox(texto_check)
+                    if codigo in self.cursos_actuales:
+                        check.setChecked(True)
+                    self.check_cursos[codigo] = check
+                    cursos_layout.addWidget(check)
+            else:
+                # Retrocompatibilidad
+                for curso in sorted(self.cursos_disponibles):
+                    check = QCheckBox(curso)
+                    if curso in self.cursos_actuales:
+                        check.setChecked(True)
+                    self.check_cursos[curso] = check
+                    cursos_layout.addWidget(check)
 
         cursos_group.setLayout(cursos_layout)
         layout.addWidget(cursos_group)
@@ -843,21 +853,23 @@ class ConfigurarHorarios(QMainWindow):
                                     nombre = datos.get('nombre', codigo)
                                     cursos = datos.get('cursos_que_cursan', [])
 
+                                    # USAR CÓDIGO EN LUGAR DE NOMBRE para compatibilidad
+                                    clave_asignatura = codigo
+
                                     # Actualizar estructura local para horarios
                                     if semestre_actual not in self.datos_configuracion["asignaturas"]:
                                         self.datos_configuracion["asignaturas"][semestre_actual] = {}
 
-                                    if nombre not in self.datos_configuracion["asignaturas"][semestre_actual]:
-                                        self.datos_configuracion["asignaturas"][semestre_actual][nombre] = {
+                                    if codigo not in self.datos_configuracion["asignaturas"][semestre_actual]:
+                                        self.datos_configuracion["asignaturas"][semestre_actual][codigo] = {
                                             "cursos": cursos.copy(),
                                             "horarios_grid": {}
                                         }
                                     else:
                                         # Actualizar cursos desde el sistema
-                                        self.datos_configuracion["asignaturas"][semestre_actual][nombre][
-                                            "cursos"] = cursos.copy()
+                                        self.datos_configuracion["asignaturas"][semestre_actual][codigo]["cursos"] = cursos.copy()
 
-                                    asignaturas_encontradas.append((nombre, cursos))
+                                    asignaturas_encontradas.append((codigo, cursos))
 
                             self.log_mensaje(f"🔄 Sincronizadas {len(asignaturas_encontradas)} asignaturas", "info")
                         else:
@@ -871,16 +883,23 @@ class ConfigurarHorarios(QMainWindow):
 
             # Mostrar asignaturas encontradas
             if asignaturas_encontradas:
-                for nombre, cursos in sorted(asignaturas_encontradas):
-                    # Crear texto descriptivo
-                    texto = f"📚 {nombre}"
+                for codigo, cursos in sorted(asignaturas_encontradas):
+                    # Buscar nombre completo
+                    nombre_completo = None
+                    for cod, datos in asignaturas_datos.items():
+                        if cod == codigo:
+                            nombre_completo = datos.get('nombre', codigo)
+                            break
+
+                    # Crear texto descriptivo con código y nombre
+                    texto = f"📚 {codigo} - {nombre_completo if nombre_completo else codigo}"
                     if cursos:
                         texto += f"\n   📝 {len(cursos)} cursos: {', '.join(cursos)}"
                     else:
                         texto += f"\n   ⚠️ Sin cursos configurados"
 
                     item = QListWidgetItem(texto)
-                    item.setData(Qt.ItemDataRole.UserRole, nombre)
+                    item.setData(Qt.ItemDataRole.UserRole, codigo)
 
                     # Colorear según el estado
                     if cursos:
@@ -995,46 +1014,56 @@ class ConfigurarHorarios(QMainWindow):
             traceback.print_exc()
 
     def cargar_cursos_asignatura(self):
-        """Carga cursos SOLO desde el sistema central"""
+        """Carga cursos mostrando código - nombre"""
         self.list_cursos.clear()
 
         if not self.asignatura_actual:
             return
 
         try:
-            cursos = self.obtener_cursos_asignatura(self.asignatura_actual)
+            cursos_dict = self.obtener_cursos_asignatura(self.asignatura_actual)
 
-            if cursos:
-                for curso in sorted(cursos):
-                    item = QListWidgetItem(f"🎓 {curso}")
-                    item.setData(Qt.ItemDataRole.UserRole, curso)
-                    item.setBackground(QColor(0, 0, 100, 80))  # Azul suave
+            if cursos_dict:
+                for codigo, nombre in sorted(cursos_dict.items()):
+                    # Mostrar "código - nombre"
+                    texto_curso = f"🎓 {codigo} - {nombre}"
+                    item = QListWidgetItem(texto_curso)
+                    item.setData(Qt.ItemDataRole.UserRole, codigo)
+                    item.setBackground(QColor(0, 0, 100, 80))
                     self.list_cursos.addItem(item)
 
-                self.log_mensaje(f"✅ Cargados {len(cursos)} cursos", "info")
+                self.log_mensaje(f"✅ Cargados {len(cursos_dict)} cursos", "info")
             else:
                 # Sin cursos
                 item = QListWidgetItem("⚠️ No hay cursos configurados para esta asignatura")
                 item.setFlags(Qt.ItemFlag.NoItemFlags)
                 item.setBackground(QColor(100, 100, 0, 80))
                 self.list_cursos.addItem(item)
-                self.log_mensaje("⚠️ No hay cursos configurados", "warning")
 
         except Exception as e:
             self.log_mensaje(f"❌ Error cargando cursos: {e}", "error")
 
-            item = QListWidgetItem(f"❌ Error: {str(e)}")
-            item.setFlags(Qt.ItemFlag.NoItemFlags)
-            item.setBackground(QColor(100, 0, 0, 80))
-            self.list_cursos.addItem(item)
+    def obtener_nombre_curso(self, codigo_curso):
+        """Obtiene el nombre completo de un curso por su código"""
+        try:
+            if self.parent_window and hasattr(self.parent_window, 'configuracion'):
+                config = self.parent_window.configuracion
+                if "configuracion" in config and "cursos" in config["configuracion"]:
+                    cursos_config = config["configuracion"]["cursos"]
+                    if cursos_config.get("configurado", False):
+                        cursos_datos = cursos_config.get("datos", {})
+                        if codigo_curso in cursos_datos:
+                            return cursos_datos[codigo_curso].get('nombre', codigo_curso)
+            return codigo_curso
+        except Exception:
+            return codigo_curso
 
     def obtener_cursos_asignatura(self, asignatura):
-        """Obtiene cursos SOLO desde el sistema central"""
+        """Obtiene cursos con sus nombres desde el sistema central"""
         if not asignatura:
-            return []
+            return {}
 
         try:
-            # Solo buscar en el sistema central
             if self.parent_window and hasattr(self.parent_window, 'configuracion'):
                 config = self.parent_window.configuracion
                 if "configuracion" in config and "asignaturas" in config["configuracion"]:
@@ -1047,25 +1076,20 @@ class ConfigurarHorarios(QMainWindow):
                         for codigo, datos in asignaturas_datos.items():
                             nombre_asig = datos.get('nombre', '')
                             if nombre_asig == asignatura or codigo == asignatura:
-                                cursos = datos.get('cursos_que_cursan', [])
-                                if cursos:
-                                    self.log_mensaje(f"✅ Cursos desde sistema: {', '.join(cursos)}", "info")
-                                    return cursos
+                                cursos_codigos = datos.get('cursos_que_cursan', [])
+                                if cursos_codigos:
+                                    # Crear diccionario código: nombre
+                                    cursos_con_nombres = {}
+                                    for codigo_curso in cursos_codigos:
+                                        nombre_curso = self.obtener_nombre_curso(codigo_curso)
+                                        cursos_con_nombres[codigo_curso] = nombre_curso
+
+                                    return cursos_con_nombres
                                 break
-
-                        self.log_mensaje(f"⚠️ Asignatura '{asignatura}' no encontrada en el sistema", "warning")
-                    else:
-                        self.log_mensaje("⚠️ Asignaturas no configuradas en el sistema", "warning")
-                else:
-                    self.log_mensaje("⚠️ No se encontró configuración de asignaturas", "warning")
-            else:
-                self.log_mensaje("⚠️ No hay conexión con el sistema principal", "warning")
-
-            return []
-
+            return {}
         except Exception as e:
             self.log_mensaje(f"❌ Error obteniendo cursos: {e}", "error")
-            return []
+            return {}
 
     def obtener_cursos_asignatura_actual(self):
         """Obtiene los cursos de la asignatura actual"""
@@ -1330,21 +1354,50 @@ class ConfigurarHorarios(QMainWindow):
             print(f"{iconos.get(tipo, 'ℹ️')} {mensaje}")
 
     def closeEvent(self, event):
-        """Maneja el cierre de la ventana"""
+        """Manejar cierre de ventana"""
         if not self.hay_cambios_sin_guardar():
+            self.log_mensaje("🔚 Cerrando configuración de horarios", "info")
             event.accept()
             return
 
         respuesta = QMessageBox.question(
             self, "Cambios sin Guardar",
-            "Hay cambios sin guardar.\n\n¿Cerrar sin guardar?",
-            QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No
+            "Hay cambios sin guardar en la configuración.\n\n"
+            "¿Cerrar sin guardar?\n\n"
+            "💡 Tip: Usa 'Guardar en Sistema' para conservar los cambios.",
+            QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
+            QMessageBox.StandardButton.No
         )
 
         if respuesta == QMessageBox.StandardButton.Yes:
+            self.cancelar_cambios_en_sistema()
+            self.log_mensaje("🔚 Cerrando sin guardar cambios", "warning")
             event.accept()
         else:
             event.ignore()
+
+    def cancelar_cambios_en_sistema(self):
+        """Cancela cambios y restaura estado original"""
+        try:
+            datos_originales = json.loads(self.datos_iniciales)
+
+            # Emitir señal de cancelación
+            if hasattr(self, 'configuracion_actualizada'):
+                datos_cancelacion = {
+                    "semestre_actual": datos_originales.get("semestre_actual", "1"),
+                    "asignaturas": datos_originales.get("asignaturas", {"1": {}, "2": {}}),
+                    "metadata": {
+                        "accion": "CANCELAR_CAMBIOS",
+                        "timestamp": datetime.now().isoformat(),
+                        "origen": "ConfigurarHorarios"
+                    }
+                }
+                self.configuracion_actualizada.emit(datos_cancelacion)
+
+            self.log_mensaje("🔄 Cambios cancelados - estado restaurado", "info")
+
+        except Exception as e:
+            self.log_mensaje(f"⚠️ Error cancelando cambios: {e}", "warning")
 
     def apply_theme(self):
         """Aplica el tema oscuro"""
