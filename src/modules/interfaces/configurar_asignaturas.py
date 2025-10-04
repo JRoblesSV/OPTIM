@@ -228,7 +228,7 @@ class GestionAsignaturaDialog(QDialog):
         clases_layout.addStretch()
 
         planificacion_layout.addRow("👥 Grupos para asignar:", grupos_layout)
-        planificacion_layout.addRow("📅 Laboratorios:", clases_layout)
+        planificacion_layout.addRow("📅 Número prácticas:", clases_layout)
 
         planificacion_group.setLayout(planificacion_layout)
         layout.addWidget(planificacion_group)
