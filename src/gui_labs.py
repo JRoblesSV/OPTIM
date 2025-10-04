@@ -223,8 +223,8 @@ class OptimLabsGUI(QtWidgets.QMainWindow):
         # Botones principales
         botones_principales = [
             ("btn_organizar", "✨ ORGANIZAR\nLABORATORIOS", 50, 15, 220, True),
-            ("btn_guardar", "💾 GUARDAR\nCONFIGURACIÓN", 300, 15, 220, False),
-            ("btn_cargar", "📂 CARGAR\nCONFIGURACIÓN", 550, 15, 220, False),
+            ("btn_exportar", "💾 EXPORTAR\nCONFIGURACIÓN", 300, 15, 220, False),
+            ("btn_importar", "📥 IMPORTAR\nCONFIGURACIÓN", 550, 15, 220, False),
             ("btn_reset", "🔄 RESET\nTODO", 800, 15, 220, False),
         ]
 
@@ -307,7 +307,7 @@ class OptimLabsGUI(QtWidgets.QMainWindow):
         """)
 
     def conectar_signals(self):
-        """Conectar señales de botones"""
+        """Conectar señales de botones - ACTUALIZADO"""
         # Botones de configuración
         self.botones_config["btn_grupos"].clicked.connect(self.abrir_configurar_grupos)
         self.botones_config["btn_asignaturas"].clicked.connect(self.abrir_configurar_asignaturas)
@@ -319,10 +319,10 @@ class OptimLabsGUI(QtWidgets.QMainWindow):
         self.botones_config["btn_aulas"].clicked.connect(self.abrir_configurar_aulas)
         self.botones_config["btn_parametros"].clicked.connect(self.abrir_configurar_parametros)
 
-        # Botones principales
+        # Botones principales - NOMBRES ACTUALIZADOS
         self.botones_principales["btn_organizar"].clicked.connect(self.iniciar_organizacion)
-        self.botones_principales["btn_guardar"].clicked.connect(self.guardar_configuracion)
-        self.botones_principales["btn_cargar"].clicked.connect(self.cargar_configuracion_archivo)
+        self.botones_principales["btn_exportar"].clicked.connect(self.exportar_configuracion)  # CAMBIADO
+        self.botones_principales["btn_importar"].clicked.connect(self.importar_configuracion)  # CAMBIADO
         self.botones_principales["btn_reset"].clicked.connect(self.reset_configuracion)
 
         # Botones secundarios
@@ -2247,6 +2247,303 @@ class OptimLabsGUI(QtWidgets.QMainWindow):
             # Abrir configuración de parámetros para revisar
             self.abrir_configurar_parametros()
 
+    def exportar_configuracion(self):
+        """Exportar configuración actual a archivo JSON"""
+        try:
+            # 1. VERIFICACIÓN DE DATOS PARA EXPORTAR
+            # Verificar si existe al menos una configuración válida
+            configuraciones_validas = 0
+            for seccion_key, seccion_data in self.configuracion.get("configuracion", {}).items():
+                if isinstance(seccion_data, dict) and seccion_data.get("configurado", False):
+                    configuraciones_validas += 1
+
+            # También verificar parámetros de organización
+            if self.configuracion.get("parametros_organizacion", {}).get("configurado", False):
+                configuraciones_validas += 1
+
+            # Si no hay configuraciones válidas, informar al usuario
+            if configuraciones_validas == 0:
+                QtWidgets.QMessageBox.information(
+                    self, "Sin Datos para Exportar",
+                    "❌ No hay configuraciones válidas para exportar.\n\n"
+                    "Para exportar, necesitas configurar al menos uno de estos módulos:\n"
+                    "• Grupos y asignaturas\n"
+                    "• Profesores y alumnos\n"
+                    "• Aulas y horarios\n"
+                    "• Parámetros de organización\n\n"
+                    "💡 Configura algún módulo y vuelve a intentar."
+                )
+                self.log_mensaje("⚠️ Exportación cancelada - sin configuraciones válidas", "warning")
+                return
+
+            # 2. DIÁLOGO PARA SELECCIONAR ARCHIVO DE DESTINO
+            # Generar nombre sugerido con timestamp
+            timestamp_archivo = datetime.now().strftime('%Y%m%d_%H%M%S')
+            nombre_sugerido = f"configuracion_optim_{timestamp_archivo}.json"
+
+            archivo_destino, _ = QtWidgets.QFileDialog.getSaveFileName(
+                self,
+                "💾 Exportar Configuración OPTIM",
+                nombre_sugerido,
+                "Archivos JSON (*.json);;Todos los archivos (*.*)"
+            )
+
+            # Si el usuario cancela la selección, salir silenciosamente
+            if not archivo_destino:
+                self.log_mensaje("ℹ️ Exportación cancelada por el usuario", "info")
+                return
+
+            # 3. PREPARAR DATOS DE EXPORTACIÓN CON METADATA COMPLETA
+            # Hacer copia profunda de la configuración actual
+            datos_export = self.configuracion.copy()
+
+            # Asegurar que existe la sección metadata
+            if "metadata" not in datos_export:
+                datos_export["metadata"] = {}
+
+            # Añadir información de exportación
+            datos_export["metadata"].update({
+                "exportado_en": datetime.now().isoformat(),
+                "version_optim": "1.0",
+                "tipo_archivo": "configuracion_completa_optim",
+                "archivo_origen": self.config_file,
+                "usuario_exportacion": os.getenv('USERNAME', 'unknown')
+            })
+
+            # 4. CALCULAR ESTADÍSTICAS DETALLADAS PARA METADATA
+            configuracion_stats = datos_export.get("configuracion", {})
+
+            estadisticas_export = {
+                "total_modulos_configurados": configuraciones_validas,
+                "modulos_detalle": {
+                    "grupos": configuracion_stats.get("grupos", {}).get("total", 0),
+                    "asignaturas": configuracion_stats.get("asignaturas", {}).get("total", 0),
+                    "profesores": configuracion_stats.get("profesores", {}).get("total", 0),
+                    "alumnos": configuracion_stats.get("alumnos", {}).get("total", 0),
+                    "aulas": configuracion_stats.get("aulas", {}).get("total_aulas", 0),
+                    "horarios_configurado": configuracion_stats.get("horarios", {}).get("configurado", False),
+                    "calendario_configurado": configuracion_stats.get("calendario", {}).get("configurado", False)
+                },
+                "parametros_organizacion": {
+                    "configurado": datos_export.get("parametros_organizacion", {}).get("configurado", False),
+                    "total_parametros": (
+                            len(datos_export.get("parametros_organizacion", {}).get("parametros_booleanos", {})) +
+                            len(datos_export.get("parametros_organizacion", {}).get("pesos_optimizacion", {})) +
+                            len(datos_export.get("parametros_organizacion", {}).get("configuraciones_adicionales", {}))
+                    )
+                },
+                "resultados_disponibles": datos_export.get("resultados_organizacion", {}).get("datos_disponibles",
+                                                                                              False)
+            }
+
+            # Añadir estadísticas a metadata
+            datos_export["metadata"]["estadisticas_exportacion"] = estadisticas_export
+
+            # 5. GUARDAR ARCHIVO JSON CON FORMATO LEGIBLE
+            with open(archivo_destino, 'w', encoding='utf-8') as archivo_json:
+                json.dump(datos_export, archivo_json, indent=2, ensure_ascii=False)
+
+            # 6. LOGGING DE CONFIRMACIÓN
+            nombre_archivo = os.path.basename(archivo_destino)
+            self.log_mensaje(f"📤 Configuración exportada exitosamente a '{nombre_archivo}'", "success")
+
+            # 7. MOSTRAR RESUMEN DETALLADO AL USUARIO
+            stats = estadisticas_export
+            modulos_detalle = stats["modulos_detalle"]
+
+            mensaje_exito = f"""
+        ✅ EXPORTACIÓN COMPLETADA EXITOSAMENTE
+
+        📊 RESUMEN DE DATOS EXPORTADOS:
+        ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+        📚 CONFIGURACIONES ACADÉMICAS:
+           • Grupos: {modulos_detalle['grupos']} configurados
+           • Asignaturas: {modulos_detalle['asignaturas']} configuradas  
+           • Profesores: {modulos_detalle['profesores']} configurados
+           • Alumnos: {modulos_detalle['alumnos']} configurados
+
+        🏢 INFRAESTRUCTURA Y HORARIOS:
+           • Aulas: {modulos_detalle['aulas']} configuradas
+           • Horarios: {'✅ Configurado' if modulos_detalle['horarios_configurado'] else '❌ Sin configurar'}
+           • Calendario: {'✅ Configurado' if modulos_detalle['calendario_configurado'] else '❌ Sin configurar'}
+
+        🎯 PARÁMETROS DE ORGANIZACIÓN:
+           • Estado: {'✅ Configurado' if stats['parametros_organizacion']['configurado'] else '❌ Sin configurar'}
+           • Total parámetros: {stats['parametros_organizacion']['total_parametros']}
+
+        📊 RESULTADOS:
+           • Datos disponibles: {'✅ Sí' if stats['resultados_disponibles'] else '❌ No'}
+
+        ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+        📁 Archivo guardado: {nombre_archivo}
+        📂 Ubicación: {os.path.dirname(archivo_destino)}
+        📅 Fecha exportación: {datetime.now().strftime('%d/%m/%Y %H:%M:%S')}
+
+        💡 Este archivo puede ser importado en cualquier instalación de OPTIM.
+                """
+
+            QtWidgets.QMessageBox.information(
+                self,
+                "🎉 Exportación Exitosa",
+                mensaje_exito
+            )
+
+        except PermissionError:
+            # Error específico de permisos
+            error_msg = "Sin permisos de escritura en la ubicación seleccionada"
+            self.log_mensaje(f"❌ Error de permisos: {error_msg}", "error")
+            QtWidgets.QMessageBox.critical(
+                self,
+                "❌ Error de Permisos",
+                f"{error_msg}\n\n"
+                "Soluciones:\n"
+                "• Selecciona una ubicación diferente\n"
+                "• Ejecuta el programa como administrador\n"
+                "• Verifica que la carpeta no esté protegida"
+            )
+
+        except FileNotFoundError:
+            # Error de ruta no válida
+            error_msg = "La ruta seleccionada no es válida o no existe"
+            self.log_mensaje(f"❌ Error de ruta: {error_msg}", "error")
+            QtWidgets.QMessageBox.critical(
+                self,
+                "❌ Error de Ruta",
+                f"{error_msg}\n\n"
+                "Verifica que la carpeta de destino existe y es accesible."
+            )
+
+        except json.JSONEncoder as json_error:
+            # Error específico de JSON
+            error_msg = f"Error al serializar datos a JSON: {str(json_error)}"
+            self.log_mensaje(f"❌ Error JSON: {error_msg}", "error")
+            QtWidgets.QMessageBox.critical(
+                self,
+                "❌ Error de Formato",
+                f"{error_msg}\n\n"
+                "Los datos contienen elementos que no se pueden convertir a JSON.\n"
+                "Contacta con soporte técnico."
+            )
+
+        except Exception as e:
+            # Error genérico con información detallada
+            error_msg = f"Error inesperado durante la exportación: {str(e)}"
+            self.log_mensaje(f"❌ {error_msg}", "error")
+            QtWidgets.QMessageBox.critical(
+                self,
+                "❌ Error de Exportación",
+                f"{error_msg}\n\n"
+                f"Tipo de error: {type(e).__name__}\n"
+                f"Detalles técnicos: {e}\n\n"
+                "Si el problema persiste, contacta con soporte técnico."
+            )
+
+    def importar_configuracion(self):
+        """Importar configuración desde archivo JSON"""
+        try:
+            # Advertencia sobre sobrescritura
+            if any(config.get("configurado", False) for config in self.configuracion["configuracion"].values()):
+                respuesta = QtWidgets.QMessageBox.question(
+                    self, "Confirmar Importación",
+                    "⚠️ Hay configuraciones existentes que se sobrescribirán.\n\n"
+                    "¿Continuar con la importación?\n\n"
+                    "💡 Tip: Exporta la configuración actual antes de importar.",
+                    QtWidgets.QMessageBox.StandardButton.Yes | QtWidgets.QMessageBox.StandardButton.No
+                )
+
+                if respuesta == QtWidgets.QMessageBox.StandardButton.No:
+                    return
+
+            # Diálogo para seleccionar archivo
+            archivo, _ = QtWidgets.QFileDialog.getOpenFileName(
+                self, "Importar Configuración OPTIM",
+                "", "Archivos JSON (*.json);;Todos los archivos (*)"
+            )
+
+            if not archivo:
+                return
+
+            # Cargar y validar archivo
+            with open(archivo, 'r', encoding='utf-8') as f:
+                datos_importados = json.load(f)
+
+            # Validar estructura del archivo
+            if not isinstance(datos_importados, dict):
+                raise ValueError("El archivo no contiene una configuración válida")
+
+            # Verificar que es un archivo de configuración OPTIM
+            if "configuracion" not in datos_importados:
+                raise ValueError("El archivo no es una configuración OPTIM válida")
+
+            # Respaldar configuración actual
+            configuracion_backup = self.configuracion.copy()
+
+            try:
+                # Importar configuración manteniendo estructura
+                self.configuracion = datos_importados
+
+                # Asegurar que metadata existe
+                if "metadata" not in self.configuracion:
+                    self.configuracion["metadata"] = {
+                        "version": "1.0",
+                        "timestamp": datetime.now().isoformat()
+                    }
+
+                # Actualizar timestamp de importación
+                self.configuracion["metadata"]["importado_en"] = datetime.now().isoformat()
+                self.configuracion["metadata"]["importado_desde"] = os.path.basename(archivo)
+
+                # Guardar configuración importada
+                self.guardar_configuracion()
+
+                # Actualizar interfaz
+                self.actualizar_estado_visual()
+
+                # Estadísticas de importación
+                stats_import = datos_importados.get("metadata", {}).get("estadisticas", {})
+                modulos_importados = sum(
+                    1 for config in self.configuracion["configuracion"].values() if config.get("configurado", False))
+
+                self.log_mensaje(f"📥 Configuración importada desde {os.path.basename(archivo)}", "success")
+
+                # Mostrar resumen de importación
+                mensaje_resumen = f"✅ Configuración importada exitosamente\n\n"
+                mensaje_resumen += f"📊 Resumen importado:\n"
+                mensaje_resumen += f"• {modulos_importados} módulos configurados\n"
+
+                if stats_import:
+                    mensaje_resumen += f"• {stats_import.get('total_profesores', 0)} profesores\n"
+                    mensaje_resumen += f"• {stats_import.get('total_alumnos', 0)} alumnos\n"
+                    mensaje_resumen += f"• {stats_import.get('total_aulas', 0)} aulas\n"
+
+                mensaje_resumen += f"\n📁 Desde: {os.path.basename(archivo)}\n\n"
+                mensaje_resumen += "🔄 El sistema ha sido actualizado con la nueva configuración."
+
+                QtWidgets.QMessageBox.information(self, "Importación Exitosa", mensaje_resumen)
+
+            except Exception as e_inner:
+                # Restaurar backup en caso de error
+                self.configuracion = configuracion_backup
+                raise e_inner
+
+        except FileNotFoundError:
+            QtWidgets.QMessageBox.critical(
+                self, "Error",
+                "El archivo seleccionado no existe o no se puede acceder."
+            )
+        except json.JSONDecodeError:
+            QtWidgets.QMessageBox.critical(
+                self, "Error",
+                "El archivo seleccionado no es un JSON válido."
+            )
+        except Exception as e:
+            error_msg = f"Error al importar configuración: {str(e)}"
+            self.log_mensaje(f"❌ {error_msg}", "error")
+            QtWidgets.QMessageBox.critical(
+                self, "Error de Importación",
+                f"{error_msg}\n\nVerifica que el archivo sea una configuración OPTIM válida."
+            )
+
     def guardar_configuracion(self):
         """Guardar configuración actual"""
         try:
@@ -2257,34 +2554,63 @@ class OptimLabsGUI(QtWidgets.QMainWindow):
         except Exception as e:
             self.log_mensaje(f"❌ Error guardando configuración: {e}", "error")
 
-    def cargar_configuracion_archivo(self):
-        """Cargar configuración desde archivo"""
-        archivo, _ = QtWidgets.QFileDialog.getOpenFileName(
-            self, "Cargar Configuración", "", "JSON Files (*.json)"
-        )
-        if archivo:
-            try:
-                with open(archivo, 'r', encoding='utf-8') as f:
-                    self.configuracion = json.load(f)
-                self.actualizar_estado_visual()
-                self.log_mensaje(f"✅ Configuración cargada desde {archivo}", "success")
-            except Exception as e:
-                self.log_mensaje(f"❌ Error cargando configuración: {e}", "error")
-
     def reset_configuracion(self):
-        """Reset completo de configuración"""
+        """Reset completo de configuración - ARREGLADO"""
         reply = QtWidgets.QMessageBox.question(
             self, "Reset Configuración",
-            "¿Estás seguro de que quieres resetear toda la configuración?",
+            "¿Estás seguro de que quieres resetear toda la configuración?\n\n"
+            "Se eliminarán todos los datos configurados y se volverá al estado inicial.",
             QtWidgets.QMessageBox.StandardButton.Yes | QtWidgets.QMessageBox.StandardButton.No
         )
 
         if reply == QtWidgets.QMessageBox.StandardButton.Yes:
-            self.configuracion = self.cargar_configuracion()
-            if os.path.exists(self.config_file):
-                os.remove(self.config_file)
-            self.actualizar_estado_visual()
-            self.log_mensaje("🔄 Configuración reseteada completamente", "warning")
+            try:
+                # Eliminar archivo de configuración si existe
+                if os.path.exists(self.config_file):
+                    os.remove(self.config_file)
+
+                # Regenerar configuración por defecto
+                self.configuracion = self.cargar_configuracion()
+
+                # Cerrar todas las ventanas abiertas
+                if hasattr(self, 'ventana_horarios') and self.ventana_horarios:
+                    self.ventana_horarios.close()
+                    self.ventana_horarios = None
+                if hasattr(self, 'ventana_calendario') and self.ventana_calendario:
+                    self.ventana_calendario.close()
+                    self.ventana_calendario = None
+                if hasattr(self, 'ventana_alumnos') and self.ventana_alumnos:
+                    self.ventana_alumnos.close()
+                    self.ventana_alumnos = None
+                if hasattr(self, 'ventana_profesores') and self.ventana_profesores:
+                    self.ventana_profesores.close()
+                    self.ventana_profesores = None
+                if hasattr(self, 'ventana_aulas') and self.ventana_aulas:
+                    self.ventana_aulas.close()
+                    self.ventana_aulas = None
+                if hasattr(self, 'ventana_resultados') and self.ventana_resultados:
+                    self.ventana_resultados.close()
+                    self.ventana_resultados = None
+
+                # Forzar actualización completa de la interfaz
+                self.actualizar_estado_visual()
+                self.actualizar_resumen_configuracion()
+
+                # Log de confirmación
+                self.log_mensaje("🔄 Configuración reseteada completamente - sistema reiniciado", "success")
+
+                # Mensaje de confirmación
+                QtWidgets.QMessageBox.information(
+                    self, "Reset Completado",
+                    "✅ Configuración reseteada correctamente.\n\nTodas las ventanas han sido cerradas y el sistema vuelve al estado inicial."
+                )
+
+            except Exception as e:
+                self.log_mensaje(f"❌ Error durante reset: {e}", "error")
+                QtWidgets.QMessageBox.critical(
+                    self, "Error de Reset",
+                    f"Error durante el reset:\n{str(e)}\n\nIntenta cerrar manualmente las ventanas abiertas."
+                )
 
     def mostrar_ayuda(self):
         """Mostrar ayuda y soporte"""
@@ -2292,12 +2618,13 @@ class OptimLabsGUI(QtWidgets.QMainWindow):
             self, "Ayuda - OPTIM Labs",
             "OPTIM - Sistema de Programación de Laboratorios\n\n"
             "Flujo recomendado:\n"
-            "1️⃣ Configurar Calendario semestral\n"
-            "2️⃣ Configurar Horarios por asignatura\n"
-            "3️⃣ Configurar Aulas/Laboratorios\n"
-            "4️⃣ Configurar Profesores\n"
-            "5️⃣ Configurar Alumnos matriculados\n"
-            "6️⃣ Organizar Laboratorios\n\n"
+            "1️⃣ Configurar Grupos\n"
+            "2️⃣ Configurar Asignaturas\n"
+            "3️⃣ Configurar Profesores\n"
+            "4️⃣ Configurar Alumnos matriculados\n"
+            "5️⃣ Configurar Calendario semestral\n"
+            "6️⃣ Organizar Horarios por asignatura\n\n"
+            "7️⃣ Configurar Aulas/Laboratorios"
             "Desarrollado por SoftVier para ETSIDI (UPM)"
         )
 

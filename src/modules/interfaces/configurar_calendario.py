@@ -166,24 +166,110 @@ class ConfiguracionDiaDialog(QDialog):
         }
 
     def apply_dark_theme(self):
-        """Aplicar tema oscuro"""
+        """Aplicar tema oscuro con botones OK/Cancel uniformes"""
         self.setStyleSheet("""
             QDialog {
                 background-color: #2b2b2b;
                 color: #ffffff;
             }
+            QGroupBox {
+                color: #ffffff;
+                border: 2px solid #4a4a4a;
+                border-radius: 5px;
+                margin-top: 10px;
+                padding-top: 10px;
+                font-weight: bold;
+            }
+            QGroupBox::title {
+                subcontrol-origin: margin;
+                left: 10px;
+                padding: 0 5px 0 5px;
+            }
             QLabel {
                 color: #ffffff;
             }
-            QLineEdit, QComboBox {
+            QLineEdit, QComboBox, QSpinBox, QTextEdit {
                 background-color: #3c3c3c;
                 color: #ffffff;
                 border: 1px solid #555555;
                 border-radius: 3px;
                 padding: 5px;
             }
-            QLineEdit:focus, QComboBox:focus {
+            QLineEdit:focus, QComboBox:focus, QSpinBox:focus, QTextEdit:focus {
                 border-color: #4a9eff;
+            }
+            QCheckBox {
+                color: #ffffff;
+                font-size: 11px;
+                padding: 2px;
+            }
+            QCheckBox::indicator {
+                width: 18px;
+                height: 18px;
+            }
+            QCheckBox::indicator:unchecked {
+                background-color: #3c3c3c;
+                border: 2px solid #555555;
+                border-radius: 3px;
+            }
+            QCheckBox::indicator:checked {
+                background-color: #4a9eff;
+                border: 2px solid #4a9eff;
+                border-radius: 3px;
+            }
+            QToolTip {
+                background-color: #2b2b2b;
+                color: #ffffff;
+                border: 1px solid #4a9eff;
+                border-radius: 4px;
+                padding: 4px 8px;
+                font-size: 11px;
+                font-weight: normal;
+            }
+
+            /* BOTONES OK/CANCEL */
+            QDialogButtonBox {
+                background-color: transparent;
+                border: none;
+                margin-top: 10px;
+            }
+
+            QDialogButtonBox QPushButton {
+                background-color: #4a4a4a;
+                color: #ffffff;
+                border: 1px solid #666666;
+                border-radius: 5px;
+                padding: 8px 16px;
+                font-weight: bold;
+                font-size: 12px;
+                min-width: 90px;
+                min-height: 35px;
+                max-height: 35px;
+                margin: 3px;
+            }
+
+            QDialogButtonBox QPushButton:hover {
+                background-color: #5a5a5a;
+                border-color: #4a9eff;
+            }
+
+            QDialogButtonBox QPushButton:pressed {
+                background-color: #3a3a3a;
+            }
+
+            /* ANULAR DIFERENCIAS ENTRE OK Y CANCEL */
+            QDialogButtonBox QPushButton:default {
+                background-color: #4a4a4a;
+                border-color: #666666;
+            }
+
+            QDialogButtonBox QPushButton:default:hover {
+                background-color: #5a5a5a;
+                border-color: #4a9eff;
+            }
+
+            QDialogButtonBox QPushButton:default:pressed {
+                background-color: #3a3a3a;
             }
         """)
 
@@ -1006,7 +1092,7 @@ class ConfigurarCalendario(QMainWindow):
         parent_layout.addWidget(right_panel)
 
     def apply_dark_theme(self):
-        """Aplicar tema oscuro idéntico al resto del sistema"""
+        """Aplicar tema oscuro idéntico al resto del sistema - CON TOOLTIPS"""
         self.setStyleSheet("""
             QMainWindow {
                 background-color: #2b2b2b;
@@ -1025,6 +1111,25 @@ class ConfigurarCalendario(QMainWindow):
                 left: 10px;
                 padding: 0 5px 0 5px;
             }
+            QListWidget {
+                background-color: #3c3c3c;
+                color: #ffffff;
+                border: 1px solid #555555;
+                border-radius: 5px;
+                padding: 5px;
+            }
+            QListWidget::item {
+                padding: 8px;
+                border-radius: 3px;
+                margin: 1px;
+            }
+            QListWidget::item:selected {
+                background-color: #4a9eff;
+                color: #ffffff;
+            }
+            QListWidget::item:hover {
+                background-color: #4a4a4a;
+            }
             QPushButton {
                 background-color: #4a4a4a;
                 color: #ffffff;
@@ -1039,19 +1144,79 @@ class ConfigurarCalendario(QMainWindow):
             QPushButton:pressed {
                 background-color: #3a3a3a;
             }
+            QPushButton:disabled {
+                background-color: #2a2a2a;
+                color: #666666;
+                border-color: #444444;
+            }
+            QTextEdit {
+                background-color: #3c3c3c;
+                color: #ffffff;
+                border: 1px solid #555555;
+                border-radius: 5px;
+                padding: 8px;
+            }
             QLabel {
                 color: #ffffff;
             }
-            QScrollArea {
-                border: 1px solid #555555;
-                border-radius: 5px;
+            QLineEdit, QComboBox, QSpinBox {
                 background-color: #3c3c3c;
+                color: #ffffff;
+                border: 1px solid #555555;
+                border-radius: 3px;
+                padding: 5px;
+            }
+            QLineEdit:focus, QComboBox:focus, QSpinBox:focus {
+                border-color: #4a9eff;
+            }
+            QCheckBox {
+                color: #ffffff;
+                font-size: 11px;
+                padding: 2px;
+            }
+            QCheckBox::indicator {
+                width: 18px;
+                height: 18px;
+            }
+            QCheckBox::indicator:unchecked {
+                background-color: #3c3c3c;
+                border: 2px solid #555555;
+                border-radius: 3px;
+            }
+            QCheckBox::indicator:checked {
+                background-color: #4a9eff;
+                border: 2px solid #4a9eff;
+                border-radius: 3px;
             }
             QCalendarWidget {
                 background-color: #3c3c3c;
                 color: #ffffff;
                 border: 1px solid #555555;
                 border-radius: 5px;
+            }
+            QCalendarWidget QToolButton {
+                background-color: #4a4a4a;
+                color: #ffffff;
+                border: 1px solid #666666;
+                border-radius: 3px;
+                padding: 3px;
+            }
+            QCalendarWidget QToolButton:hover {
+                background-color: #5a5a5a;
+            }
+            QCalendarWidget QAbstractItemView {
+                background-color: #3c3c3c;
+                color: #ffffff;
+                selection-background-color: #4a9eff;
+            }
+            QToolTip {
+                background-color: #2b2b2b;
+                color: #ffffff;
+                border: 1px solid #4a9eff;
+                border-radius: 4px;
+                padding: 4px 8px;
+                font-size: 11px;
+                font-weight: normal;
             }
         """)
 

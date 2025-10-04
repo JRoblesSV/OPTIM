@@ -5,11 +5,11 @@ Configurar Horarios - OPTIM - Sistema de Programación Automática de Laboratori
 Desarrollado por SoftVier para ETSIDI (UPM)
 
 Sistema de configuración de horarios con franjas fijas para laboratorios universitarios.
-Permite asignar cursos a horarios específicos en un grid semanal estructurado.
+Permite asignar grupos a horarios específicos en un grid semanal estructurado.
 
 Funcionalidades:
 - Configuración de horarios por semestre
-- Gestión de asignaturas y cursos
+- Gestión de asignaturas y grupos
 - Grid semanal con franjas horarias fijas
 - Edición y eliminación de franjas
 - Integración con sistema central
@@ -86,40 +86,130 @@ class GestionAsignaturaDialog(QDialog):
         return self.edit_nombre.text().strip()
 
     def apply_dark_theme(self):
+        """Aplicar tema oscuro con botones OK/Cancel uniformes"""
         self.setStyleSheet("""
             QDialog {
                 background-color: #2b2b2b;
                 color: #ffffff;
             }
+            QGroupBox {
+                color: #ffffff;
+                border: 2px solid #4a4a4a;
+                border-radius: 5px;
+                margin-top: 10px;
+                padding-top: 10px;
+                font-weight: bold;
+            }
+            QGroupBox::title {
+                subcontrol-origin: margin;
+                left: 10px;
+                padding: 0 5px 0 5px;
+            }
             QLabel {
                 color: #ffffff;
             }
-            QLineEdit {
+            QLineEdit, QComboBox, QSpinBox, QTextEdit {
                 background-color: #3c3c3c;
                 color: #ffffff;
                 border: 1px solid #555555;
-                padding: 5px;
                 border-radius: 3px;
+                padding: 5px;
+            }
+            QLineEdit:focus, QComboBox:focus, QSpinBox:focus, QTextEdit:focus {
+                border-color: #4a9eff;
+            }
+            QCheckBox {
+                color: #ffffff;
+                font-size: 11px;
+                padding: 2px;
+            }
+            QCheckBox::indicator {
+                width: 18px;
+                height: 18px;
+            }
+            QCheckBox::indicator:unchecked {
+                background-color: #3c3c3c;
+                border: 2px solid #555555;
+                border-radius: 3px;
+            }
+            QCheckBox::indicator:checked {
+                background-color: #4a9eff;
+                border: 2px solid #4a9eff;
+                border-radius: 3px;
+            }
+            QToolTip {
+                background-color: #2b2b2b;
+                color: #ffffff;
+                border: 1px solid #4a9eff;
+                border-radius: 4px;
+                padding: 4px 8px;
+                font-size: 11px;
+                font-weight: normal;
+            }
+
+            /* BOTONES OK/CANCEL */
+            QDialogButtonBox {
+                background-color: transparent;
+                border: none;
+                margin-top: 10px;
+            }
+
+            QDialogButtonBox QPushButton {
+                background-color: #4a4a4a;
+                color: #ffffff;
+                border: 1px solid #666666;
+                border-radius: 5px;
+                padding: 8px 16px;
+                font-weight: bold;
+                font-size: 12px;
+                min-width: 90px;
+                min-height: 35px;
+                max-height: 35px;
+                margin: 3px;
+            }
+
+            QDialogButtonBox QPushButton:hover {
+                background-color: #5a5a5a;
+                border-color: #4a9eff;
+            }
+
+            QDialogButtonBox QPushButton:pressed {
+                background-color: #3a3a3a;
+            }
+
+            /* ANULAR DIFERENCIAS ENTRE OK Y CANCEL */
+            QDialogButtonBox QPushButton:default {
+                background-color: #4a4a4a;
+                border-color: #666666;
+            }
+
+            QDialogButtonBox QPushButton:default:hover {
+                background-color: #5a5a5a;
+                border-color: #4a9eff;
+            }
+
+            QDialogButtonBox QPushButton:default:pressed {
+                background-color: #3a3a3a;
             }
         """)
 
 
-class EditarCursosDialog(QDialog):
-    """Dialog para editar cursos de una franja horaria"""
+class EditarGruposDialog(QDialog):
+    """Dialog para editar grupos de una franja horaria"""
 
-    def __init__(self, dia, horario, cursos_disponibles, cursos_actuales=None, parent=None):
+    def __init__(self, dia, horario, grupos_disponibles, grupos_actuales=None, parent=None):
         super().__init__(parent)
         self.dia = dia
         self.horario = horario
-        self.cursos_disponibles = cursos_disponibles
-        self.cursos_actuales = cursos_actuales or []
+        self.grupos_disponibles = grupos_disponibles
+        self.grupos_actuales = grupos_actuales or []
 
         self.setWindowTitle(f"Configurar {dia} - {horario}")
         self.setModal(True)
         center_window_on_screen(self, 400, 350)
 
         self.setup_ui()
-        self.apply_theme()
+        self.apply_dark_theme()
 
     def setup_ui(self):
         layout = QVBoxLayout()
@@ -130,39 +220,39 @@ class EditarCursosDialog(QDialog):
         titulo.setAlignment(Qt.AlignmentFlag.AlignCenter)
         layout.addWidget(titulo)
 
-        # Cursos disponibles
-        cursos_group = QGroupBox("Cursos que tendrán clase:")
-        cursos_layout = QVBoxLayout()
+        # Grupos disponibles
+        grupos_group = QGroupBox("Grupos que tendrán clase:")
+        grupos_layout = QVBoxLayout()
 
-        self.check_cursos = {}
+        self.check_grupos = {}
 
-        if not self.cursos_disponibles:
-            info_label = QLabel("⚠️ No hay cursos configurados para esta asignatura")
+        if not self.grupos_disponibles:
+            info_label = QLabel("⚠️ No hay grupos configurados para esta asignatura")
             info_label.setStyleSheet("color: #ffaa00;")
-            cursos_layout.addWidget(info_label)
+            grupos_layout.addWidget(info_label)
         else:
-            if isinstance(self.cursos_disponibles, dict):
-                for codigo, nombre in sorted(self.cursos_disponibles.items()):
+            if isinstance(self.grupos_disponibles, dict):
+                for codigo, nombre in sorted(self.grupos_disponibles.items()):
                     texto_check = f"{codigo} - {nombre}"
                     check = QCheckBox(texto_check)
-                    if codigo in self.cursos_actuales:
+                    if codigo in self.grupos_actuales:
                         check.setChecked(True)
-                    self.check_cursos[codigo] = check
-                    cursos_layout.addWidget(check)
+                    self.check_grupos[codigo] = check
+                    grupos_layout.addWidget(check)
             else:
                 # Retrocompatibilidad
-                for curso in sorted(self.cursos_disponibles):
-                    check = QCheckBox(curso)
-                    if curso in self.cursos_actuales:
+                for grupo in sorted(self.grupos_disponibles):
+                    check = QCheckBox(grupo)
+                    if grupo in self.grupos_actuales:
                         check.setChecked(True)
-                    self.check_cursos[curso] = check
-                    cursos_layout.addWidget(check)
+                    self.check_grupos[grupo] = check
+                    grupos_layout.addWidget(check)
 
-        cursos_group.setLayout(cursos_layout)
-        layout.addWidget(cursos_group)
+        grupos_group.setLayout(grupos_layout)
+        layout.addWidget(grupos_group)
 
         # Botones de acción rápida
-        if self.cursos_disponibles:
+        if self.grupos_disponibles:
             botones_layout = QHBoxLayout()
 
             btn_todos = QPushButton("Todos")
@@ -185,70 +275,143 @@ class EditarCursosDialog(QDialog):
         self.setLayout(layout)
 
     def seleccionar_todos(self):
-        """Selecciona todos los cursos"""
-        for check in self.check_cursos.values():
+        """Selecciona todos los grupos"""
+        for check in self.check_grupos.values():
             check.setChecked(True)
 
     def seleccionar_ninguno(self):
-        """Deselecciona todos los cursos"""
-        for check in self.check_cursos.values():
+        """Deselecciona todos los grupos"""
+        for check in self.check_grupos.values():
             check.setChecked(False)
 
-    def get_cursos_seleccionados(self):
-        """Obtiene la lista de cursos seleccionados"""
-        return [curso for curso, check in self.check_cursos.items() if check.isChecked()]
+    def get_grupos_seleccionados(self):
+        """Obtiene la lista de grupos seleccionados"""
+        return [grupo for grupo, check in self.check_grupos.items() if check.isChecked()]
 
-    def apply_theme(self):
-        """Aplica el tema oscuro al diálogo"""
+    def apply_dark_theme(self):
+        """Aplicar tema oscuro completo idéntico al de aulas"""
         self.setStyleSheet("""
             QDialog {
                 background-color: #2b2b2b;
                 color: #ffffff;
             }
-            QLabel {
-                color: #ffffff;
-            }
-            QCheckBox {
-                color: #ffffff;
-                spacing: 5px;
-            }
             QGroupBox {
                 color: #ffffff;
-                border: 1px solid #555555;
+                border: 2px solid #4a4a4a;
+                border-radius: 5px;
                 margin-top: 10px;
                 padding-top: 10px;
-                border-radius: 3px;
+                font-weight: bold;
             }
             QGroupBox::title {
                 subcontrol-origin: margin;
                 left: 10px;
                 padding: 0 5px 0 5px;
             }
+            QListWidget {
+                background-color: #3c3c3c;
+                color: #ffffff;
+                border: 1px solid #555555;
+                border-radius: 5px;
+                padding: 5px;
+            }
+            QListWidget::item {
+                padding: 8px;
+                border-radius: 3px;
+                margin: 1px;
+            }
+            QListWidget::item:selected {
+                background-color: #4a9eff;
+                color: #ffffff;
+            }
+            QListWidget::item:hover {
+                background-color: #4a4a4a;
+            }
             QPushButton {
                 background-color: #4a4a4a;
                 color: #ffffff;
                 border: 1px solid #666666;
-                border-radius: 3px;
-                padding: 5px 10px;
+                border-radius: 5px;
+                padding: 8px 16px;
                 font-weight: bold;
             }
             QPushButton:hover {
                 background-color: #5a5a5a;
             }
+            QPushButton:pressed {
+                background-color: #3a3a3a;
+            }
+            QPushButton:disabled {
+                background-color: #2a2a2a;
+                color: #666666;
+                border-color: #444444;
+            }
+            QPushButton:checked {
+                background-color: #4a9eff;
+                border-color: #3a8eef;
+            }
+            QTextEdit {
+                background-color: #3c3c3c;
+                color: #ffffff;
+                border: 1px solid #555555;
+                border-radius: 5px;
+                padding: 8px;
+            }
+            QLabel {
+                color: #ffffff;
+            }
+            QLineEdit, QComboBox, QSpinBox {
+                background-color: #3c3c3c;
+                color: #ffffff;
+                border: 1px solid #555555;
+                border-radius: 3px;
+                padding: 5px;
+            }
+            QLineEdit:focus, QComboBox:focus, QSpinBox:focus {
+                border-color: #4a9eff;
+            }
+            QCheckBox {
+                color: #ffffff;
+                font-size: 11px;
+                padding: 2px;
+            }
+            QCheckBox::indicator {
+                width: 18px;
+                height: 18px;
+            }
+            QCheckBox::indicator:unchecked {
+                background-color: #3c3c3c;
+                border: 2px solid #555555;
+                border-radius: 3px;
+            }
+            QCheckBox::indicator:checked {
+                background-color: #4a9eff;
+                border: 2px solid #4a9eff;
+                border-radius: 3px;
+            }
+            QToolTip {
+                background-color: #2b2b2b;
+                color: #ffffff;
+                border: 1px solid #4a9eff;
+                border-radius: 4px;
+                padding: 4px 8px;
+                font-size: 11px;
+                font-weight: normal;
+            }
         """)
 
 
 class FranjaHorarioWidget(QFrame):
-    """Widget para mostrar una franja horaria con sus cursos"""
+    """Widget para mostrar una franja horaria con sus grupos"""
 
     franja_editada = pyqtSignal(str, str, list)
     franja_eliminada = pyqtSignal(str, str)
 
-    def __init__(self, dia, horario, cursos=None, parent=None):
+    def __init__(self, dia, horario, grupos=None, parent=None):
         super().__init__(parent)
         self.dia = dia
         self.horario = horario
-        self.cursos = cursos or []
+        self.grupos = grupos or []
         self.parent_window = parent
         self._widgets_creados = False
 
@@ -267,12 +430,12 @@ class FranjaHorarioWidget(QFrame):
         self.main_layout.setSpacing(2)
 
         # Crear widgets que se reutilizarán
-        self.cursos_label = QLabel()
-        self.cursos_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        self.cursos_label.setFont(QFont("Arial", 9, QFont.Weight.Bold))
-        self.cursos_label.setWordWrap(True)
+        self.grupos_label = QLabel()
+        self.grupos_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        self.grupos_label.setFont(QFont("Arial", 9, QFont.Weight.Bold))
+        self.grupos_label.setWordWrap(True)
 
-        self.vacio_label = QLabel("Sin cursos")
+        self.vacio_label = QLabel("Sin grupos")
         self.vacio_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.vacio_label.setStyleSheet("color: #888888; font-style: italic;")
 
@@ -295,7 +458,7 @@ class FranjaHorarioWidget(QFrame):
         self.btn_anadir = QPushButton("➕")
         self.btn_anadir.setFixedSize(30, 30)
         self.btn_anadir.clicked.connect(self.editar_franja)
-        self.btn_anadir.setToolTip(f"Añadir cursos a {self.dia} {self.horario}")
+        self.btn_anadir.setToolTip(f"Añadir grupos a {self.dia} {self.horario}")
 
         # Layout para botones - CENTRADO
         self.btn_layout = QHBoxLayout()
@@ -309,7 +472,7 @@ class FranjaHorarioWidget(QFrame):
         self.aplicar_estilos_botones()
 
         # Añadir widgets al layout principal
-        self.main_layout.addWidget(self.cursos_label)
+        self.main_layout.addWidget(self.grupos_label)
         self.main_layout.addWidget(self.vacio_label)
         self.main_layout.addWidget(self.separador)
         self.main_layout.addLayout(self.btn_layout)
@@ -326,21 +489,21 @@ class FranjaHorarioWidget(QFrame):
         if not self._widgets_creados:
             return
 
-        if self.cursos:
-            # Mostrar estado con cursos
-            cursos_text = ", ".join(self.cursos)
-            if len(cursos_text) > 12:
-                cursos_text = cursos_text[:12] + "..."
+        if self.grupos:
+            # Mostrar estado con grupos
+            grupos_text = ", ".join(self.grupos)
+            if len(grupos_text) > 12:
+                grupos_text = grupos_text[:12] + "..."
 
-            self.cursos_label.setText(cursos_text)
-            self.cursos_label.setVisible(True)
+            self.grupos_label.setText(grupos_text)
+            self.grupos_label.setVisible(True)
             self.vacio_label.setVisible(False)
             self.btn_editar.setVisible(True)
             self.btn_eliminar.setVisible(True)
             self.btn_anadir.setVisible(False)
         else:
             # Mostrar estado vacío
-            self.cursos_label.setVisible(False)
+            self.grupos_label.setVisible(False)
             self.vacio_label.setVisible(True)
             self.btn_editar.setVisible(False)
             self.btn_eliminar.setVisible(False)
@@ -421,10 +584,10 @@ class FranjaHorarioWidget(QFrame):
         self.btn_eliminar.setStyleSheet(estilo_eliminar)
         self.btn_anadir.setStyleSheet(estilo_anadir)
 
-    def actualizar_cursos(self, nuevos_cursos):
-        """Actualiza los cursos SIN recrear widgets"""
-        if self.cursos != nuevos_cursos:
-            self.cursos = nuevos_cursos
+    def actualizar_grupos(self, nuevos_grupos):
+        """Actualiza los grupos SIN recrear widgets"""
+        if self.grupos != nuevos_grupos:
+            self.grupos = nuevos_grupos
             self.actualizar_contenido()  # Solo actualizar contenido
             self.apply_style()  # Aplicar estilos
 
@@ -433,46 +596,46 @@ class FranjaHorarioWidget(QFrame):
         if not self.parent_window:
             return
 
-        cursos_disponibles = self.parent_window.obtener_cursos_asignatura_actual()
+        grupos_disponibles = self.parent_window.obtener_grupos_asignatura_actual()
 
-        if not cursos_disponibles:
+        if not grupos_disponibles:
             QMessageBox.warning(
-                self, "Sin Cursos",
-                "No hay cursos configurados para esta asignatura.\n"
-                "Añade cursos primero en la sección de cursos."
+                self, "Sin Grupos",
+                "No hay grupos configurados para esta asignatura.\n"
+                "Añade grupos primero en la sección de grupos."
             )
             return
 
-        dialog = EditarCursosDialog(
+        dialog = EditarGruposDialog(
             self.dia, self.horario,
-            cursos_disponibles, self.cursos,
+            grupos_disponibles, self.grupos,
             self.parent_window
         )
 
         if dialog.exec() == QDialog.DialogCode.Accepted:
-            nuevos_cursos = dialog.get_cursos_seleccionados()
-            self.actualizar_cursos(nuevos_cursos)
-            self.franja_editada.emit(self.dia, self.horario, nuevos_cursos)
+            nuevos_grupos = dialog.get_grupos_seleccionados()
+            self.actualizar_grupos(nuevos_grupos)
+            self.franja_editada.emit(self.dia, self.horario, nuevos_grupos)
 
     def eliminar_franja(self):
-        """Elimina todos los cursos de esta franja"""
-        if not self.cursos:
+        """Elimina todos los grupos de esta franja"""
+        if not self.grupos:
             return
 
         respuesta = QMessageBox.question(
-            self, "Eliminar Cursos",
-            f"¿Eliminar todos los cursos de {self.dia} {self.horario}?\n\n"
-            f"Cursos actuales: {', '.join(self.cursos)}",
+            self, "Eliminar Grupos",
+            f"¿Eliminar todos los grupos de {self.dia} {self.horario}?\n\n"
+            f"Grupos actuales: {', '.join(self.grupos)}",
             QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No
         )
 
         if respuesta == QMessageBox.StandardButton.Yes:
-            self.actualizar_cursos([])
+            self.actualizar_grupos([])
             self.franja_eliminada.emit(self.dia, self.horario)
 
     def apply_style(self):
         """Aplica el estilo según el contenido"""
-        if self.cursos:
+        if self.grupos:
             # Celda con contenido - verde
             self.setStyleSheet("""
                 FranjaHorarioWidget {
@@ -546,12 +709,12 @@ class ConfigurarHorarios(QMainWindow):
         self.franjas_widgets = {}
 
         self.setup_ui()
-        self.apply_theme()
+        self.apply_dark_theme()
         self.conectar_signals()
         self.cargar_datos_iniciales()
 
     def setup_ui(self):
-        """Configura la interfaz principal - SIN BOTONES DE GESTIÓN"""
+        """Configura la interfaz principal"""
         central_widget = QWidget()
         self.setCentralWidget(central_widget)
 
@@ -595,24 +758,24 @@ class ConfigurarHorarios(QMainWindow):
         left_panel.setLayout(left_layout)
         content_layout.addWidget(left_panel)
 
-        # Panel central - Cursos (SOLO LECTURA)
-        center_panel = QGroupBox("🎓 CURSOS DE LA ASIGNATURA")
+        # Panel central - Grupos (SOLO LECTURA)
+        center_panel = QGroupBox("🎓 GRUPOS DE LA ASIGNATURA")
         center_layout = QVBoxLayout()
 
-        self.label_asignatura_cursos = QLabel("Seleccione una asignatura")
-        self.label_asignatura_cursos.setStyleSheet("color: #4a9eff; font-weight: bold;")
-        center_layout.addWidget(self.label_asignatura_cursos)
+        self.label_asignatura_grupos = QLabel("Seleccione una asignatura")
+        self.label_asignatura_grupos.setStyleSheet("color: #4a9eff; font-weight: bold;")
+        center_layout.addWidget(self.label_asignatura_grupos)
 
         # Header sin botones de gestión
-        cursos_header = QHBoxLayout()
-        cursos_header.addWidget(QLabel("Cursos configurados:"))
-        cursos_header.addStretch()
+        grupos_header = QHBoxLayout()
+        grupos_header.addWidget(QLabel("Grupos configurados:"))
+        grupos_header.addStretch()
 
-        center_layout.addLayout(cursos_header)
+        center_layout.addLayout(grupos_header)
 
-        self.list_cursos = QListWidget()
-        self.list_cursos.setMaximumWidth(250)
-        center_layout.addWidget(self.list_cursos)
+        self.list_grupos = QListWidget()
+        self.list_grupos.setMaximumWidth(250)
+        center_layout.addWidget(self.list_grupos)
 
         center_panel.setLayout(center_layout)
         content_layout.addWidget(center_panel)
@@ -755,7 +918,7 @@ class ConfigurarHorarios(QMainWindow):
         parent_layout.addWidget(grid_widget)
 
     def conectar_signals(self):
-        """Conecta las señales de los controles - SIN GESTIÓN DE ASIGNATURAS/CURSOS"""
+        """Conecta las señales de los controles - SIN GESTIÓN DE ASIGNATURAS/GRUPOS"""
         self.radio_sem1.clicked.connect(self.cambiar_semestre)
         self.radio_sem2.clicked.connect(self.cambiar_semestre)
         self.list_asignaturas.itemClicked.connect(self.seleccionar_asignatura)
@@ -851,7 +1014,7 @@ class ConfigurarHorarios(QMainWindow):
                             for codigo, datos in asignaturas_datos.items():
                                 if datos.get('semestre') == semestre_texto:
                                     nombre = datos.get('nombre', codigo)
-                                    cursos = datos.get('grupos_asociados', [])
+                                    grupos = datos.get('grupos_asociados', [])
 
                                     # USAR CÓDIGO EN LUGAR DE NOMBRE para compatibilidad
                                     clave_asignatura = codigo
@@ -862,14 +1025,14 @@ class ConfigurarHorarios(QMainWindow):
 
                                     if codigo not in self.datos_configuracion["asignaturas"][semestre_actual]:
                                         self.datos_configuracion["asignaturas"][semestre_actual][codigo] = {
-                                            "cursos": cursos.copy(),
+                                            "grupos": grupos.copy(),
                                             "horarios_grid": {}
                                         }
                                     else:
-                                        # Actualizar cursos desde el sistema
-                                        self.datos_configuracion["asignaturas"][semestre_actual][codigo]["cursos"] = cursos.copy()
+                                        # Actualizar grupos desde el sistema
+                                        self.datos_configuracion["asignaturas"][semestre_actual][codigo]["grupos"] = grupos.copy()
 
-                                    asignaturas_encontradas.append((codigo, cursos))
+                                    asignaturas_encontradas.append((codigo, grupos))
 
                             self.log_mensaje(f"🔄 Sincronizadas {len(asignaturas_encontradas)} asignaturas", "info")
                         else:
@@ -883,7 +1046,7 @@ class ConfigurarHorarios(QMainWindow):
 
             # Mostrar asignaturas encontradas
             if asignaturas_encontradas:
-                for codigo, cursos in sorted(asignaturas_encontradas):
+                for codigo, grupos in sorted(asignaturas_encontradas):
                     # Buscar nombre completo
                     nombre_completo = None
                     for cod, datos in asignaturas_datos.items():
@@ -893,19 +1056,19 @@ class ConfigurarHorarios(QMainWindow):
 
                     # Crear texto descriptivo con código y nombre
                     texto = f"📚 {codigo} - {nombre_completo if nombre_completo else codigo}"
-                    if cursos:
-                        texto += f"\n   📝 {len(cursos)} cursos: {', '.join(cursos)}"
+                    if grupos:
+                        texto += f"\n   📝 {len(grupos)} grupos: {', '.join(grupos)}"
                     else:
-                        texto += f"\n   ⚠️ Sin cursos configurados"
+                        texto += f"\n   ⚠️ Sin grupos configurados"
 
                     item = QListWidgetItem(texto)
                     item.setData(Qt.ItemDataRole.UserRole, codigo)
 
                     # Colorear según el estado
-                    if cursos:
-                        item.setBackground(QColor(0, 100, 0, 80))  # Verde para asignaturas con cursos
+                    if grupos:
+                        item.setBackground(QColor(0, 100, 0, 80))  # Verde para asignaturas con grupos
                     else:
-                        item.setBackground(QColor(100, 100, 0, 80))  # Amarillo para sin cursos
+                        item.setBackground(QColor(100, 100, 0, 80))  # Amarillo para sin grupos
 
                     self.list_asignaturas.addItem(item)
 
@@ -957,14 +1120,14 @@ class ConfigurarHorarios(QMainWindow):
         # Establecer nueva selección
         self.asignatura_actual = asignatura
         self.label_asignatura.setText(f"📚 {asignatura}")
-        self.label_asignatura_cursos.setText(asignatura)
+        self.label_asignatura_grupos.setText(asignatura)
 
         self.log_mensaje(f"✅ Seleccionada asignatura: {asignatura}", "success")
 
         # Cargar datos de la asignatura
         try:
             self.inicializar_estructura_asignatura()
-            self.cargar_cursos_asignatura()
+            self.cargar_grupos_asignatura()
             self.cargar_horarios_asignatura()
             self.log_mensaje(f"✅ Datos cargados para '{asignatura}'", "success")
         except Exception as e:
@@ -991,21 +1154,21 @@ class ConfigurarHorarios(QMainWindow):
                 self.log_mensaje(f"ℹ️ Estructura ya existe para '{self.asignatura_actual}'", "info")
                 return
 
-            # Obtener cursos desde el sistema principal
-            cursos_sistema = self.obtener_cursos_asignatura(self.asignatura_actual)
+            # Obtener grupos desde el sistema principal
+            grupos_sistema = self.obtener_grupos_asignatura(self.asignatura_actual)
 
-            if not cursos_sistema:
-                self.log_mensaje(f"⚠️ No se encontraron cursos para '{self.asignatura_actual}'", "warning")
-                cursos_sistema = []
+            if not grupos_sistema:
+                self.log_mensaje(f"⚠️ No se encontraron grupos para '{self.asignatura_actual}'", "warning")
+                grupos_sistema = []
 
             # Crear estructura inicial
             self.datos_configuracion["asignaturas"][semestre][self.asignatura_actual] = {
-                "cursos": cursos_sistema.copy(),
+                "grupos": grupos_sistema.copy(),
                 "horarios_grid": {}
             }
 
             self.log_mensaje(
-                f"✅ Estructura inicializada para '{self.asignatura_actual}' con {len(cursos_sistema)} cursos",
+                f"✅ Estructura inicializada para '{self.asignatura_actual}' con {len(grupos_sistema)} grupos",
                 "success")
 
         except Exception as e:
@@ -1013,53 +1176,53 @@ class ConfigurarHorarios(QMainWindow):
             import traceback
             traceback.print_exc()
 
-    def cargar_cursos_asignatura(self):
-        """Carga cursos mostrando código - nombre"""
-        self.list_cursos.clear()
+    def cargar_grupos_asignatura(self):
+        """Carga grupos mostrando código - nombre"""
+        self.list_grupos.clear()
 
         if not self.asignatura_actual:
             return
 
         try:
-            cursos_dict = self.obtener_cursos_asignatura(self.asignatura_actual)
+            grupos_dict = self.obtener_grupos_asignatura(self.asignatura_actual)
 
-            if cursos_dict:
-                for codigo, nombre in sorted(cursos_dict.items()):
+            if grupos_dict:
+                for codigo, nombre in sorted(grupos_dict.items()):
                     # Mostrar "código - nombre"
-                    texto_curso = f"🎓 {codigo} - {nombre}"
-                    item = QListWidgetItem(texto_curso)
+                    texto_grupo = f"🎓 {codigo} - {nombre}"
+                    item = QListWidgetItem(texto_grupo)
                     item.setData(Qt.ItemDataRole.UserRole, codigo)
                     item.setBackground(QColor(0, 0, 100, 80))
-                    self.list_cursos.addItem(item)
+                    self.list_grupos.addItem(item)
 
-                self.log_mensaje(f"✅ Cargados {len(cursos_dict)} cursos", "info")
+                self.log_mensaje(f"✅ Cargados {len(grupos_dict)} grupos", "info")
             else:
-                # Sin cursos
-                item = QListWidgetItem("⚠️ No hay cursos configurados para esta asignatura")
+                # Sin grupos
+                item = QListWidgetItem("⚠️ No hay grupos configurados para esta asignatura")
                 item.setFlags(Qt.ItemFlag.NoItemFlags)
                 item.setBackground(QColor(100, 100, 0, 80))
-                self.list_cursos.addItem(item)
+                self.list_grupos.addItem(item)
 
         except Exception as e:
-            self.log_mensaje(f"❌ Error cargando cursos: {e}", "error")
+            self.log_mensaje(f"❌ Error cargando grupos: {e}", "error")
 
-    def obtener_nombre_curso(self, codigo_curso):
-        """Obtiene el nombre completo de un curso por su código"""
+    def obtener_nombre_grupo(self, codigo_grupo):
+        """Obtiene el nombre completo de un grupo por su código"""
         try:
             if self.parent_window and hasattr(self.parent_window, 'configuracion'):
                 config = self.parent_window.configuracion
-                if "configuracion" in config and "cursos" in config["configuracion"]:
-                    cursos_config = config["configuracion"]["cursos"]
-                    if cursos_config.get("configurado", False):
-                        cursos_datos = cursos_config.get("datos", {})
-                        if codigo_curso in cursos_datos:
-                            return cursos_datos[codigo_curso].get('nombre', codigo_curso)
-            return codigo_curso
+                if "configuracion" in config and "grupos" in config["configuracion"]:
+                    grupos_config = config["configuracion"]["grupos"]
+                    if grupos_config.get("configurado", False):
+                        grupos_datos = grupos_config.get("datos", {})
+                        if codigo_grupo in grupos_datos:
+                            return grupos_datos[codigo_grupo].get('nombre', codigo_grupo)
+            return codigo_grupo
         except Exception:
-            return codigo_curso
+            return codigo_grupo
 
-    def obtener_cursos_asignatura(self, asignatura):
-        """Obtiene cursos con sus nombres desde el sistema central"""
+    def obtener_grupos_asignatura(self, asignatura):
+        """Obtiene grupos con sus nombres desde el sistema central"""
         if not asignatura:
             return {}
 
@@ -1076,26 +1239,26 @@ class ConfigurarHorarios(QMainWindow):
                         for codigo, datos in asignaturas_datos.items():
                             nombre_asig = datos.get('nombre', '')
                             if nombre_asig == asignatura or codigo == asignatura:
-                                cursos_codigos = datos.get('grupos_asociados', [])
-                                if cursos_codigos:
+                                grupos_codigos = datos.get('grupos_asociados', [])
+                                if grupos_codigos:
                                     # Crear diccionario código: nombre
-                                    cursos_con_nombres = {}
-                                    for codigo_curso in cursos_codigos:
-                                        nombre_curso = self.obtener_nombre_curso(codigo_curso)
-                                        cursos_con_nombres[codigo_curso] = nombre_curso
+                                    grupos_con_nombres = {}
+                                    for codigo_grupo in grupos_codigos:
+                                        nombre_grupo = self.obtener_nombre_grupo(codigo_grupo)
+                                        grupos_con_nombres[codigo_grupo] = nombre_grupo
 
-                                    return cursos_con_nombres
+                                    return grupos_con_nombres
                                 break
             return {}
         except Exception as e:
-            self.log_mensaje(f"❌ Error obteniendo cursos: {e}", "error")
+            self.log_mensaje(f"❌ Error obteniendo grupos: {e}", "error")
             return {}
 
-    def obtener_cursos_asignatura_actual(self):
-        """Obtiene los cursos de la asignatura actual"""
+    def obtener_grupos_asignatura_actual(self):
+        """Obtiene los grupos de la asignatura actual"""
         if not self.asignatura_actual:
             return []
-        return self.obtener_cursos_asignatura(self.asignatura_actual)
+        return self.obtener_grupos_asignatura(self.asignatura_actual)
 
     def cargar_horarios_asignatura(self):
         """Carga los horarios de la asignatura actual"""
@@ -1131,19 +1294,19 @@ class ConfigurarHorarios(QMainWindow):
                         self.log_mensaje(f"⚠️ Estructura inválida en horario {horario}", "warning")
                         continue
 
-                    for dia, cursos in dias_data.items():
-                        if not isinstance(cursos, list):
-                            self.log_mensaje(f"⚠️ Cursos inválidos en {dia} {horario}", "warning")
+                    for dia, grupos in dias_data.items():
+                        if not isinstance(grupos, list):
+                            self.log_mensaje(f"⚠️ Grupos inválidos en {dia} {horario}", "warning")
                             continue
 
-                        if cursos:  # Solo procesar si hay cursos
+                        if grupos:  # Solo procesar si hay grupos
                             key = (dia, horario)
                             if key in self.franjas_widgets:
                                 try:
                                     # Actualizar widget existente
-                                    self.franjas_widgets[key].actualizar_cursos(cursos)
+                                    self.franjas_widgets[key].actualizar_grupos(grupos)
                                     total_franjas += 1
-                                    self.log_mensaje(f"✅ Cargado {dia} {horario}: {', '.join(cursos)}", "success")
+                                    self.log_mensaje(f"✅ Cargado {dia} {horario}: {', '.join(grupos)}", "success")
                                 except Exception as e:
                                     self.log_mensaje(f"❌ Error actualizando {dia} {horario}: {e}", "error")
                             else:
@@ -1152,7 +1315,7 @@ class ConfigurarHorarios(QMainWindow):
                 if total_franjas > 0:
                     self.log_mensaje(f"✅ Cargadas {total_franjas} franjas para '{self.asignatura_actual}'", "success")
                 else:
-                    self.log_mensaje(f"📝 No hay franjas con cursos para '{self.asignatura_actual}'", "info")
+                    self.log_mensaje(f"📝 No hay franjas con grupos para '{self.asignatura_actual}'", "info")
 
             else:
                 self.log_mensaje(f"❌ No se pudo inicializar estructura para '{self.asignatura_actual}'", "error")
@@ -1167,8 +1330,8 @@ class ConfigurarHorarios(QMainWindow):
         try:
             contador_limpiado = 0
             for key, franja in self.franjas_widgets.items():
-                if franja and hasattr(franja, 'actualizar_cursos'):
-                    franja.actualizar_cursos([])
+                if franja and hasattr(franja, 'actualizar_grupos'):
+                    franja.actualizar_grupos([])
                     contador_limpiado += 1
 
             if contador_limpiado > 0:
@@ -1182,10 +1345,10 @@ class ConfigurarHorarios(QMainWindow):
         self.limpiar_grid()
         self.asignatura_actual = None
         self.label_asignatura.setText("Seleccione una asignatura")
-        self.label_asignatura_cursos.setText("Seleccione una asignatura")
-        self.list_cursos.clear()
+        self.label_asignatura_grupos.setText("Seleccione una asignatura")
+        self.list_grupos.clear()
 
-    def actualizar_franja(self, dia, horario, cursos):
+    def actualizar_franja(self, dia, horario, grupos):
         """Actualiza una franja horaria"""
         if not self.asignatura_actual:
             self.log_mensaje("⚠️ No hay asignatura seleccionada", "warning")
@@ -1211,14 +1374,14 @@ class ConfigurarHorarios(QMainWindow):
                 asignaturas[self.asignatura_actual]["horarios_grid"][horario] = {}
 
             # Actualizar datos
-            asignaturas[self.asignatura_actual]["horarios_grid"][horario][dia] = cursos
+            asignaturas[self.asignatura_actual]["horarios_grid"][horario][dia] = grupos
 
             # Marcar cambios
             self.marcar_cambio()
 
             # Log del cambio
-            if cursos:
-                self.log_mensaje(f"✅ Actualizado {dia} {horario}: {', '.join(cursos)}", "success")
+            if grupos:
+                self.log_mensaje(f"✅ Actualizado {dia} {horario}: {', '.join(grupos)}", "success")
             else:
                 self.log_mensaje(f"🗑️ Limpiado {dia} {horario}", "info")
 
@@ -1399,8 +1562,8 @@ class ConfigurarHorarios(QMainWindow):
         except Exception as e:
             self.log_mensaje(f"⚠️ Error cancelando cambios: {e}", "warning")
 
-    def apply_theme(self):
-        """Aplica el tema oscuro"""
+    def apply_dark_theme(self):
+        """Aplicar tema oscuro completo idéntico al de aulas"""
         self.setStyleSheet("""
             QMainWindow {
                 background-color: #2b2b2b;
@@ -1449,12 +1612,65 @@ class ConfigurarHorarios(QMainWindow):
             QPushButton:hover {
                 background-color: #5a5a5a;
             }
+            QPushButton:pressed {
+                background-color: #3a3a3a;
+            }
+            QPushButton:disabled {
+                background-color: #2a2a2a;
+                color: #666666;
+                border-color: #444444;
+            }
             QPushButton:checked {
                 background-color: #4a9eff;
                 border-color: #3a8eef;
             }
+            QTextEdit {
+                background-color: #3c3c3c;
+                color: #ffffff;
+                border: 1px solid #555555;
+                border-radius: 5px;
+                padding: 8px;
+            }
             QLabel {
                 color: #ffffff;
+            }
+            QLineEdit, QComboBox, QSpinBox {
+                background-color: #3c3c3c;
+                color: #ffffff;
+                border: 1px solid #555555;
+                border-radius: 3px;
+                padding: 5px;
+            }
+            QLineEdit:focus, QComboBox:focus, QSpinBox:focus {
+                border-color: #4a9eff;
+            }
+            QCheckBox {
+                color: #ffffff;
+                font-size: 11px;
+                padding: 2px;
+            }
+            QCheckBox::indicator {
+                width: 18px;
+                height: 18px;
+            }
+            QCheckBox::indicator:unchecked {
+                background-color: #3c3c3c;
+                border: 2px solid #555555;
+                border-radius: 3px;
+            }
+            QCheckBox::indicator:checked {
+                background-color: #4a9eff;
+                border: 2px solid #4a9eff;
+                border-radius: 3px;
+            }
+            QToolTip {
+                background-color: #2b2b2b;
+                color: #ffffff;
+                border: 1px solid #4a9eff;
+                border-radius: 4px;
+                padding: 4px 8px;
+                font-size: 11px;
+                font-weight: normal;
             }
         """)
 

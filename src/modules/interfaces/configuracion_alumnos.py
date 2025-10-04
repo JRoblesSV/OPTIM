@@ -701,7 +701,7 @@ class GestionAlumnoDialog(QDialog):
 
         # Checkbox principal de asignatura CON TEXTO COMPLETO
         key_asignatura = codigo_asignatura
-        check_asignatura = QCheckBox(texto_mostrar)  # AQUÍ ESTÁ EL CAMBIO
+        check_asignatura = QCheckBox(texto_mostrar)
         check_asignatura.setStyleSheet(self.estilo_checkbox_comun + """
             QCheckBox {
                 min-width: 180px;
@@ -1511,7 +1511,7 @@ class ConfigurarAlumnos(QMainWindow):
         return ', '.join(str(int(hex_color[i:i + 2], 16)) for i in (0, 2, 4))
 
     def apply_dark_theme(self):
-        """Aplicar tema oscuro idéntico al sistema"""
+        """Aplicar tema oscuro idéntico al resto del sistema - CON TOOLTIPS"""
         self.setStyleSheet("""
             QMainWindow {
                 background-color: #2b2b2b;
@@ -1575,47 +1575,18 @@ class ConfigurarAlumnos(QMainWindow):
                 border-radius: 5px;
                 padding: 8px;
             }
-            QComboBox {
-                background-color: #3c3c3c;
-                color: #ffffff;
-                border: 1px solid #555555;
-                border-radius: 3px;
-                padding: 5px;
-                min-width: 60px;
-            }
-            QComboBox:hover {
-                border-color: #4a9eff;
-            }
-            QComboBox::drop-down {
-                border: none;
-                width: 20px;
-            }
-            QComboBox::down-arrow {
-                image: none;
-                border-left: 5px solid transparent;
-                border-right: 5px solid transparent;
-                border-top: 5px solid #ffffff;
-            }
-            QCheckBox {
-                color: #ffffff;
-                font-size: 11px;
-                padding: 2px;
-            }
-            QCheckBox::indicator {
-                width: 18px;
-                height: 18px;
-            }
-            QCheckBox::indicator:unchecked {
-                background-color: #3c3c3c;
-                border: 2px solid #666666;
-                border-radius: 3px;
-            }
-            QCheckBox::indicator:unchecked:hover {
-                border-color: #4a9eff;
-                background-color: #4a4a4a;
-            }
             QLabel {
                 color: #ffffff;
+            }
+            /* ✅ TOOLTIPS CORREGIDOS */
+            QToolTip {
+                background-color: #2b2b2b;
+                color: #ffffff;
+                border: 1px solid #4a9eff;
+                border-radius: 4px;
+                padding: 4px 8px;
+                font-size: 11px;
+                font-weight: normal;
             }
         """)
 
