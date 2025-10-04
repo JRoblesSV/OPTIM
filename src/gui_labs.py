@@ -135,22 +135,22 @@ class OptimLabsGUI(QtWidgets.QMainWindow):
 
         # Labels de estado
         estados = [
-            ("asignaturas", "📚 Asignaturas", 20),
-            ("profesores", "👨‍🏫 Profesores", 180),
-            ("alumnos", "👥 Alumnos", 340),
-            ("aulas", "🏢 Aulas", 500),
-            ("calendario", "📆 Calendario", 660),
-            ("horarios", "📅 Horarios", 820),
-            ("global", "🎯 Estado", 980)
+            ("grupos", "🎓 Grupos", 20),
+            ("asignaturas", "📚 Asignaturas", 180),
+            ("profesores", "👨‍🏫 Profesores", 340),
+            ("alumnos", "👥 Alumnos", 500),
+            ("aulas", "🏢 Aulas", 660),
+            ("calendario", "📆 Calendario", 820),
+            ("horarios", "📅 Horarios", 980)
         ]
 
         self.labels_estado = {}
         for key, texto, x_pos in estados:
             # Label título
             label_titulo = QtWidgets.QLabel(self.frame_estado)
-            label_titulo.setGeometry(QtCore.QRect(x_pos, 10, 150, 20))
+            label_titulo.setGeometry(QtCore.QRect(x_pos, 10, 130, 20))
             label_titulo.setText(texto)
-            label_titulo.setStyleSheet("font-weight: bold; font-size: 12px;")
+            label_titulo.setStyleSheet("font-weight: bold; font-size: 12px; color: #ffffff;")
 
             # Label estado
             label_estado = QtWidgets.QLabel(self.frame_estado)
@@ -445,10 +445,30 @@ class OptimLabsGUI(QtWidgets.QMainWindow):
                                 len(config.get("configuraciones_adicionales", {}))
                         )
                         self.labels_estado[key].setText(f"✅ {total_parametros} parámetros\nconfigurados")
+                    elif key == "horarios":
+                        # Caso especial para horarios - mostrar franjas
+                        total_franjas = config.get("total", 0)
+                        total_asignaturas = config.get("total_asignaturas", 0)
+                        self.labels_estado[key].setText(f"✅ {total_franjas} franjas\n{total_asignaturas} asignaturas")
+                    elif key == "calendario":
+                        # Caso especial para calendario - mostrar días
+                        total_dias = config.get("total", 0)
+                        self.labels_estado[key].setText(f"✅ {total_dias} días lectivos\nconfigurados")
+                    elif key == "aulas":
+                        # Caso especial para aulas - mostrar laboratorios
+                        total_aulas = config.get("total", 0)
+                        self.labels_estado[key].setText(f"✅ {total_aulas} laboratorios\nconfigurados")
                     else:
-                        # Otros casos
-                        total = config.get("total", 0) or config.get("total_aulas", 0) or config.get("semanas_total", 0)
-                        self.labels_estado[key].setText(f"✅ {total} elementos\nconfigurados")
+                        # Otros casos (grupos, asignaturas, profesores, alumnos)
+                        total = config.get("total", 0)
+                        elementos_texto = {
+                            "grupos": "grupos",
+                            "asignaturas": "asignaturas",
+                            "profesores": "profesores",
+                            "alumnos": "alumnos"
+                        }
+                        texto_elemento = elementos_texto.get(key, "elementos")
+                        self.labels_estado[key].setText(f"✅ {total} {texto_elemento}\nconfigurados")
 
                     self.labels_estado[key].setStyleSheet("font-size: 11px; color: rgb(100,200,100);")
                 else:
@@ -802,7 +822,7 @@ class OptimLabsGUI(QtWidgets.QMainWindow):
             )
 
     def actualizar_configuracion_calendario(self, calendario_data):
-        """Actualizar configuración de calendario en el sistema principal - Estilo idéntico a horarios"""
+        """Actualizar configuración de calendario en el sistema principal"""
         try:
             # Verificar si es una cancelación de cambios
             if isinstance(calendario_data, dict) and "metadata" in calendario_data:
@@ -835,6 +855,7 @@ class OptimLabsGUI(QtWidgets.QMainWindow):
             calendario_config["semanas_total"] = semanas_estimadas
             calendario_config["dias_semestre_1"] = dias_1
             calendario_config["dias_semestre_2"] = dias_2
+            calendario_config["total"] = total_dias  # AGREGAR ESTE CAMPO
             calendario_config["fecha_actualizacion"] = datetime.now().isoformat()
 
             # Guardar configuración
@@ -876,6 +897,10 @@ class OptimLabsGUI(QtWidgets.QMainWindow):
                 self.log_mensaje("⚠️ No se recibieron datos de horarios para guardar", "warning")
                 return
 
+            # Usar dato directamente del total del módulo de horarios
+            total_franjas = metadata.get("total_franjas", 0)
+            total_asignaturas = metadata.get("total_asignaturas", 0)
+
             # Actualizar configuración principal
             self.configuracion["configuracion"]["horarios"] = {
                 "configurado": True,
@@ -884,7 +909,8 @@ class OptimLabsGUI(QtWidgets.QMainWindow):
                 "timestamp": metadata.get("timestamp", datetime.now().isoformat()),
                 "semestre_actual": datos_horarios.get("semestre_actual", "2"),
                 "total_asignaturas": metadata.get("total_asignaturas", 0),
-                "total_franjas": metadata.get("total_franjas", 0)
+                "total_franjas": metadata.get("total_franjas", total_franjas),
+                "total": total_franjas
             }
 
             # Actualizar metadata general
@@ -898,26 +924,23 @@ class OptimLabsGUI(QtWidgets.QMainWindow):
 
             # Registro silencioso de la operación
             total_asignaturas = metadata.get("total_asignaturas", 0)
-            total_franjas = metadata.get("total_franjas", 0)
             semestre = datos_horarios.get("semestre_actual", "?")
 
             self.log_mensaje(
-                f"✅ Horarios integrados silenciosamente: S{semestre}, {total_asignaturas} asignaturas, {total_franjas} franjas",
+                f"✅ Horarios integrados: S{semestre}, {total_asignaturas} asignaturas, {total_franjas} franjas",
                 "success"
             )
-
 
         except Exception as e:
             error_msg = f"Error integrando horarios: {str(e)}"
             self.log_mensaje(f"❌ {error_msg}", "error")
-            # Solo mostrar error si realmente hay un problema
             QtWidgets.QMessageBox.critical(
                 self, "Error de Integración",
                 f"{error_msg}\n\nPor favor, intenta guardar manualmente."
             )
 
     def actualizar_configuracion_aulas(self, aulas_data):
-        """Actualizar configuración de aulas en el sistema principal - Estilo idéntico a horarios"""
+        """Actualizar configuración de aulas en el sistema principal"""
         try:
             # Verificar si es una cancelación de cambios
             if isinstance(aulas_data, dict) and "metadata" in aulas_data:
@@ -937,36 +960,41 @@ class OptimLabsGUI(QtWidgets.QMainWindow):
                 # Datos directos sin metadata
                 datos_aulas = aulas_data
 
+            # Calculo total aulas configuradas
+            total_aulas_calculado = 0
+            if isinstance(datos_aulas, dict):
+                total_aulas_calculado = len(datos_aulas)
+            elif isinstance(datos_aulas, list):
+                total_aulas_calculado = len(datos_aulas)
+            else:
+                total_aulas_calculado = 0
+
             # Actualizar configuración interna
             aulas_config = self.configuracion["configuracion"]["aulas"]
 
-            aulas_config["configurado"] = True if datos_aulas else False
+            aulas_config["configurado"] = True if total_aulas_calculado > 0 else False
             aulas_config["datos"] = datos_aulas
-            aulas_config["total_aulas"] = len(datos_aulas)
+            aulas_config["total_aulas"] = total_aulas_calculado
+            aulas_config["total"] = total_aulas_calculado  # AGREGAR ESTE CAMPO TAMBIÉN
             aulas_config["fecha_actualizacion"] = datetime.now().isoformat()
 
             # Guardar configuración
             self.guardar_configuracion()
 
             # Log apropiado según el tipo de actualización
-            total = len(datos_aulas)
             if isinstance(aulas_data, dict) and aulas_data.get("metadata", {}).get("accion") == "CANCELAR_CAMBIOS":
                 self.log_mensaje(
-                    f"🔄 Configuración de aulas restaurada: {total} laboratorios",
+                    f"🔄 Configuración de aulas restaurada: {total_aulas_calculado} laboratorios",
                     "warning"
                 )
             else:
                 self.log_mensaje(
-                    f"✅ Configuración de aulas actualizada: {total} laboratorios guardados",
+                    f"✅ Configuración de aulas actualizada: {total_aulas_calculado} laboratorios guardados",
                     "success"
                 )
 
-            # Actualizar estado de botón si existe
-            if hasattr(self, 'btn_configurar_aulas'):
-                if total > 0:
-                    self.btn_configurar_aulas.setText(f"🏢 Aulas ({total})")
-                else:
-                    self.btn_configurar_aulas.setText("🏢 Configurar Aulas")
+            # Actualizar estado visual
+            self.actualizar_estado_visual()
 
         except Exception as e:
             error_msg = f"Error al actualizar configuración de aulas: {str(e)}"
