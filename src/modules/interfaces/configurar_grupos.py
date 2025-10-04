@@ -147,7 +147,7 @@ class GestionGrupoDialog(QDialog):
         plazas_layout = QHBoxLayout()
         self.spin_plazas = QSpinBox()
         self.spin_plazas.setRange(1, 300)
-        self.spin_plazas.setValue(120)
+        self.spin_plazas.setValue(0)
         self.spin_plazas.setSuffix(" plazas")
         plazas_layout.addWidget(self.spin_plazas)
         plazas_layout.addWidget(QLabel("plazas disponibles"))
@@ -157,7 +157,7 @@ class GestionGrupoDialog(QDialog):
         matriculados_layout = QHBoxLayout()
         self.spin_estudiantes_matriculados = QSpinBox()
         self.spin_estudiantes_matriculados.setRange(0, 300)
-        self.spin_estudiantes_matriculados.setValue(95)
+        self.spin_estudiantes_matriculados.setValue(0)
         self.spin_estudiantes_matriculados.setSuffix(" estudiantes")
         matriculados_layout.addWidget(self.spin_estudiantes_matriculados)
         matriculados_layout.addWidget(QLabel("estudiantes matriculados"))
@@ -265,8 +265,8 @@ class GestionGrupoDialog(QDialog):
 
         # Configuración académica
         self.spin_creditos_totales.setValue(datos.get('creditos_totales', 240))
-        self.spin_plazas.setValue(datos.get('plazas', 120))
-        self.spin_estudiantes_matriculados.setValue(datos.get('estudiantes_matriculados', 95))
+        self.spin_plazas.setValue(datos.get('plazas', 0))
+        self.spin_estudiantes_matriculados.setValue(datos.get('estudiantes_matriculados', 0))
 
         # Asignaturas asociadas (cargar en lista dinámica)
         asignaturas = datos.get('asignaturas_asociadas', [])
@@ -1871,7 +1871,7 @@ class ConfigurarGrupos(QMainWindow):
 
         datos_originales['codigo'] = codigo_nuevo
         datos_originales['nombre'] = f"{datos_originales['nombre']} (Copia)"
-        datos_originales['estudiantes_matriculados'] = 0  # Resetear matriculados
+        # datos_originales['estudiantes_matriculados'] = 0  # Resetear matriculados
         datos_originales['fecha_creacion'] = datetime.now().isoformat()
 
         dialog = GestionGrupoDialog(datos_originales, self.asignaturas_disponibles, self)

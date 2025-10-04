@@ -76,6 +76,11 @@ class GestionAsignaturaDialog(QDialog):
         self.parent_window = parent
         self.setWindowTitle("Editar Asignatura" if asignatura_existente else "Nueva Asignatura")
         self.setModal(True)
+        self.return_curso_anterior = None
+        self.flag_para_return_curso_anterior = False
+
+        # Variables para gestión de grupos y configuración por grupo
+        self.configuraciones_grupo = {}  # Cache de configuraciones por grupo
 
         window_width = 700
         window_height = 800
@@ -168,6 +173,7 @@ class GestionAsignaturaDialog(QDialog):
         # Lista dinámica de grupos
         self.list_grupos_dialog = QListWidget()
         self.list_grupos_dialog.setMaximumHeight(120)
+        self.list_grupos_dialog.itemSelectionChanged.connect(self.grupo_seleccionado_cambio)
         grupos_layout.addWidget(self.list_grupos_dialog)
 
         info_grupos = QLabel("💡 Tip: Gestiona los grupos dinámicamente con los botones de arriba")
@@ -178,8 +184,12 @@ class GestionAsignaturaDialog(QDialog):
         layout.addWidget(grupos_group)
 
         # Configuración de laboratorio
-        lab_group = QGroupBox("🔬 CONFIGURACIÓN DE LABORATORIO")
-        lab_layout = QFormLayout()
+        # Planificación del grupo
+        planificacion_group = QGroupBox("📊 PLANIFICACIÓN DEL GRUPO")
+        planificacion_layout = QVBoxLayout()
+
+        # Configuración específica del grupo
+        config_grupo_layout = QFormLayout()
 
         # Duración por sesión
         duracion_layout = QHBoxLayout()
@@ -191,22 +201,13 @@ class GestionAsignaturaDialog(QDialog):
 
         self.spin_minutos_sesion = QSpinBox()
         self.spin_minutos_sesion.setRange(0, 45)
-        self.spin_minutos_sesion.setSingleStep(15)  # Incrementos de 15 minutos
+        self.spin_minutos_sesion.setSingleStep(15)
         self.spin_minutos_sesion.setValue(0)
         self.spin_minutos_sesion.setSuffix(" min")
         duracion_layout.addWidget(self.spin_minutos_sesion)
 
         duracion_layout.addWidget(QLabel("por sesión"))
         duracion_layout.addStretch()
-
-        lab_layout.addRow("⏱️ Duración:", duracion_layout)
-
-        lab_group.setLayout(lab_layout)
-        layout.addWidget(lab_group)
-
-        # Planificación
-        planificacion_group = QGroupBox("📊 PLANIFICACIÓN")
-        planificacion_layout = QFormLayout()
 
         # Número de grupos previstos
         grupos_layout = QHBoxLayout()
@@ -227,9 +228,16 @@ class GestionAsignaturaDialog(QDialog):
         clases_layout.addWidget(QLabel("durante el semestre"))
         clases_layout.addStretch()
 
-        planificacion_layout.addRow("👥 Grupos para asignar:", grupos_layout)
-        planificacion_layout.addRow("📅 Número prácticas:", clases_layout)
+        # Estadísticas del grupo
+        #self.label_alumnos_grupo = QLabel("👨‍🎓 Alumnos: 0 alumnos")
+        #self.label_alumnos_grupo.setStyleSheet("color: #cccccc; font-size: 11px;")
 
+        config_grupo_layout.addRow("⏱️ Duración:", duracion_layout)
+        config_grupo_layout.addRow("👥 Grupos de alumnos:", grupos_layout)
+        config_grupo_layout.addRow("📅 Número prácticas:", clases_layout)
+        #config_grupo_layout.addRow("👨‍🎓 Alumnos:", con_lab_anterior)
+
+        planificacion_layout.addLayout(config_grupo_layout)
         planificacion_group.setLayout(planificacion_layout)
         layout.addWidget(planificacion_group)
 
@@ -240,6 +248,67 @@ class GestionAsignaturaDialog(QDialog):
         layout.addWidget(buttons)
 
         self.setLayout(layout)
+
+    def grupo_seleccionado_cambio(self):
+        """Cambiar configuración cuando se selecciona otro grupo"""
+        item_actual = self.list_grupos_dialog.currentItem()
+        if not item_actual:
+            return
+
+        # Guardar configuración del grupo anterior si existe
+        if hasattr(self, 'grupo_anterior') and self.grupo_anterior and hasattr(self, 'configuraciones_grupo'):
+            self.configuraciones_grupo[self.grupo_anterior] = {
+                'horas_por_sesion': self.spin_horas_sesion.value(),
+                'minutos_por_sesion': self.spin_minutos_sesion.value(),
+                'grupos_previstos': self.spin_grupos_previstos.value(),
+                'clases_año': self.spin_clases_año.value()
+            }
+
+        # Cargar nuevo grupo
+        codigo_grupo = item_actual.data(Qt.ItemDataRole.UserRole)
+        self.grupo_anterior = codigo_grupo
+        self.actualizar_titulo_planificacion(codigo_grupo)
+        self.cargar_configuracion_grupo(codigo_grupo)
+
+    def actualizar_titulo_planificacion(self, codigo_grupo=None):
+        """Actualizar título con el grupo seleccionado"""
+        for child in self.findChildren(QGroupBox):
+            if "PLANIFICACIÓN" in child.title():
+                if codigo_grupo:
+                    child.setTitle(f"📊 PLANIFICACIÓN DEL GRUPO - {codigo_grupo}")
+                else:
+                    child.setTitle("📊 PLANIFICACIÓN DEL GRUPO")
+                break
+
+    def guardar_configuracion_grupo(self, codigo_grupo):
+        """Guardar configuración actual del grupo"""
+        if not hasattr(self, 'configuraciones_grupo'):
+            self.configuraciones_grupo = {}
+
+        self.configuraciones_grupo[codigo_grupo] = {
+            'horas_por_sesion': self.spin_horas_sesion.value(),
+            'minutos_por_sesion': self.spin_minutos_sesion.value(),
+            'grupos_previstos': self.spin_grupos_previstos.value(),
+            'clases_año': self.spin_clases_año.value()
+        }
+
+    def cargar_configuracion_grupo(self, codigo_grupo):
+        """Cargar configuración del grupo seleccionado"""
+        if not hasattr(self, 'configuraciones_grupo'):
+            self.configuraciones_grupo = {}
+
+        if codigo_grupo in self.configuraciones_grupo:
+            config = self.configuraciones_grupo[codigo_grupo]
+            self.spin_horas_sesion.setValue(config.get('horas_por_sesion', 2))
+            self.spin_minutos_sesion.setValue(config.get('minutos_por_sesion', 0))
+            self.spin_grupos_previstos.setValue(config.get('grupos_previstos', 6))
+            self.spin_clases_año.setValue(config.get('clases_año', 3))
+        else:
+            # Valores por defecto para grupo nuevo
+            self.spin_horas_sesion.setValue(2)
+            self.spin_minutos_sesion.setValue(0)
+            self.spin_grupos_previstos.setValue(6)
+            self.spin_clases_año.setValue(3)
 
     def cargar_datos_existentes(self):
         """Cargar datos de la asignatura existente"""
@@ -261,6 +330,7 @@ class GestionAsignaturaDialog(QDialog):
         index = self.combo_curso.findText(curso)
         if index >= 0:
             # Desconectar temporalmente para evitar validación durante carga
+            self.return_curso_anterior = curso
             self.combo_curso.currentTextChanged.disconnect()
             self.combo_curso.setCurrentIndex(index)
             self.combo_curso.currentTextChanged.connect(self.validar_cambio_curso)
@@ -288,14 +358,29 @@ class GestionAsignaturaDialog(QDialog):
             self.list_grupos_dialog.addItem(item)
 
         # Configuración laboratorio
-        config_lab = datos.get('configuracion_laboratorio', {})
-        self.spin_horas_sesion.setValue(config_lab.get('horas_por_sesion', 2))
-        self.spin_minutos_sesion.setValue(config_lab.get('minutos_por_sesion', 0))
+        # Cargar configuraciones por grupo desde nueva estructura
+        grupos_asociados = datos.get('grupos_asociados', {})
+        if isinstance(grupos_asociados, dict):
+            # Nueva estructura: cargar configuraciones por grupo
+            for codigo_grupo, config_grupo in grupos_asociados.items():
+                config_lab = config_grupo.get('configuracion_laboratorio', {})
+                self.configuraciones_grupo[codigo_grupo] = {
+                    'horas_por_sesion': config_lab.get('horas_por_sesion', 2),
+                    'minutos_por_sesion': config_lab.get('minutos_por_sesion', 0),
+                    'grupos_previstos': config_lab.get('grupos_previstos', 6),
+                    'clases_año': config_lab.get('clases_año', 3)
+                }
 
-        # Planificación
-        planificacion = datos.get('planificacion', {})
-        self.spin_grupos_previstos.setValue(planificacion.get('grupos_previstos', 6))
-        self.spin_clases_año.setValue(planificacion.get('clases_año', 3))
+            # Seleccionar primer grupo automáticamente
+            if grupos_asociados:
+                primer_grupo = list(grupos_asociados.keys())[0]
+                self.cargar_configuracion_grupo(primer_grupo)
+                self.actualizar_titulo_planificacion(primer_grupo)
+
+            # Auto-seleccionar primer grupo en la lista
+            if self.list_grupos_dialog.count() > 0:
+                primer_item = self.list_grupos_dialog.item(0)
+                self.list_grupos_dialog.setCurrentItem(primer_item)
 
     def validar_y_aceptar(self):
         """Validar datos antes de aceptar"""
@@ -459,6 +544,10 @@ class GestionAsignaturaDialog(QDialog):
 
     def validar_cambio_curso(self):
         """Validar cambio de grupo y limpiar grupos incompatibles"""
+        # Flag para return_curso_anterior
+        if self.flag_para_return_curso_anterior:
+            return
+
         # Solo validar si hay grupos agregados
         if self.list_grupos_dialog.count() == 0:
             return
@@ -499,6 +588,10 @@ class GestionAsignaturaDialog(QDialog):
             if not compatible:
                 grupos_incompatibles.append(codigo)
 
+        # Actualizar curso_anterior cuando el cambio es exitoso (sin conflictos)
+        if not grupos_incompatibles:
+            self.curso_anterior = grupo_seleccionado
+
         # Si hay incompatibles, preguntar
         if grupos_incompatibles:
             respuesta = QMessageBox.question(
@@ -518,6 +611,14 @@ class GestionAsignaturaDialog(QDialog):
                         if item.text() == codigo:
                             self.list_grupos_dialog.takeItem(i)
                             break
+            else:
+                # Usuario dijo No, restaurar curso anterior
+                if self.return_curso_anterior:
+                    self.flag_para_return_curso_anterior = True
+                    index = self.combo_curso.findText(self.return_curso_anterior)
+                    if index >= 0:
+                        self.combo_curso.setCurrentIndex(index)
+                    self.flag_para_return_curso_anterior = False
 
     def anadir_grupo(self):
         """Añadir nuevo grupo a la asignatura"""
@@ -574,6 +675,11 @@ class GestionAsignaturaDialog(QDialog):
 
             # Auto-seleccionar el grupo añadido
             self.auto_seleccionar_grupo_dialog(codigo_grupo)
+
+            # Si es el primer grupo, auto-cargar su configuración
+            if self.list_grupos_dialog.count() == 1:
+                self.cargar_configuracion_grupo(codigo_grupo)
+                self.actualizar_titulo_planificacion(codigo_grupo)
 
     def editar_grupo_seleccionado(self):
         """Editar grupo seleccionado"""
@@ -685,6 +791,38 @@ class GestionAsignaturaDialog(QDialog):
 
     def get_datos_asignatura(self):
         """Obtener datos configurados"""
+        # Guardar configuración del grupo actual si hay uno seleccionado
+        item_actual = self.list_grupos_dialog.currentItem()
+        if item_actual:
+            codigo_grupo_actual = item_actual.data(Qt.ItemDataRole.UserRole)
+            self.configuraciones_grupo[codigo_grupo_actual] = {
+                'horas_por_sesion': self.spin_horas_sesion.value(),
+                'minutos_por_sesion': self.spin_minutos_sesion.value(),
+                'grupos_previstos': self.spin_grupos_previstos.value(),
+                'clases_año': self.spin_clases_año.value()
+            }
+
+        # Generar estructura de grupos_asociados con configuración actual
+        grupos_asociados = {}
+        for codigo_grupo in self.get_grupos_seleccionados():
+            config = self.configuraciones_grupo.get(codigo_grupo, {
+                'horas_por_sesion': 2,
+                'minutos_por_sesion': 0,
+                'grupos_previstos': 6,
+                'clases_año': 3
+            })
+
+            grupos_asociados[codigo_grupo] = {
+                'configuracion_laboratorio': config,
+                'estadisticas_calculadas': {
+                    'total_matriculados': 0,
+                    'con_lab_anterior': 0,
+                    'sin_lab_anterior': 0,
+                    'grupos_recomendados': 0,
+                    'ultima_actualizacion': datetime.now().isoformat()
+                }
+            }
+
         return {
             'codigo': self.edit_codigo.text().strip().upper(),
             'nombre': self.edit_nombre.text().strip(),
@@ -692,20 +830,11 @@ class GestionAsignaturaDialog(QDialog):
             'curso': self.combo_curso.currentText(),
             'tipo': self.combo_tipo.currentText(),
             'descripcion': self.edit_descripcion.toPlainText().strip(),
-            'grupos_asociados': self.get_grupos_seleccionados(),
-            'configuracion_laboratorio': {
-                'horas_por_sesion': self.spin_horas_sesion.value(),
-                'minutos_por_sesion': self.spin_minutos_sesion.value()
-            },
-            'planificacion': {
-                'grupos_previstos': self.spin_grupos_previstos.value(),
-                'clases_año': self.spin_clases_año.value()
-            },
+            'grupos_asociados': grupos_asociados,
             'estadisticas_calculadas': {
                 'total_matriculados': 0,
                 'con_lab_anterior': 0,
                 'sin_lab_anterior': 0,
-                'grupos_recomendados': 0,
                 'ultima_actualizacion': datetime.now().isoformat()
             },
             'fecha_creacion': datetime.now().isoformat()
@@ -2472,9 +2601,7 @@ class ConfigurarAsignaturas(QMainWindow):
                         'grupos_asociados': sorted(grupos),
                         'configuracion_laboratorio': {
                             'horas_por_sesion': 2,
-                            'minutos_por_sesion': 0
-                        },
-                        'planificacion': {
+                            'minutos_por_sesion': 0,
                             'grupos_previstos': 6,
                             'clases_año': 3
                         },
@@ -2630,9 +2757,7 @@ class ConfigurarAsignaturas(QMainWindow):
                     'grupos_asociados': grupos,
                     'configuracion_laboratorio': {
                         'horas_por_sesion': int(row.get('horas_por_sesion', 2)) if pd.notna(row.get('horas_por_sesion')) else 2,
-                        'minutos_por_sesion': int(row.get('minutos_por_sesion', 0)) if pd.notna(row.get('minutos_por_sesion')) else 0
-                    },
-                    'planificacion': {
+                        'minutos_por_sesion': int(row.get('minutos_por_sesion', 0)) if pd.notna(row.get('minutos_por_sesion')) else 0,
                         'grupos_previstos': int(row.get('grupos_previstos', 6)) if pd.notna(
                             row.get('grupos_previstos')) else 6,
                         'clases_año': int(row.get('clases_año', 3)) if pd.notna(row.get('clases_año')) else 3
@@ -2687,7 +2812,6 @@ class ConfigurarAsignaturas(QMainWindow):
                 grupos_str = ', '.join(datos.get('grupos_asociados', []))
 
                 config_lab = datos.get('configuracion_laboratorio', {})
-                planificacion = datos.get('planificacion', {})
                 stats = datos.get('estadisticas_calculadas', {})
 
                 datos_export.append({
@@ -2700,8 +2824,8 @@ class ConfigurarAsignaturas(QMainWindow):
                     'grupos_asociados': grupos_str,
                     'horas_por_sesion': config_lab.get('horas_por_sesion', 2),
                     'minutos_por_sesion': config_lab.get('minutos_por_sesion', 0),
-                    'grupos_previstos': planificacion.get('grupos_previstos', 6),
-                    'clases_año': planificacion.get('clases_año', 3),
+                    'grupos_previstos': config_lab.get('grupos_previstos', 6),
+                    'clases_año': config_lab.get('clases_año', 3),
                     'total_matriculados': stats.get('total_matriculados', 0),
                     'sin_lab_anterior': stats.get('sin_lab_anterior', 0),
                     'grupos_recomendados': stats.get('grupos_recomendados', 0)
@@ -3120,57 +3244,99 @@ def main():
 
     # Datos de ejemplo
     datos_ejemplo = {
-        "FIS001": {
-            "codigo": "FIS001",
-            "nombre": "Física I",
-            "semestre": "1º Semestre",
-            "curso": "1º Curso",
-            "tipo": "Laboratorio",
-            "descripcion": "Introducción a la física experimental",
-            "grupos_asociados": ["GII", "GIOI"],
-            "configuracion_laboratorio": {
+        "SEI": {
+          "codigo": "SEI",
+          "nombre": "Sistemas Electronicos Industriales",
+          "semestre": "2º Semestre",
+          "curso": "3º Curso",
+          "tipo": "Laboratorio",
+          "descripcion": "",
+          "grupos_asociados": {
+            "A302": {
+              "configuracion_laboratorio": {
                 "horas_por_sesion": 2,
-                "max_estudiantes_grupo": 20,
-                "equipamiento": "Osciloscopios, Generadores, Multímetros"
-            },
-            "planificacion": {
+                "minutos_por_sesion": 0,
                 "grupos_previstos": 6,
-                "clases_año": 3
+                "clases_año": 8
+              },
+              "estadisticas_calculadas": {
+                "total_matriculados": 0,
+                "con_lab_anterior": 0,
+                "sin_lab_anterior": 0,
+                "grupos_recomendados": 0,
+                "ultima_actualizacion": "2025-07-13T15:23:00.651797"
+              }
             },
-            "estadisticas_calculadas": {
-                "total_matriculados": 120,
-                "con_lab_anterior": 30,
-                "sin_lab_anterior": 90,
-                "grupos_recomendados": 5,
-                "ultima_actualizacion": datetime.now().isoformat()
-            },
-            "fecha_creacion": datetime.now().isoformat()
+            "EE303": {
+              "configuracion_laboratorio": {
+                "horas_por_sesion": 2,
+                "minutos_por_sesion": 0,
+                "grupos_previstos": 6,
+                "clases_año": 8
+              },
+              "estadisticas_calculadas": {
+                "total_matriculados": 0,
+                "con_lab_anterior": 0,
+                "sin_lab_anterior": 0,
+                "grupos_recomendados": 0,
+                "ultima_actualizacion": "2025-07-13T15:23:00.651797"
+              }
+            }
+          },
+          "estadisticas_calculadas": {
+            "total_matriculados": 0,
+            "con_lab_anterior": 0,
+            "sin_lab_anterior": 0,
+            "ultima_actualizacion": "2025-07-13T15:23:00.651797"
+          },
+          "fecha_creacion": "2025-07-14T18:38:45.061223"
         },
-        "QUI200": {
-            "codigo": "QUI200",
-            "nombre": "Química Orgánica",
-            "semestre": "2º Semestre",
-            "curso": "2º Curso",
-            "tipo": "Laboratorio",
-            "descripcion": "Síntesis y análisis de compuestos orgánicos",
-            "corsos_que_cursan": ["GIOI"],
-            "configuracion_laboratorio": {
-                "horas_por_sesion": 3,
-                "max_estudiantes_grupo": 18,
-                "equipamiento": "Campana extractora, Material químico, Balanzas"
-            },
-            "planificacion": {
+        "SII": {
+          "codigo": "SII",
+          "nombre": "Sistemas Informaticos Industriales",
+          "semestre": "2º Semestre",
+          "curso": "3º Curso",
+          "tipo": "Laboratorio",
+          "descripcion": "",
+          "grupos_asociados": {
+            "A302": {
+              "configuracion_laboratorio": {
+                "horas_por_sesion": 2,
+                "minutos_por_sesion": 0,
                 "grupos_previstos": 4,
-                "clases_año": 2
+                "clases_año": 10
+              },
+              "estadisticas_calculadas": {
+                "total_matriculados": 0,
+                "con_lab_anterior": 0,
+                "sin_lab_anterior": 0,
+                "grupos_recomendados": 0,
+                "ultima_actualizacion": "2025-07-13T15:22:51.472035"
+              }
             },
-            "estadisticas_calculadas": {
-                "total_matriculados": 80,
-                "con_lab_anterior": 15,
-                "sin_lab_anterior": 65,
-                "grupos_recomendados": 4,
-                "ultima_actualizacion": datetime.now().isoformat()
-            },
-            "fecha_creacion": datetime.now().isoformat()
+            "EE303": {
+              "configuracion_laboratorio": {
+                "horas_por_sesion": 2,
+                "minutos_por_sesion": 0,
+                "grupos_previstos": 4,
+                "clases_año": 10
+              },
+              "estadisticas_calculadas": {
+                "total_matriculados": 0,
+                "con_lab_anterior": 0,
+                "sin_lab_anterior": 0,
+                "grupos_recomendados": 0,
+                "ultima_actualizacion": "2025-07-13T15:22:51.472035"
+              }
+            }
+          },
+          "estadisticas_calculadas": {
+            "total_matriculados": 0,
+            "con_lab_anterior": 0,
+            "sin_lab_anterior": 0,
+            "ultima_actualizacion": "2025-07-13T15:22:51.472035"
+          },
+          "fecha_creacion": "2025-07-14T17:54:43.734029"
         }
     }
 
