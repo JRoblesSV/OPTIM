@@ -4,18 +4,6 @@
 Configurar Asignaturas - OPTIM - Sistema de Programación Automática de Laboratorios
 Desarrollado por SoftVier para ETSIDI (UPM)
 
-FUNCIONALIDADES IMPLEMENTADAS:
-1. Gestión integral de asignaturas con datos académicos completos
-2. Configuración dinámica de grupos que cursan cada asignatura
-3. Planificación automática de grupos basada en matriculaciones reales
-4. Estadísticas automáticas sincronizadas con datos de alumnos
-5. Configuración detallada de laboratorio y equipamiento requerido
-6. Cálculo inteligente de grupos recomendados por capacidad
-7. Validación de equipamiento contra aulas disponibles
-8. Sincronización bidireccional con módulos de horarios y alumnos
-9. Import/Export desde CSV con preservación de relaciones
-10. Integración completa con sistema de configuración global
-
 Autor: Javier Robles Molina - SoftVier
 Universidad: ETSIDI (UPM)
 """
@@ -63,6 +51,32 @@ def center_window_on_screen_immediate(window, width, height):
         # Fallback en caso de error
         window.setGeometry(100, 100, width, height)
 
+def obtener_ruta_descargas():
+    """Obtener la ruta de la carpeta Downloads del usuario"""
+
+    # Intentar diferentes métodos para obtener Downloads
+    try:
+        # Método 1: Variable de entorno USERPROFILE (Windows)
+        if os.name == 'nt':  # Windows
+            downloads = os.path.join(os.path.expanduser('~'), 'Downloads')
+        else:  # Linux/Mac
+            downloads = os.path.join(os.path.expanduser('~'), 'Downloads')
+
+        # Verificar que existe
+        if os.path.exists(downloads):
+            return downloads
+
+        # Fallback: Desktop si Downloads no existe
+        desktop = os.path.join(os.path.expanduser('~'), 'Desktop')
+        if os.path.exists(desktop):
+            return desktop
+
+        # Último fallback: home del usuario
+        return os.path.expanduser('~')
+
+    except:
+        # Si todo falla, usar directorio actual
+        return os.getcwd()
 
 class GestionAsignaturaDialog(QDialog):
     """Dialog para añadir/editar asignatura con configuración completa"""
@@ -116,7 +130,7 @@ class GestionAsignaturaDialog(QDialog):
         self.combo_curso = QComboBox()
         self.combo_curso.addItems(["1º Curso", "2º Curso", "3º Curso", "4º Curso"])
 
-        self.combo_curso.currentTextChanged.connect(self.validar_cambio_curso)
+        # self.combo_curso.currentTextChanged.connect(self.validar_cambio_curso)
 
         self.combo_tipo = QComboBox()
         self.combo_tipo.addItems(["Laboratorio", "Teórica"])
@@ -331,9 +345,7 @@ class GestionAsignaturaDialog(QDialog):
         if index >= 0:
             # Desconectar temporalmente para evitar validación durante carga
             self.return_curso_anterior = curso
-            self.combo_curso.currentTextChanged.disconnect()
             self.combo_curso.setCurrentIndex(index)
-            self.combo_curso.currentTextChanged.connect(self.validar_cambio_curso)
 
         # Tipo
         tipo = datos.get('tipo', 'Laboratorio')
@@ -628,19 +640,24 @@ class GestionAsignaturaDialog(QDialog):
                                     "Configure primero los grupos en el sistema.")
             return
 
-        # Filtrar grupos según el nivel de la asignatura
-        grupos_filtrados = self.filtrar_grupos_por_nivel()
+        # Obtener grupos ya agregados
+        grupos_ya_agregados = set()
+        for i in range(self.list_grupos_dialog.count()):
+            item = self.list_grupos_dialog.item(i)
+            grupos_ya_agregados.add(item.data(Qt.ItemDataRole.UserRole))
 
-        if not grupos_filtrados:
-            curso_nivel = self.combo_curso.currentText()
-            QMessageBox.information(self, "Sin Grupos Compatibles",
-                                    f"No hay grupos disponibles para '{curso_nivel}'.\n"
-                                    f"Los grupos deben seguir el patrón LL{curso_nivel[0]}NN\n"
-                                    f"(ej: A{curso_nivel[0]}02, B{curso_nivel[0]}02)")
+        # Crear lista de todos los grupos disponibles (sin filtrar)
+        opciones_grupos = []
+        for codigo, datos in self.grupos_disponibles.items():
+            if codigo not in grupos_ya_agregados:
+                nombre = datos.get('nombre', codigo)
+                coordinador = datos.get('coordinador', 'Sin coordinador')
+                opciones_grupos.append(f"{codigo} - {nombre} ({coordinador})")
+
+        if not opciones_grupos:
+            QMessageBox.information(self, "Sin Grupos",
+                                    "No hay más grupos disponibles para agregar.")
             return
-
-        # Crear lista de opciones para el usuario
-        opciones_grupos = [item[0] for item in grupos_filtrados]
 
         grupo, ok = QInputDialog.getItem(
             self, "Añadir Grupo",
@@ -695,19 +712,24 @@ class GestionAsignaturaDialog(QDialog):
                                     "No hay grupos disponibles para cambiar.")
             return
 
-        # Filtrar grupos según el nivel de la asignatura (excluyendo el actual)
-        grupos_filtrados = self.filtrar_grupos_por_nivel_edicion(codigo_original)
+        # Obtener grupos ya agregados
+        grupos_ya_agregados = set()
+        for i in range(self.list_grupos_dialog.count()):
+            item = self.list_grupos_dialog.item(i)
+            grupos_ya_agregados.add(item.data(Qt.ItemDataRole.UserRole))
 
-        if not grupos_filtrados:
-            curso_nivel = self.combo_curso.currentText()
-            QMessageBox.information(self, "Sin Grupos Compatibles",
-                                    f"No hay grupos disponibles para '{curso_nivel}'.\n"
-                                    f"Los grupos deben seguir el patrón LL{curso_nivel[0]}NN\n"
-                                    f"(ej: A{curso_nivel[0]}02, B{curso_nivel[0]}02)")
+        # Crear lista de todos los grupos disponibles (sin filtrar)
+        opciones_grupos = []
+        for codigo, datos in self.grupos_disponibles.items():
+            if codigo not in grupos_ya_agregados:
+                nombre = datos.get('nombre', codigo)
+                coordinador = datos.get('coordinador', 'Sin coordinador')
+                opciones_grupos.append(f"{codigo} - {nombre} ({coordinador})")
+
+        if not opciones_grupos:
+            QMessageBox.information(self, "Sin Grupos",
+                                    "No hay más grupos disponibles para agregar.")
             return
-
-        # Crear lista de opciones para el usuario
-        opciones_grupos = [item[0] for item in grupos_filtrados]
 
         grupo, ok = QInputDialog.getItem(
             self, "Editar Grupo",
@@ -1260,18 +1282,10 @@ class ConfigurarAsignaturas(QMainWindow):
         acciones_group = QGroupBox("🚀 ACCIONES RÁPIDAS")
         acciones_layout = QVBoxLayout()
 
-        self.btn_duplicar = QPushButton("📋 Duplicar Asignatura")
+        self.btn_duplicar = QPushButton("📋 Duplicar Asignatura Seleccionada")
         self.btn_duplicar.setEnabled(False)
         self.btn_duplicar.clicked.connect(self.duplicar_asignatura_seleccionada)
         acciones_layout.addWidget(self.btn_duplicar)
-
-        self.btn_sincronizar_horarios = QPushButton("📅 Sincronizar con Horarios")
-        self.btn_sincronizar_horarios.clicked.connect(self.sincronizar_con_horarios)
-        acciones_layout.addWidget(self.btn_sincronizar_horarios)
-
-        self.btn_importar_desde_horarios = QPushButton("⬅️ Importar desde Horarios")
-        self.btn_importar_desde_horarios.clicked.connect(self.importar_desde_horarios)
-        acciones_layout.addWidget(self.btn_importar_desde_horarios)
 
         acciones_group.setLayout(acciones_layout)
         right_layout.addWidget(acciones_group)
@@ -1280,11 +1294,8 @@ class ConfigurarAsignaturas(QMainWindow):
         importar_group = QGroupBox("📥 IMPORTAR DATOS")
         importar_layout = QVBoxLayout()
 
-        self.btn_importar_csv = QPushButton("📥 Importar desde CSV")
-        self.btn_importar_csv.clicked.connect(self.importar_desde_csv)
-        importar_layout.addWidget(self.btn_importar_csv)
-
-        self.btn_cargar = QPushButton("📁 Cargar Configuración")
+        self.btn_cargar = QPushButton("📥 Importar Datos")
+        self.btn_cargar.setToolTip("Importar configuración desde JSON")
         self.btn_cargar.clicked.connect(self.cargar_configuracion)
         importar_layout.addWidget(self.btn_cargar)
 
@@ -1292,14 +1303,16 @@ class ConfigurarAsignaturas(QMainWindow):
         right_layout.addWidget(importar_group)
 
         # Export
-        exportar_group = QGroupBox("📤 EXPORTAR DATOS")
+        exportar_group = QGroupBox("💾 EXPORTAR DATOS")
         exportar_layout = QVBoxLayout()
 
-        self.btn_exportar_csv = QPushButton("📄 Exportar a CSV")
-        self.btn_exportar_csv.clicked.connect(self.exportar_a_csv)
-        exportar_layout.addWidget(self.btn_exportar_csv)
+        self.btn_exportar_json = QPushButton("💾 Exportar Datos")
+        self.btn_exportar_json.setToolTip("Exportar configuración a JSON")
+        self.btn_exportar_json.clicked.connect(self.guardar_en_archivo)
+        exportar_layout.addWidget(self.btn_exportar_json)
 
         self.btn_exportar_estadisticas = QPushButton("📊 Exportar Estadísticas")
+        self.btn_exportar_estadisticas.setToolTip("Exportar Estadisticas en TXT")
         self.btn_exportar_estadisticas.clicked.connect(self.exportar_estadisticas)
         exportar_layout.addWidget(self.btn_exportar_estadisticas)
 
@@ -1309,10 +1322,6 @@ class ConfigurarAsignaturas(QMainWindow):
         # Botones principales
         botones_principales_group = QGroupBox("💾 GUARDAR CONFIGURACIÓN")
         botones_layout = QVBoxLayout()
-
-        self.btn_guardar_archivo = QPushButton("💾 Guardar en Archivo")
-        self.btn_guardar_archivo.clicked.connect(self.guardar_en_archivo)
-        botones_layout.addWidget(self.btn_guardar_archivo)
 
         self.btn_guardar_sistema = QPushButton("✅ Guardar en Sistema")
         self.btn_guardar_sistema.setStyleSheet("""
@@ -2559,121 +2568,6 @@ class ConfigurarAsignaturas(QMainWindow):
             self.texto_stats.setText(f"❌ Error actualizando estadísticas: {e}")
             self.log_mensaje(f"⚠️ Error actualizando estadísticas: {e}", "warning")
 
-    def importar_desde_horarios(self):
-        """Importar asignaturas y grupos desde módulo de horarios"""
-        try:
-            if not self.horarios_disponibles:
-                QMessageBox.information(self, "Sin Datos",
-                                        "No hay datos de horarios disponibles para importar")
-                return
-
-            # Obtener asignaturas del módulo de horarios
-            asignaturas_horarios = self.horarios_disponibles.get("asignaturas", {})
-            if not asignaturas_horarios:
-                QMessageBox.information(self, "Sin Asignaturas",
-                                        "No hay asignaturas configuradas en horarios")
-                return
-
-            asignaturas_importadas = 0
-            grupos_importados = 0
-
-            # Procesar ambos semestres
-            for semestre, asignaturas_sem in asignaturas_horarios.items():
-                for nombre_asig, datos_asig in asignaturas_sem.items():
-                    # Crear código de asignatura único si no existe
-                    codigo_asig = nombre_asig.upper().replace(" ", "")[:6]
-
-                    # Verificar si ya existe
-                    if codigo_asig in self.datos_configuracion:
-                        continue
-
-                    # Importar grupos
-                    grupos = datos_asig.get("grupos", [])
-
-                    # Crear asignatura nueva
-                    self.datos_configuracion[codigo_asig] = {
-                        'codigo': codigo_asig,
-                        'nombre': nombre_asig,
-                        'semestre': f"{semestre}º Semestre",
-                        'curso': "1º Curso",  # Por defecto
-                        'tipo': "Laboratorio",
-                        'descripcion': f"Importada desde configuración de horarios",
-                        'grupos_asociados': sorted(grupos),
-                        'configuracion_laboratorio': {
-                            'horas_por_sesion': 2,
-                            'minutos_por_sesion': 0,
-                            'grupos_previstos': 6,
-                            'clases_año': 3
-                        },
-                        'estadisticas_calculadas': {
-                            'total_matriculados': 0,
-                            'con_lab_anterior': 0,
-                            'sin_lab_anterior': 0,
-                            'grupos_recomendados': 0,
-                            'ultima_actualizacion': datetime.now().isoformat()
-                        },
-                        'fecha_creacion': datetime.now().isoformat()
-                    }
-                    asignaturas_importadas += 1
-                    grupos_importados += len(grupos)
-
-            if asignaturas_importadas > 0:
-                # Auto-ordenar
-                self.ordenar_asignaturas_alfabeticamente()
-
-                # Actualizar interfaz
-                self.cargar_lista_asignaturas()
-                self.marcar_cambio_realizado()
-
-                QMessageBox.information(self, "Importación Exitosa",
-                                        f"✅ Importadas {asignaturas_importadas} asignaturas "
-                                        f"con {grupos_importados} grupos desde horarios")
-            else:
-                QMessageBox.information(self, "Sin Importar",
-                                        "No se encontraron asignaturas nuevas para importar")
-
-        except Exception as e:
-            QMessageBox.critical(self, "Error", f"Error importando desde horarios: {e}")
-
-    def sincronizar_con_horarios(self):
-        """Sincronizar datos con módulo de horarios - BIDIRECCIONAL"""
-        try:
-            # Preparar datos para enviar a horarios
-            datos_para_horarios = {}
-            for codigo, datos in self.datos_configuracion.items():
-                grupos = datos.get('grupos_asociados', [])
-                stats = datos.get('estadisticas_calculadas', {})
-
-                # Convertir a formato compatible con horarios
-                datos_para_horarios[datos.get('nombre', codigo)] = {
-                    'codigo': codigo,
-                    'grupos': grupos,
-                    'grupos_recomendados': stats.get('grupos_recomendados', 0),
-                    'alumnos_reales': stats.get('sin_lab_anterior', 0),
-                    'semestre': datos.get('semestre', '1º Semestre').split('º')[0]
-                }
-
-            # Enviar datos al sistema principal para sincronización
-            if self.parent_window and hasattr(self.parent_window, 'sincronizar_asignaturas_horarios'):
-                resultado = self.parent_window.sincronizar_asignaturas_horarios(datos_para_horarios)
-                if resultado:
-                    QMessageBox.information(self, "Sincronización",
-                                            f"✅ Datos sincronizados con horarios: {len(datos_para_horarios)} asignaturas")
-                else:
-                    QMessageBox.warning(self, "Sincronización",
-                                        "⚠️ Error en la sincronización con horarios")
-            else:
-                # Modo independiente - mostrar datos preparados
-                mensaje = f"📤 Datos preparados para sincronización:\n\n"
-                for nombre, datos in datos_para_horarios.items():
-                    mensaje += f"• {nombre}: {len(datos['grupos'])} grupos, "
-                    mensaje += f"{datos['grupos_recomendados']} grupos\n"
-
-                QMessageBox.information(self, "Sincronización Preparada", mensaje)
-
-        except Exception as e:
-            QMessageBox.critical(self, "Error", f"Error en sincronización: {e}")
-
     def notificar_cambios_a_horarios(self):
         """Notificar cambios de asignaturas al módulo de horarios"""
         try:
@@ -2703,147 +2597,14 @@ class ConfigurarAsignaturas(QMainWindow):
         except Exception as e:
             self.log_mensaje(f"⚠️ Error notificando cambios a horarios: {e}", "warning")
 
-    def importar_desde_csv(self):
-        """Importar asignaturas desde archivo CSV"""
-        archivo, _ = QFileDialog.getOpenFileName(
-            self, "Importar Asignaturas desde CSV",
-            "", "Archivos CSV (*.csv);;Todos los archivos (*)"
-        )
-
-        if not archivo:
-            return
-
-        try:
-            df = pd.read_csv(archivo)
-
-            # Verificar columnas requeridas
-            columnas_requeridas = ['codigo', 'nombre', 'semestre', 'tipo']
-            columnas_faltantes = [col for col in columnas_requeridas if col not in df.columns]
-
-            if columnas_faltantes:
-                QMessageBox.warning(
-                    self, "Columnas Faltantes",
-                    f"El archivo CSV debe contener las columnas:\n{', '.join(columnas_faltantes)}"
-                )
-                return
-
-            # Importar datos
-            asignaturas_importadas = 0
-            asignaturas_duplicadas = 0
-
-            for _, row in df.iterrows():
-                codigo = str(row['codigo']).strip().upper()
-                if not codigo:
-                    continue
-
-                if codigo in self.datos_configuracion:
-                    asignaturas_duplicadas += 1
-                    continue
-
-                # Procesar grupos
-                grupos = []
-                if 'grupos_asociados' in df.columns and pd.notna(row['grupos_asociados']):
-                    grupos_text = str(row['grupos_asociados']).strip()
-                    if grupos_text:
-                        grupos = [g.strip().upper() for g in grupos_text.split(',')]
-
-                self.datos_configuracion[codigo] = {
-                    'codigo': codigo,
-                    'nombre': str(row['nombre']).strip(),
-                    'semestre': str(row.get('semestre', '1º Semestre')).strip(),
-                    'curso': str(row.get('curso', '1º Curso')).strip(),
-                    'tipo': str(row['tipo']).strip(),
-                    'descripcion': str(row.get('descripcion', '')).strip(),
-                    'grupos_asociados': grupos,
-                    'configuracion_laboratorio': {
-                        'horas_por_sesion': int(row.get('horas_por_sesion', 2)) if pd.notna(row.get('horas_por_sesion')) else 2,
-                        'minutos_por_sesion': int(row.get('minutos_por_sesion', 0)) if pd.notna(row.get('minutos_por_sesion')) else 0,
-                        'grupos_previstos': int(row.get('grupos_previstos', 6)) if pd.notna(
-                            row.get('grupos_previstos')) else 6,
-                        'clases_año': int(row.get('clases_año', 3)) if pd.notna(row.get('clases_año')) else 3
-                    },
-                    'estadisticas_calculadas': {
-                        'total_matriculados': 0,
-                        'con_lab_anterior': 0,
-                        'sin_lab_anterior': 0,
-                        'grupos_recomendados': 0,
-                        'ultima_actualizacion': datetime.now().isoformat()
-                    },
-                    'fecha_creacion': datetime.now().isoformat()
-                }
-                asignaturas_importadas += 1
-
-            # Auto-ordenar
-            self.ordenar_asignaturas_alfabeticamente()
-
-            # Actualizar interfaz
-            self.cargar_lista_asignaturas()
-            self.marcar_cambio_realizado()
-
-            mensaje = f"✅ Importación completada:\n"
-            mensaje += f"• {asignaturas_importadas} asignaturas importadas\n"
-            if asignaturas_duplicadas > 0:
-                mensaje += f"• {asignaturas_duplicadas} asignaturas duplicadas (omitidas)"
-
-            QMessageBox.information(self, "Importación Exitosa", mensaje)
-
-        except Exception as e:
-            QMessageBox.critical(self, "Error de Importación", f"Error al importar archivo CSV:\n{str(e)}")
-
-    def exportar_a_csv(self):
-        """Exportar asignaturas a archivo CSV"""
-        if not self.datos_configuracion:
-            QMessageBox.information(self, "Sin Datos", "No hay asignaturas para exportar")
-            return
-
-        archivo, _ = QFileDialog.getSaveFileName(
-            self, "Exportar Asignaturas a CSV",
-            f"asignaturas_{datetime.now().strftime('%Y%m%d_%H%M%S')}.csv",
-            "Archivos CSV (*.csv)"
-        )
-
-        if not archivo:
-            return
-
-        try:
-            datos_export = []
-            for codigo, datos in self.datos_configuracion.items():
-                # Convertir grupos a string
-                grupos_str = ', '.join(datos.get('grupos_asociados', []))
-
-                config_lab = datos.get('configuracion_laboratorio', {})
-                stats = datos.get('estadisticas_calculadas', {})
-
-                datos_export.append({
-                    'codigo': codigo,
-                    'nombre': datos.get('nombre', ''),
-                    'semestre': datos.get('semestre', ''),
-                    'curso': datos.get('curso', ''),
-                    'tipo': datos.get('tipo', ''),
-                    'descripcion': datos.get('descripcion', ''),
-                    'grupos_asociados': grupos_str,
-                    'horas_por_sesion': config_lab.get('horas_por_sesion', 2),
-                    'minutos_por_sesion': config_lab.get('minutos_por_sesion', 0),
-                    'grupos_previstos': config_lab.get('grupos_previstos', 6),
-                    'clases_año': config_lab.get('clases_año', 3),
-                    'total_matriculados': stats.get('total_matriculados', 0),
-                    'sin_lab_anterior': stats.get('sin_lab_anterior', 0),
-                    'grupos_recomendados': stats.get('grupos_recomendados', 0)
-                })
-
-            df = pd.DataFrame(datos_export)
-            df.to_csv(archivo, index=False, encoding='utf-8')
-
-            QMessageBox.information(self, "Exportación Exitosa", f"Datos exportados a:\n{archivo}")
-
-        except Exception as e:
-            QMessageBox.critical(self, "Error de Exportación", f"Error al exportar datos:\n{str(e)}")
-
     def exportar_estadisticas(self):
         """Exportar estadísticas completas a archivo"""
+        nombre_txt = f"estadisticas_asignaturas_{datetime.now().strftime('%Y%m%d_%H%M%S')}.txt"
+        ruta_inicial = os.path.join(obtener_ruta_descargas(), nombre_txt)
+
         archivo, _ = QFileDialog.getSaveFileName(
             self, "Exportar Estadísticas Completas",
-            f"estadisticas_asignaturas_{datetime.now().strftime('%Y%m%d_%H%M%S')}.txt",
+            ruta_inicial,
             "Archivos de texto (*.txt)"
         )
 
@@ -2893,7 +2654,7 @@ class ConfigurarAsignaturas(QMainWindow):
         """Cargar configuración desde archivo JSON"""
         archivo, _ = QFileDialog.getOpenFileName(
             self, "Cargar Configuración de Asignaturas",
-            "", "Archivos JSON (*.json)"
+            obtener_ruta_descargas(), "Archivos JSON (*.json)"
         )
 
         if not archivo:
@@ -2928,9 +2689,12 @@ class ConfigurarAsignaturas(QMainWindow):
 
     def guardar_en_archivo(self):
         """Guardar configuración en archivo JSON"""
+        nombre_por_defecto = f"asignaturas_config_{datetime.now().strftime('%Y%m%d_%H%M%S')}.json"
+        ruta_inicial = os.path.join(obtener_ruta_descargas(), nombre_por_defecto)
+
         archivo, _ = QFileDialog.getSaveFileName(
             self, "Guardar Configuración de Asignaturas",
-            f"asignaturas_config_{datetime.now().strftime('%Y%m%d_%H%M%S')}.json",
+            ruta_inicial,
             "Archivos JSON (*.json)"
         )
 

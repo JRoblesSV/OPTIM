@@ -4,18 +4,6 @@
 Configurar Aulas - OPTIM - Sistema de Programación Automática de Laboratorios
 Desarrollado por SoftVier para ETSIDI (UPM)
 
-FUNCIONALIDADES IMPLEMENTADAS:
-1. Gestión completa de laboratorios y aulas del centro
-2. Asociación automática de asignaturas por equipamiento
-3. Control de capacidad y disponibilidad por laboratorio
-4. Estadísticas de ocupación y distribución por edificio
-5. Sistema de equipamiento con validación cruzada
-6. Gestión de disponibilidad temporal por aula
-7. Import/Export desde CSV con datos de asociaciones
-8. Duplicación de configuraciones de laboratorio
-9. Integración con sistema global de asignaturas
-10. Gestión de días no disponibles por aula (obras, mantenimiento, etc.)
-
 Autor: Javier Robles Molina - SoftVier
 Universidad: ETSIDI (UPM)
 """
@@ -63,6 +51,33 @@ def center_window_on_screen_immediate(window, width, height):
     except Exception as e:
         # Fallback en caso de error
         window.setGeometry(100, 100, width, height)
+
+def obtener_ruta_descargas():
+    """Obtener la ruta de la carpeta Downloads del usuario"""
+
+    # Intentar diferentes métodos para obtener Downloads
+    try:
+        # Método 1: Variable de entorno USERPROFILE (Windows)
+        if os.name == 'nt':  # Windows
+            downloads = os.path.join(os.path.expanduser('~'), 'Downloads')
+        else:  # Linux/Mac
+            downloads = os.path.join(os.path.expanduser('~'), 'Downloads')
+
+        # Verificar que existe
+        if os.path.exists(downloads):
+            return downloads
+
+        # Fallback: Desktop si Downloads no existe
+        desktop = os.path.join(os.path.expanduser('~'), 'Desktop')
+        if os.path.exists(desktop):
+            return desktop
+
+        # Último fallback: home del usuario
+        return os.path.expanduser('~')
+
+    except:
+        # Si todo falla, usar directorio actual
+        return os.getcwd()
 
 
 class GestionAulaDialog(QDialog):
@@ -896,10 +911,9 @@ class ConfigurarAulas(QMainWindow):
         self.btn_toggle_disponible.clicked.connect(self.toggle_disponibilidad_aula)
         acciones_layout.addWidget(self.btn_toggle_disponible)
 
-        self.btn_sincronizar_asignaturas = QPushButton("🔄 Sincronizar Asignaturas")
-        self.btn_sincronizar_asignaturas.setToolTip("Sincronizar con las asignaturas configuradas en el sistema")
-        self.btn_sincronizar_asignaturas.clicked.connect(self.sincronizar_asignaturas)
-        acciones_layout.addWidget(self.btn_sincronizar_asignaturas)
+        self.btn_buscar_aula = QPushButton("🔍 Buscar Aula")
+        self.btn_buscar_aula.clicked.connect(self.buscar_aula_dialog)
+        acciones_layout.addWidget(self.btn_buscar_aula)
 
         acciones_group.setLayout(acciones_layout)
         right_layout.addWidget(acciones_group)
@@ -908,11 +922,8 @@ class ConfigurarAulas(QMainWindow):
         importar_group = QGroupBox("📥 IMPORTAR DATOS")
         importar_layout = QVBoxLayout()
 
-        self.btn_importar_csv = QPushButton("📥 Importar desde CSV")
-        self.btn_importar_csv.clicked.connect(self.importar_desde_csv)
-        importar_layout.addWidget(self.btn_importar_csv)
-
-        self.btn_cargar = QPushButton("📁 Cargar Configuración")
+        self.btn_cargar = QPushButton("📤 Importar Datos")
+        self.btn_cargar.setToolTip("Importar configuración desde JSON")
         self.btn_cargar.clicked.connect(self.cargar_configuracion)
         importar_layout.addWidget(self.btn_cargar)
 
@@ -920,16 +931,13 @@ class ConfigurarAulas(QMainWindow):
         right_layout.addWidget(importar_group)
 
         # Exportar
-        exportar_group = QGroupBox("📤 EXPORTAR DATOS")
+        exportar_group = QGroupBox("💾 EXPORTAR DATOS")
         exportar_layout = QVBoxLayout()
 
-        self.btn_exportar_csv = QPushButton("📄 Exportar a CSV")
-        self.btn_exportar_csv.clicked.connect(self.exportar_a_csv)
-        exportar_layout.addWidget(self.btn_exportar_csv)
-
-        self.btn_exportar_json = QPushButton("📋 Exportar a JSON")
-        self.btn_exportar_json.clicked.connect(self.exportar_a_json)
-        exportar_layout.addWidget(self.btn_exportar_json)
+        self.btn_exportar_aulas = QPushButton("💾 Exportar Datos")
+        self.btn_exportar_aulas.setToolTip("Exportar configuración a JSON")
+        self.btn_exportar_aulas.clicked.connect(self.exportar_a_json)
+        exportar_layout.addWidget(self.btn_exportar_aulas)
 
         exportar_group.setLayout(exportar_layout)
         right_layout.addWidget(exportar_group)
@@ -1251,25 +1259,6 @@ class ConfigurarAulas(QMainWindow):
 
     # ================== FUNCIONES DE GESTIÓN DE AULAS ==================
 
-    def sincronizar_asignaturas(self):
-        """Sincronizar asignaturas con el sistema"""
-        asignaturas_nuevas = self.obtener_asignaturas_del_sistema()
-
-        if asignaturas_nuevas == self.asignaturas_disponibles:
-            QMessageBox.information(self, "Sincronización", "✅ Las asignaturas ya están sincronizadas")
-            return
-
-        self.asignaturas_disponibles = asignaturas_nuevas
-
-        # Actualizar interfaz
-        self.cargar_lista_aulas()
-
-        total_asignaturas = len(asignaturas_nuevas)
-        QMessageBox.information(self, "Sincronización Exitosa",
-                                f"✅ Asignaturas sincronizadas:\n"
-                                f"• {total_asignaturas} asignaturas disponibles\n\n"
-                                f"Ahora puedes asociar estas asignaturas a los laboratorios")
-
     def anadir_aula(self):
         """Añadir nueva aula con selección de asignaturas"""
         dialog = GestionAulaDialog(None, self.asignaturas_disponibles, self)
@@ -1423,130 +1412,66 @@ class ConfigurarAulas(QMainWindow):
         QMessageBox.information(self, "Estado Actualizado",
                                 f"Laboratorio '{self.aula_actual}' marcado como {estado_texto}")
 
-    # ================== FUNCIONES DE IMPORTACIÓN Y EXPORTACIÓN ==================
-
-    def importar_desde_csv(self):
-        """Importar aulas desde archivo CSV con asignaturas asociadas y fechas no disponibles"""
-        archivo, _ = QFileDialog.getOpenFileName(
-            self, "Importar Laboratorios desde CSV",
-            "", "Archivos CSV (*.csv);;Todos los archivos (*)"
-        )
-
-        if not archivo:
-            return
-
-        try:
-            df = pd.read_csv(archivo)
-
-            # Verificar columnas requeridas
-            columnas_requeridas = ['nombre', 'capacidad', 'equipamiento', 'edificio', 'planta']
-            columnas_faltantes = [col for col in columnas_requeridas if col not in df.columns]
-
-            if columnas_faltantes:
-                QMessageBox.warning(
-                    self, "Columnas Faltantes",
-                    f"El archivo CSV debe contener las columnas:\n{', '.join(columnas_faltantes)}"
-                )
-                return
-
-            # Importar datos
-            aulas_importadas = 0
-            aulas_duplicadas = 0
-
-            for _, row in df.iterrows():
-                nombre = str(row['nombre']).strip()
-                if not nombre:
-                    continue
-
-                if nombre in self.datos_configuracion:
-                    aulas_duplicadas += 1
-                    continue
-
-                # Procesar asignaturas asociadas si existe la columna
-                asignaturas_asociadas = []
-                if 'asignaturas_asociadas' in df.columns and pd.notna(row['asignaturas_asociadas']):
-                    asig_text = str(row['asignaturas_asociadas']).strip()
-                    if asig_text:
-                        asignaturas_asociadas = [a.strip() for a in asig_text.split(',')]
-
-                # Procesar fechas no disponibles si existe la columna
-                fechas_no_disponibles = []
-                if 'fechas_no_disponibles' in df.columns and pd.notna(row['fechas_no_disponibles']):
-                    fechas_text = str(row['fechas_no_disponibles']).strip()
-                    if fechas_text:
-                        fechas_no_disponibles = [f.strip() for f in fechas_text.split(',')]
-
-                self.datos_configuracion[nombre] = {
-                    'nombre': nombre,
-                    'capacidad': int(row['capacidad']) if pd.notna(row['capacidad']) else 24,
-                    'equipamiento': str(row['equipamiento']).strip(),
-                    'edificio': str(row['edificio']).strip(),
-                    'planta': str(row['planta']).strip(),
-                    'disponible': str(row.get('disponible', 'Si')).lower() in ['si', 'sí', 'true', '1', 'yes'],
-                    'asignaturas_asociadas': asignaturas_asociadas,
-                    'fechas_no_disponibles': fechas_no_disponibles
-                }
-                aulas_importadas += 1
-
-            # Auto-ordenar
-            self.ordenar_aulas_alfabeticamente()
-
-            # Actualizar interfaz
-            self.cargar_lista_aulas()
-            self.marcar_cambio_realizado()
-
-            mensaje = f"✅ Importación completada:\n"
-            mensaje += f"• {aulas_importadas} aulas importadas\n"
-            if aulas_duplicadas > 0:
-                mensaje += f"• {aulas_duplicadas} aulas duplicadas (omitidas)"
-
-            QMessageBox.information(self, "Importación Exitosa", mensaje)
-
-        except Exception as e:
-            QMessageBox.critical(self, "Error de Importación", f"Error al importar archivo CSV:\n{str(e)}")
-
-    def exportar_a_csv(self):
-        """Exportar aulas a archivo CSV incluyendo asignaturas asociadas y fechas no disponibles"""
+    def buscar_aula_dialog(self):
+        """Mostrar diálogo para buscar aula por nombre o equipamiento"""
         if not self.datos_configuracion:
-            QMessageBox.information(self, "Sin Datos", "No hay laboratorios para exportar")
+            QMessageBox.information(self, "Sin Datos", "No hay laboratorios configurados para buscar")
             return
 
-        archivo, _ = QFileDialog.getSaveFileName(
-            self, "Exportar Laboratorios a CSV",
-            f"laboratorios_{datetime.now().strftime('%Y%m%d_%H%M%S')}.csv",
-            "Archivos CSV (*.csv)"
+        texto_busqueda, ok = QInputDialog.getText(
+            self, "Buscar Laboratorio",
+            "Buscar por nombre, equipamiento o edificio:"
         )
 
-        if not archivo:
+        if not ok or not texto_busqueda.strip():
             return
 
-        try:
-            datos_export = []
-            for nombre, datos in self.datos_configuracion.items():
-                # Convertir asignaturas asociadas a string
-                asignaturas_str = ', '.join(datos.get('asignaturas_asociadas', []))
+        texto_busqueda = texto_busqueda.strip().lower()
+        encontrados = []
 
-                # Convertir fechas no disponibles a string
-                fechas_str = ', '.join(datos.get('fechas_no_disponibles', []))
+        for nombre, datos in self.datos_configuracion.items():
+            # Buscar por nombre
+            if texto_busqueda in nombre.lower():
+                encontrados.append((nombre, datos))
+            # Buscar por equipamiento
+            elif texto_busqueda in datos.get('equipamiento', '').lower():
+                encontrados.append((nombre, datos))
+            # Buscar por edificio
+            elif texto_busqueda in datos.get('edificio', '').lower():
+                encontrados.append((nombre, datos))
 
-                datos_export.append({
-                    'nombre': nombre,
-                    'capacidad': datos.get('capacidad', 24),
-                    'equipamiento': datos.get('equipamiento', ''),
-                    'edificio': datos.get('edificio', ''),
-                    'planta': datos.get('planta', ''),
-                    'disponible': 'Si' if datos.get('disponible', True) else 'No',
-                    'asignaturas_asociadas': asignaturas_str,
-                    'fechas_no_disponibles': fechas_str
-                })
+        if not encontrados:
+            QMessageBox.information(self, "Sin Resultados",
+                                    f"No se encontraron laboratorios que coincidan con '{texto_busqueda}'")
+            return
 
-            df = pd.DataFrame(datos_export)
-            df.to_csv(archivo, index=False, encoding='utf-8')
+        if len(encontrados) == 1:
+            # Seleccionar directamente
+            nombre_encontrado = encontrados[0][0]
+            self.auto_seleccionar_aula(nombre_encontrado)
+            QMessageBox.information(self, "Laboratorio Encontrado",
+                                    f"Laboratorio seleccionado: {nombre_encontrado}")
+        else:
+            # Mostrar lista de opciones
+            opciones = []
+            for nombre, datos in encontrados:
+                equipamiento = datos.get('equipamiento', 'Sin equipamiento')
+                edificio = datos.get('edificio', 'Sin edificio')
+                opciones.append(f"{nombre} - {equipamiento} ({edificio})")
 
-            QMessageBox.information(self, "Exportación Exitosa", f"Datos exportados a:\n{archivo}")
+            opcion, ok = QInputDialog.getItem(
+                self, "Múltiples Resultados",
+                f"Se encontraron {len(encontrados)} laboratorios. Selecciona uno:",
+                opciones, 0, False
+            )
 
-        except Exception as e:
-            QMessageBox.critical(self, "Error de Exportación", f"Error al exportar datos:\n{str(e)}")
+            if ok:
+                # Extraer nombre del laboratorio de la opción seleccionada
+                nombre_seleccionado = opcion.split(' - ')[0]
+                self.auto_seleccionar_aula(nombre_seleccionado)
+
+
+    # ================== FUNCIONES DE IMPORTACIÓN Y EXPORTACIÓN ==================
 
     def exportar_a_json(self):
         """Exportar aulas a archivo JSON"""
@@ -1556,7 +1481,7 @@ class ConfigurarAulas(QMainWindow):
 
         archivo, _ = QFileDialog.getSaveFileName(
             self, "Exportar Laboratorios a JSON",
-            f"laboratorios_{datetime.now().strftime('%Y%m%d_%H%M%S')}.json",
+            os.path.join(obtener_ruta_descargas(), f"laboratorios_{datetime.now().strftime('%Y%m%d_%H%M%S')}.json"),
             "Archivos JSON (*.json)"
         )
 
@@ -1590,7 +1515,7 @@ class ConfigurarAulas(QMainWindow):
         """Cargar configuración desde archivo JSON"""
         archivo, _ = QFileDialog.getOpenFileName(
             self, "Cargar Configuración de Aulas",
-            "", "Archivos JSON (*.json)"
+            obtener_ruta_descargas(), "Archivos JSON (*.json)"
         )
 
         if not archivo:

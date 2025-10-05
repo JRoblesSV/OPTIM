@@ -4,22 +4,6 @@
 Configurar Calendario - OPTIM - Sistema de Programación Automática de Laboratorios
 Desarrollado por SoftVier para ETSIDI (UPM)
 
-FUNCIONALIDADES IMPLEMENTADAS:
-1. Gestión dinámica de año académico con validación automática
-2. Configuración visual de días lectivos por semestre (Sep-Ene / Feb-Jun)
-3. Calendarios interactivos para selección rápida de fechas por click
-4. Sistema drag & drop para reasignación de horarios entre columnas
-5. Generación automática de calendario académico con exclusión de festivos
-6. Validación inteligente de límites por horario (14 días máximo por columna)
-7. Verificación de equilibrio automático entre horarios semanales
-8. Gestión de días especiales con horarios alternativos
-9. Sistema de grids dinámicos con numeración y expansión automática
-10. Import/Export completo desde CSV/JSON con metadatos
-11. Contadores en tiempo real con alertas visuales de excesos
-12. Funcionalidad de importación desde fuentes web universitarias
-13. Control de conflictos de fin de semana con confirmación usuario
-14. Integración bidireccional con sistema global OPTIM
-15. Persistencia automática de cambios con detección de modificaciones
 
 Autor: Javier Robles Molina - SoftVier
 Universidad: ETSIDI (UPM)
@@ -59,6 +43,33 @@ def center_window_on_screen_immediate(window, width, height):
         window.setGeometry(100, 100, width, height)
 
 
+def obtener_ruta_descargas():
+    """Obtener la ruta de la carpeta Downloads del usuario"""
+
+    # Intentar diferentes métodos para obtener Downloads
+    try:
+        # Método 1: Variable de entorno USERPROFILE (Windows)
+        if os.name == 'nt':  # Windows
+            downloads = os.path.join(os.path.expanduser('~'), 'Downloads')
+        else:  # Linux/Mac
+            downloads = os.path.join(os.path.expanduser('~'), 'Downloads')
+
+        # Verificar que existe
+        if os.path.exists(downloads):
+            return downloads
+
+        # Fallback: Desktop si Downloads no existe
+        desktop = os.path.join(os.path.expanduser('~'), 'Desktop')
+        if os.path.exists(desktop):
+            return desktop
+
+        # Último fallback: home del usuario
+        return os.path.expanduser('~')
+
+    except:
+        # Si todo falla, usar directorio actual
+        return os.getcwd()
+
 
 class ConfiguracionDiaDialog(QDialog):
     """Mini-popup rápido para configurar un día"""
@@ -72,7 +83,7 @@ class ConfiguracionDiaDialog(QDialog):
         self.setModal(True)
 
         # Centrado automático al mostrar la ventana
-        self.resize(1600, 900)
+        self.resize(450, 250)
         self.center_on_screen()
 
         self.setup_ui()
@@ -1379,6 +1390,7 @@ class ConfigurarCalendario(QMainWindow):
         acciones_layout = QVBoxLayout()
 
         self.btn_generar_calendario = QPushButton("🤖 Generar Calendario Automático")
+        self.btn_generar_calendario.setToolTip("Crear calendario académico básico automáticamente")
         self.btn_generar_calendario.clicked.connect(self.generar_calendario_automatico)
         acciones_layout.addWidget(self.btn_generar_calendario)
 
@@ -1387,6 +1399,7 @@ class ConfigurarCalendario(QMainWindow):
         acciones_layout.addWidget(self.btn_limpiar_semestre)
 
         self.btn_verificar_equilibrio = QPushButton("⚖️ Verificar Equilibrio")
+        self.btn_verificar_equilibrio.setToolTip("Analizar distribución de días por horario")
         self.btn_verificar_equilibrio.clicked.connect(
             lambda: self.verificar_equilibrio_completo(mostrar_si_todo_ok=True))
         acciones_layout.addWidget(self.btn_verificar_equilibrio)
@@ -1403,11 +1416,8 @@ class ConfigurarCalendario(QMainWindow):
         self.btn_importar_web.clicked.connect(self.importar_desde_web)
         importar_layout.addWidget(self.btn_importar_web)
 
-        self.btn_importar_csv = QPushButton("📥 Importar desde CSV")
-        self.btn_importar_csv.clicked.connect(self.importar_desde_csv)
-        importar_layout.addWidget(self.btn_importar_csv)
-
-        self.btn_cargar = QPushButton("📁 Cargar Configuración")
+        self.btn_cargar = QPushButton("📤 Importar Datos")
+        self.btn_cargar.setToolTip("Importar configuración desde archivo JSON")
         self.btn_cargar.clicked.connect(self.cargar_configuracion)
         importar_layout.addWidget(self.btn_cargar)
 
@@ -1415,14 +1425,11 @@ class ConfigurarCalendario(QMainWindow):
         right_layout.addWidget(importar_group)
 
         # Exportar
-        exportar_group = QGroupBox("📤 EXPORTAR DATOS")
+        exportar_group = QGroupBox("💾 EXPORTAR DATOS")
         exportar_layout = QVBoxLayout()
 
-        self.btn_exportar_csv = QPushButton("📄 Exportar a CSV")
-        self.btn_exportar_csv.clicked.connect(self.exportar_a_csv)
-        exportar_layout.addWidget(self.btn_exportar_csv)
-
-        self.btn_exportar_json = QPushButton("📋 Exportar a JSON")
+        self.btn_exportar_json = QPushButton("💾 Exportar Datos")
+        self.btn_exportar_json.setToolTip("Exportar configuración a archivo JSON")
         self.btn_exportar_json.clicked.connect(self.exportar_a_json)
         exportar_layout.addWidget(self.btn_exportar_json)
 
@@ -2299,137 +2306,6 @@ class ConfigurarCalendario(QMainWindow):
             "🚧 Próximamente disponible en la siguiente versión."
         )
 
-    def importar_desde_csv(self):
-        """Importar calendario desde CSV"""
-        archivo, _ = QFileDialog.getOpenFileName(
-            self, "Importar Calendario desde CSV",
-            "", "Archivos CSV (*.csv);;Todos los archivos (*)"
-        )
-
-        if not archivo:
-            return
-
-        try:
-            df = pd.read_csv(archivo)
-
-            # Verificar columnas requeridas
-            columnas_requeridas = ['fecha', 'semestre', 'horario_asignado']
-            columnas_faltantes = [col for col in columnas_requeridas if col not in df.columns]
-
-            if columnas_faltantes:
-                QMessageBox.warning(
-                    self, "Columnas Faltantes",
-                    f"El archivo CSV debe contener las columnas:\n{', '.join(columnas_faltantes)}"
-                )
-                return
-
-            # Limpiar configuración actual
-            self.datos_configuracion["semestre_1"].clear()
-            self.datos_configuracion["semestre_2"].clear()
-
-            dias_importados = 0
-            advertencias_limite = []
-
-            for _, row in df.iterrows():
-                try:
-                    fecha_str = str(row['fecha']).strip()
-                    semestre = str(row['semestre']).strip()
-                    horario_asignado = str(row['horario_asignado']).strip()
-
-                    # Validar semestre
-                    if semestre not in ['semestre_1', '1', 'semestre_2', '2']:
-                        continue
-
-                    sem_key = f"semestre_{semestre}" if semestre in ['1', '2'] else semestre
-
-                    # Parsear fecha
-                    fecha_obj = datetime.strptime(fecha_str, "%Y-%m-%d")
-                    dia_real = fecha_obj.strftime("%A")  # Nombre del día en inglés
-
-                    # Convertir a español
-                    dias_es = {
-                        "Monday": "Lunes", "Tuesday": "Martes", "Wednesday": "Miércoles",
-                        "Thursday": "Jueves", "Friday": "Viernes", "Saturday": "Sábado", "Sunday": "Domingo"
-                    }
-                    dia_real = dias_es.get(dia_real, dia_real)
-
-                    es_especial = dia_real != horario_asignado
-                    motivo = str(row.get('motivo', '')).strip()
-
-                    self.datos_configuracion[sem_key][fecha_str] = {
-                        'fecha': fecha_str,
-                        'dia_real': dia_real,
-                        'horario_asignado': horario_asignado,
-                        'motivo': motivo,
-                        'es_especial': es_especial,
-                        'es_fin_semana': dia_real in ['Sábado', 'Domingo']
-                    }
-                    dias_importados += 1
-
-                except Exception as e:
-                    continue
-
-            # Verificar límites y mostrar advertencias
-            for sem in ['semestre_1', 'semestre_2']:
-                num_dias = len(self.datos_configuracion[sem])
-                if num_dias > 14:
-                    advertencias_limite.append(f"{sem.replace('_', ' ')}: {num_dias} días")
-
-            # Recargar grids
-            self.cargar_dias_en_grids()
-            self.marcar_cambio_realizado()
-
-            mensaje = f"✅ Importación completada:\n"
-            mensaje += f"• {dias_importados} días importados\n"
-
-            if advertencias_limite:
-                mensaje += f"\n⚠️ Límites excedidos:\n"
-                for adv in advertencias_limite:
-                    mensaje += f"• {adv}\n"
-
-            QMessageBox.information(self, "Importación Exitosa", mensaje)
-
-        except Exception as e:
-            QMessageBox.critical(self, "Error de Importación", f"Error al importar archivo CSV:\n{str(e)}")
-
-    def exportar_a_csv(self):
-        """Exportar calendario a CSV"""
-        if not any(self.datos_configuracion[s] for s in ['semestre_1', 'semestre_2']):
-            QMessageBox.information(self, "Sin Datos", "No hay días configurados para exportar")
-            return
-
-        archivo, _ = QFileDialog.getSaveFileName(
-            self, "Exportar Calendario a CSV",
-            f"calendario_{datetime.now().strftime('%Y%m%d_%H%M%S')}.csv",
-            "Archivos CSV (*.csv)"
-        )
-
-        if not archivo:
-            return
-
-        try:
-            datos_export = []
-
-            for semestre in ['semestre_1', 'semestre_2']:
-                for fecha_str, config_dia in self.datos_configuracion[semestre].items():
-                    datos_export.append({
-                        'fecha': fecha_str,
-                        'semestre': semestre,
-                        'dia_real': config_dia.get('dia_real', ''),
-                        'horario_asignado': config_dia.get('horario_asignado', ''),
-                        'motivo': config_dia.get('motivo', ''),
-                        'es_especial': config_dia.get('es_especial', False),
-                        'es_fin_semana': config_dia.get('es_fin_semana', False)
-                    })
-
-            df = pd.DataFrame(datos_export)
-            df = df.sort_values(['semestre', 'fecha'])  # Ordenar por semestre y fecha
-            df.to_csv(archivo, index=False, encoding='utf-8')
-
-            QMessageBox.information(self, "Exportación Exitosa", f"Datos exportados a:\n{archivo}")
-
-        except Exception as e:
-            QMessageBox.critical(self, "Error de Exportación", f"Error al exportar datos:\n{str(e)}")
 
     def exportar_a_json(self):
         """Exportar calendario a JSON"""
@@ -2438,8 +2314,8 @@ class ConfigurarCalendario(QMainWindow):
             return
 
         archivo, _ = QFileDialog.getSaveFileName(
-            self, "Exportar Calendario a JSON",
-            f"calendario_{datetime.now().strftime('%Y%m%d_%H%M%S')}.json",
+            self, "Exportar Datos de Calendario",
+            os.path.join(obtener_ruta_descargas(), f"calendario_{datetime.now().strftime('%Y%m%d_%H%M%S')}.json"),
             "Archivos JSON (*.json)"
         )
 
@@ -2467,10 +2343,10 @@ class ConfigurarCalendario(QMainWindow):
             QMessageBox.critical(self, "Error de Exportación", f"Error al exportar datos:\n{str(e)}")
 
     def cargar_configuracion(self):
-        """Cargar configuración desde archivo JSON"""
+        """Importar configuración desde archivo JSON"""
         archivo, _ = QFileDialog.getOpenFileName(
-            self, "Cargar Configuración de Calendario",
-            "", "Archivos JSON (*.json)"
+            self, "Importar Datos de Calendario",
+            obtener_ruta_descargas(), "Archivos JSON (*.json)"
         )
 
         if not archivo:

@@ -4,15 +4,6 @@
 Configurar Horarios - OPTIM - Sistema de Programación Automática de Laboratorios
 Desarrollado por SoftVier para ETSIDI (UPM)
 
-Sistema de configuración de horarios con franjas fijas para laboratorios universitarios.
-Permite asignar grupos a horarios específicos en un grid semanal estructurado.
-
-Funcionalidades:
-- Configuración de horarios por semestre
-- Gestión de asignaturas y grupos
-- Grid semanal con franjas horarias fijas
-- Edición y eliminación de franjas
-- Integración con sistema central
 
 Autor: Javier Robles Molina - SoftVier
 Universidad: ETSIDI (UPM)
@@ -47,6 +38,34 @@ def center_window_on_screen(window, width, height):
             window.setGeometry(100, 100, width, height)
     except Exception:
         window.setGeometry(100, 100, width, height)
+
+
+def obtener_ruta_descargas():
+    """Obtener la ruta de la carpeta Downloads del usuario"""
+
+    # Intentar diferentes métodos para obtener Downloads
+    try:
+        # Método 1: Variable de entorno USERPROFILE (Windows)
+        if os.name == 'nt':  # Windows
+            downloads = os.path.join(os.path.expanduser('~'), 'Downloads')
+        else:  # Linux/Mac
+            downloads = os.path.join(os.path.expanduser('~'), 'Downloads')
+
+        # Verificar que existe
+        if os.path.exists(downloads):
+            return downloads
+
+        # Fallback: Desktop si Downloads no existe
+        desktop = os.path.join(os.path.expanduser('~'), 'Desktop')
+        if os.path.exists(desktop):
+            return desktop
+
+        # Último fallback: home del usuario
+        return os.path.expanduser('~')
+
+    except:
+        # Si todo falla, usar directorio actual
+        return os.getcwd()
 
 
 class GestionAsignaturaDialog(QDialog):
@@ -800,8 +819,8 @@ class ConfigurarHorarios(QMainWindow):
         # Botones de acción (solo archivos y sistema)
         buttons_layout = QHBoxLayout()
 
-        self.btn_cargar = QPushButton("📁 Cargar Archivo")
-        self.btn_guardar = QPushButton("💾 Guardar Archivo")
+        self.btn_cargar = QPushButton("📥 Importar Datos")
+        self.btn_guardar = QPushButton("💾 Exportar Datos")
         self.btn_guardar_sistema = QPushButton("✅ Guardar en Sistema")
         self.btn_borrar_horarios = QPushButton("🗑️ Borrar Horarios")
 
@@ -1294,7 +1313,9 @@ class ConfigurarHorarios(QMainWindow):
                         self.log_mensaje(f"⚠️ Estructura inválida en horario {horario}", "warning")
                         continue
 
-                    for dia, grupos in dias_data.items():
+                    for dia, entry in dias_data.items():
+                        # Aceptar ambos formatos: lista o dict {"grupos": [...], "mixta": bool}
+                        grupos = entry.get("grupos", []) if isinstance(entry, dict) else entry
                         if not isinstance(grupos, list):
                             self.log_mensaje(f"⚠️ Grupos inválidos en {dia} {horario}", "warning")
                             continue
@@ -1324,6 +1345,7 @@ class ConfigurarHorarios(QMainWindow):
             self.log_mensaje(f"❌ Error cargando horarios: {e}", "error")
             import traceback
             traceback.print_exc()
+
 
     def limpiar_grid(self):
         """Limpia todas las franjas del grid"""
@@ -1396,8 +1418,12 @@ class ConfigurarHorarios(QMainWindow):
 
     def cargar_configuracion(self):
         """Carga configuración desde archivo"""
+        ruta_inicial = obtener_ruta_descargas()
+
         file_path, _ = QFileDialog.getOpenFileName(
-            self, "Cargar Configuración", "", "Archivos JSON (*.json)"
+            self, "Cargar Configuración",
+            ruta_inicial,  # Cambiar de "" a ruta_inicial
+            "Archivos JSON (*.json)"
         )
 
         if file_path:
@@ -1417,9 +1443,13 @@ class ConfigurarHorarios(QMainWindow):
 
     def guardar_configuracion(self):
         """Guarda configuración en archivo"""
+        ruta_inicial = obtener_ruta_descargas()
+        nombre_archivo = f"horarios_{datetime.now().strftime('%Y%m%d_%H%M%S')}.json"
+        ruta_completa = os.path.join(ruta_inicial, nombre_archivo)
+
         file_path, _ = QFileDialog.getSaveFileName(
             self, "Guardar Configuración",
-            f"horarios_{datetime.now().strftime('%Y%m%d_%H%M%S')}.json",
+            ruta_completa,  # Cambiar del nombre solo a la ruta completa
             "Archivos JSON (*.json)"
         )
 

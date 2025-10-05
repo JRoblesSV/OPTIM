@@ -4,18 +4,6 @@
 Configurar Alumnos - OPTIM - Sistema de Programación Automática de Laboratorios
 Desarrollado por SoftVier para ETSIDI (UPM)
 
-FUNCIONALIDADES IMPLEMENTADAS:
-1. Gestión completa de alumnos matriculados por DNI
-2. Sistema de grupos matriculados con validación dinámica
-3. Asignaturas matriculadas con estado de laboratorio previo
-4. Filtros avanzados por asignatura y experiencia previa
-5. Estadísticas automáticas de matriculación por asignatura
-6. Detección y gestión de alumnos duplicados
-7. Import/Export desde CSV con validación de datos
-8. Duplicación de registros con modificación automática
-9. Sincronización bidireccional con módulo de asignaturas
-10. Integración completa con sistema de configuración global
-
 Autor: Javier Robles Molina - SoftVier
 Universidad: ETSIDI (UPM)
 """
@@ -64,6 +52,33 @@ def center_window_on_screen_immediate(window, width, height):
     except Exception as e:
         # Fallback en caso de error
         window.setGeometry(100, 100, width, height)
+
+def obtener_ruta_descargas():
+    """Obtener la ruta de la carpeta Downloads del usuario"""
+
+    # Intentar diferentes métodos para obtener Downloads
+    try:
+        # Método 1: Variable de entorno USERPROFILE (Windows)
+        if os.name == 'nt':  # Windows
+            downloads = os.path.join(os.path.expanduser('~'), 'Downloads')
+        else:  # Linux/Mac
+            downloads = os.path.join(os.path.expanduser('~'), 'Downloads')
+
+        # Verificar que existe
+        if os.path.exists(downloads):
+            return downloads
+
+        # Fallback: Desktop si Downloads no existe
+        desktop = os.path.join(os.path.expanduser('~'), 'Desktop')
+        if os.path.exists(desktop):
+            return desktop
+
+        # Último fallback: home del usuario
+        return os.path.expanduser('~')
+
+    except:
+        # Si todo falla, usar directorio actual
+        return os.getcwd()
 
 
 class GestionAlumnoDialog(QDialog):
@@ -168,22 +183,17 @@ class GestionAlumnoDialog(QDialog):
         expedientes_group = QGroupBox("📋 EXPEDIENTES")
         expedientes_layout = QGridLayout()
 
-        self.edit_matricula = QLineEdit()
-        self.edit_matricula.setPlaceholderText("Ej: 60400")
-
         self.edit_exp_centro = QLineEdit()
         self.edit_exp_centro.setPlaceholderText("Ej: GIN-14")
 
         self.edit_exp_agora = QLineEdit()
         self.edit_exp_agora.setPlaceholderText("Ej: AGR789012")
 
-        expedientes_layout.addWidget(QLabel("📋 N° Matrícula:"), 0, 0)
-        expedientes_layout.addWidget(self.edit_matricula, 0, 1)
-        expedientes_layout.addWidget(QLabel("🏫 N° Exp. Centro:"), 0, 2)
-        expedientes_layout.addWidget(self.edit_exp_centro, 0, 3)
+        expedientes_layout.addWidget(QLabel("🏫 N° Exp. Centro:"), 0, 0)
+        expedientes_layout.addWidget(self.edit_exp_centro, 0, 1)
 
-        expedientes_layout.addWidget(QLabel("🌐 N° Exp. Ágora:"), 1, 0)
-        expedientes_layout.addWidget(self.edit_exp_agora, 1, 1)
+        expedientes_layout.addWidget(QLabel("🌐 N° Exp. Ágora:"), 0, 2)
+        expedientes_layout.addWidget(self.edit_exp_agora, 0, 3)
 
         expedientes_group.setLayout(expedientes_layout)
         layout.addWidget(expedientes_group)
@@ -604,78 +614,6 @@ class GestionAlumnoDialog(QDialog):
         # Procesar eventos finales
         QApplication.processEvents()
 
-    def crear_fila_asignatura(self, codigo_asignatura, semestre):
-        """Crea una fila con checkbox de asignatura + checkbox de lab aprobado al lado"""
-        fila_widget = QWidget()
-        fila_widget.setStyleSheet("""
-            QWidget:hover {
-                background-color: rgba(74, 158, 255, 0.1);
-                border-radius: 6px;
-            }
-        """)
-
-        # Layout HORIZONTAL para poner asignatura y lab aprobado lado a lado
-        fila_layout = QHBoxLayout(fila_widget)
-        fila_layout.setContentsMargins(8, 4, 8, 4)  # Menos padding vertical
-        fila_layout.setSpacing(15)  # Espacio entre asignatura y lab aprobado
-
-        # Checkbox principal de asignatura
-        key_asignatura = codigo_asignatura
-        check_asignatura = QCheckBox(key_asignatura)
-        check_asignatura.setStyleSheet(self.estilo_checkbox_comun + """
-            QCheckBox {
-                min-width: 180px;
-            }
-        """)
-        self.checks_asignaturas[key_asignatura] = check_asignatura
-
-        # Checkbox para lab aprobado al lado
-        check_lab = QCheckBox("🎓 Lab aprobado")
-        check_lab.setStyleSheet("""
-            QCheckBox {
-                color: #90EE90; 
-                font-size: 11px;
-                font-weight: 500;
-                padding: 2px;
-            }
-            QCheckBox::indicator {
-                width: 16px;
-                height: 16px;
-                margin-right: 6px;
-            }
-            QCheckBox::indicator:unchecked {
-                background-color: #3c3c3c;
-                border: 2px solid #666666;
-                border-radius: 3px;
-            }
-            QCheckBox::indicator:checked {
-                background-color: #90EE90;
-                border: 2px solid #90EE90;
-                border-radius: 3px;
-            }
-            QCheckBox:disabled {
-                color: #666666;
-            }
-        """)
-        check_lab.setEnabled(False)
-        self.checks_lab_aprobado[key_asignatura] = check_lab
-
-        # Conectar señales
-        check_asignatura.toggled.connect(
-            lambda checked, lab_check=check_lab: lab_check.setEnabled(checked)
-        )
-        check_asignatura.toggled.connect(
-            lambda checked, lab_check=check_lab: lab_check.setChecked(False) if not checked else None
-        )
-
-        # Añadir widgets al layout horizontal
-        fila_layout.addWidget(check_asignatura)
-        fila_layout.addWidget(check_lab)
-        fila_layout.addStretch()  # Push a la izquierda
-
-        # Añadir la fila al layout del scroll
-        self.asignaturas_scroll_layout.addWidget(fila_widget)
-
     def crear_fila_asignatura_con_texto(self, codigo_asignatura, texto_mostrar):
         """Crea una fila con checkbox de asignatura + checkbox de lab aprobado"""
         fila_widget = QWidget()
@@ -747,20 +685,6 @@ class GestionAlumnoDialog(QDialog):
 
         # Añadir la fila al layout del scroll
         self.asignaturas_scroll_layout.addWidget(fila_widget)
-
-    def extraer_grupo_de_grupo(self, grupo):
-        """Extraer grupo del código de grupo (ej: A102 -> '1', EE309 -> '3')"""
-        # Buscar patrón LLXNN donde L=letras, X=primer dígito del grupo, NN=resto
-        match = re.search(r'[A-Z]+(\d)', grupo)
-        if match:
-            return match.group(1)  # Primer dígito
-        return "1"  # Por defecto 1º grupo
-
-    def tiene_asignaturas_disponibles(self):
-        """Verificar si hay asignaturas disponibles"""
-        sem1 = self.asignaturas_disponibles.get("1", {})
-        sem2 = self.asignaturas_disponibles.get("2", {})
-        return bool(sem1 or sem2)
 
     def cargar_datos_existentes(self):
         """Cargar datos del alumno existente con nueva estructura - SCROLL FINAL"""
@@ -1367,14 +1291,9 @@ class ConfigurarAlumnos(QMainWindow):
         self.btn_duplicar.clicked.connect(self.duplicar_alumno_seleccionado)
         acciones_layout.addWidget(self.btn_duplicar)
 
-        self.btn_buscar_duplicados = QPushButton("🔍 Buscar Duplicados")
-        self.btn_buscar_duplicados.clicked.connect(self.buscar_duplicados)
-        acciones_layout.addWidget(self.btn_buscar_duplicados)
-
-        self.btn_sincronizar = QPushButton("🔄 Sincronizar Asignaturas")
-        self.btn_sincronizar.setToolTip("Sincronizar con las asignaturas configuradas en el sistema")
-        self.btn_sincronizar.clicked.connect(self.sincronizar_asignaturas)
-        acciones_layout.addWidget(self.btn_sincronizar)
+        self.btn_buscar_alumno = QPushButton("🔍 Buscar Alumno")
+        self.btn_buscar_alumno.clicked.connect(self.buscar_alumno_dialog)
+        acciones_layout.addWidget(self.btn_buscar_alumno)
 
         acciones_group.setLayout(acciones_layout)
         right_layout.addWidget(acciones_group)
@@ -1384,14 +1303,17 @@ class ConfigurarAlumnos(QMainWindow):
         importar_layout = QVBoxLayout()
 
         self.btn_importar_alumnos = QPushButton("📥 Importar Alumnos")
+        self.btn_importar_alumnos.setToolTip("Importar Alumnos desde Excel")
         self.btn_importar_alumnos.clicked.connect(self.importar_alumnos_excel)
         importar_layout.addWidget(self.btn_importar_alumnos)
 
         self.btn_importar_aprobados = QPushButton("✅ Importar Alumnos Aprobados")
+        self.btn_importar_aprobados.setToolTip("Importar Alumnos que han Aprobado desde Excel")
         self.btn_importar_aprobados.clicked.connect(self.importar_alumnos_aprobados)
         importar_layout.addWidget(self.btn_importar_aprobados)
 
-        self.btn_cargar = QPushButton("📁 Cargar Configuración")
+        self.btn_cargar = QPushButton("📤 Importar Datos")
+        self.btn_cargar.setToolTip("Importar configuración desde JSON")
         self.btn_cargar.clicked.connect(self.cargar_configuracion)
         importar_layout.addWidget(self.btn_cargar)
 
@@ -1399,10 +1321,16 @@ class ConfigurarAlumnos(QMainWindow):
         right_layout.addWidget(importar_group)
 
         # Exportar datos
-        exportar_group = QGroupBox("📤 EXPORTAR DATOS")
+        exportar_group = QGroupBox("💾 EXPORTAR DATOS")
         exportar_layout = QVBoxLayout()
 
+        self.btn_exportar_alumnos = QPushButton("💾 Exportar Datos")
+        self.btn_exportar_alumnos.setToolTip("Exportar configuración a JSON")
+        self.btn_exportar_alumnos.clicked.connect(self.guardar_en_archivo)
+        exportar_layout.addWidget(self.btn_exportar_alumnos)
+
         self.btn_exportar_estadisticas = QPushButton("📊 Exportar Estadísticas")
+        self.btn_exportar_estadisticas.setToolTip("Exportar Estadisticas en TXT")
         self.btn_exportar_estadisticas.clicked.connect(self.exportar_estadisticas)
         exportar_layout.addWidget(self.btn_exportar_estadisticas)
 
@@ -1412,10 +1340,6 @@ class ConfigurarAlumnos(QMainWindow):
         # Guardar configuración
         botones_principales_group = QGroupBox("💾 GUARDAR CONFIGURACIÓN")
         botones_layout = QVBoxLayout()
-
-        self.btn_guardar_archivo = QPushButton("💾 Guardar en Archivo")
-        self.btn_guardar_archivo.clicked.connect(self.guardar_en_archivo)
-        botones_layout.addWidget(self.btn_guardar_archivo)
 
         self.btn_guardar_sistema = QPushButton("✅ Guardar en Sistema")
         self.btn_guardar_sistema.setStyleSheet("""
@@ -1764,7 +1688,7 @@ class ConfigurarAlumnos(QMainWindow):
         info = f"👤 ALUMNO: {nombre_completo.strip()}\n\n"
         info += f"🆔 DNI: {datos.get('dni', 'No definido')}\n"
         info += f"📧 Email: {datos.get('email', 'No definido')}\n"
-        info += f"📋 Matrícula: {datos.get('expediente', 'No definido')}\n"
+        info += f"📋 Exp. Centro: {datos.get('exp_centro', 'No definido')}\n"
         grupos_matriculado = datos.get('grupos_matriculado', [])
         if grupos_matriculado:
             info += f"👥 Grupos: {', '.join(grupos_matriculado)}\n\n"
@@ -1956,27 +1880,6 @@ class ConfigurarAlumnos(QMainWindow):
             nombre = f"{datos_nuevos.get('apellidos', '')} {datos_nuevos.get('nombre', '')}"
             QMessageBox.information(self, "Éxito", f"Alumno duplicado como '{nombre.strip()}'")
 
-    def toggle_lab_anterior(self):
-        """Cambiar experiencia previa del alumno actual"""
-        if not self.alumno_actual:
-            return
-
-        estado_actual = self.datos_configuracion[self.alumno_actual].get('lab_anterior', False)
-        nuevo_estado = not estado_actual
-
-        self.datos_configuracion[self.alumno_actual]['lab_anterior'] = nuevo_estado
-
-        # Actualizar interfaz
-        self.aplicar_filtro_asignatura()
-        self.seleccionar_alumno_por_dni(self.alumno_actual)
-        self.marcar_cambio_realizado()
-
-        datos = self.datos_configuracion[self.alumno_actual]
-        nombre = f"{datos.get('apellidos', '')} {datos.get('nombre', '')}"
-        estado_texto = "con experiencia" if nuevo_estado else "sin experiencia"
-        QMessageBox.information(self, "Estado Actualizado",
-                                f"Alumno '{nombre.strip()}' marcado como {estado_texto} previa")
-
     def importar_alumnos_excel(self):
         """Importar alumnos desde Excel con selector de asignatura"""
         # Verificar que hay asignaturas disponibles
@@ -1998,7 +1901,8 @@ class ConfigurarAlumnos(QMainWindow):
         # Seleccionar archivo Excel
         archivo, _ = QFileDialog.getOpenFileName(
             self, "Importar Alumnos desde Excel",
-            "", "Archivos Excel (*.xlsx *.xls);;Excel Nuevo (*.xlsx);;Excel Antiguo (*.xls);;Todos los archivos (*)"
+            obtener_ruta_descargas(),
+            "Archivos Excel (*.xlsx *.xls);;Excel Nuevo (*.xlsx);;Excel Antiguo (*.xls);;Todos los archivos (*)"
         )
 
         if not archivo:
@@ -2013,13 +1917,13 @@ class ConfigurarAlumnos(QMainWindow):
 
             # Mapeo de columnas esperadas (all en minúsculas)
             columnas_mapeo = {
-                'dni': ['dni', 'nº exp', 'nº expediente en centro'],
+                'dni': ['dni', 'n° exp', 'n° expediente en centro'],
                 'apellidos': ['apellidos'],
                 'nombre': ['nombre'],
                 'email': ['email', 'e-mail'],
                 'grupo': ['grupo matrícula', 'grupo matricula', 'grupo', 'grupo de matricula'],
-                'exp_centro': ['nº expediente en centro', 'exp centro', 'exp_centro', 'expediente centro'],
-                'exp_agora': ['nº expediente en ágora', 'exp agora', 'exp_agora', 'expediente agora']
+                'exp_centro': ['n° expediente en centro', 'exp centro', 'exp_centro', 'expediente centro', 'matricula'],
+                'exp_agora': ['n° expediente en ágora', 'exp agora', 'exp_agora', 'expediente agora']
             }
 
             # Detectar columnas
@@ -2264,7 +2168,7 @@ class ConfigurarAlumnos(QMainWindow):
         # Seleccionar archivo Excel
         archivo, _ = QFileDialog.getOpenFileName(
             self, "Importar Alumnos Aprobados desde Excel",
-            "", "Archivos Excel (*.xlsx *.xls);;Todos los archivos (*)"
+            obtener_ruta_descargas(), "Archivos Excel (*.xlsx *.xls);;Todos los archivos (*)"
         )
 
         if not archivo:
@@ -2473,75 +2377,63 @@ class ConfigurarAlumnos(QMainWindow):
                                  f"Use archivos .xlsx o .xls\n\n"
                                  f"Error original: {str(e)}")
 
-    def buscar_duplicados(self):
-        """Buscar alumnos duplicados por DNI o nombre completo"""
+    def buscar_alumno_dialog(self):
+        """Mostrar diálogo para buscar alumno por DNI o nombre"""
         if not self.datos_configuracion:
-            QMessageBox.information(self, "Sin Datos", "No hay alumnos para analizar")
+            QMessageBox.information(self, "Sin Datos", "No hay alumnos configurados para buscar")
             return
 
-        duplicados_dni = {}
-        duplicados_nombre = {}
+        texto_busqueda, ok = QInputDialog.getText(
+            self, "Buscar Alumno",
+            "Buscar por DNI o nombre/apellidos:"
+        )
 
-        # Buscar duplicados
+        if not ok or not texto_busqueda.strip():
+            return
+
+        texto_busqueda = texto_busqueda.strip().lower()
+        encontrados = []
+
         for dni, datos in self.datos_configuracion.items():
-            # Por DNI (ya no debería pasar, pero por si acaso)
-            if dni in duplicados_dni:
-                duplicados_dni[dni].append(datos)
-            else:
-                duplicados_dni[dni] = [datos]
+            # Buscar por DNI
+            if texto_busqueda.upper() in dni.upper():
+                encontrados.append((dni, datos))
+            # Buscar por nombre completo
+            elif (texto_busqueda in datos.get('nombre', '').lower() or
+                  texto_busqueda in datos.get('apellidos', '').lower() or
+                  texto_busqueda in f"{datos.get('apellidos', '')} {datos.get('nombre', '')}".lower()):
+                encontrados.append((dni, datos))
 
-            # Por nombre completo
-            # nombre_completo = f"{datos.get('apellidos', '')} {datos.get('nombre', '')}".strip().lower()
-            # if nombre_completo in duplicados_nombre:
-            #     duplicados_nombre[nombre_completo].append((dni, datos))
-            # else:
-            #     duplicados_nombre[nombre_completo] = [(dni, datos)]
-
-        # Filtrar solo los que tienen duplicados
-        duplicados_reales = []
-        for nombre, lista in duplicados_nombre.items():
-            if len(lista) > 1:
-                duplicados_reales.append((nombre, lista))
-
-        if not duplicados_reales:
-            QMessageBox.information(self, "Análisis Completo", "✅ No se encontraron alumnos duplicados")
-        else:
-            mensaje = f"⚠️ Se encontraron {len(duplicados_reales)} grupos de alumnos duplicados:\n\n"
-            for nombre, lista in duplicados_reales[:5]:  # Mostrar solo los primeros 5
-                mensaje += f"• {nombre.title()}:\n"
-                for dni, datos in lista:
-                    grupo = datos.get('grupo', 'Sin grupo')
-                    mensaje += f"  - DNI: {dni} (Grupo: {grupo})\n"
-                mensaje += "\n"
-
-            if len(duplicados_reales) > 5:
-                mensaje += f"... y {len(duplicados_reales) - 5} grupos más."
-
-            QMessageBox.warning(self, "Duplicados Encontrados", mensaje)
-
-    def sincronizar_asignaturas(self):
-        """Sincronizar asignaturas con el sistema"""
-        asignaturas_nuevas = self.obtener_asignaturas_del_sistema()
-
-        if asignaturas_nuevas == self.asignaturas_disponibles:
-            QMessageBox.information(self, "Sincronización", "✅ Las asignaturas ya están sincronizadas")
+        if not encontrados:
+            QMessageBox.information(self, "Sin Resultados",
+                                    f"No se encontraron alumnos que coincidan con '{texto_busqueda}'")
             return
 
-        self.asignaturas_disponibles = asignaturas_nuevas
-        self.configurar_filtros()
+        if len(encontrados) == 1:
+            # Seleccionar directamente
+            dni_encontrado = encontrados[0][0]
+            self.auto_seleccionar_alumno(dni_encontrado)
+            datos = encontrados[0][1]
+            nombre = f"{datos.get('apellidos', '')} {datos.get('nombre', '')}"
+            QMessageBox.information(self, "Alumno Encontrado",
+                                    f"Alumno seleccionado: {nombre.strip()} [{dni_encontrado}]")
+        else:
+            # Mostrar lista de opciones
+            opciones = []
+            for dni, datos in encontrados:
+                nombre = f"{datos.get('apellidos', '')} {datos.get('nombre', '')}"
+                opciones.append(f"{nombre.strip()} [{dni}]")
 
-        # Limpiar filtro actual
-        self.combo_filtro_asignatura.setCurrentIndex(0)
-        self.aplicar_filtro_asignatura()
+            opcion, ok = QInputDialog.getItem(
+                self, "Múltiples Resultados",
+                f"Se encontraron {len(encontrados)} alumnos. Selecciona uno:",
+                opciones, 0, False
+            )
 
-        sem1_count = len(asignaturas_nuevas.get("1", {}))
-        sem2_count = len(asignaturas_nuevas.get("2", {}))
-
-        QMessageBox.information(self, "Sincronización Exitosa",
-                                f"✅ Asignaturas sincronizadas:\n"
-                                f"• 1º Semestre: {sem1_count} asignaturas\n"
-                                f"• 2º Semestre: {sem2_count} asignaturas\n\n"
-                                f"💡 Los grupos se actualizarán automáticamente al crear/editar alumnos")
+            if ok:
+                # Extraer DNI de la opción seleccionada
+                dni_seleccionado = opcion.split('[')[-1].rstrip(']')
+                self.auto_seleccionar_alumno(dni_seleccionado)
 
     def actualizar_estadisticas(self):
         """Actualizar estadísticas por asignatura con nueva estructura"""
@@ -2658,140 +2550,6 @@ class ConfigurarAlumnos(QMainWindow):
             except Exception as e:
                 self.log_mensaje(f"⚠️ Error sincronizando estadísticas: {e}", "warning")
 
-    def importar_desde_csv(self):
-        """Importar alumnos desde archivo CSV"""
-        archivo, _ = QFileDialog.getOpenFileName(
-            self, "Importar Alumnos desde CSV",
-            "", "Archivos CSV (*.csv);;Todos los archivos (*)"
-        )
-
-        if not archivo:
-            return
-
-        try:
-            df = pd.read_csv(archivo)
-
-            # Verificar columnas requeridas
-            columnas_requeridas = ['dni', 'nombre', 'apellidos']
-            columnas_faltantes = [col for col in columnas_requeridas if col not in df.columns]
-
-            if columnas_faltantes:
-                QMessageBox.warning(
-                    self, "Columnas Faltantes",
-                    f"El archivo CSV debe contener las columnas:\n{', '.join(columnas_faltantes)}"
-                )
-                return
-
-            # Importar datos
-            alumnos_importados = 0
-            alumnos_duplicados = 0
-
-            for _, row in df.iterrows():
-                dni = str(row['dni']).strip().upper()
-                if not dni:
-                    continue
-
-                if dni in self.datos_configuracion:
-                    alumnos_duplicados += 1
-                    continue
-
-                # Procesar asignaturas matriculadas si existe la columna
-                asignaturas_matriculadas = []
-                if 'asignatura' in df.columns and pd.notna(row['asignatura']):
-                    # Una sola asignatura por fila (formato del ejemplo)
-                    asignatura = str(row['asignatura']).strip()
-                    # Detectar semestre basado en asignaturas disponibles
-                    for sem in ["1", "2"]:
-                        if asignatura in self.asignaturas_disponibles.get(sem, {}):
-                            asignaturas_matriculadas.append(f"{sem}_{asignatura}")
-                            break
-
-                self.datos_configuracion[dni] = {
-                    'dni': dni,
-                    'nombre': str(row['nombre']).strip(),
-                    'apellidos': str(row.get('apellidos', '')).strip(),
-                    'email': str(row.get('email', '')).strip().lower(),
-                    'expediente': str(row.get('expediente', '')).strip(),
-                    'fecha_matricula': datetime.now().strftime('%Y-%m-%d'),
-                    'grupo': str(row.get('grupo', '')).strip().upper(),
-                    'asignaturas_matriculadas': asignaturas_matriculadas,
-                    'lab_anterior': str(row.get('lab_anterior', 'no')).lower() in ['si', 'sí', 'true', '1', 'yes'],
-                    'observaciones': str(row.get('observaciones', '')).strip(),
-                    'fecha_creacion': datetime.now().isoformat()
-                }
-                alumnos_importados += 1
-
-            # Auto-ordenar
-            self.ordenar_alumnos_alfabeticamente()
-
-            # Actualizar interfaz
-            self.aplicar_filtro_asignatura()
-            self.marcar_cambio_realizado()
-
-            mensaje = f"✅ Importación completada:\n"
-            mensaje += f"• {alumnos_importados} alumnos importados\n"
-            if alumnos_duplicados > 0:
-                mensaje += f"• {alumnos_duplicados} alumnos duplicados (omitidos)"
-
-            QMessageBox.information(self, "Importación Exitosa", mensaje)
-
-        except Exception as e:
-            QMessageBox.critical(self, "Error de Importación",
-                                 f"Error al importar archivo CSV:\n{str(e)}")
-
-    def exportar_a_csv(self):
-        """Exportar alumnos a archivo CSV"""
-        if not self.datos_configuracion:
-            QMessageBox.information(self, "Sin Datos", "No hay alumnos para exportar")
-            return
-
-        archivo, _ = QFileDialog.getSaveFileName(
-            self, "Exportar Alumnos a CSV",
-            f"alumnos_{datetime.now().strftime('%Y%m%d_%H%M%S')}.csv",
-            "Archivos CSV (*.csv)"
-        )
-
-        if not archivo:
-            return
-
-        try:
-            datos_export = []
-            for dni, datos in self.datos_configuracion.items():
-                # Expandir por asignatura (una fila por asignatura)
-                asignaturas = datos.get('asignaturas_matriculadas', [])
-                if not asignaturas:
-                    asignaturas = ['Sin asignatura']
-
-                for asig_key in asignaturas:
-                    # Separar semestre y asignatura
-                    if '_' in asig_key:
-                        sem, asignatura = asig_key.split('_', 1)
-                    else:
-                        sem, asignatura = '', asig_key
-
-                    datos_export.append({
-                        'dni': dni,
-                        'nombre': datos.get('nombre', ''),
-                        'apellidos': datos.get('apellidos', ''),
-                        'email': datos.get('email', ''),
-                        'expediente': datos.get('expediente', ''),
-                        'grupo': datos.get('grupo', ''),
-                        'fecha_matricula': datos.get('fecha_matricula', ''),
-                        'asignatura': asignatura,
-                        'semestre': sem,
-                        'lab_anterior': 'Si' if datos.get('lab_anterior', False) else 'No',
-                        'observaciones': datos.get('observaciones', '')
-                    })
-
-            df = pd.DataFrame(datos_export)
-            df.to_csv(archivo, index=False, encoding='utf-8')
-
-            QMessageBox.information(self, "Exportación Exitosa", f"Datos exportados a:\n{archivo}")
-
-        except Exception as e:
-            QMessageBox.critical(self, "Error de Exportación",
-                                 f"Error al exportar datos:\n{str(e)}")
-
     def exportar_estadisticas(self):
         """Exportar estadísticas a archivo"""
         if not self.datos_configuracion:
@@ -2800,7 +2558,8 @@ class ConfigurarAlumnos(QMainWindow):
 
         archivo, _ = QFileDialog.getSaveFileName(
             self, "Exportar Estadísticas",
-            f"estadisticas_alumnos_{datetime.now().strftime('%Y%m%d_%H%M%S')}.txt",
+            os.path.join(obtener_ruta_descargas(),
+                         f"estadisticas_alumnos_{datetime.now().strftime('%Y%m%d_%H%M%S')}.txt"),
             "Archivos de texto (*.txt)"
         )
 
@@ -2834,7 +2593,7 @@ class ConfigurarAlumnos(QMainWindow):
         """Cargar configuración desde archivo JSON"""
         archivo, _ = QFileDialog.getOpenFileName(
             self, "Cargar Configuración de Alumnos",
-            "", "Archivos JSON (*.json)"
+            obtener_ruta_descargas(), "Archivos JSON (*.json)"
         )
 
         if not archivo:
@@ -2875,7 +2634,7 @@ class ConfigurarAlumnos(QMainWindow):
 
         archivo, _ = QFileDialog.getSaveFileName(
             self, "Guardar Configuración de Alumnos",
-            f"alumnos_{datetime.now().strftime('%Y%m%d_%H%M%S')}.json",
+            os.path.join(obtener_ruta_descargas(), f"alumnos_{datetime.now().strftime('%Y%m%d_%H%M%S')}.json"),
             "Archivos JSON (*.json)"
         )
 
@@ -3246,7 +3005,7 @@ def main():
             "nombre": "María",
             "apellidos": "Fernández Ruiz",
             "email": "maria.fernandez@alumnos.upm.es",
-            "grupo": "B204",
+            "grupos_matriculado": ["B204"],
             "asignaturas_matriculadas": {
                 "1_Fisica I": {"matriculado": True, "lab_aprobado": True}
             },
