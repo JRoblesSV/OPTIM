@@ -11,17 +11,16 @@ Universidad: ETSIDI (UPM)
 import sys
 import os
 import json
-import pandas as pd
 from datetime import datetime
 from PyQt6.QtWidgets import (
     QApplication, QMainWindow, QWidget, QVBoxLayout, QHBoxLayout,
-    QGridLayout, QLabel, QPushButton, QComboBox, QSpinBox, QListWidget,
-    QListWidgetItem, QGroupBox, QFrame, QScrollArea, QMessageBox,
-    QDialog, QDialogButtonBox, QCheckBox, QFileDialog,
+    QLabel, QPushButton, QComboBox, QSpinBox, QListWidget,
+    QListWidgetItem, QGroupBox, QMessageBox,
+    QDialog, QDialogButtonBox, QFileDialog,
     QLineEdit, QInputDialog, QTextEdit, QFormLayout
 )
 from PyQt6.QtCore import Qt, pyqtSignal, QTimer
-from PyQt6.QtGui import QFont, QPalette, QColor
+from PyQt6.QtGui import QPalette, QColor
 
 
 def center_window_on_screen_immediate(window, width, height):
@@ -128,7 +127,7 @@ class GestionAsignaturaDialog(QDialog):
         self.combo_semestre.addItems(["1º Semestre", "2º Semestre"])
 
         self.combo_curso = QComboBox()
-        self.combo_curso.addItems(["1º Curso", "2º Curso", "3º Curso", "4º Curso"])
+        self.combo_curso.addItems(["1º Curso", "2º Curso", "3º Curso", "4º Curso", "5º Curso"])
 
         # self.combo_curso.currentTextChanged.connect(self.validar_cambio_curso)
 
@@ -247,7 +246,7 @@ class GestionAsignaturaDialog(QDialog):
         #self.label_alumnos_grupo.setStyleSheet("color: #cccccc; font-size: 11px;")
 
         config_grupo_layout.addRow("⏱️ Duración:", duracion_layout)
-        config_grupo_layout.addRow("👥 Grupos de alumnos:", grupos_layout)
+        config_grupo_layout.addRow("👥 Grupos de laboratorio:", grupos_layout)
         config_grupo_layout.addRow("📅 Número prácticas:", clases_layout)
         #config_grupo_layout.addRow("👨‍🎓 Alumnos:", con_lab_anterior)
 
@@ -882,7 +881,7 @@ class GestionAsignaturaDialog(QDialog):
             print(f"Error igualando tamaños: {e}")
 
     def configurar_botones_uniformes(self):
-        """Configurar estilos uniformes para botones OK/Cancel - SIN CAMBIAR TEXTO"""
+        """Configurar estilos uniformes para botones OK/Cancel"""
         try:
             # Buscar el QDialogButtonBox
             button_box = self.findChild(QDialogButtonBox)
@@ -891,7 +890,7 @@ class GestionAsignaturaDialog(QDialog):
                 ok_button = button_box.button(QDialogButtonBox.StandardButton.Ok)
                 cancel_button = button_box.button(QDialogButtonBox.StandardButton.Cancel)
 
-                # ✅ ESTILO UNIFORME PARA AMBOS BOTONES - MISMO COLOR DE FONDO
+                # Estilo uniforme para los botones OK/Cancelar
                 estilo_uniforme = """
                     QPushButton {
                         background-color: #4a4a4a;
@@ -1660,7 +1659,7 @@ class ConfigurarAsignaturas(QMainWindow):
             self.log_mensaje(f"⚠️ Error sincronizando con grupos: {e}", "warning")
 
     def anadir_asignatura(self):
-        """Añadir nueva asignatura - CON SINCRONIZACIÓN"""
+        """Añadir asignatura (con sincronización)"""
         dialog = GestionAsignaturaDialog(None, self.alumnos_disponibles, self.aulas_disponibles, self.grupos_disponibles, self)
 
         if dialog.exec() == QDialog.DialogCode.Accepted:
@@ -1735,6 +1734,10 @@ class ConfigurarAsignaturas(QMainWindow):
             if grupos_añadidos or grupos_eliminados:
                 self.sincronizar_con_grupos(codigo_nuevo, grupos_añadidos, grupos_eliminados)
 
+            # SINCRONIZACION: franjas horarias
+            if grupos_eliminados:
+                self.eliminar_asignatura_de_franjas_horario(codigo_nuevo, grupos_eliminados)
+
             # Auto-ordenar
             self.ordenar_asignaturas_alfabeticamente()
 
@@ -1758,7 +1761,7 @@ class ConfigurarAsignaturas(QMainWindow):
                 return
 
             # Obtener datos de la asignatura después de editar
-            datos_asignatura = self.datos_configuracion.get(codigo_nuevo)  # Ya actualizado localmente
+            datos_asignatura = self.datos_configuracion.get(codigo_nuevo)
             if not datos_asignatura:
                 self.log_mensaje(f"⚠️ Asignatura {codigo_nuevo} no encontrada en configuración", "warning")
                 return
@@ -1835,7 +1838,6 @@ class ConfigurarAsignaturas(QMainWindow):
         except Exception as e:
             self.log_mensaje(f"⚠️ Error editando asignatura en grupos: {e}", "warning")
 
-
     def editar_asignatura_en_profesores_sistema(self, codigo_original, codigo_nuevo):
         """Editar código de asignatura en el sistema de profesores"""
         try:
@@ -1885,7 +1887,6 @@ class ConfigurarAsignaturas(QMainWindow):
         except Exception as e:
             self.log_mensaje(f"⚠️ Error editando asignatura en profesores: {e}", "warning")
 
-
     def editar_asignatura_en_alumnos_sistema(self, codigo_original, codigo_nuevo):
         """Editar código de asignatura en el sistema de alumnos"""
         try:
@@ -1931,7 +1932,6 @@ class ConfigurarAsignaturas(QMainWindow):
 
         except Exception as e:
             self.log_mensaje(f"⚠️ Error editando asignatura en alumnos: {e}", "warning")
-
 
     def editar_asignatura_en_horarios_sistema(self, codigo_original, codigo_nuevo):
         """Editar código de asignatura en el sistema de horarios"""
@@ -1984,7 +1984,6 @@ class ConfigurarAsignaturas(QMainWindow):
         except Exception as e:
             self.log_mensaje(f"⚠️ Error editando asignatura en horarios: {e}", "warning")
 
-
     def editar_asignatura_en_aulas_sistema(self, codigo_original, codigo_nuevo):
         """Editar código de asignatura en el sistema de aulas"""
         try:
@@ -2031,7 +2030,6 @@ class ConfigurarAsignaturas(QMainWindow):
 
         except Exception as e:
             self.log_mensaje(f"⚠️ Error editando asignatura en aulas: {e}", "warning")
-
 
     def editar_asignatura_en_asignaturas_sistema(self, codigo_original, codigo_nuevo):
         """Editar código de asignatura en el módulo de asignaturas del sistema"""
@@ -2344,6 +2342,110 @@ class ConfigurarAsignaturas(QMainWindow):
         except Exception as e:
             self.log_mensaje(f"⚠️ Error eliminando asignatura de horarios: {e}", "warning")
 
+    def eliminar_asignatura_de_franjas_horario(self, asignatura_codigo, grupos_eliminados, semestres=None):
+        """
+        Eliminar grupos de las franjas (horarios_grid) para una asignatura.
+        """
+        try:
+            cfg = self.parent_window.configuracion.get("configuracion", {})
+            mod_horarios = cfg.get("horarios", {})
+            datos_hor = mod_horarios.get("datos", {})
+            if not datos_hor:
+                return
+
+            # Determinar semestres a procesar
+            if semestres is None:
+                # Solo claves tipo str (p.ej., "1", "2")
+                semestres = [s for s in datos_hor.keys() if isinstance(s, str)]
+
+            # Normalizar el parámetro a conjunto para búsquedas O(1)
+            grupos_objetivo = set(grupos_eliminados or [])
+            if not grupos_objetivo:
+                return
+
+            celdas_modificadas = 0
+            franjas_eliminadas_total = 0
+            dias_eliminados_total = 0
+
+            for semestre in semestres:
+                sem_data = datos_hor.get(semestre)
+                if not isinstance(sem_data, dict):
+                    continue
+
+                asig_data = sem_data.get(asignatura_codigo)
+                if not isinstance(asig_data, dict):
+                    continue
+
+                grid = asig_data.get("horarios_grid", {})
+                if not isinstance(grid, dict):
+                    continue
+
+                franjas_a_borrar = []
+
+                for franja, dias in grid.items():
+                    if not isinstance(dias, dict):
+                        continue
+
+                    dias_a_borrar = []
+
+                    for dia, celda in dias.items():
+                        # Celda esperada: {"grupos": [..], "mixta": bool}
+                        if not isinstance(celda, dict):
+                            continue
+
+                        grupos = celda.get("grupos")
+                        if isinstance(grupos, list):
+                            # Filtrar los grupos eliminados
+                            nuevos = [g for g in grupos if g not in grupos_objetivo]
+                            if len(nuevos) != len(grupos):
+                                celda["grupos"] = nuevos
+                                celdas_modificadas += 1
+                                self.log_mensaje(
+                                    f"🔄 Limpiada franja {franja} / {dia} en {asignatura_codigo}: "
+                                    f"eliminados {sorted(grupos_objetivo.intersection(grupos))}",
+                                    "info"
+                                )
+
+                                # Si el día quedó vacío, marcar para borrar
+                                if not celda["grupos"]:
+                                    dias_a_borrar.append(dia)
+
+                    # Borrar días vacíos
+                    for dia in dias_a_borrar:
+                        del dias[dia]
+                        dias_eliminados_total += 1
+                        self.log_mensaje(
+                            f"🗑️ Día '{dia}' eliminado de {asignatura_codigo}.{franja} (sin grupos)",
+                            "info"
+                        )
+
+                    # Si la franja quedó sin días, marcar para borrar
+                    if not dias:
+                        franjas_a_borrar.append(franja)
+
+                # Borrar franjas vacías
+                for fr in franjas_a_borrar:
+                    del grid[fr]
+                    franjas_eliminadas_total += 1
+                    self.log_mensaje(
+                        f"🗑️ Franja '{fr}' eliminada de {asignatura_codigo} (sin días)",
+                        "info"
+                    )
+
+            # Registrar y fechar si hubo cambios
+            if celdas_modificadas or franjas_eliminadas_total or dias_eliminados_total:
+                self.parent_window.configuracion["configuracion"]["horarios"][
+                    "fecha_actualizacion"] = datetime.now().isoformat()
+                self.log_mensaje(
+                    f"✅ Limpieza de franjas completada para {asignatura_codigo}: "
+                    f"{celdas_modificadas} celdas actualizadas, "
+                    f"{dias_eliminados_total} días y {franjas_eliminadas_total} franjas eliminadas",
+                    "success"
+                )
+
+        except Exception as e:
+            self.log_mensaje(f"⚠️ Error eliminando grupos de franjas para {asignatura_codigo}: {e}", "warning")
+
     def eliminar_asignatura_de_aulas_sistema(self, asignatura_codigo):
         """Eliminar asignatura del sistema de aulas"""
         try:
@@ -2465,7 +2567,7 @@ class ConfigurarAsignaturas(QMainWindow):
             # Añadir asignatura duplicada
             self.datos_configuracion[codigo_final] = datos_nuevos
 
-            # SINCRONIZACIÓN: Notificar grupos asociados (NUEVO)
+            # SINCRONIZACIÓN: Notificar grupos asociados
             grupos_asociados = datos_nuevos.get('grupos_asociados', [])
             if grupos_asociados:
                 self.sincronizar_con_grupos(codigo_final, grupos_asociados, [])

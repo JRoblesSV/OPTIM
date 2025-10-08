@@ -12,17 +12,16 @@ Universidad: ETSIDI (UPM)
 import sys
 import os
 import json
-import pandas as pd
 from datetime import datetime
 from PyQt6.QtWidgets import (
     QApplication, QMainWindow, QWidget, QVBoxLayout, QHBoxLayout,
-    QGridLayout, QLabel, QPushButton, QComboBox, QSpinBox, QListWidget,
-    QListWidgetItem, QGroupBox, QFrame, QScrollArea, QMessageBox,
+    QLabel, QPushButton, QComboBox, QSpinBox, QListWidget,
+    QListWidgetItem, QGroupBox, QMessageBox,
     QDialog, QDialogButtonBox, QCheckBox, QFileDialog,
     QLineEdit, QInputDialog, QTextEdit, QFormLayout
 )
 from PyQt6.QtCore import Qt, pyqtSignal, QTimer
-from PyQt6.QtGui import QFont, QPalette, QColor
+from PyQt6.QtGui import QPalette, QColor
 
 
 def center_window_on_screen_immediate(window, width, height):
@@ -121,7 +120,7 @@ class GestionGrupoDialog(QDialog):
         self.edit_nombre.setPlaceholderText("Grado en Ingeniería en Tecnologías Industriales...")
 
         self.combo_curso_actual = QComboBox()
-        self.combo_curso_actual.addItems(["1º Curso", "2º Curso", "3º Curso", "4º Curso"])
+        self.combo_curso_actual.addItems(["1º Curso", "2º Curso", "3º Curso", "4º Curso", "5º Curso"])
 
         self.edit_coordinador = QLineEdit()
         self.edit_coordinador.setPlaceholderText("Dr. García López, Dra. Martínez Ruiz...")
@@ -314,15 +313,15 @@ class GestionGrupoDialog(QDialog):
             self.edit_nombre.setFocus()
             return
 
-        if not self.edit_coordinador.text().strip():
-            QMessageBox.warning(self, "Campo requerido", "El coordinador del grupo es obligatorio")
-            self.edit_coordinador.setFocus()
-            return
+        #if not self.edit_coordinador.text().strip():
+        #    QMessageBox.warning(self, "Campo requerido", "El coordinador del grupo es obligatorio")
+        #    self.edit_coordinador.setFocus()
+        #    return
 
-        if not self.edit_departamento.text().strip():
-            QMessageBox.warning(self, "Campo requerido", "El departamento del grupo es obligatorio")
-            self.edit_departamento.setFocus()
-            return
+        #if not self.edit_departamento.text().strip():
+        #    QMessageBox.warning(self, "Campo requerido", "El departamento del grupo es obligatorio")
+        #    self.edit_departamento.setFocus()
+        #    return
 
         # Validar coherencia de datos
         plazas = self.spin_plazas.value()
@@ -586,7 +585,7 @@ class GestionGrupoDialog(QDialog):
             print(f"Error igualando tamaños: {e}")
 
     def configurar_botones_uniformes(self):
-        """Configurar estilos uniformes para botones OK/Cancel - SIN CAMBIAR TEXTO"""
+        """Configurar estilos uniformes para botones OK/Cancel"""
         try:
             # Buscar el QDialogButtonBox
             button_box = self.findChild(QDialogButtonBox)
@@ -595,7 +594,7 @@ class GestionGrupoDialog(QDialog):
                 ok_button = button_box.button(QDialogButtonBox.StandardButton.Ok)
                 cancel_button = button_box.button(QDialogButtonBox.StandardButton.Cancel)
 
-                # ✅ ESTILO UNIFORME PARA AMBOS BOTONES - MISMO COLOR DE FONDO
+                # Estilo uniforme para los botones OK/Cancelar
                 estilo_uniforme = """
                     QPushButton {
                         background-color: #4a4a4a;
@@ -1170,7 +1169,7 @@ class ConfigurarGrupos(QMainWindow):
             QLabel {
                 color: #ffffff;
             }
-            /* ✅ TOOLTIPS CORREGIDOS */
+            /* TOOLTIPS */
             QToolTip {
                 background-color: #2b2b2b;
                 color: #ffffff;
@@ -1295,12 +1294,17 @@ class ConfigurarGrupos(QMainWindow):
         self.btn_duplicar.setEnabled(True)
 
     def sincronizar_con_asignaturas(self, grupo_codigo, asignaturas_nuevas, asignaturas_eliminadas):
-        """Sincronizar cambios con módulo de asignaturas"""
+        """Sincroniza altas/bajas del grupo con el módulo de asignaturas.
+
+        Notas:
+          - `grupos_asociados` es un diccionario cuyas claves son códigos de grupo.
+          - Altas: se crea/actualiza la clave `grupo_codigo` con un dict (vacío si no aplica).
+          - Bajas: se elimina la clave `grupo_codigo` si existe.
+        """
         try:
             if not self.parent_window:
                 return
 
-            # Obtener configuración actual de asignaturas
             config_asignaturas = self.parent_window.configuracion["configuracion"].get("asignaturas", {})
             if not config_asignaturas.get("configurado") or not config_asignaturas.get("datos"):
                 return
@@ -1308,30 +1312,31 @@ class ConfigurarGrupos(QMainWindow):
             datos_asignaturas = config_asignaturas["datos"]
             cambios_realizados = False
 
-            # AÑADIR grupo a asignaturas nuevas
+            # Altas: garantizar clave en dict grupos_asociados
             for asignatura_codigo in asignaturas_nuevas:
                 if asignatura_codigo in datos_asignaturas:
-                    grupos_actuales = datos_asignaturas[asignatura_codigo].get("grupos_asociados", [])
-                    if grupo_codigo not in grupos_actuales:
-                        grupos_actuales.append(grupo_codigo)
-                        datos_asignaturas[asignatura_codigo]["grupos_asociados"] = sorted(grupos_actuales)
+                    ga = datos_asignaturas[asignatura_codigo].get("grupos_asociados")
+                    if not isinstance(ga, dict):
+                        ga = {}
+                    if grupo_codigo not in ga:
+                        ga[grupo_codigo] = ga.get(grupo_codigo, {})  # payload vacío/sin estructura específica
+                        datos_asignaturas[asignatura_codigo]["grupos_asociados"] = ga
                         cambios_realizados = True
 
-            # ELIMINAR grupo de asignaturas eliminadas
+            # Bajas: eliminar clave del dict
             for asignatura_codigo in asignaturas_eliminadas:
                 if asignatura_codigo in datos_asignaturas:
-                    grupos_actuales = datos_asignaturas[asignatura_codigo].get("grupos_asociados", [])
-                    if grupo_codigo in grupos_actuales:
-                        grupos_actuales.remove(grupo_codigo)
-                        datos_asignaturas[asignatura_codigo]["grupos_asociados"] = sorted(grupos_actuales)
+                    ga = datos_asignaturas[asignatura_codigo].get("grupos_asociados")
+                    if isinstance(ga, dict) and grupo_codigo in ga:
+                        ga.pop(grupo_codigo, None)
+                        datos_asignaturas[asignatura_codigo]["grupos_asociados"] = ga
                         cambios_realizados = True
 
-            # Actualizar configuración si hubo cambios
             if cambios_realizados:
                 self.parent_window.configuracion["configuracion"]["asignaturas"]["datos"] = datos_asignaturas
                 self.parent_window.configuracion["configuracion"]["asignaturas"][
                     "fecha_actualizacion"] = datetime.now().isoformat()
-                self.log_mensaje(f"🔄 Sincronizadas asignaturas desde grupo {grupo_codigo}", "info")
+                self.log_mensaje(f"🔄 Sincronizado grupo {grupo_codigo} con módulo de asignaturas", "info")
 
         except Exception as e:
             self.log_mensaje(f"⚠️ Error sincronizando con asignaturas: {e}", "warning")
@@ -1448,6 +1453,7 @@ class ConfigurarGrupos(QMainWindow):
 
             # 3. Editar en horarios
             self.editar_grupo_en_horarios_sistema(codigo_original, codigo_nuevo)
+            self.editar_grupo_en_franjas_horario(codigo_original, codigo_nuevo, asignaturas_asociadas)
 
             # 4. Editar en configuración de grupos del sistema
             self.editar_grupo_en_grupos_sistema(codigo_original, codigo_nuevo)
@@ -1458,7 +1464,12 @@ class ConfigurarGrupos(QMainWindow):
             self.log_mensaje(f"❌ Error en edición completa de grupo {codigo_original}: {e}", "error")
 
     def editar_grupo_en_asignaturas_sistema(self, codigo_original, codigo_nuevo, asignaturas_asociadas):
-        """Editar código de grupo en el sistema de asignaturas"""
+        """Renombra el código de grupo en el módulo de asignaturas.
+
+        Criterios:
+          - `grupos_asociados` es dict -> renombrar clave `codigo_original` a `codigo_nuevo`.
+          - Se conserva el payload asociado a la clave (dict existente o se crea vacío).
+        """
         try:
             config_asignaturas = self.parent_window.configuracion["configuracion"].get("asignaturas", {})
             if not config_asignaturas.get("configurado") or not config_asignaturas.get("datos"):
@@ -1469,18 +1480,21 @@ class ConfigurarGrupos(QMainWindow):
 
             for asignatura_codigo in asignaturas_asociadas:
                 if asignatura_codigo in datos_asignaturas:
-                    grupos_actuales = datos_asignaturas[asignatura_codigo].get("grupos_asociados", [])
-                    if codigo_original in grupos_actuales:
-                        # Reemplazar código antiguo por nuevo
-                        indice = grupos_actuales.index(codigo_original)
-                        grupos_actuales[indice] = codigo_nuevo
-                        datos_asignaturas[asignatura_codigo]["grupos_asociados"] = sorted(grupos_actuales)
+                    ga = datos_asignaturas[asignatura_codigo].get("grupos_asociados")
+                    if isinstance(ga, dict) and codigo_original in ga:
+                        payload = ga.pop(codigo_original)
+                        # Si por diseño no hay payload estructurado, garantizamos dict vacío
+                        if not isinstance(payload, dict):
+                            payload = {}
+                        ga[codigo_nuevo] = payload
+                        datos_asignaturas[asignatura_codigo]["grupos_asociados"] = ga
                         cambios_realizados = True
 
             if cambios_realizados:
                 self.parent_window.configuracion["configuracion"]["asignaturas"][
                     "fecha_actualizacion"] = datetime.now().isoformat()
-                self.log_mensaje(f"🔄 Grupo {codigo_original} → {codigo_nuevo} editado en módulo de asignaturas", "info")
+                self.log_mensaje(f"🔄 Grupo {codigo_original} → {codigo_nuevo} renombrado en módulo de asignaturas",
+                                 "info")
 
         except Exception as e:
             self.log_mensaje(f"⚠️ Error editando grupo en asignaturas: {e}", "warning")
@@ -1493,18 +1507,29 @@ class ConfigurarGrupos(QMainWindow):
                 return
 
             datos_alumnos = config_alumnos["datos"]
-            cambios_realizados = False
+            cambios_realizados_grupos_matriculado = False
+            cambios_realizados_asignaturas_matriculadas = False
 
             for alumno_codigo, alumno_data in datos_alumnos.items():
+                # 1. Actualizar grupos_matriculado
                 grupos_matriculados = alumno_data.get("grupos_matriculado", [])
                 if codigo_original in grupos_matriculados:
                     # Reemplazar código antiguo por nuevo
                     indice = grupos_matriculados.index(codigo_original)
                     grupos_matriculados[indice] = codigo_nuevo
                     alumno_data["grupos_matriculado"] = grupos_matriculados
-                    cambios_realizados = True
+                    cambios_realizados_grupos_matriculado = True
 
-            if cambios_realizados:
+                # 2. Actualizar campo 'grupo' dentro de cada asignatura
+                asignaturas_matriculadas = alumno_data.get("asignaturas_matriculadas", {})
+                for asig_codigo, asig_info in asignaturas_matriculadas.items():
+                    if isinstance(asig_info, dict):
+                        grupo_asig = asig_info.get("grupo")
+                        if grupo_asig == codigo_original:
+                            asig_info["grupo"] = codigo_nuevo
+                            cambios_realizados_asignaturas_matriculadas = True
+
+            if cambios_realizados_grupos_matriculado and cambios_realizados_asignaturas_matriculadas:
                 self.parent_window.configuracion["configuracion"]["alumnos"][
                     "fecha_actualizacion"] = datetime.now().isoformat()
                 self.log_mensaje(f"🔄 Grupo {codigo_original} → {codigo_nuevo} editado en módulo de alumnos", "info")
@@ -1560,6 +1585,79 @@ class ConfigurarGrupos(QMainWindow):
 
         except Exception as e:
             self.log_mensaje(f"⚠️ Error editando grupo en horarios: {e}", "warning")
+
+    def editar_grupo_en_franjas_horario(self, codigo_original, codigo_nuevo, asignaturas_asociadas=None,
+                                        semestres=None):
+        """Renombra el código de grupo en todas las franjas del horarios_grid.
+
+        Parámetros:
+            codigo_original (str): código de grupo actual en las franjas (p. ej., "A408").
+            codigo_nuevo (str): nuevo código de grupo a aplicar (p. ej., "A409").
+            asignaturas_asociadas (list[str] | None): limitar la actualización a estas asignaturas.
+                Si None, se intentará aplicar a todas las asignaturas presentes en los horarios.
+            semestres (list[str] | None): limitar a semestres concretos (p. ej., ["1", "2"]).
+                Si None, se detectan automáticamente a partir de la configuración.
+
+        Comportamiento:
+            - Recorre horarios_grid de cada asignatura/semestre y reemplaza codigo_original por codigo_nuevo
+              en todas las listas de grupos por franja y día.
+            - No crea nuevas franjas ni altera el orden de las listas, únicamente sustituye el literal del grupo.
+        """
+        try:
+            cfg = self.parent_window.configuracion.get("configuracion", {})
+            horarios = cfg.get("horarios", {})
+            datos_hor = horarios.get("datos", {})
+            if not datos_hor:
+                return
+
+            # Determinar semestres a procesar
+            if semestres is None:
+                semestres = [s for s in datos_hor.keys() if isinstance(s, str)]
+            # Normalizar listado de asignaturas a procesar por semestre
+            cambios = 0
+
+            for semestre in semestres:
+                sem_data = datos_hor.get(semestre, {})
+                if not sem_data:
+                    continue
+
+                # Si no se limitaron asignaturas, tomar todas las del semestre
+                asignaturas_objetivo = asignaturas_asociadas or list(sem_data.keys())
+
+                for asig in asignaturas_objetivo:
+                    asig_data = sem_data.get(asig)
+                    if not asig_data:
+                        continue
+
+                    grid = asig_data.get("horarios_grid", {})
+                    if not isinstance(grid, dict):
+                        continue
+
+                    # Estructura esperada: horarios_grid[franja][dia]["grupos"] -> list[str]
+                    for franja, dias in grid.items():
+                        if not isinstance(dias, dict):
+                            continue
+                        for dia, celda in dias.items():
+                            if not isinstance(celda, dict):
+                                continue
+                            grupos = celda.get("grupos")
+                            if isinstance(grupos, list) and codigo_original in grupos:
+                                # Reemplazo in-place manteniendo orden
+                                celda["grupos"] = [codigo_nuevo if g == codigo_original else g for g in grupos]
+                                cambios += 1
+
+            if cambios > 0:
+                # Fecha de actualización de horarios
+                self.parent_window.configuracion["configuracion"]["horarios"][
+                    "fecha_actualizacion"] = datetime.now().isoformat()
+                self.log_mensaje(
+                    f"Actualizadas {cambios} celdas en franjas de horario: {codigo_original} → {codigo_nuevo}",
+                    "info"
+                )
+
+        except Exception as e:
+            self.log_mensaje(f"Error actualizando franjas de horario (renombrar {codigo_original}→{codigo_nuevo}): {e}",
+                             "warning")
 
     def editar_grupo_en_grupos_sistema(self, codigo_original, codigo_nuevo):
         """Editar código de grupo en el sistema de grupos"""
@@ -1676,6 +1774,7 @@ class ConfigurarGrupos(QMainWindow):
 
             # 3. Eliminar de horarios
             self.eliminar_grupo_de_horarios_sistema(grupo_codigo)
+            self.eliminar_grupo_de_franjas_horario(grupo_codigo, asignaturas_asociadas)
 
             # 5. Eliminar de configuración de grupos
             self.eliminar_grupo_de_grupos_sistema(grupo_codigo)
@@ -1690,7 +1789,12 @@ class ConfigurarGrupos(QMainWindow):
             self.log_mensaje(f"❌ Error en eliminación completa de grupo {grupo_codigo}: {e}", "error")
 
     def eliminar_grupo_de_asignaturas_sistema(self, grupo_codigo, asignaturas_asociadas):
-        """Eliminar grupo del sistema de asignaturas"""
+        """Elimina el grupo de todas las asignaturas indicadas.
+
+        Detalle:
+          - `grupos_asociados` es dict -> se elimina la clave `grupo_codigo` si existe.
+          - No ordena ni transforma: respeta la estructura actual del diccionario.
+        """
         try:
             config_asignaturas = self.parent_window.configuracion["configuracion"].get("asignaturas", {})
             if not config_asignaturas.get("configurado") or not config_asignaturas.get("datos"):
@@ -1701,10 +1805,10 @@ class ConfigurarGrupos(QMainWindow):
 
             for asignatura_codigo in asignaturas_asociadas:
                 if asignatura_codigo in datos_asignaturas:
-                    grupos_actuales = datos_asignaturas[asignatura_codigo].get("grupos_asociados", [])
-                    if grupo_codigo in grupos_actuales:
-                        grupos_actuales.remove(grupo_codigo)
-                        datos_asignaturas[asignatura_codigo]["grupos_asociados"] = sorted(grupos_actuales)
+                    ga = datos_asignaturas[asignatura_codigo].get("grupos_asociados")
+                    if isinstance(ga, dict) and grupo_codigo in ga:
+                        ga.pop(grupo_codigo, None)
+                        datos_asignaturas[asignatura_codigo]["grupos_asociados"] = ga
                         cambios_realizados = True
 
             if cambios_realizados:
@@ -1716,32 +1820,72 @@ class ConfigurarGrupos(QMainWindow):
             self.log_mensaje(f"⚠️ Error eliminando grupo de asignaturas: {e}", "warning")
 
     def eliminar_grupo_de_alumnos_sistema(self, grupo_codigo):
-        """Eliminar grupo del sistema de alumnos"""
+        """
+        Elimina el grupo del sistema de alumnos y limpia asignaturas huérfanas.
+
+        Cambios aplicados:
+        1. Elimina el grupo de grupos_matriculado
+        2. Elimina COMPLETAMENTE cualquier asignatura cuyo campo 'grupo' coincida con
+           el grupo eliminado (no tiene sentido tener asignaturas sin grupo)
+
+        Ejemplo:
+            Si se elimina A408 y un alumno tiene:
+                "asignaturas_matriculadas": {
+                    "SII": {"grupo": "A408", "matriculado": true},
+                    "SED": {"grupo": "A404", "matriculado": true}
+                }
+            Resultado:
+                "asignaturas_matriculadas": {
+                    "SED": {"grupo": "A404", "matriculado": true}
+                }
+            (SII se elimina porque su grupo A408 ya no existe)
+        """
         try:
             config_alumnos = self.parent_window.configuracion["configuracion"].get("alumnos", {})
             if not config_alumnos.get("configurado") or not config_alumnos.get("datos"):
                 return
 
             datos_alumnos = config_alumnos["datos"]
-            cambios_realizados = False
+            cambios_realizados = 0
+            asignaturas_eliminadas_total = 0
 
             for alumno_codigo, alumno_data in datos_alumnos.items():
+                # 1. Eliminar de grupos_matriculado
                 grupos_matriculados = alumno_data.get("grupos_matriculado", [])
                 if grupo_codigo in grupos_matriculados:
                     grupos_matriculados.remove(grupo_codigo)
                     alumno_data["grupos_matriculado"] = grupos_matriculados
-                    cambios_realizados = True
+                    cambios_realizados += 1
 
-            if cambios_realizados:
+                # 2. Eliminar asignaturas que tengan este grupo asignado
+                asignaturas_matriculadas = alumno_data.get("asignaturas_matriculadas", {})
+                asignaturas_a_eliminar = []
+
+                for asig_codigo, asig_info in asignaturas_matriculadas.items():
+                    if isinstance(asig_info, dict):
+                        grupo_asig = asig_info.get("grupo")
+                        if grupo_asig == grupo_codigo:
+                            asignaturas_a_eliminar.append(asig_codigo)
+
+                # Eliminar las asignaturas identificadas
+                for asig_codigo in asignaturas_a_eliminar:
+                    del asignaturas_matriculadas[asig_codigo]
+                    asignaturas_eliminadas_total += 1
+
+            if cambios_realizados > 0 or asignaturas_eliminadas_total > 0:
                 self.parent_window.configuracion["configuracion"]["alumnos"][
                     "fecha_actualizacion"] = datetime.now().isoformat()
-                self.log_mensaje(f"🔄 Grupo {grupo_codigo} eliminado del módulo de alumnos", "info")
+                self.log_mensaje(
+                    f"🔄 Grupo {grupo_codigo} eliminado: {cambios_realizados} alumnos actualizados, "
+                    f"{asignaturas_eliminadas_total} asignaturas eliminadas",
+                    "info"
+                )
 
         except Exception as e:
             self.log_mensaje(f"⚠️ Error eliminando grupo de alumnos: {e}", "warning")
 
     def eliminar_grupo_de_horarios_sistema(self, grupo_codigo):
-        """Eliminar grupo del sistema de horarios con limpieza de días y franjas vacías"""
+        """Eliminar grupo del sistema de horarios con limpieza completa de estructuras"""
         try:
             config_horarios = self.parent_window.configuracion["configuracion"].get("horarios", {})
             if not config_horarios.get("configurado") or not config_horarios.get("datos"):
@@ -1755,15 +1899,16 @@ class ConfigurarGrupos(QMainWindow):
                     asignaturas_semestre = datos_horarios[semestre]
                     for asignatura_codigo, asignatura_data in asignaturas_semestre.items():
 
-                        # Eliminar de grupos principales
-                        grupos = asignatura_data.get("grupos", [])
-                        if grupo_codigo in grupos:
-                            grupos.remove(grupo_codigo)
-                            asignatura_data["grupos"] = grupos
+                        # 1. Eliminar de grupos principales (dict de grupos)
+                        grupos_dict = asignatura_data.get("grupos", {})
+                        if isinstance(grupos_dict, dict) and grupo_codigo in grupos_dict:
+                            del grupos_dict[grupo_codigo]
+                            asignatura_data["grupos"] = grupos_dict
                             cambios_realizados = True
-                            self.log_mensaje(f"🔄 Grupo {grupo_codigo} eliminado de {asignatura_codigo}.grupos", "info")
+                            self.log_mensaje(f"🗑️ Grupo {grupo_codigo} eliminado de {asignatura_codigo}.grupos (dict)",
+                                             "info")
 
-                        # Eliminar de horarios_grid con limpieza automática
+                        # 2. Eliminar de horarios_grid con limpieza automática
                         horarios_grid = asignatura_data.get("horarios_grid", {})
                         franjas_a_eliminar = []
 
@@ -1771,17 +1916,20 @@ class ConfigurarGrupos(QMainWindow):
                             dias_a_eliminar = []
 
                             # Procesar cada día de la franja
-                            for dia, lista_grupos in dias_data.items():
-                                if isinstance(lista_grupos, list) and grupo_codigo in lista_grupos:
-                                    lista_grupos.remove(grupo_codigo)
-                                    cambios_realizados = True
-                                    self.log_mensaje(
-                                        f"🔄 Grupo {grupo_codigo} eliminado de {asignatura_codigo}.{franja}.{dia}",
-                                        "info")
+                            for dia, celda in dias_data.items():
+                                if isinstance(celda, dict):
+                                    grupos = celda.get("grupos", [])
+                                    if isinstance(grupos, list) and grupo_codigo in grupos:
+                                        grupos.remove(grupo_codigo)
+                                        celda["grupos"] = grupos
+                                        cambios_realizados = True
+                                        self.log_mensaje(
+                                            f"🔄 Grupo {grupo_codigo} eliminado de {asignatura_codigo}.{franja}.{dia}",
+                                            "info")
 
-                                    # Si la lista del día quedó vacía, marcar día para eliminar
-                                    if len(lista_grupos) == 0:
-                                        dias_a_eliminar.append(dia)
+                                        # Si la lista del día quedó vacía, marcar día para eliminar
+                                        if len(grupos) == 0:
+                                            dias_a_eliminar.append(dia)
 
                             # Eliminar días que quedaron vacíos
                             for dia in dias_a_eliminar:
@@ -1807,6 +1955,72 @@ class ConfigurarGrupos(QMainWindow):
 
         except Exception as e:
             self.log_mensaje(f"⚠️ Error eliminando grupo de horarios: {e}", "warning")
+
+    def eliminar_grupo_de_franjas_horario(self, grupo_codigo, asignaturas_asociadas=None, semestres=None):
+        """Elimina el código de grupo de todas las franjas del horarios_grid.
+
+        Parámetros:
+            grupo_codigo (str): código de grupo a eliminar de las franjas (p. ej., "EE403").
+            asignaturas_asociadas (list[str] | None): limitar la limpieza a estas asignaturas.
+                Si None, se intentará aplicar a todas las asignaturas presentes en los horarios.
+            semestres (list[str] | None): limitar a semestres concretos (p. ej., ["1", "2"]).
+                Si None, se detectan automáticamente a partir de la configuración.
+
+        Comportamiento:
+            - Recorre horarios_grid y elimina todas las apariciones de `grupo_codigo` en las listas de grupos.
+            - Si una lista queda vacía, se mantiene vacía (no se borran franjas ni días).
+        """
+        try:
+            cfg = self.parent_window.configuracion.get("configuracion", {})
+            horarios = cfg.get("horarios", {})
+            datos_hor = horarios.get("datos", {})
+            if not datos_hor:
+                return
+
+            # Determinar semestres a procesar
+            if semestres is None:
+                semestres = [s for s in datos_hor.keys() if isinstance(s, str)]
+
+            cambios = 0
+
+            for semestre in semestres:
+                sem_data = datos_hor.get(semestre, {})
+                if not sem_data:
+                    continue
+
+                # Si no se limitaron asignaturas, tomar todas las del semestre
+                asignaturas_objetivo = asignaturas_asociadas or list(sem_data.keys())
+
+                for asig in asignaturas_objetivo:
+                    asig_data = sem_data.get(asig)
+                    if not asig_data:
+                        continue
+
+                    grid = asig_data.get("horarios_grid", {})
+                    if not isinstance(grid, dict):
+                        continue
+
+                    for franja, dias in grid.items():
+                        if not isinstance(dias, dict):
+                            continue
+                        for dia, celda in dias.items():
+                            if not isinstance(celda, dict):
+                                continue
+                            grupos = celda.get("grupos")
+                            if isinstance(grupos, list) and grupo_codigo in grupos:
+                                celda["grupos"] = [g for g in grupos if g != grupo_codigo]
+                                cambios += 1
+
+            if cambios > 0:
+                self.parent_window.configuracion["configuracion"]["horarios"][
+                    "fecha_actualizacion"] = datetime.now().isoformat()
+                self.log_mensaje(
+                    f"Eliminadas {cambios} apariciones de {grupo_codigo} en franjas de horario",
+                    "info"
+                )
+
+        except Exception as e:
+            self.log_mensaje(f"Error limpiando franjas de horario (eliminar {grupo_codigo}): {e}", "warning")
 
     def eliminar_grupo_de_grupos_sistema(self, grupo_codigo):
         """Eliminar grupo del sistema de grupos"""

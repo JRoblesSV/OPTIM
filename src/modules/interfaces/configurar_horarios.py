@@ -12,12 +12,13 @@ Universidad: ETSIDI (UPM)
 import sys
 import os
 import json
+import traceback
 from datetime import datetime
 from PyQt6.QtWidgets import (
     QApplication, QMainWindow, QWidget, QVBoxLayout, QHBoxLayout,
     QGridLayout, QLabel, QPushButton, QListWidget, QListWidgetItem,
-    QGroupBox, QFrame, QScrollArea, QMessageBox, QDialog, QDialogButtonBox,
-    QCheckBox, QFileDialog, QLineEdit, QInputDialog
+    QGroupBox, QFrame, QMessageBox, QDialog, QDialogButtonBox,
+    QCheckBox, QFileDialog, QLineEdit
 )
 from PyQt6.QtCore import Qt, pyqtSignal
 from PyQt6.QtGui import QFont, QPalette, QColor
@@ -196,7 +197,7 @@ class GestionAsignaturaDialog(QDialog):
                 background-color: #3a3a3a;
             }
 
-            /* ANULAR DIFERENCIAS ENTRE OK Y CANCEL */
+            /* Unificar estilo entre Aceptar y Cancelar */
             QDialogButtonBox QPushButton:default {
                 background-color: #4a4a4a;
                 border-color: #666666;
@@ -1108,7 +1109,6 @@ class ConfigurarHorarios(QMainWindow):
 
         except Exception as e:
             self.log_mensaje(f"❌ Error cargando asignaturas: {e}", "error")
-            import traceback
             traceback.print_exc()
 
             # Mostrar error
@@ -1192,7 +1192,6 @@ class ConfigurarHorarios(QMainWindow):
 
         except Exception as e:
             self.log_mensaje(f"❌ Error inicializando estructura: {e}", "error")
-            import traceback
             traceback.print_exc()
 
     def cargar_grupos_asignatura(self):
@@ -1343,7 +1342,6 @@ class ConfigurarHorarios(QMainWindow):
 
         except Exception as e:
             self.log_mensaje(f"❌ Error cargando horarios: {e}", "error")
-            import traceback
             traceback.print_exc()
 
 
@@ -1409,7 +1407,6 @@ class ConfigurarHorarios(QMainWindow):
 
         except Exception as e:
             self.log_mensaje(f"❌ Error actualizando franja: {e}", "error")
-            import traceback
             traceback.print_exc()
 
     def eliminar_franja(self, dia, horario):
@@ -1422,7 +1419,7 @@ class ConfigurarHorarios(QMainWindow):
 
         file_path, _ = QFileDialog.getOpenFileName(
             self, "Cargar Configuración",
-            ruta_inicial,  # Cambiar de "" a ruta_inicial
+            ruta_inicial,
             "Archivos JSON (*.json)"
         )
 
@@ -1449,7 +1446,7 @@ class ConfigurarHorarios(QMainWindow):
 
         file_path, _ = QFileDialog.getSaveFileName(
             self, "Guardar Configuración",
-            ruta_completa,  # Cambiar del nombre solo a la ruta completa
+            ruta_completa,
             "Archivos JSON (*.json)"
         )
 
@@ -1471,20 +1468,26 @@ class ConfigurarHorarios(QMainWindow):
                 QMessageBox.critical(self, "Error", f"Error al guardar: {str(e)}")
 
     def guardar_en_sistema(self):
-        """Guarda la configuración en el sistema principal"""
+        """Guarda la configuración en el sistema principal (conteo robusto de franjas)."""
         try:
-            total_asignaturas = sum(
-                len(asignaturas) for asignaturas in self.datos_configuracion["asignaturas"].values())
+            total_asignaturas = sum(len(asignaturas)
+                                    for asignaturas in self.datos_configuracion["asignaturas"].values())
+
+            def _contar_franjas(asignaturas_por_sem):
+                total = 0
+                for _, asig_data in asignaturas_por_sem.items():
+                    horarios_grid = asig_data.get("horarios_grid", {})
+                    for _, dias_data in horarios_grid.items():
+                        for _, entry in dias_data.items():
+                            # Aceptar ambos formatos: lista o dict {"grupos": [.], "mixta": bool}
+                            grupos = entry.get("grupos", []) if isinstance(entry, dict) else entry
+                            if isinstance(grupos, list) and len(grupos) > 0:
+                                total += 1
+                return total
 
             total_franjas = 0
             for semestre, asignaturas in self.datos_configuracion["asignaturas"].items():
-                for asignatura_nombre, asig_data in asignaturas.items():
-                    horarios_grid = asig_data.get("horarios_grid", {})
-                    for horario, dias_data in horarios_grid.items():
-                        for dia, grupos in dias_data.items():
-                            # Solo contar franjas que tienen grupos asignados
-                            if isinstance(grupos, list) and len(grupos) > 0:
-                                total_franjas += 1
+                total_franjas += _contar_franjas(asignaturas)
 
             respuesta = QMessageBox.question(
                 self, "Guardar y Cerrar",
@@ -1504,7 +1507,6 @@ class ConfigurarHorarios(QMainWindow):
                         "timestamp": datetime.now().isoformat()
                     }
                 }
-
                 self.configuracion_actualizada.emit(datos_sistema)
                 self.datos_guardados = True
                 self.close()

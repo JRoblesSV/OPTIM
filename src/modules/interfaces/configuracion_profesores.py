@@ -12,14 +12,14 @@ import sys
 import os
 import uuid
 import json
-from datetime import datetime, date
+from datetime import datetime
 from PyQt6.QtWidgets import (
     QApplication, QMainWindow, QWidget, QVBoxLayout, QHBoxLayout,
-    QGridLayout, QLabel, QPushButton, QComboBox, QSpinBox, QListWidget,
+    QGridLayout, QLabel, QPushButton, QComboBox, QListWidget,
     QListWidgetItem, QGroupBox, QFrame, QScrollArea, QMessageBox,
     QDialog, QDialogButtonBox, QCheckBox, QFileDialog,
-    QLineEdit, QInputDialog, QTextEdit, QFormLayout, QSizePolicy,
-    QCalendarWidget, QTabWidget, QSplitter, QSpacerItem
+    QLineEdit, QInputDialog, QTextEdit, QSizePolicy,
+    QCalendarWidget, QTabWidget, QSpacerItem
 )
 from PyQt6.QtCore import Qt, pyqtSignal, QTimer, QDate
 from PyQt6.QtGui import QFont, QPalette, QColor
@@ -1039,7 +1039,7 @@ class GestionProfesorDialog(QDialog):
             print(f"Error igualando tamaños: {e}")
 
     def configurar_botones_uniformes(self):
-        """Configurar estilos uniformes para botones OK/Cancel - SIN CAMBIAR TEXTO"""
+        """Configurar estilos uniformes para botones OK/Cancel"""
         try:
             # Buscar el QDialogButtonBox
             button_box = self.findChild(QDialogButtonBox)
@@ -1048,7 +1048,7 @@ class GestionProfesorDialog(QDialog):
                 ok_button = button_box.button(QDialogButtonBox.StandardButton.Ok)
                 cancel_button = button_box.button(QDialogButtonBox.StandardButton.Cancel)
 
-                # ✅ ESTILO UNIFORME PARA AMBOS BOTONES - MISMO COLOR DE FONDO
+                # Estilo uniforme para los botones OK/Cancelar
                 estilo_uniforme = """
                     QPushButton {
                         background-color: #4a4a4a;
@@ -1667,7 +1667,7 @@ class ConfigurarProfesores(QMainWindow):
             QLabel {
                 color: #ffffff;
             }
-            /* ✅ TOOLTIPS CORREGIDOS */
+            /* TOOLTIPS */
             QToolTip {
                 background-color: #2b2b2b;
                 color: #ffffff;
@@ -2418,7 +2418,7 @@ class ConfigurarProfesores(QMainWindow):
 
 
 def main():
-    """Función principal para testing"""
+    """Función principal"""
     app = QApplication(sys.argv)
 
     # Aplicar tema oscuro

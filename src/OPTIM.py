@@ -1,21 +1,8 @@
-import copy
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
 Configurar GUI - OPTIM - Sistema de Programación Automática de Laboratorios
 Desarrollado por SoftVier para ETSIDI (UPM)
-
-FUNCIONALIDADES IMPLEMENTADAS:
-1. Interfaz principal unificada del sistema OPTIM
-2. Panel de estado visual con indicadores de configuración
-3. Gestión centralizada de todos los módulos del sistema
-4. Resumen automático de configuración actual
-5. Sistema de logging de actividad con timestamps
-6. Navegación inteligente entre ventanas de configuración
-7. Guardado y carga de configuración global en JSON
-8. Validación de completitud antes de ejecutar organización
-9. Sistema de reset selectivo y completo
-10. Integración de todos los subsistemas con comunicación bidireccional
 
 Autor: Javier Robles Molina - SoftVier
 Universidad: ETSIDI (UPM)
@@ -24,6 +11,8 @@ Universidad: ETSIDI (UPM)
 import sys
 import os
 import json
+import copy
+import re as _re
 from datetime import datetime
 from pathlib import Path
 
@@ -319,7 +308,7 @@ class OptimLabsGUI(QtWidgets.QMainWindow):
         """)
 
     def conectar_signals(self):
-        """Conectar señales de botones - ACTUALIZADO"""
+        """Conectar señales de botones"""
         # Botones de configuración
         self.botones_config["btn_grupos"].clicked.connect(self.abrir_configurar_grupos)
         self.botones_config["btn_asignaturas"].clicked.connect(self.abrir_configurar_asignaturas)
@@ -331,10 +320,10 @@ class OptimLabsGUI(QtWidgets.QMainWindow):
         self.botones_config["btn_aulas"].clicked.connect(self.abrir_configurar_aulas)
         self.botones_config["btn_parametros"].clicked.connect(self.abrir_configurar_parametros)
 
-        # Botones principales - NOMBRES ACTUALIZADOS
+        # Botones principales
         self.botones_principales["btn_organizar"].clicked.connect(self._ejecutar_motor_organizacion)
-        self.botones_principales["btn_exportar"].clicked.connect(self.exportar_configuracion)  # CAMBIADO
-        self.botones_principales["btn_importar"].clicked.connect(self.importar_configuracion)  # CAMBIADO
+        self.botones_principales["btn_exportar"].clicked.connect(self.exportar_configuracion)
+        self.botones_principales["btn_importar"].clicked.connect(self.importar_configuracion)
         self.botones_principales["btn_reset"].clicked.connect(self.reset_configuracion)
 
         # Botones secundarios
@@ -726,7 +715,6 @@ class OptimLabsGUI(QtWidgets.QMainWindow):
         mensaje = str(mensaje).strip()
         if not mensaje.endswith((".", "…", "!", "?")):
             mensaje = mensaje + "."
-        import re as _re
         def _cap_first_alpha(m):
             return m.group(1) + m.group(2).upper()
         mensaje = _re.sub(r"^([^A-Za-zÁÉÍÓÚÑáéíóúñ]*)([A-Za-zÁÉÍÓÚÑáéíóúñ])", _cap_first_alpha, mensaje, count=1)
@@ -831,7 +819,7 @@ class OptimLabsGUI(QtWidgets.QMainWindow):
             calendario_config["semanas_total"] = semanas_estimadas
             calendario_config["dias_semestre_1"] = dias_1
             calendario_config["dias_semestre_2"] = dias_2
-            calendario_config["total"] = total_dias  # AGREGAR ESTE CAMPO
+            calendario_config["total"] = total_dias
             calendario_config["fecha_actualizacion"] = datetime.now().isoformat()
 
             # Guardar configuración
@@ -864,44 +852,55 @@ class OptimLabsGUI(QtWidgets.QMainWindow):
     def actualizar_configuracion_horarios(self, datos_horarios):
         """Actualizar configuración cuando se completen los horarios"""
         try:
-            # Extraer datos del diccionario recibido
             asignaturas_data = datos_horarios.get("asignaturas", {})
             metadata = datos_horarios.get("metadata", {})
 
-            # Verificar que realmente hay datos nuevos
             if not asignaturas_data:
                 self.log_mensaje("⚠️ No se recibieron datos de horarios para guardar", "warning")
                 return
 
-            # Usar dato directamente del total del módulo de horarios
+            # Totales desde metadata…
             total_franjas = metadata.get("total_franjas", 0)
             total_asignaturas = metadata.get("total_asignaturas", 0)
 
-            # Actualizar configuración principal
+            # …y fallback robusto si vienen en 0 o faltan
+            if not total_franjas or not total_asignaturas:
+                def _contar(asigs):
+                    tf = 0
+                    for _, asig_data in asigs.items():
+                        grid = asig_data.get("horarios_grid", {})
+                        for _, dias in grid.items():
+                            for _, entry in dias.items():
+                                grupos = entry.get("grupos", []) if isinstance(entry, dict) else entry
+                                if isinstance(grupos, list) and grupos:
+                                    tf += 1
+                    return tf
+
+                # Recalcular
+                total_asignaturas = sum(len(a) for a in asignaturas_data.values())
+                total_franjas = sum(_contar(asignaturas_data.get(sem, {})) for sem in asignaturas_data.keys())
+
+                # Inyectar los totales corregidos
+                metadata["total_asignaturas"] = total_asignaturas
+                metadata["total_franjas"] = total_franjas
+
+            # Persistir en config
             self.configuracion["configuracion"]["horarios"] = {
                 "configurado": True,
                 "datos": asignaturas_data,
                 "archivo": "horarios_integrados.json",
                 "timestamp": metadata.get("timestamp", datetime.now().isoformat()),
                 "semestre_actual": datos_horarios.get("semestre_actual", "2"),
-                "total_asignaturas": metadata.get("total_asignaturas", 0),
-                "total_franjas": metadata.get("total_franjas", total_franjas),
+                "total_asignaturas": total_asignaturas,
+                "total_franjas": total_franjas,
                 "total": total_franjas
             }
 
-            # Actualizar metadata general
             self.configuracion["metadata"]["timestamp"] = datetime.now().isoformat()
-
-            # Guardar automáticamente la configuración principal
             self.guardar_configuracion()
-
-            # Actualizar interfaz visual
             self.actualizar_estado_visual()
 
-            # Registro silencioso de la operación
-            total_asignaturas = metadata.get("total_asignaturas", 0)
             semestre = datos_horarios.get("semestre_actual", "?")
-
             self.log_mensaje(
                 f"✅ Horarios integrados: S{semestre}, {total_asignaturas} asignaturas, {total_franjas} franjas",
                 "success"
@@ -951,7 +950,7 @@ class OptimLabsGUI(QtWidgets.QMainWindow):
             aulas_config["configurado"] = True if total_aulas_calculado > 0 else False
             aulas_config["datos"] = datos_aulas
             aulas_config["total_aulas"] = total_aulas_calculado
-            aulas_config["total"] = total_aulas_calculado  # AGREGAR ESTE CAMPO TAMBIÉN
+            aulas_config["total"] = total_aulas_calculado
             aulas_config["fecha_actualizacion"] = datetime.now().isoformat()
 
             # Guardar configuración
@@ -1814,11 +1813,10 @@ class OptimLabsGUI(QtWidgets.QMainWindow):
     # ========= MÉTODOS DE ACCIÓN =========
 
     def _ejecutar_motor_organizacion(self):
-        """Ejecuta el motor actualizado que vuelca resultados en el JSON."""
+        """Ejecuta el motor que vuelca resultados en el JSON."""
         try:
-            # 1) Importar el motor nuevo
+            # 1) Importar el motor
             try:
-                # Import del motor actualizado (no el _old)
                 from modules.organizador.motor_organizacion import run as ejecutar_motor
                 MOTOR_DISPONIBLE = True
             except ImportError as e:
@@ -2318,7 +2316,7 @@ class OptimLabsGUI(QtWidgets.QMainWindow):
             self.log_mensaje(f"❌ Error guardando configuración: {e}", "error")
 
     def reset_configuracion(self):
-        """Reset completo de configuración - ARREGLADO"""
+        """Reset completo de configuración"""
         reply = QtWidgets.QMessageBox.question(
             self, "Reset Configuración",
             "¿Estás seguro de que quieres resetear toda la configuración?\n\n"

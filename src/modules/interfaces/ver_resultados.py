@@ -1,35 +1,11 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-
 """
-UI de resultados de organización de laboratorios
-Ubicación prevista: src/modules/interfaces/ver_resultados.py
+Ver Resultados - OPTIM - Sistema de Programación Automática de Laboratorios
+Desarrollado por SoftVier para ETSIDI (UPM)
 
-Funciones principales:
-- Carga /src/configuracion_labs.json (o --config ruta)
-- Muestra resultados_organizacion agrupado por Semestre -> Asignatura -> Grupo
-- Presenta restricciones duras y blandas (parametros_organizacion)
-- Ordena por día (L->V) y franja (hora asc)
-- Exporta a PDF leyendo SIEMPRE del JSON:
-    - Encabezado por Semestre y Asignatura
-    - Por grupo: tabla con "Expediente Centro", "Nombre", "Apellidos", "Grupo (laboratorio)"
-      (Alumno id se sustituye por expediente del centro; en lugar de email se muestra el grupo de laboratorio)
-
-Novedades de esta versión:
-- Filtros por texto (se aplican al pulsar "Filtrar"):
-    * Alumno por expediente del centro (LIKE)
-    * Profesor por apellidos (LIKE, sobre el texto de 'profesor')
-- "Ver conflictos" muestra correctamente fecha, aula y profesor
-  (formateo de fecha robusto a DD/MM/YYYY y claves alternativas).
-- Popup inicial avisando si existen conflictos (con acceso directo).
-- "Exportar PDF" respeta los filtros de texto:
-  * Si filtras por alumno -> sólo sus asignaturas/grupos y sólo su(s) fila(s).
-  * Si filtras por profesor -> sólo grupos del profesor (con todos sus alumnos).
-- "Exportar PDF" abre por defecto en la carpeta Descargas del usuario.
-
-Dependencias:
-    PyQt6
-    reportlab (sólo para exportar PDF)
+Autor: Javier Robles Molina - SoftVier
+Universidad: ETSIDI (UPM)
 """
 
 from __future__ import annotations
@@ -48,6 +24,11 @@ from PyQt6.QtWidgets import (
     QPushButton, QFileDialog, QMessageBox, QPlainTextEdit, QStatusBar, QDialog,
     QTableWidget, QTableWidgetItem, QHeaderView, QSizePolicy, QLineEdit
 )
+
+from reportlab.lib.pagesizes import A4
+from reportlab.lib import colors
+from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle, PageBreak
+from reportlab.lib.styles import getSampleStyleSheet
 
 # ------------------------------
 #  Utilidades de ordenación/fechas
@@ -218,8 +199,7 @@ class ConflictsDialog(QDialog):
                     return self._key < other._key
                 return super().__lt__(other)
 
-        # Helpers de claves de orden
-        import re
+        # Funciones auxiliares para claves de ordenación
         def semestre_key(s: str) -> tuple:
             # "semestre_2" -> (2,) para orden natural
             m = re.search(r"(\d+)$", str(s))
@@ -251,6 +231,29 @@ class ConflictsDialog(QDialog):
         tabs.append(("Profesores", confs.get("profesores") or []))
         tabs.append(("Aulas", confs.get("aulas") or []))
 
+        alumnos_rows: List[Dict[str, Any]] = []
+        for msg in (confs.get("alumnos") or []):
+            if isinstance(msg, dict):
+                alumnos_rows.append({
+                    "semestre": msg.get("semestre", "-") or "-",
+                    "asignatura": msg.get("asignatura", "-") or "-",
+                    "grupo": msg.get("grupo", "-") or "-",
+                    "dia": msg.get("dia", "-") or "-",
+                    "fecha": msg.get("fecha", "-") or "-",
+                    "franja": msg.get("franja", "-") or "-",
+                    "detalle": msg.get("detalle", "") or "",
+                    "aula": msg.get("aula", "-") or "-",
+                    "profesor": msg.get("profesor", "-") or "-",
+                })
+            else:
+                # Compatibilidad con versiones anteriores (solo texto)
+                alumnos_rows.append({
+                    "semestre": "-", "asignatura": "-", "grupo": "-",
+                    "dia": "-", "fecha": "-", "franja": "-",
+                    "detalle": str(msg), "aula": "-", "profesor": "-"
+                })
+        tabs.append(("Alumnos", alumnos_rows))
+
         for title, rows in tabs:
             label = QLabel(f"🔹 {title} ({len(rows)})")
             layout.addWidget(label)
@@ -259,18 +262,20 @@ class ConflictsDialog(QDialog):
             headers = ["semestre", "asignatura", "grupo", "dia", "fecha", "franja", "detalle", "aula", "profesor"]
             table.setColumnCount(len(headers))
             table.setHorizontalHeaderLabels(headers)
-            table.horizontalHeader().setSectionResizeMode(QHeaderView.ResizeMode.Stretch)
+
+            hdr = table.horizontalHeader()
+            hdr.setSectionResizeMode(QHeaderView.ResizeMode.Interactive)  # permitir arrastrar para ancho/estrecho
+            hdr.setStretchLastSection(False)  # sin estirar forzado del último
+            hdr.setSectionsMovable(True)  # opcional: permite reordenar columnas
+
             table.setEditTriggers(QTableWidget.EditTrigger.NoEditTriggers)
             table.setSelectionBehavior(QTableWidget.SelectionBehavior.SelectRows)
-            table.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding)
-
-            # Desactivar orden mientras llenamos (rendimiento)
             table.setSortingEnabled(False)
 
             for r, row in enumerate(rows):
                 table.insertRow(r)
 
-                # Robustecer valores tal y como ya hacía tu versión
+                # Normalización robusta de valores (compatibilidad con versiones anteriores)
                 dia_val = row.get("dia", row.get("dia/fecha", "")) or ""
 
                 # fecha puede venir como 'fecha', 'dia/fecha' o 'fechas' (lista)
@@ -471,13 +476,15 @@ class VerResultadosWindow(QMainWindow):
             confs = self.res.get("conflictos", {}) or {}
             c_prof = len(confs.get("profesores", []) or [])
             c_aulas = len(confs.get("aulas", []) or [])
-            total = c_prof + c_aulas
+            c_alum = len(confs.get("alumnos", []) or [])
+            total = c_prof + c_aulas + c_alum
             if total > 0:
                 self._conflict_warned = True
                 mb = QMessageBox(self)
                 mb.setIcon(QMessageBox.Icon.Warning)
                 mb.setWindowTitle("Conflictos detectados")
-                mb.setText(f"Se han detectado {total} conflictos (Profesores: {c_prof} | Aulas: {c_aulas}).")
+                mb.setText(
+                    f"Se han detectado {total} conflictos (Profesores: {c_prof} | Aulas: {c_aulas} | Alumnos: {c_alum}).")
                 mb.setInformativeText("Revísalos para asegurar la planificación.")
                 ver_btn = mb.addButton("Abrir conflictos", QMessageBox.ButtonRole.AcceptRole)
                 mb.addButton("Cerrar", QMessageBox.ButtonRole.RejectRole)
@@ -649,8 +656,9 @@ class VerResultadosWindow(QMainWindow):
         confs = self.res.get("conflictos", {}) or {}
         c_prof = len(confs.get("profesores", []) or [])
         c_aulas = len(confs.get("aulas", []) or [])
+        c_alum = len(confs.get("alumnos", []) or [])
         self.statusBar().showMessage(
-            f"JSON: {self.cfg_path}  |  Grupos: {total_grupos}  |  Alumnos listados: {total_alumnos}  |  Conflictos -> Profesores: {c_prof}  |  Aulas: {c_aulas}"
+            f"JSON: {self.cfg_path}  |  Grupos: {total_grupos}  |  Alumnos listados: {total_alumnos}  |  Conflictos -> Profesores: {c_prof}  |  Aulas: {c_aulas}  |  Alumnos: {c_alum}"
         )
 
     # ---- Acciones ----
@@ -661,15 +669,6 @@ class VerResultadosWindow(QMainWindow):
         dlg.exec()
 
     def _export_pdf(self) -> None:
-        try:
-            from reportlab.lib.pagesizes import A4
-            from reportlab.lib import colors
-            from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle, PageBreak
-            from reportlab.lib.styles import getSampleStyleSheet
-        except Exception:
-            QMessageBox.critical(self, "Error", "Falta la librería 'reportlab'. Instálala con:\n\npip install reportlab")
-            return
-
         # Sugerir ruta Descargas por defecto
         default_dir = str(downloads_dir())
         fname, _ = QFileDialog.getSaveFileName(
@@ -750,7 +749,7 @@ class VerResultadosWindow(QMainWindow):
                     story.append(Spacer(1, 6))
 
                     # Tabla de alumnos (aplica filtro de alumno: sólo los coincidentes)
-                    data = [["Expediente centro", "Nombre", "Apellidos", "Grupo (lab)"]]
+                    data = [["Matrícula", "Nombre", "Apellidos", "Grupo"]]
                     for sid, al in alumnos_filtrados:
                         exp = str(al.get("exp_centro", "") or "").strip() or str(sid)
                         nombre = (al.get("nombre") or "").strip()
@@ -758,7 +757,7 @@ class VerResultadosWindow(QMainWindow):
                         grupolab = alumno_grupo_laboratorio(al, grupo_simple, grupo_doble)
                         data.append([exp, nombre, apell, grupolab])
 
-                    # Si por algún motivo no hay filas (no debería si pasa filtro), saltar
+                    # Si no hay filas tras aplicar el filtro, omitir la tabla
                     if len(data) == 1:
                         continue
 

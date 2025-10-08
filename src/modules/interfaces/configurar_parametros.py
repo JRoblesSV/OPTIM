@@ -2,28 +2,23 @@
 # -*- coding: utf-8 -*-
 
 """
-Configurar Parametros - OPTIM - Sistema de Programación Automática de Laboratorios
+Configurar Parámetros - OPTIM - Sistema de Programación Automática de Laboratorios
 Desarrollado por SoftVier para ETSIDI (UPM)
-
-Esta ventana muestra las restricciones del motor de organización en modo solo lectura.
-Las restricciones están definidas en el código fuente para mantener coherencia
-y facilitar el mantenimiento del sistema.
 
 Autor: Javier Robles Molina - SoftVier
 Universidad: ETSIDI (UPM)
 """
 
 import sys
-import json
 from pathlib import Path
-from typing import Dict, Any, List
+from typing import List
 from datetime import datetime
 
 from PyQt6.QtCore import Qt
 from PyQt6.QtGui import QPalette, QColor, QFont
 from PyQt6.QtWidgets import (
-    QApplication, QMainWindow, QWidget, QVBoxLayout, QHBoxLayout,
-    QLabel, QListWidget, QSplitter, QMessageBox, QPushButton,
+    QApplication, QMainWindow, QWidget, QVBoxLayout,
+    QLabel, QListWidget, QSplitter, QPushButton,
     QTextEdit, QListWidgetItem
 )
 
@@ -102,9 +97,9 @@ class ConfigurarParametrosWindow(QMainWindow):
             "Un profesor no puede estar en dos franjas horarias a la vez",
             "Un aula no puede estar asignada a dos grupos en la misma franja horaria",
             "No superar la capacidad máxima del aula",
-            "Respetar franjas no disponibles de los profesores-----------------------------------",
-            "Respetar los dias no disponibles de los profesores",
-            "Respetar los dias no disponibles de las aulas",
+            "Respetar franjas no disponibles de los profesores",
+            "Respetar los días no disponibles de los profesores",
+            "Respetar los días no disponibles de las aulas",
             "Paridad de grupos: todos pares; si el total es impar, solo un grupo impar"
         ]
 

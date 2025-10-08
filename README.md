@@ -7,4 +7,4 @@ Es una aplicación realizada para la ETSIDI (UPM) la cual organiza todos los hor
 
 generar .exe 
 #pip install pyinstaller
-#pyinstaller --onefile --noconsole src/gui_labs.py
+#pyinstaller --onefile --noconsole src/OPTIM.py

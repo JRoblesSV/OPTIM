@@ -12,18 +12,17 @@ Universidad: ETSIDI (UPM)
 import sys
 import os
 import json
-import pandas as pd
 from datetime import datetime, date, timedelta
 from PyQt6.QtWidgets import (
     QApplication, QMainWindow, QWidget, QVBoxLayout, QHBoxLayout,
-    QGridLayout, QLabel, QPushButton, QComboBox, QListWidget,
-    QListWidgetItem, QGroupBox, QFrame, QScrollArea, QMessageBox,
-    QDialog, QDialogButtonBox, QCheckBox, QFileDialog,
-    QLineEdit, QInputDialog, QTextEdit, QCalendarWidget, QSpinBox,
+    QGridLayout, QLabel, QPushButton, QComboBox,
+    QGroupBox, QFrame, QScrollArea, QMessageBox,
+    QDialog, QDialogButtonBox, QFileDialog,
+    QLineEdit, QInputDialog, QCalendarWidget, QSpinBox,
     QSizePolicy
 )
 from PyQt6.QtCore import Qt, QDate, pyqtSignal, QMimeData
-from PyQt6.QtGui import QFont, QPalette, QColor, QDrag, QPainter, QPixmap, QIntValidator
+from PyQt6.QtGui import QFont, QPalette, QColor, QDrag, QPixmap, QIntValidator
 
 
 def center_window_on_screen_immediate(window, width, height):
@@ -581,7 +580,7 @@ class ConfigurarCalendario(QMainWindow):
                     "limite_semanas": self.limite_semanas
                 }
             }
-            self.log_mensaje("📝 Iniciando configuración nueva de calendario...", "info")
+            self.log_mensaje("📝 Se inicia la configuración del calendario...", "info")
 
         # Variables para rastrear cambios
         self.datos_iniciales = json.dumps(self.datos_configuracion, sort_keys=True)
@@ -892,7 +891,7 @@ class ConfigurarCalendario(QMainWindow):
                         child = widget.layout().takeAt(0)
                         if child.widget():
                             child.widget().deleteLater()
-                    # Agregar nuevo grid
+                    # Grid
                     widget.layout().addWidget(self.grid_1)
 
                 elif widget.title() == "2º SEMESTRE":
@@ -901,7 +900,7 @@ class ConfigurarCalendario(QMainWindow):
                         child = widget.layout().takeAt(0)
                         if child.widget():
                             child.widget().deleteLater()
-                    # Agregar nuevo grid
+                    # Grid
                     widget.layout().addWidget(self.grid_2)
 
             # Restaurar datos y cargar en nuevos grids
@@ -1720,7 +1719,7 @@ class ConfigurarCalendario(QMainWindow):
                 self.marcar_cambio_realizado()
 
                 sem_nombre = "1º" if semestre == "semestre_1" else "2º"
-                self.log_mensaje(f"✅ Día {fecha.toString('dd MMM')} añadido a {sem_nombre} semestre", "success")
+                self.log_mensaje(f"✅ Día {fecha.toString('dd MMM')} registrado a {sem_nombre} semestre", "success")
 
         except Exception as e:
             QMessageBox.critical(self, "Error", f"Error añadiendo día: {e}")
@@ -2249,7 +2248,7 @@ class ConfigurarCalendario(QMainWindow):
                 f"   Inicio: {primer_lunes_feb.strftime('%d/%m/%Y')}\n"
                 f"   {detalles_2}\n\n"
                 f"{icono_equilibrio} {estado_equilibrio}\n"
-                f"💡 Ideal: 14 días por horario"
+                f"💡 Referencia: 14 días por horario"
             )
 
         except Exception as e:
@@ -2303,7 +2302,7 @@ class ConfigurarCalendario(QMainWindow):
             "🌐 Importar desde Web UPM\n\n"
             "Esta funcionalidad permitirá importar el calendario académico\n"
             "oficial directamente desde la web de ETSIDI.\n\n"
-            "🚧 Próximamente disponible en la siguiente versión."
+            "🚧 Esta opción no está disponible en esta versión."
         )
 
 

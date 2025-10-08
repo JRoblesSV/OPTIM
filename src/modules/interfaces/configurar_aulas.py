@@ -11,18 +11,17 @@ Universidad: ETSIDI (UPM)
 import sys
 import os
 import json
-import pandas as pd
-from datetime import datetime, date
+from datetime import datetime
 from PyQt6.QtWidgets import (
     QApplication, QMainWindow, QWidget, QVBoxLayout, QHBoxLayout,
-    QGridLayout, QLabel, QPushButton, QComboBox, QSpinBox, QListWidget,
-    QListWidgetItem, QGroupBox, QFrame, QScrollArea, QMessageBox,
+    QLabel, QPushButton, QSpinBox, QListWidget,
+    QGroupBox, QScrollArea, QMessageBox,
     QDialog, QDialogButtonBox, QCheckBox, QFileDialog,
     QLineEdit, QInputDialog, QTextEdit, QFormLayout, QListWidgetItem,
-    QTabWidget, QCalendarWidget, QSplitter, QSpacerItem, QSizePolicy
+    QTabWidget, QCalendarWidget, QSpacerItem, QSizePolicy
 )
 from PyQt6.QtCore import Qt, pyqtSignal, QDate
-from PyQt6.QtGui import QFont, QPalette, QColor
+from PyQt6.QtGui import QPalette, QColor
 
 
 def center_window_on_screen_immediate(window, width, height):
@@ -45,11 +44,11 @@ def center_window_on_screen_immediate(window, width, height):
             window.setGeometry(final_x, final_y, width, height)
 
         else:
-            # Fallback si no se puede obtener la pantalla
+            # Alternativa si no se puede obtener la pantalla
             window.setGeometry(100, 100, width, height)
 
     except Exception as e:
-        # Fallback en caso de error
+        # Alternativa en caso de error
         window.setGeometry(100, 100, width, height)
 
 def obtener_ruta_descargas():
@@ -67,7 +66,7 @@ def obtener_ruta_descargas():
         if os.path.exists(downloads):
             return downloads
 
-        # Fallback: Desktop si Downloads no existe
+        # Alternativa: Desktop si Downloads no existe
         desktop = os.path.join(os.path.expanduser('~'), 'Desktop')
         if os.path.exists(desktop):
             return desktop
@@ -416,7 +415,7 @@ class GestionAulaDialog(QDialog):
         self.setLayout(layout)
 
     def agregar_fecha_no_disponible(self, fecha):
-        """Agregar fecha a la lista de no disponibles"""
+        """Añadir la fech a la lista de no disponibles"""
         fecha_str = fecha.toString("dd/MM/yyyy")
 
         # Verificar si ya existe
@@ -510,10 +509,10 @@ class GestionAulaDialog(QDialog):
             self.edit_nombre.setFocus()
             return
 
-        if not self.edit_equipamiento.text().strip():
-            QMessageBox.warning(self, "Campo requerido", "El equipamiento es obligatorio")
-            self.edit_equipamiento.setFocus()
-            return
+        #if not self.edit_equipamiento.text().strip():
+        #    QMessageBox.warning(self, "Campo requerido", "El equipamiento es obligatorio")
+        #    self.edit_equipamiento.setFocus()
+        #    return
 
         self.accept()
 
@@ -562,7 +561,7 @@ class GestionAulaDialog(QDialog):
             print(f"Error igualando tamaños: {e}")
 
     def configurar_botones_uniformes(self):
-        """Configurar estilos uniformes para botones OK/Cancel - SIN CAMBIAR TEXTO"""
+        """Configurar estilos uniformes para botones OK/Cancel"""
         try:
             # Buscar el QDialogButtonBox
             button_box = self.findChild(QDialogButtonBox)
@@ -571,7 +570,7 @@ class GestionAulaDialog(QDialog):
                 ok_button = button_box.button(QDialogButtonBox.StandardButton.Ok)
                 cancel_button = button_box.button(QDialogButtonBox.StandardButton.Cancel)
 
-                # ✅ ESTILO UNIFORME PARA AMBOS BOTONES - MISMO COLOR DE FONDO
+                # Estilo uniforme para los botones OK/Cancelar
                 estilo_uniforme = """
                     QPushButton {
                         background-color: #4a4a4a;
@@ -707,7 +706,7 @@ class GestionAulaDialog(QDialog):
                 background-color: #3a3a3a;
             }
 
-            /* ANULAR DIFERENCIAS ENTRE OK Y CANCEL */
+            /* Unificar estilo entre Aceptar y Cancelar */
             QDialogButtonBox QPushButton:default {
                 background-color: #4a4a4a;
                 border-color: #666666;
@@ -738,7 +737,7 @@ class ConfigurarAulas(QMainWindow):
         window_height = 650
         center_window_on_screen_immediate(self, window_width, window_height)
 
-        # Obtener asignaturas disponibles desde el sistema global - MEJORADO
+        # Obtener asignaturas disponibles desde el sistema global
         self.asignaturas_disponibles = self.obtener_asignaturas_del_sistema()
 
         # Estructura de datos principal (integrada con sistema global)
@@ -1102,7 +1101,7 @@ class ConfigurarAulas(QMainWindow):
             QLabel {
                 color: #ffffff;
             }
-            /* ✅ TOOLTIPS CORREGIDOS */
+            /* TOOLTIPS */
             QToolTip {
                 background-color: #2b2b2b;
                 color: #ffffff;

@@ -1,22 +1,12 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-Planificador de laboratorios (intercalado por día+franja) — v3 (JSON-first)
-Cambios clave:
-- ❌ Se elimina la exportación a CSV (conflictos) y a PDF (plan).
-- ✅ Todo se vuelca en /src/configuracion_labs.json:
-    - "parametros_organizacion": restricciones duras y blandas aplicadas por el motor
-    - "resultados_organizacion": { semestre -> asignatura -> grupos -> ... , conflictos, avisos, metadata }
+Configurar Motor de Organizacion - OPTIM - Sistema de Programación Automática de Laboratorios
+Desarrollado por SoftVier para ETSIDI (UPM)
 
-Mantiene:
-- Paridad DURA (todos pares; si total impar, solo 1 grupo impar).
-- Asignación por FECHAS reales (no por semanas).
-- Intercalado round-robin por (día, franja) entre grupos que comparten slot.
-- Aulas alternativas si la preferente no está disponible.
-- Respeto de fechas NO disponibles de profesores y aulas.
-- Respeto de bloqueos de franja de profesores y días de trabajo.
 
-Dependencias externas: ninguna (reportlab ya no es necesaria aquí).
+Autor: Javier Robles Molina - SoftVier
+Universidad: ETSIDI (UPM)
 """
 
 from __future__ import annotations
@@ -120,7 +110,6 @@ def load_configuration(path: Path) -> Dict:
         return json.load(fh)
 
 def save_configuration(path: Path, cfg: Dict) -> None:
-    # Guardado “bonito” y sin ASCII-escape
     with path.open("w", encoding="utf-8") as fh:
         json.dump(cfg, fh, ensure_ascii=False, indent=2)
 
@@ -189,18 +178,53 @@ def slots_de_grupo(a_data: Dict, grupo_simple: str) -> List[Tuple[str, str]]:
 #   ALUMNOS
 # ------------------------------
 def student_map_by_group_subject(cfg: Dict) -> Dict[Tuple[str, str], List[str]]:
+    """
+    Construye un mapeo (grupo, asignatura) -> [lista de IDs de alumnos].
+
+    A diferencia de versiones anteriores, NO utiliza grupos_matriculado de forma genérica,
+    sino que extrae el grupo específico asignado a cada asignatura desde el campo 'grupo'
+    dentro de asignaturas_matriculadas.
+
+    Estructura esperada en el JSON de alumnos:
+        "asignaturas_matriculadas": {
+            "SII": {
+                "matriculado": true,
+                "lab_aprobado": false,
+                "grupo": "A408"  // Grupo específico para esta asignatura
+            }
+        }
+
+    Args:
+        cfg: Configuración completa del sistema (dict JSON)
+
+    Returns:
+        Diccionario con clave (codigo_grupo, codigo_asignatura) y valor lista de student IDs.
+        Ejemplo: {("A408", "SII"): ["sid1", "sid2"], ("A404", "SED"): ["sid1", "sid3"]}
+    """
     alumnos = cfg.get("configuracion", {}).get("alumnos", {}).get("datos", {}) or {}
     mapping: Dict[Tuple[str, str], List[str]] = {}
+
     for sid, al in alumnos.items():
-        grupos = al.get("grupos_matriculado", []) or []
-        asigs  = al.get("asignaturas_matriculadas", {}) or {}
+        asigs = al.get("asignaturas_matriculadas", {}) or {}
+
         for asig, meta in asigs.items():
-            if not (isinstance(meta, dict) and meta.get("matriculado")):
+            if not isinstance(meta, dict):
                 continue
-            for g in grupos:
-                mapping.setdefault((g, asig), []).append(sid)
+            if not meta.get("matriculado", False):
+                continue
+
+            # Extraer el grupo específico asignado a esta asignatura
+            grupo_asig = meta.get("grupo")
+            if not grupo_asig:
+                continue
+
+            # Registrar alumno en (grupo_específico, asignatura)
+            mapping.setdefault((grupo_asig, asig), []).append(sid)
+
+    # Ordenar listas para reproducibilidad
     for k in mapping:
         mapping[k].sort()
+
     return mapping
 
 def nombre_profesor_display(p: Dict) -> str:
@@ -362,65 +386,223 @@ def fechas_pool_para_dia(cfg: Dict, semestre: str, dia: str) -> List[str]:
 #   PARIDAD
 # ------------------------------
 def es_alumno_doble_para_asig(cfg: Dict, sid: str, g: GrupoLab) -> bool:
+    """
+    Determina si un alumno es de doble grado.
+
+    - Doble grado: alumno matriculado en al menos UN grupo con patrón LLNNN (ej: EE303, AA606)
+    - Simple: alumno solo en grupos con patrón LNNN (ej: A408, A404)
+
+    IMPORTANTE: Estar matriculado en múltiples grupos simples (A408, A404, A406) NO convierte
+    al alumno en doble grado. Solo los códigos LLNNN califican como doble grado.
+
+    Args:
+        cfg: Configuración completa del sistema
+        sid: ID del alumno
+        g: Objeto GrupoLab (usado para contexto, no para determinar doble)
+
+    Returns:
+        True si el alumno tiene al menos un grupo LLNNN en grupos_matriculado
+    """
     al = (cfg.get("configuracion", {}).get("alumnos", {}).get("datos", {}) or {}).get(sid, {})
-    grupos = al.get("grupos_matriculado", []) or []
-    return bool(g.grupo_doble and g.grupo_doble in grupos)
+    grupos_al = al.get("grupos_matriculado", []) or []
 
-def paridad_dura_balance(cfg: Dict, grupos: List[GrupoLab], asignatura: str) -> List[str]:
+    # Verificar si existe al menos un código con patrón LLNNN
+    return any(PAT_DOBLE.match(g) for g in grupos_al)
+
+
+def paridad_dura_balance(
+    cfg: Dict,
+    grupos_creados: List[GrupoLab],
+    asig: str,
+) -> List[str]:
+    """
+    Equilibrio de paridad por CÓDIGO SIMPLE (p. ej., A408, A404), respetando:
+      - Elegibilidad de franja: un alumno solo puede moverse a (día, franja) si su(s) código(s) están declarados en el grid.
+      - Capacidad de grupo destino.
+      - No se mezclan códigos: cada código se equilibra dentro de sus propios grupos.
+    Objetivo: dejar como mucho 1 grupo impar por cada código.
+
+    Devuelve lista de avisos si no se puede completar el equilibrio.
+    """
     avisos: List[str] = []
-    total = sum(len(g.alumnos) for g in grupos)
-    permit_impares = 1 if (total % 2 == 1) else 0
-
-    def candidato_desde(src: GrupoLab, dst: GrupoLab) -> Optional[str]:
-        if len(dst.alumnos) >= dst.capacidad:
-            return None
-        for sid in src.alumnos:
-            if es_alumno_doble_para_asig(cfg, sid, src) and not dst.es_mixta:
-                continue
-            return sid
-        return None
-
-    def odd_indices() -> List[int]:
-        return [i for i, g in enumerate(grupos) if (len(g.alumnos) % 2 == 1)]
-
-    odds = odd_indices()
-    if len(odds) <= permit_impares:
+    if not grupos_creados:
         return avisos
 
-    changed = True
-    while len(odds) > permit_impares and changed:
-        changed = False
-        odds = odd_indices()
-        for i in range(len(odds)):
-            if len(odds) <= permit_impares:
-                break
-            for j in range(i + 1, len(odds)):
-                a, b = grupos[odds[i]], grupos[odds[j]]
-                sid = candidato_desde(b, a)
-                if sid is not None:
-                    b.alumnos.remove(sid); a.alumnos.append(sid)
-                    changed = True; break
-                sid = candidato_desde(a, b)
-                if sid is not None:
-                    a.alumnos.remove(sid); b.alumnos.append(sid)
-                    changed = True; break
-            if changed: break
+    # --- Contexto de datos necesarios ---
+    semestre = grupos_creados[0].semestre
+    horarios = cfg["configuracion"]["horarios"]["datos"][semestre]
+    a_data = horarios[asig]
 
-    odds = odd_indices()
-    if len(odds) > permit_impares:
-        avisos.append("No fue posible paridad total por capacidad/mixto; quedan grupos impares adicionales.")
+    # --- Helpers robustos a '09:30-11:30' vs '9:30-11:30' y esquema [franja][dia] / [dia][franja] ---
+    def _norm_franja_key(s: str) -> str:
+        if not isinstance(s, str):
+            return s
+        s = s.strip()
+        if "-" not in s:
+            return s
+
+        def _norm_hhmm(t: str) -> str:
+            t = t.strip()
+            if ":" not in t:
+                return t
+            hh, mm = t.split(":", 1)
+            try:
+                hh_n = str(int(hh))  # quita ceros a la izquierda
+            except ValueError:
+                hh_n = hh
+            return f"{hh_n}:{mm}"
+
+        ini, fin = s.split("-", 1)
+        return f"{_norm_hhmm(ini)}-{_norm_hhmm(fin)}"
+
+    def _slot_node(a_data_local: dict, dia: str, franja_norm: str) -> Dict[str, Any]:
+        hg = a_data_local.get("horarios_grid", {})
+        key_raw = franja_norm or ""
+        key_norm = _norm_franja_key(key_raw)
+
+        # Forma 1: horarios_grid[franja][dia]
+        if isinstance(hg.get(key_raw), dict) and isinstance(hg[key_raw].get(dia), dict):
+            return hg[key_raw][dia]
+        if isinstance(hg.get(key_norm), dict) and isinstance(hg[key_norm].get(dia), dict):
+            return hg[key_norm][dia]
+
+        # Forma 2: horarios_grid[dia][franja]
+        if isinstance(hg.get(dia), dict):
+            if isinstance(hg[dia].get(key_raw), dict):
+                return hg[dia][key_raw]
+            if isinstance(hg[dia].get(key_norm), dict):
+                return hg[dia][key_norm]
+
+        return {}
+
+    def _slot_grupos(a_data_local: dict, dia: str, franja_norm: str) -> List[str]:
+        node = _slot_node(a_data_local, dia, franja_norm)
+        return list(node.get("grupos") or [])
+
+    def _slot_permite(a_data_local: dict, dia: str, franja_norm: str, code: str) -> bool:
+        return code in _slot_grupos(a_data_local, dia, franja_norm)
+
+    def _slot_permite_estudiante(
+        a_data_local: dict,
+        dia: str,
+        franja_norm: str,
+        grupo_simple: str,
+        grupo_doble: Optional[str],
+    ) -> bool:
+        if grupo_doble:
+            return (_slot_permite(a_data_local, dia, franja_norm, grupo_doble)
+                    or _slot_permite(a_data_local, dia, franja_norm, grupo_simple))
+        return _slot_permite(a_data_local, dia, franja_norm, grupo_simple)
+
+    # --- Índices alumno → (simple, doble) para esta asignatura ---
+    smap = student_map_by_group_subject(cfg)
+    alumno_simple: Dict[str, str] = {}
+    alumno_doble: Dict[str, str] = {}
+    # recolectamos desde TODOS los códigos presentes en grupos_creados
+    codigos_presentes = sorted(set(g.grupo_simple for g in grupos_creados))
+    # simples:
+    for gs in codigos_presentes:
+        for sid in smap.get((gs, asig), []):
+            alumno_simple[sid] = gs
+    # dobles: buscar cualquier LLNNN que esté vinculado a esta asignatura en el cfg
+    asig_entry = cfg["configuracion"]["asignaturas"]["datos"].get(asig, {})
+    _, dobles = grupos_asociados_codes(asig_entry)
+    for gd in dobles:
+        for sid in smap.get((gd, asig), []):
+            alumno_doble[sid] = gd
+
+    # --- Agrupar grupos por código simple ---
+    grupos_idx_por_codigo: Dict[str, List[int]] = {}
+    for i, g in enumerate(grupos_creados):
+        grupos_idx_por_codigo.setdefault(g.grupo_simple, []).append(i)
+
+    # --- Para cada código, intentar reducir impares moviendo alumnos elegibles ---
+    for gs, idxs in grupos_idx_por_codigo.items():
+        if not idxs:
+            continue
+
+        # Solo grupos de este código
+        impares = [i for i in idxs if (len(grupos_creados[i].alumnos) % 2) == 1]
+
+        # Intentamos emparejar impares de dos en dos.
+        # Movimiento de un alumno de src -> dst (ambos impares) hará que ambos pasen a par,
+        # si (y solo si) el alumno es elegible en el slot destino y hay capacidad.
+        changed = True
+        while len(impares) >= 2 and changed:
+            changed = False
+            # probamos todas las combinaciones (greedy)
+            tried_pairs = set()
+            for s_pos in range(len(impares)):
+                src_idx = impares[s_pos]
+                for d_pos in range(s_pos + 1, len(impares)):
+                    dst_idx = impares[d_pos]
+                    if (src_idx, dst_idx) in tried_pairs:
+                        continue
+                    tried_pairs.add((src_idx, dst_idx))
+
+                    src = grupos_creados[src_idx]
+                    dst = grupos_creados[dst_idx]
+
+                    if len(dst.alumnos) >= dst.capacidad:
+                        continue  # sin hueco
+
+                    # buscamos un alumno en src elegible para el slot de dst
+                    sid_movable = None
+                    for sid in src.alumnos:
+                        gs_al = alumno_simple.get(sid)  # debería ser gs
+                        gd_al = alumno_doble.get(sid)
+                        if _slot_permite_estudiante(a_data, dst.dia, dst.franja, gs_al or gs, gd_al):
+                            sid_movable = sid
+                            break
+
+                    if sid_movable is None:
+                        continue
+
+                    # mover
+                    src.alumnos.remove(sid_movable)
+                    dst.alumnos.append(sid_movable)
+
+                    # actualizar lista de impares: src y dst cambian de paridad
+                    # (ambos eran impares, tras mover quedan pares)
+                    impares = [i for i in idxs if (len(grupos_creados[i].alumnos) % 2) == 1]
+                    changed = True
+                    break  # re-evaluar impares
+                if changed:
+                    break
+
+        # Si quedan >1 impares, no hemos podido resolver del todo
+        if len(impares) > 1:
+            avisos.append(
+                f"- Paridad no resuelta en {gs}: quedan {len(impares)} grupos impares "
+                f"por restricciones de elegibilidad/capacidad."
+            )
+        elif len(impares) == 0:
+            # Perfecto (0 impares)
+            pass
+        else:
+            # 1 impar (tolerado)
+            pass
+
     return avisos
+
 
 # ------------------------------
 #   AGRUPACIÓN Y SCHED APP
 # ------------------------------
-def grupos_asociados_codes(asig_entry: Dict) -> Tuple[Optional[str], Optional[str]]:
+def grupos_asociados_codes(asig_entry: Dict) -> Tuple[List[str], List[str]]:
+    """
+    Devuelve dos listas: códigos simples (LNNN) y dobles (LLNNN).
+    """
+    simples: List[str] = []
+    dobles: List[str]  = []
     grupos = (asig_entry.get("grupos_asociados") or {})
-    gs = None; gd = None
     for k in grupos.keys():
-        if PAT_SIMPLE.match(k): gs = k
-        elif PAT_DOBLE.match(k): gd = k
-    return gs, gd
+        if PAT_SIMPLE.match(k):
+            simples.append(k)
+        elif PAT_DOBLE.match(k):
+            dobles.append(k)
+    # orden estable para reproducibilidad
+    return sorted(simples), sorted(dobles)
 
 def grupos_previstos(asig_entry: Dict, code: Optional[str], default: int = 0) -> int:
     if not code: return 0
@@ -483,6 +665,73 @@ def asignar_alumnos_min_carga_por_grupo(
             grupos[gi].alumnos.append(alumnos_simple.pop(0))
         else:
             vivos.remove(gi)
+
+def _avisos_capacidad_insuficiente(
+    cfg: Dict,
+    semestre: str,
+    asig: str,
+    grupos_creados: List["GrupoLab"],
+    simples: List[str],
+    dobles: List[str],
+    smap: Dict[Tuple[str, str], List[str]],
+) -> List[Dict[str, Any]]:
+    """
+    Genera avisos de capacidad como CONFLICTOS ESTRUCTURADOS (dict), listos para
+    mostrarse en la tabla 'Alumnos' de la UI con las mismas columnas que
+    Profesores/Aulas. Los campos no aplicables se rellenan con "-".
+    """
+    conflictos: List[Dict[str, Any]] = []
+
+    # Alumnos realmente asignados
+    asignados: Set[str] = set()
+    for g in grupos_creados:
+        for sid in (g.alumnos or []):
+            asignados.add(sid)
+
+    def add_conf(codigo: str, etiqueta: str) -> None:
+        # alumnos matriculados en (codigo, asig)
+        matriculados = set(smap.get((codigo, asig), []))
+        faltan = len(matriculados - asignados)
+        if faltan > 0:
+            conflictos.append({
+                "semestre": f"semestre_{semestre}" if not str(semestre).startswith("semestre_") else str(semestre),
+                "asignatura": asig,
+                "grupo": codigo,          # p.ej. A408 o EE403
+                "dia": "-", "fecha": "-", "franja": "-",
+                "aula": "-", "profesor": "-",
+                "detalle": (
+                    f"Capacidad insuficiente: faltan {faltan} alumno(s) del {etiqueta} {codigo} por ubicar. "
+                    f"Incrementa nº de laboratorios previstos, la capacidad del aula o revisa las franjas horarias."
+                )
+            })
+
+    # Detalle por cada simple y doble
+    for gs in simples:
+        add_conf(gs, "grupo")
+    for gd in dobles:
+        add_conf(gd, "grupo doble")
+
+    # Resumen global de la asignatura
+    total_faltan = 0
+    for codigo in simples + dobles:
+        total_faltan += len(set(smap.get((codigo, asig), [])) - asignados)
+    if total_faltan > 0:
+        conflictos.append({
+            "semestre": f"semestre_{semestre}" if not str(semestre).startswith("semestre_") else str(semestre),
+            "asignatura": asig,
+            "grupo": "[RESUMEN]",
+            "dia": "-", "fecha": "-", "franja": "-",
+            "aula": "-", "profesor": "-",
+            "detalle": (
+                f"Faltan {total_faltan} alumno(s) por ubicar en total. "
+                f"Revisa grupos_previstos y capacidad de aulas."
+            )
+        })
+
+    return conflictos
+
+
+
 
 # ------------------------------
 #   PROGRAMACIÓN POR FECHA (intercalado)
@@ -708,78 +957,244 @@ def programar_bloque_intercalado(
 # ------------------------------
 #   PLANIFICACIÓN DE UNA ASIGNATURA
 # ------------------------------
+
 def planificar_asignatura(
-    cfg: Dict,
-    scheduler: Scheduler,
-    semestre: str,
-    asig: str,
-    conflict_profs: List[Dict[str, Any]],
-    conflict_aulas: List[Dict[str, Any]],
+        cfg: Dict,
+        scheduler: Scheduler,
+        semestre: str,
+        asig: str,
+        conflict_profs: List[Dict[str, Any]],
+        conflict_aulas: List[Dict[str, Any]],
 ) -> Tuple[List[GrupoLab], List[str]]:
+    """
+    Planifica los laboratorios de una asignatura respetando la asignación específica
+    grupo-asignatura de cada alumno.
+
+    Flujo:
+    - Crea grupos para cada código simple (LNNN) con slots equilibrados
+    - Reserva grupos 'mixta' donde el grid lo declara (para dobles)
+    - Reparte alumnos dobles PRIMERO en grupos mixta compatibles
+    - Reparte alumnos simples en SUS grupos específicos de la asignatura
+    - Aplica paridad dura
+    - Programa fechas con intercalado por (día, franja)
+
+    Args:
+        cfg: Configuración completa
+        scheduler: Gestor de ocupaciones por fecha
+        semestre: "1" o "2"
+        asig: Código de asignatura
+        conflict_profs: Lista acumulativa de conflictos de profesores
+        conflict_aulas: Lista acumulativa de conflictos de aulas
+
+    Returns:
+        Tupla (grupos_creados, avisos) donde:
+        - grupos_creados: Lista de objetos GrupoLab con alumnos asignados y fechas
+        - avisos: Lista de mensajes de advertencia
+    """
     normalize_horarios_grid(cfg)
     horarios = cfg["configuracion"]["horarios"]["datos"][semestre]
     a_data = horarios[asig]
     asig_entry = cfg["configuracion"]["asignaturas"]["datos"].get(asig, {})
 
-    gs, gd = grupos_asociados_codes(asig_entry)
-    if not gs:
-        return [], [f"- {semestre}:{asig} → sin grupo simple LNNN en grupos_asociados"]
+    simples, dobles = grupos_asociados_codes(asig_entry)
+    if not simples:
+        return [], [f"- {semestre}:{asig} → sin grupos simples LNNN en grupos_asociados"]
 
-    n_simple = grupos_previstos(asig_entry, gs, default=0)
-    n_doble  = grupos_previstos(asig_entry, gd, default=0)
-
-    # Alumnos
+    # Mapeo: usa grupo específico de cada asignatura
     smap = student_map_by_group_subject(cfg)
-    alumnos_s = list(smap.get((gs, asig), []))
-    alumnos_d = list(smap.get((gd, asig), [])) if gd else []
 
-    # 1) Slots de grupos (por día y franja)
-    grupos_slots = crear_slots_equilibrados(a_data, gs, n_simple)
-    # 2) Elegir qué índices serán mixtos (para dobles)
-    reserved_double = elegir_slots_mixtos(a_data, grupos_slots, n_doble)
+    # Helpers de elegibilidad por slot
+    def _norm_franja_key(s: str) -> str:
+        if not isinstance(s, str):
+            return s
+        s = s.strip()
+        if "-" not in s:
+            return s
 
+        def _norm_hhmm(t: str) -> str:
+            t = t.strip()
+            if ":" not in t:
+                return t
+            hh, mm = t.split(":", 1)
+            try:
+                hh_n = str(int(hh))
+            except ValueError:
+                hh_n = hh
+            return f"{hh_n}:{mm}"
+
+        ini, fin = s.split("-", 1)
+        return f"{_norm_hhmm(ini)}-{_norm_hhmm(fin)}"
+
+    def _slot_node(a_data_local: dict, dia: str, franja_norm: str) -> Dict[str, Any]:
+        hg = a_data_local.get("horarios_grid", {})
+        key_raw = franja_norm or ""
+        key_norm = _norm_franja_key(key_raw)
+        if isinstance(hg.get(key_raw), dict) and isinstance(hg[key_raw].get(dia), dict):
+            return hg[key_raw][dia]
+        if isinstance(hg.get(key_norm), dict) and isinstance(hg[key_norm].get(dia), dict):
+            return hg[key_norm][dia]
+        if isinstance(hg.get(dia), dict):
+            if isinstance(hg[dia].get(key_raw), dict):
+                return hg[dia][key_raw]
+            if isinstance(hg[dia].get(key_norm), dict):
+                return hg[dia][key_norm]
+        return {}
+
+    def _slot_grupos(a_data_local: dict, dia: str, franja_norm: str) -> List[str]:
+        node = _slot_node(a_data_local, dia, franja_norm)
+        return list(node.get("grupos") or [])
+
+    def _slot_permite(a_data_local: dict, dia: str, franja_norm: str, code: str) -> bool:
+        return code in _slot_grupos(a_data_local, dia, franja_norm)
+
+    def _slot_permite_estudiante(a_data_local: dict, dia: str, franja_norm: str,
+                                 grupo_simple: str, grupo_doble: Optional[str]) -> bool:
+        if grupo_doble:
+            return (_slot_permite(a_data_local, dia, franja_norm, grupo_doble) or
+                    _slot_permite(a_data_local, dia, franja_norm, grupo_simple))
+        return _slot_permite(a_data_local, dia, franja_norm, grupo_simple)
+
+    total_dobles_previstos = sum(grupos_previstos(asig_entry, gd, default=0) for gd in dobles)
     grupos_creados: List[GrupoLab] = []
     avisos: List[str] = []
-    contador = 1
 
-    # 3) Crear grupos (profesor/aula asignados a nivel de grupo; ocupación por fecha más tarde)
-    for i, (dia, franja_norm) in enumerate(grupos_slots):
-        pid = scheduler.pick_profesor_para_grupo(asig, dia, franja_norm)
-        if pid is None:
-            prof_display = "—"
-            avisos.append(f"- {semestre}:{asig} {gs}-{contador:02d} → sin profesor elegible en {dia} {franja_norm}")
+    # 1) Crear grupos para cada código simple
+    mixtos_por_reservar = total_dobles_previstos
+    for gs in simples:
+        n_simple = grupos_previstos(asig_entry, gs, default=0)
+        if n_simple <= 0:
+            continue
+
+        grupos_slots = crear_slots_equilibrados(a_data, gs, n_simple)
+        if not grupos_slots:
+            avisos.append(f"- {semestre}:{asig} {gs} → sin slots en horarios_grid")
+            continue
+
+        mixtos_candidatos = [i for i, (dia, franja) in enumerate(grupos_slots) if es_mixta(a_data, dia, franja)]
+        k_a_reservar = min(mixtos_por_reservar, len(mixtos_candidatos))
+        if k_a_reservar > 0:
+            step = max(1, len(mixtos_candidatos) // k_a_reservar)
+            reserved_idx_local = sorted({mixtos_candidatos[i] for i in range(0, len(mixtos_candidatos), step)})[
+                                 :k_a_reservar]
         else:
-            prof_display = nombre_profesor_display(scheduler.profs[pid])
+            reserved_idx_local = []
 
-        aula = scheduler._ensure_primary_room(asig) or "—"
-        cap = capacidad_de_aula(cfg, aula) if aula != "—" else 10_000
+        mixtos_por_reservar -= len(reserved_idx_local)
 
-        g = GrupoLab(
-            semestre=semestre, asignatura=asig, label=f"{gs}-{contador:02d}",
-            dia=dia, franja=franja_norm, aula=aula, profesor=prof_display,
-            profesor_id=pid, es_mixta=(i in reserved_double) or es_mixta(a_data, dia, franja_norm),
-            grupo_simple=gs, grupo_doble=gd, alumnos=[], capacidad=cap, fechas=[]
+        contador = 1
+        for i, (dia, franja_norm) in enumerate(grupos_slots):
+            pid = scheduler.pick_profesor_para_grupo(asig, dia, franja_norm)
+            if pid is None:
+                prof_display = "—"
+                avisos.append(f"- {semestre}:{asig} {gs}-{contador:02d} → sin profesor elegible en {dia} {franja_norm}")
+            else:
+                prof_display = nombre_profesor_display(scheduler.profs[pid])
+
+            aula = scheduler._ensure_primary_room(asig) or "—"
+            cap = capacidad_de_aula(cfg, aula) if aula != "—" else 10_000
+
+            g = GrupoLab(
+                semestre=semestre, asignatura=asig, label=f"{gs}-{contador:02d}",
+                dia=dia, franja=franja_norm, aula=aula, profesor=prof_display,
+                profesor_id=pid, es_mixta=(i in reserved_idx_local),
+                grupo_simple=gs, grupo_doble=None,
+                alumnos=[], capacidad=cap, fechas=[]
+            )
+            grupos_creados.append(g)
+            contador += 1
+
+    # 2) Asignación de alumnos
+    reserved_double_global = [i for i, g in enumerate(grupos_creados) if g.es_mixta]
+
+    # Índices inversos: alumno → grupo asignado para ESTA asignatura
+    # Clave: ahora usamos el grupo específico de asignaturas_matriculadas[asig]["grupo"]
+    alumnos_data = cfg.get("configuracion", {}).get("alumnos", {}).get("datos", {}) or {}
+    alumno_simple: Dict[str, str] = {}
+    alumno_doble: Dict[str, str] = {}
+
+    for sid, al in alumnos_data.items():
+        asigs_mat = al.get("asignaturas_matriculadas", {}) or {}
+
+        # Grupo específico para esta asignatura
+        if asig in asigs_mat and isinstance(asigs_mat[asig], dict):
+            grupo_especifico = asigs_mat[asig].get("grupo")
+            if grupo_especifico:
+                # Determinar si es simple o doble según el PATRÓN del grupo específico
+                if PAT_SIMPLE.match(grupo_especifico):
+                    alumno_simple[sid] = grupo_especifico
+                elif PAT_DOBLE.match(grupo_especifico):
+                    alumno_doble[sid] = grupo_especifico
+
+    alumnos_dobles_all: List[str] = sorted(set(alumno_doble.keys()))
+
+    # 2A) Reparto de dobles en grupos mixta
+    for sid in alumnos_dobles_all:
+        gs = alumno_simple.get(sid)
+        gd = alumno_doble.get(sid)
+
+        candidatos_idx = []
+        for idx in reserved_double_global:
+            g = grupos_creados[idx]
+            if _slot_permite_estudiante(a_data, g.dia, g.franja, gs or "", gd):
+                if len(g.alumnos) < g.capacidad:
+                    candidatos_idx.append(idx)
+
+        if not candidatos_idx:
+            avisos.append(
+                f"- {semestre}:{asig} → alumno {sid} doble {gd}"
+                f"{f'/{gs}' if gs else ''} sin slot mixta compatible o sin capacidad"
+            )
+            continue
+
+        mejor_idx = min(candidatos_idx, key=lambda i: len(grupos_creados[i].alumnos))
+        grupos_creados[mejor_idx].alumnos.append(sid)
+
+    # 2B) Reparto de simples: cada código a SUS grupos de la asignatura
+    for gs in simples:
+        # Alumnos cuyo grupo ESPECÍFICO para esta asignatura es 'gs'
+        alumnos_s_local = [sid for sid, grupo_asig in alumno_simple.items() if grupo_asig == gs]
+        if not alumnos_s_local:
+            continue
+
+        idx_local = [i for i, g in enumerate(grupos_creados) if g.grupo_simple == gs]
+        idx_local_elig = [i for i in idx_local if
+                          _slot_permite(a_data, grupos_creados[i].dia, grupos_creados[i].franja, gs)]
+        sub_grupos = [grupos_creados[i] for i in idx_local_elig]
+
+        if not sub_grupos:
+            avisos.append(f"- {semestre}:{asig} {gs} → no hay grupos con franjas que declaren {gs}")
+            continue
+
+        asignar_alumnos_min_carga_por_grupo(
+            grupos=sub_grupos,
+            alumnos_simple=alumnos_s_local,
+            alumnos_doble=[],
+            reserved_double_idxs=[],
         )
-        grupos_creados.append(g)
-        contador += 1
 
-    # 4) Reparto de alumnos por capacidad
-    asignar_alumnos_min_carga_por_grupo(grupos_creados, alumnos_s, alumnos_d, reserved_double)
-
-    # 5) Paridad DURA
+    # 3) Paridad dura
     avisos += paridad_dura_balance(cfg, grupos_creados, asig)
 
-    # 6) Programación por FECHA con INTERCALADO por (día, franja)
-    # Agrupar grupos por (día, franja) para repartir fechas en rondas
+    # 4) Programación por fecha
     grupos_por_slot: Dict[Tuple[str, str], List[GrupoLab]] = {}
     for g in grupos_creados:
         grupos_por_slot.setdefault((g.dia, g.franja), []).append(g)
 
     for (dia, franja), glist in grupos_por_slot.items():
-        programar_bloque_intercalado(cfg, scheduler, glist, asig_entry,
-                                     conflict_profs, conflict_aulas)
+        programar_bloque_intercalado(
+            cfg, scheduler, glist, asig_entry, conflict_profs, conflict_aulas
+        )
+
+    # 5) Avisos de capacidad
+    avisos += _avisos_capacidad_insuficiente(
+        cfg=cfg, semestre=semestre, asig=asig,
+        grupos_creados=grupos_creados,
+        simples=simples, dobles=dobles, smap=smap,
+    )
 
     return grupos_creados, avisos
+
+
 
 # ------------------------------
 #   CONSTRUCCIÓN DE RESULTADOS JSON
@@ -807,40 +1222,79 @@ def merge_resultados_into_cfg(cfg: Dict,
                               grupos: List[GrupoLab],
                               conflictos_profes: List[Dict[str, Any]],
                               conflictos_aulas: List[Dict[str, Any]],
-                              avisos: List[str]) -> None:
+                              avisos: List[Any]) -> None:
     """
-    Inserta/actualiza en cfg:
-      - parametros_organizacion
-      - resultados_organizacion: { semestre -> asignatura -> grupos -> ... , conflictos, avisos, metadata }
+    Reconstruye resultados_organizacion y mueve los avisos de capacidad a
+    conflictos.alumnos. Admite dicts y strings (formato heredado).
     """
-    #cfg["parametros_organizacion"] = build_parametros_organizacion()
 
-    res = cfg.get("resultados_organizacion") or {}
-
+    res: Dict[str, Any] = {}
     res["datos_disponibles"] = True
     res["fecha_actualizacion"] = datetime.now().isoformat()
 
-    # Estructura base
-    res.setdefault("conflictos", {})
-    res["conflictos"]["profesores"] = conflictos_profes or []
-    res["conflictos"]["aulas"] = conflictos_aulas or []
-    res["avisos"] = avisos or []
+    # Separar conflictos de alumnos (dict actual; string heredado con prefijo)
+    conflictos_alumnos: List[Dict[str, Any]] = []
+    otros_avisos: List[str] = []
 
-    # Agrupar por semestre->asignatura
-    index: Dict[Tuple[str, str], Dict[str, Any]] = {}
+    for m in avisos or []:
+        if isinstance(m, dict):
+            # Ya viene estructurado
+            conflictos_alumnos.append(m)
+        elif isinstance(m, str) and m.startswith("[CAPACIDAD_ALUMNOS]"):
+            # Compatibilidad con entradas en texto plano
+            txt = m.replace("[CAPACIDAD_ALUMNOS]", "").strip()
+            conflictos_alumnos.append({
+                "semestre": "-", "asignatura": "-", "grupo": "[LEGACY]",
+                "dia": "-", "fecha": "-", "franja": "-",
+                "aula": "-", "profesor": "-",
+                "detalle": txt
+            })
+        else:
+            # Aviso normal, no es de alumnos
+            otros_avisos.append(str(m))
+
+    res["conflictos"] = {
+        "profesores": conflictos_profes or [],
+        "aulas": conflictos_aulas or [],
+        "alumnos": conflictos_alumnos or []
+    }
+    res["avisos"] = otros_avisos
+
+    # Cuerpo: semestre -> asignatura -> grupos
+    def sem_key(sem: str) -> str:
+        return sem if str(sem).startswith("semestre_") else f"semestre_{sem}"
+
+    def grupo_to_json(g: GrupoLab) -> Dict[str, Any]:
+        return {
+            "profesor": g.profesor,
+            "profesor_id": g.profesor_id or "",
+            "aula": g.aula,
+            "dia": g.dia,
+            "franja": g.franja,
+            "fechas": g.fechas or [],
+            "alumnos": list(g.alumnos),
+            "capacidad": g.capacidad,
+            "mixta": bool(g.es_mixta),
+            "grupo_simple": g.grupo_simple,
+            "grupo_doble": g.grupo_doble or ""
+        }
+
     for g in grupos:
         skey = sem_key(g.semestre)
-        res.setdefault(skey, {})
-        res[skey].setdefault(g.asignatura, {})
-        res[skey][g.asignatura].setdefault("grupos", {})
+        if skey not in res:
+            res[skey] = {}
+        if g.asignatura not in res[skey]:
+            res[skey][g.asignatura] = {"grupos": {}}
         res[skey][g.asignatura]["grupos"][g.label] = grupo_to_json(g)
-        index[(skey, g.asignatura)] = res[skey][g.asignatura]
 
-    # Metadatos
-    meta = res.setdefault("_metadata", {})
-    meta["ultima_ejecucion"] = datetime.now().isoformat(timespec="seconds")
-    meta["version"] = "v3-json-first"
+    res["_metadata"] = {
+        "ultima_ejecucion": datetime.now().isoformat(timespec="seconds"),
+        "version": "v3-json-first"
+    }
+
     cfg["resultados_organizacion"] = res
+
+
 
 # ------------------------------
 #   RUN
