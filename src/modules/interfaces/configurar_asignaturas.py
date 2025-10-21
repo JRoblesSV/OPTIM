@@ -110,6 +110,38 @@ class GestionAsignaturaDialog(QDialog):
         if self.asignatura_existente:
             self.cargar_datos_existentes()
 
+    def crear_label_con_info(self, texto_label, texto_info):
+        """Crear label con icono de información y tooltip"""
+        container = QWidget()
+        layout = QHBoxLayout(container)
+        layout.setContentsMargins(0, 0, 0, 0)
+        layout.setSpacing(5)
+
+        label = QLabel(texto_label)
+        layout.addWidget(label)
+
+        # Botón de información
+        btn_info = QPushButton("ℹ️")
+        btn_info.setFixedSize(20, 20)
+        btn_info.setToolTip(texto_info)
+        btn_info.setStyleSheet("""
+            QPushButton {
+                background-color: transparent;
+                border: 1px solid #666;
+                border-radius: 10px;
+                font-size: 12px;
+                padding: 0px;
+            }
+            QPushButton:hover {
+                background-color: #4a9eff;
+                border-color: #4a9eff;
+            }
+        """)
+        layout.addWidget(btn_info)
+        layout.addStretch()
+
+        return container
+
     def setup_ui(self):
         layout = QVBoxLayout()
 
@@ -207,16 +239,22 @@ class GestionAsignaturaDialog(QDialog):
         # Duración por sesión
         duracion_layout = QHBoxLayout()
         self.spin_horas_sesion = QSpinBox()
-        self.spin_horas_sesion.setRange(0, 8)
+        #self.spin_horas_sesion.setRange(0, 8)
+        self.spin_horas_sesion.setRange(2, 2)
         self.spin_horas_sesion.setValue(2)
         self.spin_horas_sesion.setSuffix(" h")
+        self.spin_horas_sesion.setReadOnly(True) # ← Solo lectura
+        self.spin_horas_sesion.setButtonSymbols(QSpinBox.ButtonSymbols.NoButtons) # ← Deshabilito botones
         duracion_layout.addWidget(self.spin_horas_sesion)
 
         self.spin_minutos_sesion = QSpinBox()
-        self.spin_minutos_sesion.setRange(0, 45)
-        self.spin_minutos_sesion.setSingleStep(15)
+        #self.spin_minutos_sesion.setRange(0, 45)
+        self.spin_minutos_sesion.setRange(0, 0)
+        #self.spin_minutos_sesion.setSingleStep(15)
         self.spin_minutos_sesion.setValue(0)
         self.spin_minutos_sesion.setSuffix(" min")
+        self.spin_minutos_sesion.setReadOnly(True) # ← Solo lectura
+        self.spin_minutos_sesion.setButtonSymbols(QSpinBox.ButtonSymbols.NoButtons) # ← Deshabilito botones
         duracion_layout.addWidget(self.spin_minutos_sesion)
 
         duracion_layout.addWidget(QLabel("por sesión"))
@@ -245,9 +283,45 @@ class GestionAsignaturaDialog(QDialog):
         #self.label_alumnos_grupo = QLabel("👨‍🎓 Alumnos: 0 alumnos")
         #self.label_alumnos_grupo.setStyleSheet("color: #cccccc; font-size: 11px;")
 
-        config_grupo_layout.addRow("⏱️ Duración:", duracion_layout)
-        config_grupo_layout.addRow("👥 Grupos de laboratorio:", grupos_layout)
-        config_grupo_layout.addRow("📅 Número prácticas:", clases_layout)
+        config_grupo_layout.addRow(
+            self.crear_label_con_info("⏱️ Duración:",
+                                       "Duración de cada sesión de laboratorio.\n\n"
+                                                "⚠️ Actualmente serán sesiones de 2h siempre\n"),
+            duracion_layout
+        )
+
+        config_grupo_layout.addRow(
+            self.crear_label_con_info("👥 Grupos de laboratorio:",
+                                      "⚠️ IMPORTANTE: Cada GRUPO es INDEPENDIENTE\n\n"
+                                      "Número de subgrupos de laboratorio que se crearán\n"
+                                      "SOLO para los alumnos de este grupo concreto.\n\n"
+                                      "📊 Ejemplo práctico:\n"
+                                      "• Grupo A302 tiene 20 alumnos\n"
+                                      "• Configuras 4 grupos de laboratorio\n"
+                                      "• Resultado: 4 subgrupos de 5 alumnos cada uno\n\n"
+                                      "🔴 GRADOS DOBLES:\n"
+                                      "• EE303 (Grado Doble) → Sus propios grupos\n"
+                                      "• A302 (Grado Simple) → Sus propios grupos\n"
+                                      "• NO se mezclan entre sí\n\n"
+                                      "💡 Configura los grupos para CADA GRUPO por separado"),
+            grupos_layout
+        )
+
+        config_grupo_layout.addRow(
+            self.crear_label_con_info("📅 Número de sesiones:",
+                                      "🎯 Total de SESIONES de laboratorio en el semestre\n\n"
+                                      "⚠️ Cuenta TODAS las veces que irán al laboratorio\n\n"
+                                      "📝 Ejemplo 1 (prácticas de diferente duración):\n"
+                                      "   • Práctica 1: 2 sesiones\n"
+                                      "   • Práctica 2: 1 sesión\n"
+                                      "   • Práctica 3: 2 sesiones\n"
+                                      "   • Práctica 4: 1 sesión\n"
+                                      "   • Total: 2+1+2+1 = 6 sesiones ← poner aquí\n\n"
+                                      "📝 Ejemplo 2 (todas iguales):\n"
+                                      "   • 4 prácticas × 2 sesiones cada una\n"
+                                      "   • Total: 4 × 2 = 8 sesiones ← poner aquí\n\n"),
+            clases_layout
+        )
         #config_grupo_layout.addRow("👨‍🎓 Alumnos:", con_lab_anterior)
 
         planificacion_layout.addLayout(config_grupo_layout)
@@ -1052,7 +1126,7 @@ class ConfigurarAsignaturas(QMainWindow):
     def __init__(self, parent=None, datos_existentes=None):
         super().__init__()
         self.parent_window = parent
-        self.setWindowTitle("Configurar Asignaturas - OPTIM Labs")
+        self.setWindowTitle("Configurar Asignaturas - OPTIM")
         window_width = 1400
         window_height = 750
         center_window_on_screen_immediate(self, window_width, window_height)
@@ -2715,7 +2789,7 @@ class ConfigurarAsignaturas(QMainWindow):
 
         try:
             with open(archivo, 'w', encoding='utf-8') as f:
-                f.write("ESTADÍSTICAS COMPLETAS DE ASIGNATURAS - OPTIM Labs\n")
+                f.write("ESTADÍSTICAS COMPLETAS DE ASIGNATURAS - OPTIM\n")
                 f.write("=" * 60 + "\n\n")
                 f.write(f"Generado: {datetime.now().strftime('%d/%m/%Y %H:%M:%S')}\n\n")
 
@@ -2810,7 +2884,7 @@ class ConfigurarAsignaturas(QMainWindow):
                     'version': '1.0',
                     'timestamp': datetime.now().isoformat(),
                     'total_asignaturas': len(self.datos_configuracion),
-                    'generado_por': 'OPTIM Labs - Configurar Asignaturas'
+                    'generado_por': 'OPTIM - Configurar Asignaturas'
                 }
             }
 

@@ -328,7 +328,7 @@ class ConflictsDialog(QDialog):
 class VerResultadosWindow(QMainWindow):
     def __init__(self, cfg_path: Optional[Path] = None):
         super().__init__()
-        self.setWindowTitle("Resultados de Organización - OPTIM Labs")
+        self.setWindowTitle("Resultados de Organización - OPTIM")
         self.resize(1300, 800)
 
         self.cfg_path = cfg_path or default_config_path()

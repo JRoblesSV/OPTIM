@@ -78,7 +78,7 @@ class OptimLabsGUI(QtWidgets.QMainWindow):
         self.configuracion = self.cargar_configuracion()
 
         self.actualizar_estado_visual()
-        self.log_mensaje("🔄 OPTIM Labs iniciado correctamente", "info")
+        self.log_mensaje("🔄 OPTIM iniciado correctamente", "info")
 
     def setupUi(self):
         """Configurar interfaz principal"""
@@ -2376,7 +2376,7 @@ class OptimLabsGUI(QtWidgets.QMainWindow):
     def mostrar_ayuda(self):
         """Mostrar ayuda y soporte"""
         QtWidgets.QMessageBox.information(
-            self, "Ayuda - OPTIM Labs",
+            self, "Ayuda - OPTIM",
             "OPTIM - Sistema de Programación de Laboratorios\n\n"
             "Flujo recomendado:\n"
             "1️⃣ Configurar Grupos\n"
@@ -2481,7 +2481,7 @@ class OptimLabsGUI(QtWidgets.QMainWindow):
 def main():
     """Función principal"""
     app = QtWidgets.QApplication(sys.argv)
-    app.setApplicationName("OPTIM Labs by SoftVier")
+    app.setApplicationName("OPTIM by SoftVier")
     app.setStyle('Fusion')
 
     # Aplicar paleta de colores oscura

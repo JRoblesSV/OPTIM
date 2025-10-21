@@ -86,7 +86,7 @@ class ConfigurarParametrosWindow(QMainWindow):
             cfg_path: Ruta opcional al archivo de configuración
         """
         super().__init__()
-        self.setWindowTitle("Restricciones de Organización - OPTIM Labs")
+        self.setWindowTitle("Restricciones de Organización - OPTIM")
         self.setMinimumSize(700, 600)
         self.resize(800, 700)
 

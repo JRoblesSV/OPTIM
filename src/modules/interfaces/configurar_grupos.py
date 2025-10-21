@@ -756,7 +756,7 @@ class ConfigurarGrupos(QMainWindow):
     def __init__(self, parent=None, datos_existentes=None):
         super().__init__()
         self.parent_window = parent
-        self.setWindowTitle("Configurar Grupos - OPTIM Labs")
+        self.setWindowTitle("Configurar Grupos - OPTIM")
         window_width = 1400
         window_height = 750
         center_window_on_screen_immediate(self, window_width, window_height)
@@ -2255,7 +2255,7 @@ class ConfigurarGrupos(QMainWindow):
 
         try:
             with open(archivo, 'w', encoding='utf-8') as f:
-                f.write("ESTADÍSTICAS COMPLETAS DE GRUPOS - OPTIM Labs\n")
+                f.write("ESTADÍSTICAS COMPLETAS DE GRUPOS - OPTIM\n")
                 f.write("=" * 60 + "\n\n")
                 f.write(f"Generado: {datetime.now().strftime('%d/%m/%Y %H:%M:%S')}\n\n")
 
@@ -2366,7 +2366,7 @@ class ConfigurarGrupos(QMainWindow):
                     'version': '1.0',
                     'timestamp': datetime.now().isoformat(),
                     'total_grupos': len(self.datos_configuracion),
-                    'generado_por': 'OPTIM Labs - Configurar Grupos'
+                    'generado_por': 'OPTIM - Configurar Grupos'
                 }
             }
 

@@ -113,7 +113,7 @@ class GestionAulaDialog(QDialog):
         # Capacidad con unidad externa
         capacidad_layout = QHBoxLayout()
         self.spin_capacidad = QSpinBox()
-        self.spin_capacidad.setRange(5, 50)
+        self.spin_capacidad.setRange(1, 200)
         self.spin_capacidad.setValue(24)
         self.spin_capacidad.setMinimumWidth(80)
         capacidad_layout.addWidget(self.spin_capacidad)
@@ -732,7 +732,7 @@ class ConfigurarAulas(QMainWindow):
     def __init__(self, parent=None, datos_existentes=None):
         super().__init__()
         self.parent_window = parent
-        self.setWindowTitle("Configurar Aulas - OPTIM Labs")
+        self.setWindowTitle("Configurar Aulas - OPTIM")
         window_width = 1200
         window_height = 650
         center_window_on_screen_immediate(self, window_width, window_height)
@@ -1498,7 +1498,7 @@ class ConfigurarAulas(QMainWindow):
                                               for datos in self.datos_configuracion.values()),
                     'total_fechas_bloqueadas': sum(len(datos.get('fechas_no_disponibles', []))
                                                    for datos in self.datos_configuracion.values()),
-                    'generado_por': 'OPTIM Labs - Configurar Aulas'
+                    'generado_por': 'OPTIM - Configurar Aulas'
                 }
             }
 

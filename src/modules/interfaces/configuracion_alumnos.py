@@ -1263,7 +1263,7 @@ class ConfigurarAlumnos(QMainWindow):
     def __init__(self, parent=None, datos_existentes=None):
         super().__init__()
         self.parent_window = parent
-        self.setWindowTitle("Configurar Alumnos - OPTIM Labs")
+        self.setWindowTitle("Configurar Alumnos - OPTIM")
 
         # Centrar inmediatamente sin parpadeo
         window_width = 1500
@@ -2968,7 +2968,7 @@ class ConfigurarAlumnos(QMainWindow):
             contenido_stats = self.texto_stats.toPlainText()
 
             # Añadir información adicional
-            contenido_completo = f"ESTADÍSTICAS DE ALUMNOS - OPTIM Labs\n"
+            contenido_completo = f"ESTADÍSTICAS DE ALUMNOS - OPTIM\n"
             contenido_completo += f"Generado: {datetime.now().strftime('%d/%m/%Y %H:%M:%S')}\n"
             contenido_completo += f"{'=' * 50}\n\n"
             contenido_completo += contenido_stats

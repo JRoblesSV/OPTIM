@@ -545,7 +545,7 @@ class ConfigurarCalendario(QMainWindow):
         """Inicializar ventana principal con configuración dinámica de semanas"""
         super().__init__()
         self.parent_window = parent
-        self.setWindowTitle("Configurar Calendario - OPTIM Labs")
+        self.setWindowTitle("Configurar Calendario - OPTIM")
         window_width = 1600
         window_height = 900
         center_window_on_screen_immediate(self, window_width, window_height)
@@ -2329,7 +2329,7 @@ class ConfigurarCalendario(QMainWindow):
                     'timestamp': datetime.now().isoformat(),
                     'total_dias_1': len(self.datos_configuracion['semestre_1']),
                     'total_dias_2': len(self.datos_configuracion['semestre_2']),
-                    'generado_por': 'OPTIM Labs - Configurar Calendario'
+                    'generado_por': 'OPTIM - Configurar Calendario'
                 }
             }
 

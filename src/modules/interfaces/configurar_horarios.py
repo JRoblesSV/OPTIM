@@ -695,7 +695,7 @@ class ConfigurarHorarios(QMainWindow):
     def __init__(self, parent=None, datos_existentes=None):
         super().__init__()
         self.parent_window = parent
-        self.setWindowTitle("Configurar Horarios - OPTIM Labs")
+        self.setWindowTitle("Configurar Horarios - OPTIM")
         center_window_on_screen(self, 1400, 800)
 
         # Horarios fijos del sistema
