@@ -1,5 +1,4 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
+
 """
 Configurar Aulas - OPTIM - Sistema de Programación Automática de Laboratorios
 Desarrollado por SoftVier para ETSIDI (UPM)
@@ -12,6 +11,8 @@ import sys
 import os
 import json
 from datetime import datetime
+from pathlib import Path
+
 from PyQt6.QtWidgets import (
     QApplication, QMainWindow, QWidget, QVBoxLayout, QHBoxLayout,
     QLabel, QPushButton, QSpinBox, QListWidget,
@@ -24,64 +25,38 @@ from PyQt6.QtCore import Qt, pyqtSignal, QDate
 from PyQt6.QtGui import QPalette, QColor
 
 
-def center_window_on_screen_immediate(window, width, height):
-    """Centrar ventana a la pantalla"""
+def center_window_on_screen(window, width, height) -> None:
+    """Centra la ventana en la pantalla"""
     try:
-        # Obtener información de la pantalla
         screen = QApplication.primaryScreen()
         if screen:
-            screen_geometry = screen.availableGeometry()  # Considera la barra de tareas
-
-            # Calcular posición centrada usando las dimensiones proporcionadas
+            screen_geometry = screen.availableGeometry()
             center_x = (screen_geometry.width() - width) // 2 + screen_geometry.x()
             center_y = (screen_geometry.height() - height) // 2 + screen_geometry.y()
-
-            # Asegurar que la ventana no se salga de la pantalla
             final_x = max(screen_geometry.x(), min(center_x, screen_geometry.x() + screen_geometry.width() - width))
             final_y = max(screen_geometry.y(), min(center_y, screen_geometry.y() + screen_geometry.height() - height))
-
-            # Establecer geometría completa de una vez (posición + tamaño)
             window.setGeometry(final_x, final_y, width, height)
-
         else:
-            # Alternativa si no se puede obtener la pantalla
             window.setGeometry(100, 100, width, height)
-
-    except Exception as e:
-        # Alternativa en caso de error
+    except Exception:
         window.setGeometry(100, 100, width, height)
 
-def obtener_ruta_descargas():
-    """Obtener la ruta de la carpeta Downloads del usuario"""
 
-    # Intentar diferentes métodos para obtener Downloads
-    try:
-        # Método 1: Variable de entorno USERPROFILE (Windows)
-        if os.name == 'nt':  # Windows
-            downloads = os.path.join(os.path.expanduser('~'), 'Downloads')
-        else:  # Linux/Mac
-            downloads = os.path.join(os.path.expanduser('~'), 'Downloads')
-
-        # Verificar que existe
-        if os.path.exists(downloads):
-            return downloads
-
-        # Alternativa: Desktop si Downloads no existe
-        desktop = os.path.join(os.path.expanduser('~'), 'Desktop')
-        if os.path.exists(desktop):
-            return desktop
-
-        # Último fallback: home del usuario
-        return os.path.expanduser('~')
-
-    except:
-        # Si todo falla, usar directorio actual
-        return os.getcwd()
+def dir_downloads() -> str:
+    """Obtener ruta del directorio de Descargas del usuario"""
+    home = Path.home()
+    for name in ("Descargas", "Downloads"):
+        p = home / name
+        if p.exists() and p.is_dir():
+            return str(p)
+    return str(home)
 
 
+# ========= Diálogo Gestión Aulas =========
 class GestionAulaDialog(QDialog):
     """Dialog para añadir/editar aula con gestión de asignaturas asociadas y días no disponibles"""
 
+    # ========= INICIALIZACIÓN =========
     def __init__(self, aula_existente=None, asignaturas_disponibles=None, parent=None):
         super().__init__(parent)
         self.aula_existente = aula_existente
@@ -90,14 +65,18 @@ class GestionAulaDialog(QDialog):
         self.setModal(True)
         window_width = 700
         window_height = 650
-        center_window_on_screen_immediate(self, window_width, window_height)
+        self.setMinimumHeight(450)
+        center_window_on_screen(self, window_width, window_height)
 
         self.setup_ui()
         self.apply_dark_theme()
 
+        self.configurar_botones_uniformes()
+
         if self.aula_existente:
             self.cargar_datos_existentes()
 
+    # ========= CONFIGURACIÓN DE UI =========
     def setup_ui(self):
         layout = QVBoxLayout()
         layout.setSpacing(12)
@@ -414,207 +393,7 @@ class GestionAulaDialog(QDialog):
 
         self.setLayout(layout)
 
-    def agregar_fecha_no_disponible(self, fecha):
-        """Añadir la fech a la lista de no disponibles"""
-        fecha_str = fecha.toString("dd/MM/yyyy")
-
-        # Verificar si ya existe
-        for i in range(self.lista_fechas_no_disponibles.count()):
-            if self.lista_fechas_no_disponibles.item(i).text() == fecha_str:
-                return
-
-        # Añadir a la lista
-        item = QListWidgetItem(fecha_str)
-        item.setData(Qt.ItemDataRole.UserRole, fecha)
-        self.lista_fechas_no_disponibles.addItem(item)
-
-        # Ordenar lista por fecha
-        self.ordenar_fechas_no_disponibles()
-
-    def eliminar_fecha_no_disponible(self):
-        """Eliminar fecha seleccionada de la lista"""
-        current_item = self.lista_fechas_no_disponibles.currentItem()
-        if current_item:
-            row = self.lista_fechas_no_disponibles.row(current_item)
-            self.lista_fechas_no_disponibles.takeItem(row)
-
-    def limpiar_todas_fechas(self):
-        """Limpiar todas las fechas no disponibles"""
-        if self.lista_fechas_no_disponibles.count() == 0:
-            return
-
-        respuesta = QMessageBox.question(
-            self, "Limpiar Fechas",
-            f"¿Eliminar todas las {self.lista_fechas_no_disponibles.count()} fechas no disponibles?",
-            QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No
-        )
-
-        if respuesta == QMessageBox.StandardButton.Yes:
-            self.lista_fechas_no_disponibles.clear()
-
-    def ordenar_fechas_no_disponibles(self):
-        """Ordenar fechas no disponibles cronológicamente"""
-        fechas = []
-        for i in range(self.lista_fechas_no_disponibles.count()):
-            item = self.lista_fechas_no_disponibles.item(i)
-            fecha = item.data(Qt.ItemDataRole.UserRole)
-            fechas.append((fecha, item.text()))
-
-        # Ordenar por fecha usando getDate() que es compatible con PyQt6
-        fechas.sort(key=lambda x: x[0].getDate())  # getDate() devuelve (año, mes, día)
-
-        # Limpiar y rellenar lista
-        self.lista_fechas_no_disponibles.clear()
-        for fecha, texto in fechas:
-            item = QListWidgetItem(texto)
-            item.setData(Qt.ItemDataRole.UserRole, fecha)
-            self.lista_fechas_no_disponibles.addItem(item)
-
-    def cargar_datos_existentes(self):
-        """Cargar datos del aula existente"""
-        if not self.aula_existente:
-            return
-
-        datos = self.aula_existente
-        self.edit_nombre.setText(datos.get('nombre', ''))
-        self.spin_capacidad.setValue(datos.get('capacidad', 24))
-        self.edit_equipamiento.setText(datos.get('equipamiento', ''))
-        self.edit_edificio.setText(datos.get('edificio', ''))
-        self.edit_planta.setText(datos.get('planta', ''))
-        self.check_disponible.setChecked(datos.get('disponible', True))
-
-        # Cargar asignaturas asociadas
-        asignaturas_asociadas = datos.get('asignaturas_asociadas', [])
-        for codigo, check in self.checks_asignaturas.items():
-            if codigo in asignaturas_asociadas:
-                check.setChecked(True)
-
-        # Cargar fechas no disponibles
-        fechas_no_disponibles = datos.get('fechas_no_disponibles', [])
-        for fecha_str in fechas_no_disponibles:
-            try:
-                # Convertir string a QDate
-                fecha_parts = fecha_str.split('/')
-                if len(fecha_parts) == 3:
-                    dia, mes, ano = map(int, fecha_parts)
-                    fecha = QDate(ano, mes, dia)
-                    self.agregar_fecha_no_disponible(fecha)
-            except Exception as e:
-                print(f"Error cargando fecha {fecha_str}: {e}")
-
-    def validar_y_aceptar(self):
-        """Validar datos antes de aceptar"""
-        if not self.edit_nombre.text().strip():
-            QMessageBox.warning(self, "Campo requerido", "El nombre del laboratorio es obligatorio")
-            self.edit_nombre.setFocus()
-            return
-
-        #if not self.edit_equipamiento.text().strip():
-        #    QMessageBox.warning(self, "Campo requerido", "El equipamiento es obligatorio")
-        #    self.edit_equipamiento.setFocus()
-        #    return
-
-        self.accept()
-
-    def get_datos_aula(self):
-        """Obtener datos configurados incluyendo asignaturas asociadas y fechas no disponibles"""
-        # Obtener asignaturas seleccionadas
-        asignaturas_seleccionadas = []
-        for codigo, check in self.checks_asignaturas.items():
-            if check.isChecked():
-                asignaturas_seleccionadas.append(codigo)
-
-        # Obtener fechas no disponibles
-        fechas_no_disponibles = []
-        for i in range(self.lista_fechas_no_disponibles.count()):
-            item = self.lista_fechas_no_disponibles.item(i)
-            fechas_no_disponibles.append(item.text())
-
-        return {
-            'nombre': self.edit_nombre.text().strip(),
-            'capacidad': self.spin_capacidad.value(),
-            'equipamiento': self.edit_equipamiento.text().strip(),
-            'edificio': self.edit_edificio.text().strip(),
-            'planta': self.edit_planta.text().strip(),
-            'disponible': self.check_disponible.isChecked(),
-            'asignaturas_asociadas': asignaturas_seleccionadas,
-            'fechas_no_disponibles': fechas_no_disponibles
-        }
-
-    def igualar_tamanos_botones_ok_cancel(self):
-        """Forzar que OK y Cancel tengan exactamente el mismo tamaño"""
-        try:
-            button_box = self.findChild(QDialogButtonBox)
-            if button_box:
-                ok_button = button_box.button(QDialogButtonBox.StandardButton.Ok)
-                cancel_button = button_box.button(QDialogButtonBox.StandardButton.Cancel)
-
-                if ok_button and cancel_button:
-                    # Calcular el tamaño más grande y aplicarlo a ambos
-                    width = max(ok_button.sizeHint().width(), cancel_button.sizeHint().width(), 60)
-                    height = 35
-
-                    ok_button.setFixedSize(width, height)
-                    cancel_button.setFixedSize(width, height)
-
-        except Exception as e:
-            print(f"Error igualando tamaños: {e}")
-
-    def configurar_botones_uniformes(self):
-        """Configurar estilos uniformes para botones OK/Cancel"""
-        try:
-            # Buscar el QDialogButtonBox
-            button_box = self.findChild(QDialogButtonBox)
-            if button_box:
-                # Obtener botones específicos
-                ok_button = button_box.button(QDialogButtonBox.StandardButton.Ok)
-                cancel_button = button_box.button(QDialogButtonBox.StandardButton.Cancel)
-
-                # Estilo uniforme para los botones OK/Cancelar
-                estilo_uniforme = """
-                    QPushButton {
-                        background-color: #4a4a4a;
-                        color: #ffffff;
-                        border: 1px solid #666666;
-                        border-radius: 5px;
-                        padding: 8px 20px;
-                        font-weight: bold;
-                        font-size: 12px;
-                        min-width: 80px;
-                        min-height: 35px;
-                        margin: 2px;
-                    }
-                    QPushButton:hover {
-                        background-color: #5a5a5a;
-                        border-color: #4a9eff;
-                    }
-                    QPushButton:pressed {
-                        background-color: #3a3a3a;
-                    }
-                    QPushButton:default {
-                        background-color: #4a9eff;
-                        border-color: #4a9eff;
-                    }
-                    QPushButton:default:hover {
-                        background-color: #5ab7ff;
-                    }
-                    QPushButton:default:pressed {
-                        background-color: #3a8adf;
-                    }
-                """
-
-                if ok_button:
-                    ok_button.setText("OK")
-                    ok_button.setStyleSheet(estilo_uniforme)
-
-                if cancel_button:
-                    cancel_button.setText("Cancel")
-                    cancel_button.setStyleSheet(estilo_uniforme)
-
-        except Exception as e:
-            print(f"Error configurando botones: {e}")
-
-    def apply_dark_theme(self):
+    def apply_dark_theme(self) -> None:
         """Aplicar tema oscuro con botones OK/Cancel uniformes"""
         self.setStyleSheet("""
             QDialog {
@@ -722,31 +501,182 @@ class GestionAulaDialog(QDialog):
             }
         """)
 
+    def configurar_botones_uniformes(self) -> None:
+        """Forzar que OK y Cancel tengan exactamente el mismo tamaño"""
+        try:
+            button_box = self.findChild(QDialogButtonBox)
+            if button_box:
+                ok_button = button_box.button(QDialogButtonBox.StandardButton.Ok)
+                cancel_button = button_box.button(QDialogButtonBox.StandardButton.Cancel)
 
-class ConfigurarAulas(QMainWindow):
+                if ok_button and cancel_button:
+                    # Calcular el tamaño más grande y aplicarlo a ambos
+                    width = max(ok_button.sizeHint().width(), cancel_button.sizeHint().width(), 60)
+                    height = 35
+
+                    ok_button.setFixedSize(width, height)
+                    cancel_button.setFixedSize(width, height)
+
+        except Exception as e:
+            print(f"Error igualando tamaños: {e}")
+
+    # ========= MANEJO DE FECHAS NO DISPONIBLES =========
+    def agregar_fecha_no_disponible(self, fecha) -> None:
+        """Añadir la fecha a la lista de no disponibles"""
+        fecha_str = fecha.toString("dd/MM/yyyy")
+
+        # Verificar si ya existe
+        for i in range(self.lista_fechas_no_disponibles.count()):
+            if self.lista_fechas_no_disponibles.item(i).text() == fecha_str:
+                return
+
+        # Añadir a la lista
+        item = QListWidgetItem(fecha_str)
+        item.setData(Qt.ItemDataRole.UserRole, fecha)
+        self.lista_fechas_no_disponibles.addItem(item)
+
+        # Ordenar lista por fecha
+        self.ordenar_fechas_no_disponibles()
+
+    def eliminar_fecha_no_disponible(self) -> None:
+        """Eliminar fecha seleccionada de la lista"""
+        current_item = self.lista_fechas_no_disponibles.currentItem()
+        if current_item:
+            row = self.lista_fechas_no_disponibles.row(current_item)
+            self.lista_fechas_no_disponibles.takeItem(row)
+
+    def limpiar_todas_fechas(self) -> None:
+        """Limpiar todas las fechas no disponibles"""
+        if self.lista_fechas_no_disponibles.count() == 0:
+            return
+
+        respuesta = QMessageBox.question(
+            self, "Limpiar Fechas",
+            f"¿Eliminar todas las {self.lista_fechas_no_disponibles.count()} fechas no disponibles?",
+            QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No
+        )
+
+        if respuesta == QMessageBox.StandardButton.Yes:
+            self.lista_fechas_no_disponibles.clear()
+
+    def ordenar_fechas_no_disponibles(self) -> None:
+        """Ordenar fechas no disponibles cronológicamente"""
+        fechas = []
+        for i in range(self.lista_fechas_no_disponibles.count()):
+            item = self.lista_fechas_no_disponibles.item(i)
+            fecha = item.data(Qt.ItemDataRole.UserRole)
+            fechas.append((fecha, item.text()))
+
+        # Ordenar por fecha usando getDate() que es compatible con PyQt6
+        fechas.sort(key=lambda x: x[0].getDate())  # getDate() devuelve (año, mes, día)
+
+        # Limpiar y rellenar lista
+        self.lista_fechas_no_disponibles.clear()
+        for fecha, texto in fechas:
+            item = QListWidgetItem(texto)
+            item.setData(Qt.ItemDataRole.UserRole, fecha)
+            self.lista_fechas_no_disponibles.addItem(item)
+
+    # ========= CARGA DE DATOS =========
+    def cargar_datos_existentes(self) -> None:
+        """Cargar datos del aula existente"""
+        if not self.aula_existente:
+            return
+
+        datos = self.aula_existente
+        self.edit_nombre.setText(datos.get('nombre', ''))
+        self.spin_capacidad.setValue(datos.get('capacidad', 24))
+        self.edit_equipamiento.setText(datos.get('equipamiento', ''))
+        self.edit_edificio.setText(datos.get('edificio', ''))
+        self.edit_planta.setText(datos.get('planta', ''))
+        self.check_disponible.setChecked(datos.get('disponible', True))
+
+        # Cargar asignaturas asociadas
+        asignaturas_asociadas = datos.get('asignaturas_asociadas', [])
+        for codigo, check in self.checks_asignaturas.items():
+            if codigo in asignaturas_asociadas:
+                check.setChecked(True)
+
+        # Cargar fechas no disponibles
+        fechas_no_disponibles = datos.get('fechas_no_disponibles', [])
+        for fecha_str in fechas_no_disponibles:
+            try:
+                # Convertir string a QDate
+                fecha_parts = fecha_str.split('/')
+                if len(fecha_parts) == 3:
+                    dia, mes, ano = map(int, fecha_parts)
+                    fecha = QDate(ano, mes, dia)
+                    self.agregar_fecha_no_disponible(fecha)
+            except Exception as e:
+                print(f"Error cargando fecha {fecha_str}: {e}")
+
+    def get_datos_aula(self) -> dict:
+        """Obtener datos configurados incluyendo asignaturas asociadas y fechas no disponibles"""
+        # Obtener asignaturas seleccionadas
+        asignaturas_seleccionadas = []
+        for codigo, check in self.checks_asignaturas.items():
+            if check.isChecked():
+                asignaturas_seleccionadas.append(codigo)
+
+        # Obtener fechas no disponibles
+        fechas_no_disponibles = []
+        for i in range(self.lista_fechas_no_disponibles.count()):
+            item = self.lista_fechas_no_disponibles.item(i)
+            fechas_no_disponibles.append(item.text())
+
+        return {
+            'nombre': self.edit_nombre.text().strip(),
+            'capacidad': self.spin_capacidad.value(),
+            'equipamiento': self.edit_equipamiento.text().strip(),
+            'edificio': self.edit_edificio.text().strip(),
+            'planta': self.edit_planta.text().strip(),
+            'disponible': self.check_disponible.isChecked(),
+            'asignaturas_asociadas': asignaturas_seleccionadas,
+            'fechas_no_disponibles': fechas_no_disponibles
+        }
+
+    # ========= VALIDAR DATOS =========
+    def validar_y_aceptar(self) -> None:
+        """Validar datos antes de aceptar"""
+        if not self.edit_nombre.text().strip():
+            QMessageBox.warning(self, "Campo requerido", "El nombre del laboratorio es obligatorio")
+            self.edit_nombre.setFocus()
+            return
+
+        #if not self.edit_equipamiento.text().strip():
+        #    QMessageBox.warning(self, "Campo requerido", "El equipamiento es obligatorio")
+        #    self.edit_equipamiento.setFocus()
+        #    return
+
+        self.accept()
+
+
+# ========= Ventana Principal =========
+class ConfigurarAulasWindow(QMainWindow):
     """Ventana principal para configurar aulas/laboratorios con integración global"""
 
     # Señal para comunicar cambios al sistema principal
     configuracion_actualizada = pyqtSignal(dict)
 
+    # ========= INICIALIZACIÓN =========
     def __init__(self, parent=None, datos_existentes=None):
         super().__init__()
         self.parent_window = parent
         self.setWindowTitle("Configurar Aulas - OPTIM")
         window_width = 1200
         window_height = 650
-        center_window_on_screen_immediate(self, window_width, window_height)
+        center_window_on_screen(self, window_width, window_height)
 
         # Obtener asignaturas disponibles desde el sistema global
-        self.asignaturas_disponibles = self.obtener_asignaturas_del_sistema()
+        self.asignaturas_disponibles = self.get_asignaturas_del_sistema()
 
         # Estructura de datos principal (integrada con sistema global)
         if datos_existentes:
             self.datos_configuracion = datos_existentes.copy()
-            self.log_mensaje("📥 Cargando configuración existente de aulas...", "info")
+            self.log_mensaje("Cargando configuración existente de aulas...", "info")
         else:
             self.datos_configuracion = {}
-            self.log_mensaje("📝 Iniciando configuración nueva de aulas...", "info")
+            self.log_mensaje("Iniciando configuración nueva de aulas...", "info")
 
         # Variables para rastrear cambios
         self.datos_iniciales = json.dumps(self.datos_configuracion, sort_keys=True)
@@ -758,56 +688,7 @@ class ConfigurarAulas(QMainWindow):
         self.conectar_signals()
         self.cargar_datos_iniciales()
 
-    def obtener_asignaturas_del_sistema(self):
-        """Obtener asignaturas configuradas desde el sistema global - Sincronizado con asignaturas"""
-        try:
-            if self.parent_window and hasattr(self.parent_window, 'configuracion'):
-                # Obtener de configuracion["asignaturas"] en lugar de horarios
-                config_asignaturas = self.parent_window.configuracion["configuracion"]["asignaturas"]
-                if config_asignaturas.get("configurado") and config_asignaturas.get("datos"):
-                    return config_asignaturas["datos"]
-            return {}
-        except Exception as e:
-            self.log_mensaje(f"⚠️ Error obteniendo asignaturas del sistema: {e}", "warning")
-            return {}
-
-    def cargar_datos_iniciales(self):
-        """Cargar datos existentes al inicializar"""
-        try:
-            # Ordenar aulas alfabéticamente
-            self.ordenar_aulas_alfabeticamente()
-
-            # Cargar lista
-            self.cargar_lista_aulas()
-
-            # Mostrar resumen
-            total_aulas = len(self.datos_configuracion)
-            disponibles = sum(1 for datos in self.datos_configuracion.values()
-                              if datos.get('disponible', True))
-
-            if total_aulas > 0:
-                self.log_mensaje(
-                    f"✅ Datos cargados: {total_aulas} aulas ({disponibles} disponibles)",
-                    "success"
-                )
-                self.auto_seleccionar_primera_aula()
-            else:
-                self.log_mensaje("📝 No hay aulas configuradas - configuración nueva", "info")
-
-        except Exception as e:
-            self.log_mensaje(f"⚠️ Error cargando datos iniciales: {e}", "warning")
-
-    def auto_seleccionar_primera_aula(self):
-        """Auto-seleccionar primera aula disponible"""
-        try:
-            if self.list_aulas.count() > 0:
-                primer_item = self.list_aulas.item(0)
-                self.list_aulas.setCurrentItem(primer_item)
-                self.seleccionar_aula(primer_item)
-                self.log_mensaje(f"🎯 Auto-seleccionada: {primer_item.text()}", "info")
-        except Exception as e:
-            self.log_mensaje(f"⚠️ Error auto-seleccionando aula: {e}", "warning")
-
+    # ========= CONFIGURACIÓN DE UI =========
     def setup_ui(self):
         central_widget = QWidget()
         self.setCentralWidget(central_widget)
@@ -816,7 +697,7 @@ class ConfigurarAulas(QMainWindow):
         main_layout.setSpacing(10)
 
         # Título principal
-        titulo = QLabel("🏢 CONFIGURACIÓN DE AULAS Y LABORATORIOS")
+        titulo = QLabel("CONFIGURACIÓN DE AULAS Y LABORATORIOS")
         titulo.setStyleSheet("color: #4a9eff; font-weight: bold; font-size: 16px; margin-bottom: 10px;")
         titulo.setAlignment(Qt.AlignmentFlag.AlignCenter)
         main_layout.addWidget(titulo)
@@ -835,7 +716,7 @@ class ConfigurarAulas(QMainWindow):
 
         # Botones de gestión con el mismo estilo
         btn_add_aula = self.crear_boton_accion("➕", "#4CAF50", "Añadir nueva aula")
-        btn_add_aula.clicked.connect(self.anadir_aula)
+        btn_add_aula.clicked.connect(self.add_aula)
 
         btn_edit_aula = self.crear_boton_accion("✏️", "#2196F3", "Editar aula seleccionada")
         btn_edit_aula.clicked.connect(self.editar_aula_seleccionada)
@@ -900,12 +781,12 @@ class ConfigurarAulas(QMainWindow):
         acciones_group = QGroupBox("🚀 ACCIONES RÁPIDAS")
         acciones_layout = QVBoxLayout()
 
-        self.btn_duplicar = QPushButton("📋 Duplicar Aula Seleccionada")
+        self.btn_duplicar = QPushButton("Duplicar Aula Seleccionada")
         self.btn_duplicar.setEnabled(False)
         self.btn_duplicar.clicked.connect(self.duplicar_aula_seleccionada)
         acciones_layout.addWidget(self.btn_duplicar)
 
-        self.btn_toggle_disponible = QPushButton("🔄 Cambiar Disponibilidad")
+        self.btn_toggle_disponible = QPushButton("Cambiar Disponibilidad")
         self.btn_toggle_disponible.setEnabled(False)
         self.btn_toggle_disponible.clicked.connect(self.toggle_disponibilidad_aula)
         acciones_layout.addWidget(self.btn_toggle_disponible)
@@ -921,9 +802,9 @@ class ConfigurarAulas(QMainWindow):
         importar_group = QGroupBox("📥 IMPORTAR DATOS")
         importar_layout = QVBoxLayout()
 
-        self.btn_cargar = QPushButton("📤 Importar Datos")
+        self.btn_cargar = QPushButton("Importar Datos")
         self.btn_cargar.setToolTip("Importar configuración desde JSON")
-        self.btn_cargar.clicked.connect(self.cargar_configuracion)
+        self.btn_cargar.clicked.connect(self.import_config)
         importar_layout.addWidget(self.btn_cargar)
 
         importar_group.setLayout(importar_layout)
@@ -933,9 +814,9 @@ class ConfigurarAulas(QMainWindow):
         exportar_group = QGroupBox("💾 EXPORTAR DATOS")
         exportar_layout = QVBoxLayout()
 
-        self.btn_exportar_aulas = QPushButton("💾 Exportar Datos")
+        self.btn_exportar_aulas = QPushButton("Exportar Datos")
         self.btn_exportar_aulas.setToolTip("Exportar configuración a JSON")
-        self.btn_exportar_aulas.clicked.connect(self.exportar_a_json)
+        self.btn_exportar_aulas.clicked.connect(self.export_config)
         exportar_layout.addWidget(self.btn_exportar_aulas)
 
         exportar_group.setLayout(exportar_layout)
@@ -945,7 +826,7 @@ class ConfigurarAulas(QMainWindow):
         botones_principales_group = QGroupBox("💾 GUARDAR CONFIGURACIÓN")
         botones_layout = QVBoxLayout()
 
-        self.btn_guardar_sistema = QPushButton("✅ Guardar en Sistema")
+        self.btn_guardar_sistema = QPushButton("Guardar en Sistema")
         self.btn_guardar_sistema.setStyleSheet("""
             QPushButton {
                 background-color: #4CAF50;
@@ -967,7 +848,7 @@ class ConfigurarAulas(QMainWindow):
         self.btn_guardar_sistema.clicked.connect(self.guardar_en_sistema)
         botones_layout.addWidget(self.btn_guardar_sistema)
 
-        self.btn_limpiar_todo = QPushButton("🗑️ Limpiar Todo")
+        self.btn_limpiar_todo = QPushButton("Limpiar Todo")
         self.btn_limpiar_todo.setStyleSheet("""
             QPushButton {
                 background-color: #d32f2f;
@@ -999,7 +880,31 @@ class ConfigurarAulas(QMainWindow):
         main_layout.addLayout(content_layout)
         central_widget.setLayout(main_layout)
 
-    def crear_boton_accion(self, icono, color, tooltip):
+    def ordenar_aulas_alfabeticamente(self) -> None:
+        """Reordenar aulas alfabéticamente"""
+        if not self.datos_configuracion:
+            return
+
+        # Crear nuevo diccionario ordenado
+        aulas_ordenadas = {}
+        for nombre in sorted(self.datos_configuracion.keys()):
+            aulas_ordenadas[nombre] = self.datos_configuracion[nombre]
+
+        self.datos_configuracion = aulas_ordenadas
+
+    def auto_seleccionar_aula(self, nombre_aula) -> None:
+        """Auto-seleccionar aula por nombre"""
+        try:
+            for i in range(self.list_aulas.count()):
+                item = self.list_aulas.item(i)
+                if item.data(Qt.ItemDataRole.UserRole) == nombre_aula:
+                    self.list_aulas.setCurrentItem(item)
+                    self.seleccionar_aula(item)
+                    break
+        except Exception as e:
+            self.log_mensaje(f"Error auto-seleccionando aula: {e}", "warning")
+
+    def crear_boton_accion(self, icono, color, tooltip) -> QPushButton:
         """Crear botón de acción con estilo consistente"""
         btn = QPushButton(icono)
         btn.setMinimumSize(40, 30)
@@ -1028,12 +933,12 @@ class ConfigurarAulas(QMainWindow):
         btn.setToolTip(tooltip)
         return btn
 
-    def hex_to_rgb(self, hex_color):
+    def hex_to_rgb(self, hex_color) -> str:
         """Convertir color hex a RGB para estilos"""
         hex_color = hex_color.lstrip('#')
         return ', '.join(str(int(hex_color[i:i + 2], 16)) for i in (0, 2, 4))
 
-    def apply_dark_theme(self):
+    def apply_dark_theme(self) -> None:
         """Aplicar tema oscuro idéntico al resto del sistema - CON TOOLTIPS"""
         self.setStyleSheet("""
             QMainWindow {
@@ -1113,152 +1018,13 @@ class ConfigurarAulas(QMainWindow):
             }
         """)
 
-    def conectar_signals(self):
+    # ========= CONEXIÓN DE SEÑALES =========
+    def conectar_signals(self) -> None:
         """Conectar señales de la interfaz"""
         self.list_aulas.itemClicked.connect(self.seleccionar_aula)
 
-    def cargar_lista_aulas(self):
-        """Cargar aulas en la lista visual"""
-        self.list_aulas.clear()
-
-        if not self.datos_configuracion:
-            item = QListWidgetItem("📭 No hay aulas configuradas")
-            item.setFlags(Qt.ItemFlag.NoItemFlags)
-            self.list_aulas.addItem(item)
-            return
-
-        # Ordenar aulas por nombre
-        aulas_ordenadas = sorted(self.datos_configuracion.items())
-
-        for nombre, datos in aulas_ordenadas:
-            disponible_icon = "✅" if datos.get('disponible', True) else "❌"
-            capacidad = datos.get('capacidad', 0)
-            edificio = datos.get('edificio', 'Sin edificio')
-
-            # Mostrar número de asignaturas asociadas
-            num_asignaturas = len(datos.get('asignaturas_asociadas', []))
-            asig_info = f"({num_asignaturas} asig.)" if num_asignaturas > 0 else "(sin asig.)"
-
-            # Mostrar fechas no disponibles
-            num_fechas_bloqueadas = len(datos.get('fechas_no_disponibles', []))
-            fechas_info = f"({num_fechas_bloqueadas} fechas bloq.)" if num_fechas_bloqueadas > 0 else ""
-
-            texto_item = f"{disponible_icon} {nombre} ({capacidad}p) - {edificio} {asig_info} {fechas_info}"
-
-            item = QListWidgetItem(texto_item)
-            item.setData(Qt.ItemDataRole.UserRole, nombre)
-            self.list_aulas.addItem(item)
-
-        # Actualizar estadísticas
-        self.actualizar_estadisticas()
-
-    def seleccionar_aula(self, item):
-        """Seleccionar aula y mostrar detalles"""
-        if not item or item.flags() == Qt.ItemFlag.NoItemFlags:
-            self.aula_actual = None
-            self.btn_duplicar.setEnabled(False)
-            self.btn_toggle_disponible.setEnabled(False)
-            return
-
-        nombre = item.data(Qt.ItemDataRole.UserRole)
-        if not nombre or nombre not in self.datos_configuracion:
-            return
-
-        self.aula_actual = nombre
-        datos = self.datos_configuracion[nombre]
-
-        # Actualizar etiqueta
-        self.label_aula_actual.setText(f"🏢 {nombre}")
-
-        # Mostrar información detallada con asignaturas asociadas y fechas no disponibles
-        info = f"🏷️ LABORATORIO: {nombre}\n\n"
-        info += f"👥 Capacidad: {datos.get('capacidad', 'No definida')} personas\n"
-        info += f"🔧 Equipamiento: {datos.get('equipamiento', 'No definido')}\n"
-        info += f"🏢 Edificio: {datos.get('edificio', 'No definido')}\n"
-        info += f"📍 Planta: {datos.get('planta', 'No definida')}\n"
-        info += f"✅ Disponible: {'Sí' if datos.get('disponible', True) else 'No'}\n\n"
-
-        # Mostrar asignaturas asociadas
-        asignaturas_asociadas = datos.get('asignaturas_asociadas', [])
-        if asignaturas_asociadas:
-            info += f"📚 ASIGNATURAS ({len(asignaturas_asociadas)}):\n"
-            for codigo_asig in asignaturas_asociadas:
-                # Buscar el nombre de la asignatura
-                if codigo_asig in self.asignaturas_disponibles:
-                    asig_data = self.asignaturas_disponibles[codigo_asig]
-                    nombre_asig = asig_data.get('nombre', codigo_asig)
-                    semestre = asig_data.get('semestre', '')
-                    info += f"  • {codigo_asig} - {nombre_asig} ({semestre})\n"
-                else:
-                    info += f"  • {codigo_asig}\n"
-        else:
-            info += f"📚 ASIGNATURAS: Sin asignaturas asociadas\n"
-
-        # Mostrar fechas no disponibles
-        fechas_no_disponibles = datos.get('fechas_no_disponibles', [])
-        if fechas_no_disponibles:
-            info += f"\n❌ DÍAS NO DISPONIBLES ({len(fechas_no_disponibles)}):\n"
-            # Mostrar solo las primeras 5 fechas para no saturar
-            fechas_mostrar = fechas_no_disponibles[:5]
-            for fecha in fechas_mostrar:
-                info += f"  • {fecha}\n"
-            if len(fechas_no_disponibles) > 5:
-                info += f"  ... y {len(fechas_no_disponibles) - 5} fechas más\n"
-        else:
-            info += f"\n❌ DÍAS NO DISPONIBLES: Ninguno\n"
-
-        self.info_aula.setText(info)
-
-        # Habilitar botones
-        self.btn_duplicar.setEnabled(True)
-        self.btn_toggle_disponible.setEnabled(True)
-
-        # Actualizar botón de disponibilidad
-        estado_actual = "Marcar como No Disponible" if datos.get('disponible', True) else "Marcar como Disponible"
-        self.btn_toggle_disponible.setText(f"🔄 {estado_actual}")
-
-    def actualizar_estadisticas(self):
-        """Actualizar estadísticas simplificadas"""
-        total = len(self.datos_configuracion)
-        if total == 0:
-            self.texto_stats.setText("📊 No hay aulas configuradas")
-            return
-
-        disponibles = sum(1 for datos in self.datos_configuracion.values()
-                          if datos.get('disponible', True))
-
-        # Capacidades
-        capacidades = [datos.get('capacidad', 0) for datos in self.datos_configuracion.values()]
-        cap_total = sum(capacidades)
-
-        # Edificios únicos
-        edificios = set(datos.get('edificio', 'Sin edificio')
-                        for datos in self.datos_configuracion.values())
-
-        # Asignaturas totales asociadas
-        total_asociaciones = sum(len(datos.get('asignaturas_asociadas', []))
-                                 for datos in self.datos_configuracion.values())
-
-        # Fechas bloqueadas totales
-        total_fechas_bloqueadas = sum(len(datos.get('fechas_no_disponibles', []))
-                                      for datos in self.datos_configuracion.values())
-
-        # Estadísticas
-        stats = f"📈 RESUMEN: {total} aulas, {disponibles} disponibles\n"
-        stats += f"👥 CAPACIDAD: {cap_total} total"
-        if capacidades:
-            stats += f" ({min(capacidades)}-{max(capacidades)})\n"
-        else:
-            stats += "\n"
-        stats += f"🏗️ UBICACIONES: {len(edificios)} edificios\n"
-        stats += f"📚 ASOCIACIONES: {total_asociaciones} asignaturas vinculadas\n"
-        stats += f"❌ FECHAS BLOQUEADAS: {total_fechas_bloqueadas} días"
-
-        self.texto_stats.setText(stats)
-
-    # ================== FUNCIONES DE GESTIÓN DE AULAS ==================
-
-    def anadir_aula(self):
+    # ========= GESTIÓN DE AULAS =========
+    def add_aula(self) -> None:
         """Añadir nueva aula con selección de asignaturas"""
         dialog = GestionAulaDialog(None, self.asignaturas_disponibles, self)
 
@@ -1288,7 +1054,7 @@ class ConfigurarAulas(QMainWindow):
                                     f"Asignaturas asociadas: {num_asignaturas}\n"
                                     f"Fechas bloqueadas: {num_fechas_bloqueadas}")
 
-    def editar_aula_seleccionada(self):
+    def editar_aula_seleccionada(self) -> None:
         """Editar aula seleccionada"""
         if not self.aula_actual:
             QMessageBox.warning(self, "Advertencia", "Seleccione un laboratorio para editar")
@@ -1324,7 +1090,7 @@ class ConfigurarAulas(QMainWindow):
 
             QMessageBox.information(self, "Éxito", f"Laboratorio actualizado correctamente")
 
-    def eliminar_aula_seleccionada(self):
+    def eliminar_aula_seleccionada(self) -> None:
         """Eliminar aula seleccionada"""
         if not self.aula_actual:
             QMessageBox.warning(self, "Advertencia", "Seleccione un laboratorio para eliminar")
@@ -1351,7 +1117,36 @@ class ConfigurarAulas(QMainWindow):
 
             QMessageBox.information(self, "Éxito", "Laboratorio eliminado correctamente")
 
-    def duplicar_aula_seleccionada(self):
+    def limpiar_todas_aulas(self) -> None:
+        """Limpiar todas las aulas configuradas"""
+        if not self.datos_configuracion:
+            QMessageBox.information(self, "Sin Datos", "No hay laboratorios para limpiar")
+            return
+
+        respuesta = QMessageBox.question(
+            self, "Limpiar Todo",
+            f"¿Está seguro de eliminar todos los laboratorios configurados?\n\n"
+            f"Se eliminarán {len(self.datos_configuracion)} laboratorios.\n"
+            f"Esta acción no se puede deshacer.",
+            QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
+            QMessageBox.StandardButton.No
+        )
+
+        if respuesta == QMessageBox.StandardButton.Yes:
+            self.datos_configuracion.clear()
+            self.aula_actual = None
+
+            # Actualizar interfaz
+            self.cargar_lista_aulas()
+            self.label_aula_actual.setText("Seleccione un laboratorio")
+            self.info_aula.setText("ℹ️ Seleccione un laboratorio para ver sus detalles")
+            self.btn_duplicar.setEnabled(False)
+            self.btn_toggle_disponible.setEnabled(False)
+            self.marcar_cambio_realizado()
+
+            QMessageBox.information(self, "Limpieza Completada", "Todos los laboratorios han sido eliminados")
+
+    def duplicar_aula_seleccionada(self) -> None:
         """Duplicar aula seleccionada"""
         if not self.aula_actual:
             return
@@ -1392,7 +1187,7 @@ class ConfigurarAulas(QMainWindow):
 
             QMessageBox.information(self, "Éxito", f"Laboratorio duplicado como '{nombre_final}'")
 
-    def toggle_disponibilidad_aula(self):
+    def toggle_disponibilidad_aula(self) -> None:
         """Cambiar disponibilidad del aula actual"""
         if not self.aula_actual:
             return
@@ -1411,7 +1206,7 @@ class ConfigurarAulas(QMainWindow):
         QMessageBox.information(self, "Estado Actualizado",
                                 f"Laboratorio '{self.aula_actual}' marcado como {estado_texto}")
 
-    def buscar_aula_dialog(self):
+    def buscar_aula_dialog(self) -> None:
         """Mostrar diálogo para buscar aula por nombre o equipamiento"""
         if not self.datos_configuracion:
             QMessageBox.information(self, "Sin Datos", "No hay laboratorios configurados para buscar")
@@ -1469,10 +1264,8 @@ class ConfigurarAulas(QMainWindow):
                 nombre_seleccionado = opcion.split(' - ')[0]
                 self.auto_seleccionar_aula(nombre_seleccionado)
 
-
-    # ================== FUNCIONES DE IMPORTACIÓN Y EXPORTACIÓN ==================
-
-    def exportar_a_json(self):
+    # ========= IMPORTAR / EXPORTAR =========
+    def export_config(self) -> None:
         """Exportar aulas a archivo JSON"""
         if not self.datos_configuracion:
             QMessageBox.information(self, "Sin Datos", "No hay laboratorios para exportar")
@@ -1480,7 +1273,7 @@ class ConfigurarAulas(QMainWindow):
 
         archivo, _ = QFileDialog.getSaveFileName(
             self, "Exportar Laboratorios a JSON",
-            os.path.join(obtener_ruta_descargas(), f"laboratorios_{datetime.now().strftime('%Y%m%d_%H%M%S')}.json"),
+            os.path.join(dir_downloads(), f"laboratorios_{datetime.now().strftime('%Y%m%d_%H%M%S')}.json"),
             "Archivos JSON (*.json)"
         )
 
@@ -1510,11 +1303,11 @@ class ConfigurarAulas(QMainWindow):
         except Exception as e:
             QMessageBox.critical(self, "Error de Exportación", f"Error al exportar datos:\n{str(e)}")
 
-    def cargar_configuracion(self):
+    def import_config(self) -> None:
         """Cargar configuración desde archivo JSON"""
         archivo, _ = QFileDialog.getOpenFileName(
             self, "Cargar Configuración de Aulas",
-            obtener_ruta_descargas(), "Archivos JSON (*.json)"
+            dir_downloads(), "Archivos JSON (*.json)"
         )
 
         if not archivo:
@@ -1548,7 +1341,8 @@ class ConfigurarAulas(QMainWindow):
         except Exception as e:
             QMessageBox.critical(self, "Error", f"Error al cargar configuración:\n{str(e)}")
 
-    def guardar_en_sistema(self):
+    # ========= GUARDAR EN SISTEMA =========
+    def guardar_en_sistema(self) -> None:
         """Guardar configuración en el sistema principal"""
         try:
             if not self.datos_configuracion:
@@ -1589,62 +1383,210 @@ class ConfigurarAulas(QMainWindow):
         except Exception as e:
             QMessageBox.critical(self, "Error", f"Error al guardar en el sistema:\n{str(e)}")
 
-    def limpiar_todas_aulas(self):
-        """Limpiar todas las aulas configuradas"""
+    # ========= CARGAR DATOS =========
+    def get_asignaturas_del_sistema(self) -> dict:
+        """Obtener asignaturas configuradas desde el sistema global - Sincronizado con asignaturas"""
+        try:
+            if self.parent_window and hasattr(self.parent_window, 'configuracion'):
+                # Obtener de configuracion["asignaturas"] en lugar de horarios
+                config_asignaturas = self.parent_window.configuracion["configuracion"]["asignaturas"]
+                if config_asignaturas.get("configurado") and config_asignaturas.get("datos"):
+                    return config_asignaturas["datos"]
+            return {}
+        except Exception as e:
+            self.log_mensaje(f"Error obteniendo asignaturas del sistema: {e}", "warning")
+            return {}
+
+    def cargar_datos_iniciales(self) -> None:
+        """Cargar datos existentes al inicializar"""
+        try:
+            # Ordenar aulas alfabéticamente
+            self.ordenar_aulas_alfabeticamente()
+
+            # Cargar lista
+            self.cargar_lista_aulas()
+
+            # Mostrar resumen
+            total_aulas = len(self.datos_configuracion)
+            disponibles = sum(1 for datos in self.datos_configuracion.values()
+                              if datos.get('disponible', True))
+
+            if total_aulas > 0:
+                self.log_mensaje(
+                    f"Datos cargados: {total_aulas} aulas ({disponibles} disponibles)",
+                    "success"
+                )
+                self.auto_seleccionar_primera_aula()
+            else:
+                self.log_mensaje("No hay aulas configuradas - configuración nueva", "info")
+
+        except Exception as e:
+            self.log_mensaje(f"Error cargando datos iniciales: {e}", "warning")
+
+    def cargar_lista_aulas(self) -> None:
+        """Cargar aulas en la lista visual"""
+        self.list_aulas.clear()
+
         if not self.datos_configuracion:
-            QMessageBox.information(self, "Sin Datos", "No hay laboratorios para limpiar")
+            item = QListWidgetItem("📭 No hay aulas configuradas")
+            item.setFlags(Qt.ItemFlag.NoItemFlags)
+            self.list_aulas.addItem(item)
             return
 
-        respuesta = QMessageBox.question(
-            self, "Limpiar Todo",
-            f"¿Está seguro de eliminar todos los laboratorios configurados?\n\n"
-            f"Se eliminarán {len(self.datos_configuracion)} laboratorios.\n"
-            f"Esta acción no se puede deshacer.",
-            QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
-            QMessageBox.StandardButton.No
-        )
+        # Ordenar aulas por nombre
+        aulas_ordenadas = sorted(self.datos_configuracion.items())
 
-        if respuesta == QMessageBox.StandardButton.Yes:
-            self.datos_configuracion.clear()
+        for nombre, datos in aulas_ordenadas:
+            disponible_icon = "✅" if datos.get('disponible', True) else "❌"
+            capacidad = datos.get('capacidad', 0)
+            edificio = datos.get('edificio', 'Sin edificio')
+
+            # Mostrar número de asignaturas asociadas
+            num_asignaturas = len(datos.get('asignaturas_asociadas', []))
+            asig_info = f"({num_asignaturas} asig.)" if num_asignaturas > 0 else "(sin asig.)"
+
+            # Mostrar fechas no disponibles
+            num_fechas_bloqueadas = len(datos.get('fechas_no_disponibles', []))
+            fechas_info = f"({num_fechas_bloqueadas} fechas bloq.)" if num_fechas_bloqueadas > 0 else ""
+
+            texto_item = f"{disponible_icon} {nombre} ({capacidad}p) - {edificio} {asig_info} {fechas_info}"
+
+            item = QListWidgetItem(texto_item)
+            item.setData(Qt.ItemDataRole.UserRole, nombre)
+            self.list_aulas.addItem(item)
+
+        # Actualizar estadísticas
+        self.actualizar_estadisticas()
+
+    # ========= SELECCIÓNAR AUTOMÁTICAMENTE ========
+    def seleccionar_aula(self, item) -> None:
+        """Seleccionar aula y mostrar detalles"""
+        if not item or item.flags() == Qt.ItemFlag.NoItemFlags:
             self.aula_actual = None
-
-            # Actualizar interfaz
-            self.cargar_lista_aulas()
-            self.label_aula_actual.setText("Seleccione un laboratorio")
-            self.info_aula.setText("ℹ️ Seleccione un laboratorio para ver sus detalles")
             self.btn_duplicar.setEnabled(False)
             self.btn_toggle_disponible.setEnabled(False)
-            self.marcar_cambio_realizado()
-
-            QMessageBox.information(self, "Limpieza Completada", "Todos los laboratorios han sido eliminados")
-
-    # ================== FUNCIONES DE UTILIDAD Y SISTEMA ==================
-
-    def ordenar_aulas_alfabeticamente(self):
-        """Reordenar aulas alfabéticamente"""
-        if not self.datos_configuracion:
             return
 
-        # Crear nuevo diccionario ordenado
-        aulas_ordenadas = {}
-        for nombre in sorted(self.datos_configuracion.keys()):
-            aulas_ordenadas[nombre] = self.datos_configuracion[nombre]
+        nombre = item.data(Qt.ItemDataRole.UserRole)
+        if not nombre or nombre not in self.datos_configuracion:
+            return
 
-        self.datos_configuracion = aulas_ordenadas
+        self.aula_actual = nombre
+        datos = self.datos_configuracion[nombre]
 
-    def auto_seleccionar_aula(self, nombre_aula):
-        """Auto-seleccionar aula por nombre"""
+        # Actualizar etiqueta
+        self.label_aula_actual.setText(f"{nombre}")
+
+        # Mostrar información detallada con asignaturas asociadas y fechas no disponibles
+        info = f"🏷️ LABORATORIO: {nombre}\n\n"
+        info += f"👥 Capacidad: {datos.get('capacidad', 'No definida')} personas\n"
+        info += f"🔧 Equipamiento: {datos.get('equipamiento', 'No definido')}\n"
+        info += f"🏢 Edificio: {datos.get('edificio', 'No definido')}\n"
+        info += f"📍 Planta: {datos.get('planta', 'No definida')}\n"
+        info += f"✅ Disponible: {'Sí' if datos.get('disponible', True) else 'No'}\n\n"
+
+        # Mostrar asignaturas asociadas
+        asignaturas_asociadas = datos.get('asignaturas_asociadas', [])
+        if asignaturas_asociadas:
+            info += f"📚 ASIGNATURAS ({len(asignaturas_asociadas)}):\n"
+            for codigo_asig in asignaturas_asociadas:
+                # Buscar el nombre de la asignatura
+                if codigo_asig in self.asignaturas_disponibles:
+                    asig_data = self.asignaturas_disponibles[codigo_asig]
+                    nombre_asig = asig_data.get('nombre', codigo_asig)
+                    semestre = asig_data.get('semestre', '')
+                    info += f"  • {codigo_asig} - {nombre_asig} ({semestre})\n"
+                else:
+                    info += f"  • {codigo_asig}\n"
+        else:
+            info += f"📚 ASIGNATURAS: Sin asignaturas asociadas\n"
+
+        # Mostrar fechas no disponibles
+        fechas_no_disponibles = datos.get('fechas_no_disponibles', [])
+        if fechas_no_disponibles:
+            info += f"\n❌ DÍAS NO DISPONIBLES ({len(fechas_no_disponibles)}):\n"
+            # Mostrar solo las primeras 5 fechas para no saturar
+            fechas_mostrar = fechas_no_disponibles[:5]
+            for fecha in fechas_mostrar:
+                info += f"  • {fecha}\n"
+            if len(fechas_no_disponibles) > 5:
+                info += f"  ... y {len(fechas_no_disponibles) - 5} fechas más\n"
+        else:
+            info += f"\n❌ DÍAS NO DISPONIBLES: Ninguno\n"
+
+        self.info_aula.setText(info)
+
+        # Habilitar botones
+        self.btn_duplicar.setEnabled(True)
+        self.btn_toggle_disponible.setEnabled(True)
+
+        # Actualizar botón de disponibilidad
+        estado_actual = "Marcar como No Disponible" if datos.get('disponible', True) else "Marcar como Disponible"
+        self.btn_toggle_disponible.setText(f"{estado_actual}")
+
+    def auto_seleccionar_primera_aula(self) -> None:
+        """Auto-seleccionar primera aula disponible"""
         try:
-            for i in range(self.list_aulas.count()):
-                item = self.list_aulas.item(i)
-                if item.data(Qt.ItemDataRole.UserRole) == nombre_aula:
-                    self.list_aulas.setCurrentItem(item)
-                    self.seleccionar_aula(item)
-                    break
+            if self.list_aulas.count() > 0:
+                primer_item = self.list_aulas.item(0)
+                self.list_aulas.setCurrentItem(primer_item)
+                self.seleccionar_aula(primer_item)
+                self.log_mensaje(f"Auto-seleccionada: {primer_item.text()}", "info")
         except Exception as e:
-            self.log_mensaje(f"⚠️ Error auto-seleccionando aula: {e}", "warning")
+            self.log_mensaje(f"Error auto-seleccionando aula: {e}", "warning")
 
-    def hay_cambios_sin_guardar(self):
+    # ========= ESTADÍSTICAS =========
+    def actualizar_estadisticas(self) -> None:
+        """Actualizar estadísticas simplificadas"""
+        total = len(self.datos_configuracion)
+        if total == 0:
+            self.texto_stats.setText("📊 No hay aulas configuradas")
+            return
+
+        disponibles = sum(1 for datos in self.datos_configuracion.values()
+                          if datos.get('disponible', True))
+
+        # Capacidades
+        capacidades = [datos.get('capacidad', 0) for datos in self.datos_configuracion.values()]
+        cap_total = sum(capacidades)
+
+        # Edificios únicos
+        edificios = set(datos.get('edificio', 'Sin edificio')
+                        for datos in self.datos_configuracion.values())
+
+        # Asignaturas totales asociadas
+        total_asociaciones = sum(len(datos.get('asignaturas_asociadas', []))
+                                 for datos in self.datos_configuracion.values())
+
+        # Fechas bloqueadas totales
+        total_fechas_bloqueadas = sum(len(datos.get('fechas_no_disponibles', []))
+                                      for datos in self.datos_configuracion.values())
+
+        # Estadísticas
+        stats = f"📈 RESUMEN: {total} aulas, {disponibles} disponibles\n"
+        stats += f"👥 CAPACIDAD: {cap_total} total"
+        if capacidades:
+            stats += f" ({min(capacidades)}-{max(capacidades)})\n"
+        else:
+            stats += "\n"
+        stats += f"🏗️ UBICACIONES: {len(edificios)} edificios\n"
+        stats += f"📚 ASOCIACIONES: {total_asociaciones} asignaturas vinculadas\n"
+        stats += f"❌ FECHAS BLOQUEADAS: {total_fechas_bloqueadas} días"
+
+        self.texto_stats.setText(stats)
+
+    # ========= LOGS =========
+    def log_mensaje(self, mensaje, tipo="info") -> None:
+        """Logging simple"""
+        if self.parent_window and hasattr(self.parent_window, 'log_mensaje'):
+            self.parent_window.log_mensaje(mensaje, tipo)
+        else:
+            iconos = {"info": "ℹ️", "warning": "⚠️", "error": "❌", "success": "✅"}
+            icono = iconos.get(tipo, "ℹ️")
+            print(f"{icono} {mensaje}")
+
+    # ========= GESTIÓN DEL CAMBIO =========
+    def hay_cambios_sin_guardar(self) -> bool:
         """Detectar si hay cambios sin guardar"""
         datos_actuales = json.dumps(self.datos_configuracion, sort_keys=True)
         hay_cambios = datos_actuales != self.datos_iniciales
@@ -1657,23 +1599,14 @@ class ConfigurarAulas(QMainWindow):
 
         return False
 
-    def marcar_cambio_realizado(self):
+    def marcar_cambio_realizado(self) -> None:
         """Marcar que se realizó un cambio"""
         self.datos_guardados_en_sistema = False
 
-    def log_mensaje(self, mensaje, tipo="info"):
-        """Logging simple"""
-        if self.parent_window and hasattr(self.parent_window, 'log_mensaje'):
-            self.parent_window.log_mensaje(mensaje, tipo)
-        else:
-            iconos = {"info": "ℹ️", "warning": "⚠️", "error": "❌", "success": "✅"}
-            icono = iconos.get(tipo, "ℹ️")
-            print(f"{icono} {mensaje}")
-
-    def closeEvent(self, event):
+    def closeEvent(self, event) -> None:
         """Manejar cierre de ventana"""
         if not self.hay_cambios_sin_guardar():
-            self.log_mensaje("🔚 Cerrando configuración de aulas", "info")
+            self.log_mensaje("Cerrando configuración de aulas", "info")
             event.accept()
             return
 
@@ -1688,12 +1621,12 @@ class ConfigurarAulas(QMainWindow):
 
         if respuesta == QMessageBox.StandardButton.Yes:
             self.cancelar_cambios_en_sistema()
-            self.log_mensaje("🔚 Cerrando sin guardar cambios", "warning")
+            self.log_mensaje("Cerrando sin guardar cambios", "warning")
             event.accept()
         else:
             event.ignore()
 
-    def cancelar_cambios_en_sistema(self):
+    def cancelar_cambios_en_sistema(self) -> None:
         """Cancelar cambios restaurando estado original"""
         try:
             datos_originales = json.loads(self.datos_iniciales)
@@ -1712,10 +1645,10 @@ class ConfigurarAulas(QMainWindow):
             self.datos_configuracion = datos_originales
             self.datos_guardados_en_sistema = False
 
-            self.log_mensaje("📤 Cambios cancelados y estado restaurado", "info")
+            self.log_mensaje("Cambios cancelados y estado restaurado", "info")
 
         except Exception as e:
-            self.log_mensaje(f"⚠️ Error cancelando cambios: {e}", "warning")
+            self.log_mensaje(f"Error cancelando cambios: {e}", "warning")
 
 
 def main():
@@ -1753,7 +1686,7 @@ def main():
         }
     }
 
-    window = ConfigurarAulas(datos_existentes=datos_ejemplo)
+    window = ConfigurarAulasWindow(datos_existentes=datos_ejemplo)
     window.show()
 
     sys.exit(app.exec())
