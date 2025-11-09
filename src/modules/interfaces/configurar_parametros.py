@@ -1,5 +1,3 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 
 """
 Configurar Parámetros - OPTIM - Sistema de Programación Automática de Laboratorios
@@ -15,7 +13,7 @@ from typing import List
 from datetime import datetime
 
 from PyQt6.QtCore import Qt
-from PyQt6.QtGui import QPalette, QColor, QFont
+from PyQt6.QtGui import QPalette, QColor, QFont, QCursor
 from PyQt6.QtWidgets import (
     QApplication, QMainWindow, QWidget, QVBoxLayout,
     QLabel, QListWidget, QSplitter, QPushButton,
@@ -23,13 +21,42 @@ from PyQt6.QtWidgets import (
 )
 
 
-def apply_dark_palette(app: QApplication) -> None:
-    """
-    Aplica una paleta de colores oscura coherente con el sistema OPTIM.
+def center_window_on_screen(window, width, height) -> None:
+    """Centrar ventana en la pantalla donde está el cursor"""
+    try:
+        # Obtener la pantalla donde está el cursor
+        cursor_pos = QCursor.pos()
+        screen = QApplication.screenAt(cursor_pos)
 
-    Args:
-        app: Instancia de QApplication a la cual aplicar el tema
-    """
+        if not screen:
+            screen = QApplication.primaryScreen()
+
+        # Obtener información de la pantalla
+        if screen:
+            screen_geometry = screen.availableGeometry()  # Considera la barra de tareas
+
+            # Calcular posición centrada usando las dimensiones proporcionadas
+            center_x = (screen_geometry.width() - width) // 2 + screen_geometry.x()
+            center_y = (screen_geometry.height() - height) // 2 + screen_geometry.y()
+
+            # Asegurar que la ventana no se salga de la pantalla
+            final_x = max(screen_geometry.x(), min(center_x, screen_geometry.x() + screen_geometry.width() - width))
+            final_y = max(screen_geometry.y(), min(center_y, screen_geometry.y() + screen_geometry.height() - height))
+
+            # Establecer geometría completa de una vez (posición + tamaño)
+            window.setGeometry(final_x, final_y, width, height)
+
+        else:
+            # Fallback si no se puede obtener la pantalla
+            window.setGeometry(100, 100, width, height)
+
+    except Exception as e:
+        # Fallback en caso de error
+        window.setGeometry(100, 100, width, height)
+
+
+def apply_dark_palette(app: QApplication) -> None:
+    """Aplica una paleta de colores oscura"""
     app.setStyle("Fusion")
     palette = QPalette()
 
@@ -59,38 +86,14 @@ def apply_dark_palette(app: QApplication) -> None:
     app.setPalette(palette)
 
 
-def default_config_path() -> Path:
-    """
-    Obtiene la ruta por defecto del archivo de configuración.
-
-    Returns:
-        Path: Ruta al archivo configuracion_labs.json
-    """
-    return Path(__file__).resolve().parents[2] / "configuracion_labs.json"
-
-
+# ========= Ventana Principal =========
 class ConfigurarParametrosWindow(QMainWindow):
-    """
-    Ventana de visualización de parámetros de organización.
-
-    Muestra las restricciones duras y blandas del motor de organización
-    en modo solo lectura. Las restricciones están definidas en código
-    para mantener consistencia y facilitar actualizaciones.
-    """
 
     def __init__(self, cfg_path: Path = None):
-        """
-        Inicializa la ventana de parámetros.
-
-        Args:
-            cfg_path: Ruta opcional al archivo de configuración
-        """
         super().__init__()
         self.setWindowTitle("Restricciones de Organización - OPTIM")
         self.setMinimumSize(700, 600)
-        self.resize(800, 700)
-
-        self.cfg_path = cfg_path or default_config_path()
+        #self.resize(800, 700)
 
         # Definición de restricciones en código fuente
         self.restricciones_duras = [
@@ -110,16 +113,13 @@ class ConfigurarParametrosWindow(QMainWindow):
             "Balancear la carga de grupos por profesor"
         ]
 
-        self._build_ui()
-        self._load_data()
+        self.setup_ui()
 
-    def _build_ui(self) -> None:
-        """
-        Construye la interfaz de usuario de la ventana.
+        window_width = 800
+        window_height = 700
+        center_window_on_screen(self, window_width, window_height)
 
-        Organiza los elementos en un layout vertical con splitter para
-        separar restricciones duras de blandas, más información adicional.
-        """
+    def setup_ui(self) -> None:
         central = QWidget()
         layout = QVBoxLayout(central)
         layout.setContentsMargins(15, 15, 15, 15)
@@ -145,7 +145,7 @@ class ConfigurarParametrosWindow(QMainWindow):
         splitter = QSplitter(Qt.Orientation.Vertical)
 
         # Panel de restricciones duras
-        panel_duras = self._create_restriction_panel(
+        panel_duras = self.create_restriction_panel(
             "Restricciones Duras (Obligatorias)",
             self.restricciones_duras,
             "Las restricciones duras son condiciones que NUNCA pueden violarse durante la organización."
@@ -153,7 +153,7 @@ class ConfigurarParametrosWindow(QMainWindow):
         splitter.addWidget(panel_duras)
 
         # Panel de restricciones blandas
-        panel_blandas = self._create_restriction_panel(
+        panel_blandas = self.create_restriction_panel(
             "Restricciones Blandas (Preferencias)",
             self.restricciones_blandas,
             "Las restricciones blandas son preferencias que el motor intentará satisfacer cuando sea posible."
@@ -161,7 +161,7 @@ class ConfigurarParametrosWindow(QMainWindow):
         splitter.addWidget(panel_blandas)
 
         # Panel de información adicional
-        panel_info = self._create_info_panel()
+        panel_info = self.create_info_panel()
         splitter.addWidget(panel_info)
 
         # Configurar proporciones del splitter
@@ -190,18 +190,8 @@ class ConfigurarParametrosWindow(QMainWindow):
 
         self.setCentralWidget(central)
 
-    def _create_restriction_panel(self, titulo: str, restricciones: List[str], descripcion: str) -> QWidget:
-        """
-        Crea un panel para mostrar un tipo de restricciones.
-
-        Args:
-            titulo: Título del panel
-            restricciones: Lista de restricciones a mostrar
-            descripcion: Descripción explicativa del tipo de restricción
-
-        Returns:
-            QWidget: Panel configurado con las restricciones
-        """
+    def create_restriction_panel(self, titulo: str, restricciones: List[str], descripcion: str) -> QWidget:
+        """Crea un panel para mostrar un tipo de restricciones"""
         panel = QWidget()
         layout = QVBoxLayout(panel)
         layout.setContentsMargins(8, 8, 8, 8)
@@ -261,13 +251,8 @@ class ConfigurarParametrosWindow(QMainWindow):
         layout.addWidget(lista)
         return panel
 
-    def _create_info_panel(self) -> QWidget:
-        """
-        Crea el panel de información adicional del sistema.
-
-        Returns:
-            QWidget: Panel con información técnica y metadatos
-        """
+    def create_info_panel(self) -> QWidget:
+        """Crea el panel de información adicional del sistema"""
         panel = QWidget()
         layout = QVBoxLayout(panel)
         layout.setContentsMargins(8, 8, 8, 8)
@@ -316,27 +301,9 @@ para garantizar consistencia entre ejecuciones y facilitar el mantenimiento."""
 
         return panel
 
-    def _load_data(self) -> None:
-        """
-        Carga datos del sistema.
 
-        En esta implementación, los datos se cargan desde las constantes
-        definidas en código, no desde el archivo JSON. Esto garantiza
-        consistencia y facilita el mantenimiento.
-        """
-        # Los datos ya están cargados desde las constantes de clase
-        # Este método se mantiene para consistencia con la interfaz base
-        # y futuras extensiones que puedan requerir carga dinámica
-        pass
-
-
+# ========= main =========
 def main():
-    """
-    Función principal para ejecutar la ventana de forma independiente.
-
-    Configura la aplicación con tema oscuro y muestra la ventana principal.
-    Útil para desarrollo y testing de la interfaz.
-    """
     app = QApplication(sys.argv)
     apply_dark_palette(app)
 
