@@ -1,5 +1,4 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
+
 """
 Configurar Profesores - OPTIM - Sistema de Programación Automática de Laboratorios
 Desarrollado por SoftVier para ETSIDI (UPM)
@@ -13,6 +12,8 @@ import os
 import uuid
 import json
 from datetime import datetime
+from pathlib import Path
+
 from PyQt6.QtWidgets import (
     QApplication, QMainWindow, QWidget, QVBoxLayout, QHBoxLayout,
     QGridLayout, QLabel, QPushButton, QComboBox, QListWidget,
@@ -25,66 +26,40 @@ from PyQt6.QtCore import Qt, pyqtSignal, QTimer, QDate
 from PyQt6.QtGui import QFont, QPalette, QColor
 
 
-def center_window_on_screen_immediate(window, width, height):
-    """Centrar ventana ANTES de mostrarla - SIN PARPADEO"""
+def center_window_on_screen(window, width, height) -> None:
+    """Centra la ventana en la pantalla"""
     try:
-        # Obtener información de la pantalla
         screen = QApplication.primaryScreen()
         if screen:
-            screen_geometry = screen.availableGeometry()  # Considera la barra de tareas
-
-            # Calcular posición centrada usando las dimensiones proporcionadas
+            screen_geometry = screen.availableGeometry()
             center_x = (screen_geometry.width() - width) // 2 + screen_geometry.x()
             center_y = (screen_geometry.height() - height) // 2 + screen_geometry.y()
-
-            # Asegurar que la ventana no se salga de la pantalla
             final_x = max(screen_geometry.x(), min(center_x, screen_geometry.x() + screen_geometry.width() - width))
             final_y = max(screen_geometry.y(), min(center_y, screen_geometry.y() + screen_geometry.height() - height))
-
-            # Establecer geometría completa de una vez (posición + tamaño)
             window.setGeometry(final_x, final_y, width, height)
-
         else:
-            # Fallback si no se puede obtener la pantalla
             window.setGeometry(100, 100, width, height)
-
-    except Exception as e:
-        # Fallback en caso de error
+    except Exception:
         window.setGeometry(100, 100, width, height)
 
-def obtener_ruta_descargas():
-    """Obtener la ruta de la carpeta Downloads del usuario"""
 
-    # Intentar diferentes métodos para obtener Downloads
-    try:
-        # Método 1: Variable de entorno USERPROFILE (Windows)
-        if os.name == 'nt':  # Windows
-            downloads = os.path.join(os.path.expanduser('~'), 'Downloads')
-        else:  # Linux/Mac
-            downloads = os.path.join(os.path.expanduser('~'), 'Downloads')
-
-        # Verificar que existe
-        if os.path.exists(downloads):
-            return downloads
-
-        # Fallback: Desktop si Downloads no existe
-        desktop = os.path.join(os.path.expanduser('~'), 'Desktop')
-        if os.path.exists(desktop):
-            return desktop
-
-        # Último fallback: home del usuario
-        return os.path.expanduser('~')
-
-    except:
-        # Si todo falla, usar directorio actual
-        return os.getcwd()
+def dir_downloads() -> str:
+    """Obtener ruta del directorio de Descargas del usuario"""
+    home = Path.home()
+    for name in ("Descargas", "Downloads"):
+        p = home / name
+        if p.exists() and p.is_dir():
+            return str(p)
+    return str(home)
 
 
+# ========= Widget Franja Horario Profesores =========
 class FranjaProfesorWidget(QFrame):
     """Widget para mostrar una franja horaria de disponibilidad del profesor"""
 
     franja_cambiada = pyqtSignal(str, str, str)  # dia, horario, estado
 
+    # ========= INICIALIZACIÓN =========
     def __init__(self, dia, horario, parent=None):
         super().__init__(parent)
         self.dia = dia
@@ -95,7 +70,7 @@ class FranjaProfesorWidget(QFrame):
         self.setFixedSize(100, 60)
         self.setup_ui()
 
-    def setup_ui(self):
+    def setup_ui(self) -> None:
         layout = QVBoxLayout()
         layout.setContentsMargins(2, 2, 2, 2)
         layout.setSpacing(1)
@@ -116,14 +91,15 @@ class FranjaProfesorWidget(QFrame):
 
         self.actualizar_visual()
 
-    def actualizar_estado(self, nuevo_estado):
+    # ========= ACTUALIZACIONES DE ESTADO Y VISUAL =========
+    def actualizar_estado(self, nuevo_estado) -> None:
         """Actualiza el estado de la franja"""
         if self.estado != nuevo_estado:
             self.estado = nuevo_estado
             self.actualizar_visual()
             self.franja_cambiada.emit(self.dia, self.horario, nuevo_estado)
 
-    def actualizar_visual(self):
+    def actualizar_visual(self) -> None:
         """Actualiza la apariencia según el estado"""
         if self.estado == 'disponible':
             self.icono_label.setText("✅")
@@ -170,7 +146,8 @@ class FranjaProfesorWidget(QFrame):
                 QLabel { color: #666666; background: transparent; }
             """)
 
-    def mousePressEvent(self, event):
+    # ========= EVENTOS DE INTERACCIÓN =========
+    def mousePressEvent(self, event) -> None:
         """Maneja clicks en la franja"""
         if self.estado == 'deshabilitado':
             return
@@ -189,9 +166,11 @@ class FranjaProfesorWidget(QFrame):
                 self.actualizar_estado(modo_actual)
 
 
+# ========= Diálogo Gestión Profesor =========
 class GestionProfesorDialog(QDialog):
     """Dialog para añadir/editar profesor con gestión de asignaturas y disponibilidad"""
 
+    # ========= INICIALIZACIÓN =========
     def __init__(self, profesor_existente=None, asignaturas_disponibles=None, parent=None):
         super().__init__(parent)
         self.profesor_existente = profesor_existente
@@ -202,21 +181,21 @@ class GestionProfesorDialog(QDialog):
         # CENTRAR INMEDIATAMENTE SIN PARPADEO
         window_width = 820
         window_height = 950
-        center_window_on_screen_immediate(self, window_width, window_height)
+        center_window_on_screen(self, window_width, window_height)
         self.setMinimumSize(750, 800)
 
         self.setup_ui()
         self.apply_dark_theme()
 
         # Forzar tamaños iguales de ok/cancel
-        QTimer.singleShot(50, self.igualar_tamanos_botones_ok_cancel)
+        QTimer.singleShot(50, self.configurar_botones_uniformes)
 
         self.setAttribute(Qt.WidgetAttribute.WA_AlwaysShowToolTips, True)
 
         if self.profesor_existente:
             self.cargar_datos_existentes()
 
-    def setup_ui(self):
+    def setup_ui(self) -> None:
         layout = QVBoxLayout()
         layout.setSpacing(12)
 
@@ -540,7 +519,8 @@ class GestionProfesorDialog(QDialog):
 
         self.setLayout(layout)
 
-    def crear_checkboxes_asignaturas(self):
+    # ========= CONFIGURACIÓN UI =========
+    def crear_checkboxes_asignaturas(self) -> None:
         """Crear checkboxes para todas las asignaturas disponibles en GRID 5 COLUMNAS"""
         # Limpiar layout
         while self.asignaturas_scroll_layout.count():
@@ -644,7 +624,7 @@ class GestionProfesorDialog(QDialog):
         # Procesar eventos finales
         QApplication.processEvents()
 
-    def crear_grid_asignaturas(self, asignaturas_dict, semestre):
+    def crear_grid_asignaturas(self, asignaturas_dict, semestre) -> None:
         """Crear grid de 5 columnas para las asignaturas de un semestre"""
         # Crear widget contenedor para el grid
         grid_widget = QWidget()
@@ -718,7 +698,7 @@ class GestionProfesorDialog(QDialog):
         # Añadir el widget del grid al layout principal
         self.asignaturas_scroll_layout.addWidget(grid_widget)
 
-    def crear_grid_horarios_profesor(self):
+    def crear_grid_horarios_profesor(self) -> None:
         """Crea el grid de horarios 4x5 para el profesor"""
         self.grid_horarios_group = QGroupBox("🗓️ Horario Semanal")
         grid_layout = QGridLayout()
@@ -780,7 +760,8 @@ class GestionProfesorDialog(QDialog):
 
         self.grid_horarios_group.setLayout(grid_layout)
 
-    def actualizar_grid_horarios(self):
+    # ========= GESTIÓN DE DISPONIBILIDAD =========
+    def actualizar_grid_horarios(self) -> None:
         """Actualiza el estado del grid cuando cambian los días de trabajo"""
         dias_marcados = [dia for dia, check in self.checks_dias_trabajo.items() if check.isChecked()]
 
@@ -791,7 +772,7 @@ class GestionProfesorDialog(QDialog):
             else:
                 franja.actualizar_estado('deshabilitado')
 
-    def cambiar_modo_marcado(self, nuevo_modo):
+    def cambiar_modo_marcado(self, nuevo_modo) -> None:
         """Cambia el modo de marcado entre tutoría y no disponible"""
         self.modo_marcado_actual = nuevo_modo
 
@@ -799,13 +780,13 @@ class GestionProfesorDialog(QDialog):
         self.btn_modo_tutoria.setChecked(nuevo_modo == 'tutoria')
         self.btn_modo_no_disp.setChecked(nuevo_modo == 'no disponible')
 
-    def limpiar_todo_grid(self):
+    def limpiar_todo_grid(self) -> None:
         """Limpia todas las franjas del grid"""
         for (dia, horario), franja in self.franjas_widgets.items():
             if franja.estado != 'deshabilitado':
                 franja.actualizar_estado('disponible')
 
-    def manejar_cambio_franja(self, dia, horario, estado):
+    def manejar_cambio_franja(self, dia, horario, estado) -> None:
         """Maneja cambios en las franjas con estadísticas"""
 
         # SOLO validar si el usuario está interactuando (no durante inicialización)
@@ -840,8 +821,8 @@ class GestionProfesorDialog(QDialog):
         # Calcular total de franjas posibles en días laborables
         total_franjas_posibles = len(dias_marcados) * len(self.horarios_fijos)
 
-
-    def agregar_fecha_no_disponible(self, fecha):
+    # ========= GESTIÓN DE FECHAS NO DISPONIBLES =========
+    def agregar_fecha_no_disponible(self, fecha) -> None:
         """Agregar fecha a la lista de no disponibles"""
         fecha_str = fecha.toString("dd/MM/yyyy")
 
@@ -858,14 +839,14 @@ class GestionProfesorDialog(QDialog):
         # Ordenar lista por fecha
         self.ordenar_fechas_no_disponibles()
 
-    def eliminar_fecha_no_disponible(self):
+    def eliminar_fecha_no_disponible(self) -> None:
         """Eliminar fecha seleccionada de la lista"""
         current_item = self.lista_fechas_no_disponibles.currentItem()
         if current_item:
             row = self.lista_fechas_no_disponibles.row(current_item)
             self.lista_fechas_no_disponibles.takeItem(row)
 
-    def limpiar_todas_fechas(self):
+    def limpiar_todas_fechas(self) -> None:
         """Limpiar todas las fechas no disponibles"""
         if self.lista_fechas_no_disponibles.count() == 0:
             return
@@ -879,7 +860,7 @@ class GestionProfesorDialog(QDialog):
         if respuesta == QMessageBox.StandardButton.Yes:
             self.lista_fechas_no_disponibles.clear()
 
-    def ordenar_fechas_no_disponibles(self):
+    def ordenar_fechas_no_disponibles(self) -> None:
         """Ordenar fechas no disponibles cronológicamente"""
         fechas = []
         for i in range(self.lista_fechas_no_disponibles.count()):
@@ -897,7 +878,8 @@ class GestionProfesorDialog(QDialog):
             item.setData(Qt.ItemDataRole.UserRole, fecha)
             self.lista_fechas_no_disponibles.addItem(item)
 
-    def cargar_datos_existentes(self):
+    # ========= CARGA Y VALIDACIÓN DE DATOS =========
+    def cargar_datos_existentes(self) -> None:
         """Cargar datos del profesor existente"""
         if not self.profesor_existente:
             return
@@ -947,7 +929,7 @@ class GestionProfesorDialog(QDialog):
             except Exception as e:
                 print(f"Error cargando fecha {fecha_str}: {e}")
 
-    def validar_y_aceptar(self):
+    def validar_y_aceptar(self) -> None:
         """Validar datos antes de aceptar"""
 
         if not self.edit_nombre.text().strip():
@@ -976,7 +958,7 @@ class GestionProfesorDialog(QDialog):
 
         self.accept()
 
-    def get_datos_profesor(self):
+    def get_datos_profesor(self) -> dict:
         """Obtener datos configurados del profesor"""
         # Obtener asignaturas que imparte
         asignaturas_imparte = [key for key, check in self.checks_asignaturas.items() if check.isChecked()]
@@ -1019,7 +1001,8 @@ class GestionProfesorDialog(QDialog):
             'fecha_creacion': datetime.now().isoformat()
         }
 
-    def igualar_tamanos_botones_ok_cancel(self):
+    # ========= ESTILOS Y AJUSTES VISUALES =========
+    def configurar_botones_uniformes(self) -> None:
         """Forzar que OK y Cancel tengan exactamente el mismo tamaño"""
         try:
             button_box = self.findChild(QDialogButtonBox)
@@ -1038,61 +1021,7 @@ class GestionProfesorDialog(QDialog):
         except Exception as e:
             print(f"Error igualando tamaños: {e}")
 
-    def configurar_botones_uniformes(self):
-        """Configurar estilos uniformes para botones OK/Cancel"""
-        try:
-            # Buscar el QDialogButtonBox
-            button_box = self.findChild(QDialogButtonBox)
-            if button_box:
-                # Obtener botones específicos
-                ok_button = button_box.button(QDialogButtonBox.StandardButton.Ok)
-                cancel_button = button_box.button(QDialogButtonBox.StandardButton.Cancel)
-
-                # Estilo uniforme para los botones OK/Cancelar
-                estilo_uniforme = """
-                    QPushButton {
-                        background-color: #4a4a4a;
-                        color: #ffffff;
-                        border: 1px solid #666666;
-                        border-radius: 5px;
-                        padding: 8px 20px;
-                        font-weight: bold;
-                        font-size: 12px;
-                        min-width: 80px;
-                        min-height: 35px;
-                        margin: 2px;
-                    }
-                    QPushButton:hover {
-                        background-color: #5a5a5a;
-                        border-color: #4a9eff;
-                    }
-                    QPushButton:pressed {
-                        background-color: #3a3a3a;
-                    }
-                    QPushButton:default {
-                        background-color: #4a9eff;
-                        border-color: #4a9eff;
-                    }
-                    QPushButton:default:hover {
-                        background-color: #5ab7ff;
-                    }
-                    QPushButton:default:pressed {
-                        background-color: #3a8adf;
-                    }
-                """
-
-                if ok_button:
-                    ok_button.setText("OK")
-                    ok_button.setStyleSheet(estilo_uniforme)
-
-                if cancel_button:
-                    cancel_button.setText("Cancel")
-                    cancel_button.setStyleSheet(estilo_uniforme)
-
-        except Exception as e:
-            print(f"Error configurando botones: {e}")
-
-    def apply_dark_theme(self):
+    def apply_dark_theme(self) -> None:
         """Aplicar tema oscuro con botones OK/Cancel uniformes"""
         self.setStyleSheet("""
             QDialog {
@@ -1201,12 +1130,14 @@ class GestionProfesorDialog(QDialog):
         """)
 
 
-class ConfigurarProfesores(QMainWindow):
+# ========= Ventana Principal =========
+class ConfigurarProfesoresWindow(QMainWindow):
     """Ventana principal para configurar profesores del centro"""
 
     # Señal para comunicar cambios al sistema principal
     configuracion_actualizada = pyqtSignal(dict)
 
+    # ========= INICIALIZACIÓN=========
     def __init__(self, parent=None, datos_existentes=None):
         super().__init__()
         self.parent_window = parent
@@ -1215,7 +1146,7 @@ class ConfigurarProfesores(QMainWindow):
         # Centrar sin parpadeo
         window_width = 1350
         window_height = 850
-        center_window_on_screen_immediate(self, window_width, window_height)
+        center_window_on_screen(self, window_width, window_height)
         self.setMinimumSize(1250, 800)
 
         # Obtener asignaturas disponibles desde el sistema global
@@ -1224,10 +1155,10 @@ class ConfigurarProfesores(QMainWindow):
         # Estructura de datos principal
         if datos_existentes:
             self.datos_configuracion = datos_existentes.copy()
-            self.log_mensaje("📥 Cargando configuración existente de profesores...", "info")
+            self.log_mensaje("Cargando configuración existente de profesores...", "info")
         else:
             self.datos_configuracion = {}
-            self.log_mensaje("📝 Iniciando configuración nueva de profesores...", "info")
+            self.log_mensaje("Iniciando configuración nueva de profesores...", "info")
 
         # Variables para rastrear cambios
         self.datos_iniciales = json.dumps(self.datos_configuracion, sort_keys=True)
@@ -1240,76 +1171,8 @@ class ConfigurarProfesores(QMainWindow):
         self.conectar_signals()
         self.cargar_datos_iniciales()
 
-    def obtener_asignaturas_del_sistema(self):
-        """Obtener asignaturas configuradas desde el sistema global"""
-        try:
-            if self.parent_window and hasattr(self.parent_window, 'configuracion'):
-                # Buscar en asignaturas
-                config_asignaturas = self.parent_window.configuracion["configuracion"]["asignaturas"]
-
-                if config_asignaturas.get("configurado") and config_asignaturas.get("datos"):
-                    # Transformar datos de asignaturas al formato esperado por la ventana
-                    asignaturas_transformadas = {"1": {}, "2": {}}
-
-                    for codigo, asig_data in config_asignaturas["datos"].items():
-                        nombre = asig_data.get("nombre", "")
-                        semestre_str = asig_data.get("semestre", "1º Semestre")
-
-                        # Detectar semestre: "1º Semestre" -> "1", "2º Semestre" -> "2"
-                        if "1º" in semestre_str or "primer" in semestre_str.lower():
-                            semestre = "1"
-                        elif "2º" in semestre_str or "segundo" in semestre_str.lower():
-                            semestre = "2"
-                        else:
-                            semestre = "1"  # Por defecto
-
-                        # Añadir asignatura al semestre correspondiente
-                        if nombre and codigo:  # Solo si tiene nombre y código
-                            asignaturas_transformadas[semestre][codigo] = asig_data
-
-                    return asignaturas_transformadas
-
-            return {"1": {}, "2": {}}
-        except Exception as e:
-            self.log_mensaje(f"⚠️ Error obteniendo asignaturas del sistema: {e}", "warning")
-            return {"1": {}, "2": {}}
-
-    def cargar_datos_iniciales(self):
-        """Cargar datos existentes al inicializar"""
-        try:
-            # Ordenar profesores alfabéticamente
-            self.ordenar_profesores_alfabeticamente()
-
-            # Cargar lista con filtro inicial
-            self.aplicar_filtro_asignatura()
-
-            # Mostrar resumen
-            total_profesores = len(self.datos_configuracion)
-            if total_profesores > 0:
-                self.log_mensaje(f"✅ Datos cargados: {total_profesores} profesores", "success")
-                self.auto_seleccionar_primer_profesor()
-            else:
-                self.log_mensaje("📝 No hay profesores configurados - configuración nueva", "info")
-
-            # Actualizar estadísticas
-            self.actualizar_estadisticas()
-
-        except Exception as e:
-            self.log_mensaje(f"⚠️ Error cargando datos iniciales: {e}", "warning")
-
-    def auto_seleccionar_primer_profesor(self):
-        """Auto-seleccionar primer profesor disponible"""
-        try:
-            if self.list_profesores.count() > 0:
-                primer_item = self.list_profesores.item(0)
-                if primer_item and primer_item.flags() != Qt.ItemFlag.NoItemFlags:
-                    self.list_profesores.setCurrentItem(primer_item)
-                    self.seleccionar_profesor(primer_item)
-                    self.log_mensaje(f"🎯 Auto-seleccionado: {primer_item.text().split(' - ')[0]}", "info")
-        except Exception as e:
-            self.log_mensaje(f"⚠️ Error auto-seleccionando profesor: {e}", "warning")
-
-    def setup_ui(self):
+    # ========= CONFIGURACIÓN DE UI =========
+    def setup_ui(self) -> None:
         central_widget = QWidget()
         self.setCentralWidget(central_widget)
 
@@ -1317,14 +1180,14 @@ class ConfigurarProfesores(QMainWindow):
         main_layout.setSpacing(10)
 
         # Título principal
-        titulo = QLabel("👨‍🏫 CONFIGURACIÓN DE PROFESORES")
+        titulo = QLabel("CONFIGURACIÓN DE PROFESORES")
         titulo.setStyleSheet("color: #4a9eff; font-weight: bold; font-size: 16px; margin-bottom: 10px;")
         titulo.setAlignment(Qt.AlignmentFlag.AlignCenter)
         main_layout.addWidget(titulo)
 
         # Información contextual
         info_label = QLabel(
-            "📋 Gestiona la plantilla de profesores del centro. Configura qué asignaturas puede impartir cada uno y su disponibilidad.")
+            "Gestiona la plantilla de profesores del centro. Configura qué asignaturas puede impartir cada uno y su disponibilidad.")
         info_label.setStyleSheet("color: #cccccc; font-size: 11px; margin-bottom: 10px;")
         info_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
         main_layout.addWidget(info_label)
@@ -1358,7 +1221,7 @@ class ConfigurarProfesores(QMainWindow):
 
         # Botones de gestión
         btn_add_profesor = self.crear_boton_accion("➕", "#4CAF50", "Añadir nuevo profesor")
-        btn_add_profesor.clicked.connect(self.anadir_profesor)
+        btn_add_profesor.clicked.connect(self.add_profesor)
 
         btn_edit_profesor = self.crear_boton_accion("✏️", "#2196F3", "Editar profesor seleccionado")
         btn_edit_profesor.clicked.connect(self.editar_profesor_seleccionado)
@@ -1443,7 +1306,7 @@ class ConfigurarProfesores(QMainWindow):
         acciones_group = QGroupBox("🚀 ACCIONES RÁPIDAS")
         acciones_layout = QVBoxLayout()
 
-        self.btn_duplicar = QPushButton("📋 Duplicar Profesor Seleccionado")
+        self.btn_duplicar = QPushButton("Duplicar Profesor Seleccionado")
         self.btn_duplicar.setEnabled(False)
         self.btn_duplicar.clicked.connect(self.duplicar_profesor_seleccionado)
         acciones_layout.addWidget(self.btn_duplicar)
@@ -1459,9 +1322,9 @@ class ConfigurarProfesores(QMainWindow):
         importar_group = QGroupBox("📥 IMPORTAR DATOS")
         importar_layout = QVBoxLayout()
 
-        self.btn_cargar = QPushButton("📥 Importar Datos")
+        self.btn_cargar = QPushButton("Importar Datos")
         self.btn_cargar.setToolTip("Importar configuración desde JSON")
-        self.btn_cargar.clicked.connect(self.cargar_configuracion)
+        self.btn_cargar.clicked.connect(self.import_config)
         importar_layout.addWidget(self.btn_cargar)
 
         importar_group.setLayout(importar_layout)
@@ -1471,12 +1334,12 @@ class ConfigurarProfesores(QMainWindow):
         exportar_group = QGroupBox("💾 EXPORTAR DATOS")
         exportar_layout = QVBoxLayout()
 
-        self.btn_guardar_archivo = QPushButton("💾 Exportar Datos")
+        self.btn_guardar_archivo = QPushButton("Exportar Datos")
         self.btn_guardar_archivo.setToolTip("Exportar configuración a JSON")
-        self.btn_guardar_archivo.clicked.connect(self.guardar_en_archivo)
+        self.btn_guardar_archivo.clicked.connect(self.export_config)
         exportar_layout.addWidget(self.btn_guardar_archivo)
 
-        self.btn_exportar_estadisticas = QPushButton("📊 Exportar Estadísticas")
+        self.btn_exportar_estadisticas = QPushButton("Exportar Estadísticas")
         self.btn_exportar_estadisticas.setToolTip("Exportar Estadisticas en TXT")
         self.btn_exportar_estadisticas.clicked.connect(self.exportar_estadisticas)
         exportar_layout.addWidget(self.btn_exportar_estadisticas)
@@ -1488,7 +1351,7 @@ class ConfigurarProfesores(QMainWindow):
         botones_principales_group = QGroupBox("💾 GUARDAR CONFIGURACIÓN")
         botones_layout = QVBoxLayout()
 
-        self.btn_guardar_sistema = QPushButton("✅ Guardar en Sistema")
+        self.btn_guardar_sistema = QPushButton("Guardar en Sistema")
         self.btn_guardar_sistema.setStyleSheet("""
             QPushButton {
                 background-color: #4CAF50;
@@ -1510,7 +1373,7 @@ class ConfigurarProfesores(QMainWindow):
         self.btn_guardar_sistema.clicked.connect(self.guardar_en_sistema)
         botones_layout.addWidget(self.btn_guardar_sistema)
 
-        self.btn_limpiar_todo = QPushButton("🗑️ Limpiar Todo")
+        self.btn_limpiar_todo = QPushButton("Limpiar Todo")
         self.btn_limpiar_todo.setStyleSheet("""
             QPushButton {
                 background-color: #d32f2f;
@@ -1545,7 +1408,33 @@ class ConfigurarProfesores(QMainWindow):
         # Configurar filtros
         self.configurar_filtros()
 
-    def configurar_filtros(self):
+    def auto_seleccionar_profesor(self, profesor_id) -> None:
+        """Auto-seleccionar profesor por ID"""
+        try:
+            for i in range(self.list_profesores.count()):
+                item = self.list_profesores.item(i)
+                if item.data(Qt.ItemDataRole.UserRole) == profesor_id:
+                    self.list_profesores.setCurrentItem(item)
+                    self.seleccionar_profesor(item)
+                    break
+        except Exception as e:
+            self.log_mensaje(f"Error auto-seleccionando profesor: {e}", "warning")
+
+    def ordenar_profesores_alfabeticamente(self) -> None:
+        """Reordenar profesores alfabéticamente por apellidos + nombre"""
+        if not self.datos_configuracion:
+            return
+
+        # Crear lista ordenada por apellidos + nombre
+        profesores_ordenados = sorted(
+            self.datos_configuracion.items(),
+            key=lambda x: f"{x[1].get('apellidos', '')} {x[1].get('nombre', '')}"
+        )
+
+        # Crear nuevo diccionario ordenado
+        self.datos_configuracion = dict(profesores_ordenados)
+
+    def configurar_filtros(self) -> None:
         """Configurar opciones de filtros"""
         # Llenar combo de asignaturas
         self.combo_filtro_asignatura.clear()
@@ -1565,7 +1454,7 @@ class ConfigurarProfesores(QMainWindow):
                 nombre_asig = sem2[codigo_asig].get('nombre', codigo_asig)
                 self.combo_filtro_asignatura.addItem(f"2º - ({codigo_asig}) - {nombre_asig}")
 
-    def crear_boton_accion(self, icono, color, tooltip):
+    def crear_boton_accion(self, icono, color, tooltip) -> QPushButton:
         """Crear botón de acción con estilo consistente"""
         btn = QPushButton(icono)
         btn.setMinimumSize(40, 30)
@@ -1594,12 +1483,12 @@ class ConfigurarProfesores(QMainWindow):
         btn.setToolTip(tooltip)
         return btn
 
-    def hex_to_rgb(self, hex_color):
+    def hex_to_rgb(self, hex_color) -> str:
         """Convertir color hex a RGB para estilos"""
         hex_color = hex_color.lstrip('#')
         return ', '.join(str(int(hex_color[i:i + 2], 16)) for i in (0, 2, 4))
 
-    def apply_dark_theme(self):
+    def apply_dark_theme(self) -> None:
         """Aplicar tema oscuro idéntico al resto del sistema - CON TOOLTIPS"""
         self.setStyleSheet("""
             QMainWindow {
@@ -1679,13 +1568,85 @@ class ConfigurarProfesores(QMainWindow):
             }
         """)
 
-    def conectar_signals(self):
+    # ========= CONEXIÓN DE SEÑALES =========
+    def conectar_signals(self) -> None:
         """Conectar señales de la interfaz"""
         self.list_profesores.itemClicked.connect(self.seleccionar_profesor)
         self.combo_filtro_asignatura.currentTextChanged.connect(self.aplicar_filtro_asignatura)
         self.check_solo_disponibles.toggled.connect(self.aplicar_filtro_asignatura)
 
-    def aplicar_filtro_asignatura(self):
+    # ========= CARGA DE DATOS =========
+    def obtener_asignaturas_del_sistema(self) -> dict:
+        """Obtener asignaturas configuradas desde el sistema global"""
+        try:
+            if self.parent_window and hasattr(self.parent_window, 'configuracion'):
+                # Buscar en asignaturas
+                config_asignaturas = self.parent_window.configuracion["configuracion"]["asignaturas"]
+
+                if config_asignaturas.get("configurado") and config_asignaturas.get("datos"):
+                    # Transformar datos de asignaturas al formato esperado por la ventana
+                    asignaturas_transformadas = {"1": {}, "2": {}}
+
+                    for codigo, asig_data in config_asignaturas["datos"].items():
+                        nombre = asig_data.get("nombre", "")
+                        semestre_str = asig_data.get("semestre", "1º Semestre")
+
+                        # Detectar semestre: "1º Semestre" -> "1", "2º Semestre" -> "2"
+                        if "1º" in semestre_str or "primer" in semestre_str.lower():
+                            semestre = "1"
+                        elif "2º" in semestre_str or "segundo" in semestre_str.lower():
+                            semestre = "2"
+                        else:
+                            semestre = "1"  # Por defecto
+
+                        # Añadir asignatura al semestre correspondiente
+                        if nombre and codigo:  # Solo si tiene nombre y código
+                            asignaturas_transformadas[semestre][codigo] = asig_data
+
+                    return asignaturas_transformadas
+
+            return {"1": {}, "2": {}}
+        except Exception as e:
+            self.log_mensaje(f"Error obteniendo asignaturas del sistema: {e}", "warning")
+            return {"1": {}, "2": {}}
+
+    def cargar_datos_iniciales(self) -> None:
+        """Cargar datos existentes al inicializar"""
+        try:
+            # Ordenar profesores alfabéticamente
+            self.ordenar_profesores_alfabeticamente()
+
+            # Cargar lista con filtro inicial
+            self.aplicar_filtro_asignatura()
+
+            # Mostrar resumen
+            total_profesores = len(self.datos_configuracion)
+            if total_profesores > 0:
+                self.log_mensaje(f"Datos cargados: {total_profesores} profesores", "success")
+                self.auto_seleccionar_primer_profesor()
+            else:
+                self.log_mensaje("No hay profesores configurados - configuración nueva", "info")
+
+            # Actualizar estadísticas
+            self.actualizar_estadisticas()
+
+        except Exception as e:
+            self.log_mensaje(f"Error cargando datos iniciales: {e}", "warning")
+
+    def auto_seleccionar_primer_profesor(self) -> None:
+        """Auto-seleccionar primer profesor disponible"""
+        try:
+            if self.list_profesores.count() > 0:
+                primer_item = self.list_profesores.item(0)
+                if primer_item and primer_item.flags() != Qt.ItemFlag.NoItemFlags:
+                    self.list_profesores.setCurrentItem(primer_item)
+                    self.seleccionar_profesor(primer_item)
+                    self.log_mensaje(f"Auto-seleccionado: {primer_item.text().split(' - ')[0]}", "info")
+        except Exception as e:
+            self.log_mensaje(f"Error auto-seleccionando profesor: {e}", "warning")
+
+    # ========= FILTROS Y SELECCIÓN =========
+    def aplicar_filtro_asignatura(self) -> None:
         """Aplicar filtro por asignatura y disponibilidad"""
         filtro_texto = self.combo_filtro_asignatura.currentText()
         solo_disponibles = self.check_solo_disponibles.isChecked()
@@ -1790,13 +1751,13 @@ class ConfigurarProfesores(QMainWindow):
             total = len(profesores_filtrados)
             contexto = "global" if filtro_texto == "Todas las asignaturas" else f"para {filtro_texto}"
             filtro_disp = " (disponibles hoy)" if solo_disponibles else ""
-            self.log_mensaje(f"🔍 Filtro {contexto}{filtro_disp}: {total} profesores mostrados", "info")
+            self.log_mensaje(f"Filtro {contexto}{filtro_disp}: {total} profesores mostrados", "info")
         else:
             item = QListWidgetItem(f"🔍 Sin resultados para el filtro aplicado")
             item.setFlags(Qt.ItemFlag.NoItemFlags)
             self.list_profesores.addItem(item)
 
-    def seleccionar_profesor(self, item):
+    def seleccionar_profesor(self, item) -> None:
         """Seleccionar profesor y mostrar detalles"""
         if not item or item.flags() == Qt.ItemFlag.NoItemFlags:
             self.profesor_actual = None
@@ -1812,7 +1773,7 @@ class ConfigurarProfesores(QMainWindow):
 
         # Actualizar etiqueta
         nombre_completo = f"{datos.get('apellidos', '')} {datos.get('nombre', '')}"
-        self.label_profesor_actual.setText(f"👨‍🏫 {nombre_completo.strip()}")
+        self.label_profesor_actual.setText(f"{nombre_completo.strip()}")
 
         # Mostrar información detallada
         info = f"👨‍🏫 PROFESOR: {nombre_completo.strip()}\n\n"
@@ -1862,120 +1823,7 @@ class ConfigurarProfesores(QMainWindow):
         # Habilitar botones
         self.btn_duplicar.setEnabled(True)
 
-    def anadir_profesor(self):
-        """Añadir nuevo profesor"""
-        dialog = GestionProfesorDialog(None, self.asignaturas_disponibles, self)
-
-        if dialog.exec() == QDialog.DialogCode.Accepted:
-            datos = dialog.get_datos_profesor()
-            profesor_id = datos['id']
-
-            # Añadir nuevo profesor
-            self.datos_configuracion[profesor_id] = datos
-
-            # Auto-ordenar
-            self.ordenar_profesores_alfabeticamente()
-
-            # Actualizar interfaz
-            self.aplicar_filtro_asignatura()
-            self.auto_seleccionar_profesor(profesor_id)
-            self.marcar_cambio_realizado()
-
-            nombre = f"{datos.get('apellidos', '')} {datos.get('nombre', '')}"
-            num_asignaturas = len(datos.get('asignaturas_imparte', []))
-            QMessageBox.information(self, "Éxito",
-                                    f"Profesor '{nombre.strip()}' añadido correctamente\n"
-                                    f"Asignaturas que imparte: {num_asignaturas}")
-
-    def editar_profesor_seleccionado(self):
-        """Editar profesor seleccionado"""
-        if not self.profesor_actual:
-            QMessageBox.warning(self, "Advertencia", "Seleccione un profesor para editar")
-            return
-
-        datos_originales = self.datos_configuracion[self.profesor_actual].copy()
-        dialog = GestionProfesorDialog(datos_originales, self.asignaturas_disponibles, self)
-
-        if dialog.exec() == QDialog.DialogCode.Accepted:
-            datos_nuevos = dialog.get_datos_profesor()
-
-            # Conservar el ID original
-            datos_nuevos['id'] = self.profesor_actual
-            profesor_id = self.profesor_actual
-
-            self.datos_configuracion[profesor_id] = datos_nuevos
-
-            # Auto-ordenar
-            self.ordenar_profesores_alfabeticamente()
-
-            # Actualizar interfaz
-            self.aplicar_filtro_asignatura()
-            self.auto_seleccionar_profesor(profesor_id)
-            self.marcar_cambio_realizado()
-
-            QMessageBox.information(self, "Éxito", "Profesor actualizado correctamente")
-
-    def eliminar_profesor_seleccionado(self):
-        """Eliminar profesor seleccionado"""
-        if not self.profesor_actual:
-            QMessageBox.warning(self, "Advertencia", "Seleccione un profesor para eliminar")
-            return
-
-        datos = self.datos_configuracion[self.profesor_actual]
-        nombre = f"{datos.get('apellidos', '')} {datos.get('nombre', '')}"
-
-        respuesta = QMessageBox.question(
-            self, "Confirmar Eliminación",
-            f"¿Está seguro de eliminar al profesor '{nombre.strip()}'?\n\n"
-            "Esta acción no se puede deshacer.",
-            QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No
-        )
-
-        if respuesta == QMessageBox.StandardButton.Yes:
-            del self.datos_configuracion[self.profesor_actual]
-            self.profesor_actual = None
-
-            # Actualizar interfaz
-            self.aplicar_filtro_asignatura()
-            self.label_profesor_actual.setText("Seleccione un profesor")
-            self.info_profesor.setText("ℹ️ Seleccione un profesor para ver sus detalles")
-            self.btn_duplicar.setEnabled(False)
-            self.marcar_cambio_realizado()
-
-            QMessageBox.information(self, "Éxito", "Profesor eliminado correctamente")
-
-    def duplicar_profesor_seleccionado(self):
-        """Duplicar profesor seleccionado"""
-        if not self.profesor_actual:
-            return
-
-        datos_originales = self.datos_configuracion[self.profesor_actual].copy()
-
-        # Generar nuevo ID único y modificar nombre
-        datos_originales['id'] = str(uuid.uuid4())
-        datos_originales['nombre'] = datos_originales.get('nombre', '') + " (copia)"
-
-        dialog = GestionProfesorDialog(datos_originales, self.asignaturas_disponibles, self)
-
-        if dialog.exec() == QDialog.DialogCode.Accepted:
-            datos_nuevos = dialog.get_datos_profesor()
-            profesor_id = datos_nuevos['id']
-
-            # Añadir profesor duplicado (el ID ya es único)
-            self.datos_configuracion[profesor_id] = datos_nuevos
-
-            # Auto-ordenar
-            self.ordenar_profesores_alfabeticamente()
-
-            # Actualizar interfaz
-            self.aplicar_filtro_asignatura()
-            self.auto_seleccionar_profesor(profesor_id)
-            self.marcar_cambio_realizado()
-
-            nombre = f"{datos_nuevos.get('apellidos', '')} {datos_nuevos.get('nombre', '')}"
-            QMessageBox.information(self, "Éxito", f"Profesor duplicado como '{nombre.strip()}'")
-
-    def buscar_profesores(self):
+    def buscar_profesores(self) -> None:
         """Mostrar diálogo para buscar profesor por nombre, apellidos o asignatura"""
         if not self.datos_configuracion:
             QMessageBox.information(self, "Sin Datos", "No hay profesores configurados para buscar")
@@ -2050,7 +1898,264 @@ class ConfigurarProfesores(QMainWindow):
                 QMessageBox.information(self, "Profesor Seleccionado",
                                         f"Profesor seleccionado: {nombre.strip()}")
 
-    def actualizar_estadisticas(self):
+    # ========= GESTIÓN DE PROFESORES =========
+    def add_profesor(self) -> None:
+        """Añadir nuevo profesor"""
+        dialog = GestionProfesorDialog(None, self.asignaturas_disponibles, self)
+
+        if dialog.exec() == QDialog.DialogCode.Accepted:
+            datos = dialog.get_datos_profesor()
+            profesor_id = datos['id']
+
+            # Añadir nuevo profesor
+            self.datos_configuracion[profesor_id] = datos
+
+            # Auto-ordenar
+            self.ordenar_profesores_alfabeticamente()
+
+            # Actualizar interfaz
+            self.aplicar_filtro_asignatura()
+            self.auto_seleccionar_profesor(profesor_id)
+            self.marcar_cambio_realizado()
+
+            nombre = f"{datos.get('apellidos', '')} {datos.get('nombre', '')}"
+            num_asignaturas = len(datos.get('asignaturas_imparte', []))
+            QMessageBox.information(self, "Éxito",
+                                    f"Profesor '{nombre.strip()}' añadido correctamente\n"
+                                    f"Asignaturas que imparte: {num_asignaturas}")
+
+    def editar_profesor_seleccionado(self) -> None:
+        """Editar profesor seleccionado"""
+        if not self.profesor_actual:
+            QMessageBox.warning(self, "Advertencia", "Seleccione un profesor para editar")
+            return
+
+        datos_originales = self.datos_configuracion[self.profesor_actual].copy()
+        dialog = GestionProfesorDialog(datos_originales, self.asignaturas_disponibles, self)
+
+        if dialog.exec() == QDialog.DialogCode.Accepted:
+            datos_nuevos = dialog.get_datos_profesor()
+
+            # Conservar el ID original
+            datos_nuevos['id'] = self.profesor_actual
+            profesor_id = self.profesor_actual
+
+            self.datos_configuracion[profesor_id] = datos_nuevos
+
+            # Auto-ordenar
+            self.ordenar_profesores_alfabeticamente()
+
+            # Actualizar interfaz
+            self.aplicar_filtro_asignatura()
+            self.auto_seleccionar_profesor(profesor_id)
+            self.marcar_cambio_realizado()
+
+            QMessageBox.information(self, "Éxito", "Profesor actualizado correctamente")
+
+    def eliminar_profesor_seleccionado(self) -> None:
+        """Eliminar profesor seleccionado"""
+        if not self.profesor_actual:
+            QMessageBox.warning(self, "Advertencia", "Seleccione un profesor para eliminar")
+            return
+
+        datos = self.datos_configuracion[self.profesor_actual]
+        nombre = f"{datos.get('apellidos', '')} {datos.get('nombre', '')}"
+
+        respuesta = QMessageBox.question(
+            self, "Confirmar Eliminación",
+            f"¿Está seguro de eliminar al profesor '{nombre.strip()}'?\n\n"
+            "Esta acción no se puede deshacer.",
+            QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No
+        )
+
+        if respuesta == QMessageBox.StandardButton.Yes:
+            del self.datos_configuracion[self.profesor_actual]
+            self.profesor_actual = None
+
+            # Actualizar interfaz
+            self.aplicar_filtro_asignatura()
+            self.label_profesor_actual.setText("Seleccione un profesor")
+            self.info_profesor.setText("ℹ️ Seleccione un profesor para ver sus detalles")
+            self.btn_duplicar.setEnabled(False)
+            self.marcar_cambio_realizado()
+
+            QMessageBox.information(self, "Éxito", "Profesor eliminado correctamente")
+
+    def duplicar_profesor_seleccionado(self) -> None:
+        """Duplicar profesor seleccionado"""
+        if not self.profesor_actual:
+            return
+
+        datos_originales = self.datos_configuracion[self.profesor_actual].copy()
+
+        # Generar nuevo ID único y modificar nombre
+        datos_originales['id'] = str(uuid.uuid4())
+        datos_originales['nombre'] = datos_originales.get('nombre', '') + " (copia)"
+
+        dialog = GestionProfesorDialog(datos_originales, self.asignaturas_disponibles, self)
+
+        if dialog.exec() == QDialog.DialogCode.Accepted:
+            datos_nuevos = dialog.get_datos_profesor()
+            profesor_id = datos_nuevos['id']
+
+            # Añadir profesor duplicado (el ID ya es único)
+            self.datos_configuracion[profesor_id] = datos_nuevos
+
+            # Auto-ordenar
+            self.ordenar_profesores_alfabeticamente()
+
+            # Actualizar interfaz
+            self.aplicar_filtro_asignatura()
+            self.auto_seleccionar_profesor(profesor_id)
+            self.marcar_cambio_realizado()
+
+            nombre = f"{datos_nuevos.get('apellidos', '')} {datos_nuevos.get('nombre', '')}"
+            QMessageBox.information(self, "Éxito", f"Profesor duplicado como '{nombre.strip()}'")
+
+    def limpiar_todos_profesores(self) -> None:
+        """Limpiar todos los profesores configurados"""
+        if not self.datos_configuracion:
+            QMessageBox.information(self, "Sin Datos", "No hay profesores para limpiar")
+            return
+
+        respuesta = QMessageBox.question(
+            self, "Limpiar Todo",
+            f"¿Está seguro de eliminar todos los profesores configurados?\n\n"
+            f"Se eliminarán {len(self.datos_configuracion)} profesores.\n"
+            f"Esta acción no se puede deshacer.",
+            QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
+            QMessageBox.StandardButton.No
+        )
+
+        if respuesta == QMessageBox.StandardButton.Yes:
+            self.datos_configuracion.clear()
+            self.profesor_actual = None
+
+            # Actualizar interfaz
+            self.aplicar_filtro_asignatura()
+            self.label_profesor_actual.setText("Seleccione un profesor")
+            self.info_profesor.setText("ℹ️ Seleccione un profesor para ver sus detalles")
+            self.btn_duplicar.setEnabled(False)
+            self.marcar_cambio_realizado()
+
+            QMessageBox.information(self, "Limpieza Completada", "Todos los profesores han sido eliminados")
+
+    # ========= IMPORTAR / EXPORTAR =========
+    def import_config(self) -> None:
+        """Cargar configuración desde archivo JSON"""
+        archivo, _ = QFileDialog.getOpenFileName(
+            self, "Cargar Configuración de Profesores",
+            dir_downloads(), "Archivos JSON (*.json)"
+        )
+
+        if not archivo:
+            return
+
+        try:
+            with open(archivo, 'r', encoding='utf-8') as f:
+                datos_cargados = json.load(f)
+
+            # Validar estructura
+            if "profesores" in datos_cargados:
+                self.datos_configuracion = datos_cargados["profesores"]
+            elif isinstance(datos_cargados, dict):
+                self.datos_configuracion = datos_cargados
+            else:
+                raise ValueError("Formato de archivo JSON inválido")
+
+            # Auto-ordenar
+            self.ordenar_profesores_alfabeticamente()
+
+            # Actualizar interfaz
+            self.aplicar_filtro_asignatura()
+            self.profesor_actual = None
+            self.label_profesor_actual.setText("Seleccione un profesor")
+            self.info_profesor.setText("ℹ️ Seleccione un profesor para ver sus detalles")
+            self.btn_duplicar.setEnabled(False)
+            QMessageBox.information(self, "Éxito", "Configuración cargada correctamente")
+
+        except Exception as e:
+            QMessageBox.critical(self, "Error", f"Error al cargar configuración:\n{str(e)}")
+
+    def export_config(self) -> None:
+        """Guardar configuración en archivo JSON"""
+        if not self.datos_configuracion:
+            QMessageBox.warning(self, "Sin Datos", "No hay profesores configurados para guardar.")
+            return
+
+        ruta_inicial = os.path.join(
+            dir_downloads(),
+            f"profesores_{datetime.now().strftime('%Y%m%d_%H%M%S')}.json"
+        )
+        archivo, _ = QFileDialog.getSaveFileName(
+            self, "Guardar Configuración de Profesores",
+            ruta_inicial,
+            "Archivos JSON (*.json)"
+        )
+
+        if not archivo:
+            return
+
+        try:
+            config_data = {
+                'profesores': self.datos_configuracion,
+                'metadata': {
+                    'version': '1.0',
+                    'timestamp': datetime.now().isoformat(),
+                    'total_profesores': len(self.datos_configuracion),
+                    'filtro_aplicado': self.filtro_asignatura_actual,
+                    'generado_por': 'OPTIM - Configurar Profesores'
+                }
+            }
+
+            with open(archivo, 'w', encoding='utf-8') as f:
+                json.dump(config_data, f, indent=2, ensure_ascii=False)
+
+            QMessageBox.information(self, "Guardado Exitoso", f"Configuración guardada en:\n{archivo}")
+
+        except Exception as e:
+            QMessageBox.critical(self, "Error de Guardado", f"Error al guardar configuración:\n{str(e)}")
+
+    def guardar_en_sistema(self) -> None:
+        """Guardar configuración en el sistema principal"""
+        try:
+            if not self.datos_configuracion:
+                QMessageBox.warning(self, "Sin Datos", "No hay profesores configurados para guardar.")
+                return
+
+            total_profesores = len(self.datos_configuracion)
+
+            # Contar asignaturas únicas
+            asignaturas_unicas = set()
+            for datos in self.datos_configuracion.values():
+                asignaturas_unicas.update(datos.get('asignaturas_imparte', []))
+
+            respuesta = QMessageBox.question(
+                self, "Guardar y Cerrar",
+                f"¿Guardar configuración en el sistema y cerrar?\n\n"
+                f"📊 Resumen:\n"
+                f"• {total_profesores} profesores configurados\n"
+                f"• {len(asignaturas_unicas)} asignaturas distintas cubiertas\n\n"
+                f"La configuración se integrará con OPTIM y la ventana se cerrará.",
+                QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No
+            )
+
+            if respuesta == QMessageBox.StandardButton.Yes:
+                # Enviar señal al sistema principal
+                self.configuracion_actualizada.emit(self.datos_configuracion)
+
+                # Marcar como guardado
+                self.datos_guardados_en_sistema = True
+                self.datos_iniciales = json.dumps(self.datos_configuracion, sort_keys=True)
+
+                # Cerrar ventana
+                self.close()
+
+        except Exception as e:
+            QMessageBox.critical(self, "Error", f"Error al guardar en el sistema:\n{str(e)}")
+
+    # ========= ESTADÍSTICAS =========
+    def actualizar_estadisticas(self) -> None:
         """Actualizar estadísticas por asignatura"""
         if not self.datos_configuracion:
             self.texto_stats.setText("📊 No hay profesores para generar estadísticas")
@@ -2119,14 +2224,14 @@ class ConfigurarProfesores(QMainWindow):
 
         self.texto_stats.setText(stats_texto)
 
-    def exportar_estadisticas(self):
+    def exportar_estadisticas(self) -> None:
         """Exportar estadísticas a archivo"""
         if not self.datos_configuracion:
             QMessageBox.information(self, "Sin Datos", "No hay profesores para generar estadísticas")
             return
 
         ruta_inicial = os.path.join(
-            obtener_ruta_descargas(),
+            dir_downloads(),
             f"estadisticas_profesores_{datetime.now().strftime('%Y%m%d_%H%M%S')}.txt"
         )
         archivo, _ = QFileDialog.getSaveFileName(
@@ -2161,189 +2266,18 @@ class ConfigurarProfesores(QMainWindow):
             QMessageBox.critical(self, "Error de Exportación",
                                  f"Error al exportar estadísticas:\n{str(e)}")
 
-    def cargar_configuracion(self):
-        """Cargar configuración desde archivo JSON"""
-        archivo, _ = QFileDialog.getOpenFileName(
-            self, "Cargar Configuración de Profesores",
-            obtener_ruta_descargas(), "Archivos JSON (*.json)"
-        )
+    # ========= LOG Y MENSAJES =========
+    def log_mensaje(self, mensaje, tipo="info") -> None:
+        """Logging simple"""
+        if self.parent_window and hasattr(self.parent_window, 'log_mensaje'):
+            self.parent_window.log_mensaje(mensaje, tipo)
+        else:
+            iconos = {"info": "ℹ️", "warning": "⚠️", "error": "❌", "success": "✅"}
+            icono = iconos.get(tipo, "ℹ️")
+            print(f"{icono} {mensaje}")
 
-        if not archivo:
-            return
-
-        try:
-            with open(archivo, 'r', encoding='utf-8') as f:
-                datos_cargados = json.load(f)
-
-            # Validar estructura
-            if "profesores" in datos_cargados:
-                self.datos_configuracion = datos_cargados["profesores"]
-            elif isinstance(datos_cargados, dict):
-                self.datos_configuracion = datos_cargados
-            else:
-                raise ValueError("Formato de archivo JSON inválido")
-
-            # Auto-ordenar
-            self.ordenar_profesores_alfabeticamente()
-
-            # Actualizar interfaz
-            self.aplicar_filtro_asignatura()
-            self.profesor_actual = None
-            self.label_profesor_actual.setText("Seleccione un profesor")
-            self.info_profesor.setText("ℹ️ Seleccione un profesor para ver sus detalles")
-            self.btn_duplicar.setEnabled(False)
-            QMessageBox.information(self, "Éxito", "Configuración cargada correctamente")
-
-        except Exception as e:
-            QMessageBox.critical(self, "Error", f"Error al cargar configuración:\n{str(e)}")
-
-    def guardar_en_archivo(self):
-        """Guardar configuración en archivo JSON"""
-        if not self.datos_configuracion:
-            QMessageBox.warning(self, "Sin Datos", "No hay profesores configurados para guardar.")
-            return
-
-        ruta_inicial = os.path.join(
-            obtener_ruta_descargas(),
-            f"profesores_{datetime.now().strftime('%Y%m%d_%H%M%S')}.json"
-        )
-        archivo, _ = QFileDialog.getSaveFileName(
-            self, "Guardar Configuración de Profesores",
-            ruta_inicial,
-            "Archivos JSON (*.json)"
-        )
-
-        if not archivo:
-            return
-
-        try:
-            config_data = {
-                'profesores': self.datos_configuracion,
-                'metadata': {
-                    'version': '1.0',
-                    'timestamp': datetime.now().isoformat(),
-                    'total_profesores': len(self.datos_configuracion),
-                    'filtro_aplicado': self.filtro_asignatura_actual,
-                    'generado_por': 'OPTIM - Configurar Profesores'
-                }
-            }
-
-            with open(archivo, 'w', encoding='utf-8') as f:
-                json.dump(config_data, f, indent=2, ensure_ascii=False)
-
-            QMessageBox.information(self, "Guardado Exitoso", f"Configuración guardada en:\n{archivo}")
-
-        except Exception as e:
-            QMessageBox.critical(self, "Error de Guardado", f"Error al guardar configuración:\n{str(e)}")
-
-    def guardar_en_sistema(self):
-        """Guardar configuración en el sistema principal"""
-        try:
-            if not self.datos_configuracion:
-                QMessageBox.warning(self, "Sin Datos", "No hay profesores configurados para guardar.")
-                return
-
-            total_profesores = len(self.datos_configuracion)
-
-            # Contar asignaturas únicas
-            asignaturas_unicas = set()
-            for datos in self.datos_configuracion.values():
-                asignaturas_unicas.update(datos.get('asignaturas_imparte', []))
-
-            respuesta = QMessageBox.question(
-                self, "Guardar y Cerrar",
-                f"¿Guardar configuración en el sistema y cerrar?\n\n"
-                f"📊 Resumen:\n"
-                f"• {total_profesores} profesores configurados\n"
-                f"• {len(asignaturas_unicas)} asignaturas distintas cubiertas\n\n"
-                f"La configuración se integrará con OPTIM y la ventana se cerrará.",
-                QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No
-            )
-
-            if respuesta == QMessageBox.StandardButton.Yes:
-                # Enviar señal al sistema principal
-                self.configuracion_actualizada.emit(self.datos_configuracion)
-
-                # Marcar como guardado
-                self.datos_guardados_en_sistema = True
-                self.datos_iniciales = json.dumps(self.datos_configuracion, sort_keys=True)
-
-                # Cerrar ventana
-                self.close()
-
-        except Exception as e:
-            QMessageBox.critical(self, "Error", f"Error al guardar en el sistema:\n{str(e)}")
-
-    def limpiar_todos_profesores(self):
-        """Limpiar todos los profesores configurados"""
-        if not self.datos_configuracion:
-            QMessageBox.information(self, "Sin Datos", "No hay profesores para limpiar")
-            return
-
-        respuesta = QMessageBox.question(
-            self, "Limpiar Todo",
-            f"¿Está seguro de eliminar todos los profesores configurados?\n\n"
-            f"Se eliminarán {len(self.datos_configuracion)} profesores.\n"
-            f"Esta acción no se puede deshacer.",
-            QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
-            QMessageBox.StandardButton.No
-        )
-
-        if respuesta == QMessageBox.StandardButton.Yes:
-            self.datos_configuracion.clear()
-            self.profesor_actual = None
-
-            # Actualizar interfaz
-            self.aplicar_filtro_asignatura()
-            self.label_profesor_actual.setText("Seleccione un profesor")
-            self.info_profesor.setText("ℹ️ Seleccione un profesor para ver sus detalles")
-            self.btn_duplicar.setEnabled(False)
-            self.marcar_cambio_realizado()
-
-            QMessageBox.information(self, "Limpieza Completada", "Todos los profesores han sido eliminados")
-
-    def ordenar_profesores_alfabeticamente(self):
-        """Reordenar profesores alfabéticamente por apellidos + nombre"""
-        if not self.datos_configuracion:
-            return
-
-        # Crear lista ordenada por apellidos + nombre
-        profesores_ordenados = sorted(
-            self.datos_configuracion.items(),
-            key=lambda x: f"{x[1].get('apellidos', '')} {x[1].get('nombre', '')}"
-        )
-
-        # Crear nuevo diccionario ordenado
-        self.datos_configuracion = dict(profesores_ordenados)
-
-    def auto_seleccionar_profesor(self, profesor_id):
-        """Auto-seleccionar profesor por ID"""
-        try:
-            for i in range(self.list_profesores.count()):
-                item = self.list_profesores.item(i)
-                if item.data(Qt.ItemDataRole.UserRole) == profesor_id:
-                    self.list_profesores.setCurrentItem(item)
-                    self.seleccionar_profesor(item)
-                    break
-        except Exception as e:
-            self.log_mensaje(f"⚠️ Error auto-seleccionando profesor: {e}", "warning")
-
-    def seleccionar_profesor_por_id(self, profesor_id):
-        """Seleccionar profesor por ID después de actualización"""
-        if profesor_id in self.datos_configuracion:
-            # Buscar el item en la lista y seleccionarlo
-            for i in range(self.list_profesores.count()):
-                item = self.list_profesores.item(i)
-                if item and item.data(Qt.ItemDataRole.UserRole) == profesor_id:
-                    self.list_profesores.setCurrentItem(item)
-                    self.seleccionar_profesor(item)
-                    break
-    def seleccionar_profesor_por_dni(self, profesor_id):
-        """Compatibilidad: redirige a seleccionar_profesor_por_id"""
-        return self.seleccionar_profesor_por_id(profesor_id)
-
-
-    def hay_cambios_sin_guardar(self):
+    # ========= GESTIÓN DEL CAMBIO =========
+    def hay_cambios_sin_guardar(self) -> bool:
         """Detectar si hay cambios sin guardar"""
         datos_actuales = json.dumps(self.datos_configuracion, sort_keys=True)
         hay_cambios = datos_actuales != self.datos_iniciales
@@ -2356,23 +2290,14 @@ class ConfigurarProfesores(QMainWindow):
 
         return False
 
-    def marcar_cambio_realizado(self):
+    def marcar_cambio_realizado(self) -> None:
         """Marcar que se realizó un cambio"""
         self.datos_guardados_en_sistema = False
 
-    def log_mensaje(self, mensaje, tipo="info"):
-        """Logging simple"""
-        if self.parent_window and hasattr(self.parent_window, 'log_mensaje'):
-            self.parent_window.log_mensaje(mensaje, tipo)
-        else:
-            iconos = {"info": "ℹ️", "warning": "⚠️", "error": "❌", "success": "✅"}
-            icono = iconos.get(tipo, "ℹ️")
-            print(f"{icono} {mensaje}")
-
-    def closeEvent(self, event):
+    def closeEvent(self, event) -> None:
         """Manejar cierre de ventana"""
         if not self.hay_cambios_sin_guardar():
-            self.log_mensaje("🔚 Cerrando configuración de profesores", "info")
+            self.log_mensaje("Cerrando configuración de profesores", "info")
             event.accept()
             return
 
@@ -2387,12 +2312,12 @@ class ConfigurarProfesores(QMainWindow):
 
         if respuesta == QMessageBox.StandardButton.Yes:
             self.cancelar_cambios_en_sistema()
-            self.log_mensaje("🔚 Cerrando sin guardar cambios", "warning")
+            self.log_mensaje("Cerrando sin guardar cambios", "warning")
             event.accept()
         else:
             event.ignore()
 
-    def cancelar_cambios_en_sistema(self):
+    def cancelar_cambios_en_sistema(self) -> None:
         """Cancelar cambios restaurando estado original"""
         try:
             datos_originales = json.loads(self.datos_iniciales)
@@ -2411,10 +2336,10 @@ class ConfigurarProfesores(QMainWindow):
             self.datos_configuracion = datos_originales
             self.datos_guardados_en_sistema = False
 
-            self.log_mensaje("📤 Cambios cancelados y estado restaurado", "info")
+            self.log_mensaje("Cambios cancelados y estado restaurado", "info")
 
         except Exception as e:
-            self.log_mensaje(f"⚠️ Error cancelando cambios: {e}", "warning")
+            self.log_mensaje(f"Error cancelando cambios: {e}", "warning")
 
 
 def main():
@@ -2453,7 +2378,7 @@ def main():
     }
 
     # La ventana ya se centra automáticamente en su constructor
-    window = ConfigurarProfesores(datos_existentes=datos_ejemplo)
+    window = ConfigurarProfesoresWindow(datos_existentes=datos_ejemplo)
     window.show()
 
     sys.exit(app.exec())
