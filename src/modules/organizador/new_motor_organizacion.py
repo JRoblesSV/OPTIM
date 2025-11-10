@@ -1,4 +1,3 @@
-
 """
 Motor de Organización v2 - OPTIM - Sistema de Programación Automática de Laboratorios
 Desarrollado por SoftVier para ETSIDI (UPM)
@@ -257,7 +256,7 @@ class DatosValidador:
 
         return True
 
-    def get_total_semanas_calendario(self) -> int:
+    def _get_total_semanas_calendario(self) -> int:
         """
         Obtener el número total de semanas desde el calendario configurado.
 
@@ -266,7 +265,7 @@ class DatosValidador:
         """
         try:
             calendario_cfg = self.cfg.get("configuracion", {}).get("calendario", {})
-            semanas_total = calendario_cfg.get("semanas_total")
+            semanas_total = calendario_cfg.get("datos", {}).get("metadata", {}).get("limite_semanas")
             if isinstance(semanas_total, int) and semanas_total > 0:
                 return semanas_total
             # Compatibilidad con metadatos anidados
@@ -299,7 +298,7 @@ class DatosValidador:
         print("\n[1.2] Validando asignaturas...")
 
         asignaturas_data = self.cfg["configuracion"]["asignaturas"].get("datos", {})
-        total_semanas_calendario = self.get_total_semanas_calendario()
+        total_semanas_calendario = self._get_total_semanas_calendario()
 
         if not asignaturas_data:
             self.errores.append(ErrorValidacion(
@@ -590,25 +589,281 @@ class DatosValidador:
             if num_advertencias > 0:
                 print(f"  ⚠ ADVERTENCIAS: {num_advertencias}")
 
-        print(f"  • Total grupos validados: {len(self.grupos_lab_posibles)}")
-        print()
+        print(f"  • Total grupos validados: {len(self.grupos_lab_posibles)}\n")
 
 
-# ========= MAIN - TESTING DE FASE 1 =========
+# ========= FASE 2: CÁLCULO DE FECHAS POR LETRA =========
+class CalculadorFechas:
+    """
+    Clase responsable de la FASE 2: Cálculo de fechas por letra.
+
+    Realiza las siguientes operaciones:
+        2.1 - Obtener fechas del calendario filtradas por semana_inicio
+        2.2 - Dividir fechas según num_sesiones para cada letra
+        2.3 - Crear mapeo completo: (semestre, asignatura, grupo, dia, letra) -> [fechas]
+
+    Attributes:
+        cfg: Configuración completa
+        grupos_lab_posibles: Diccionario con número de grupos posibles por (semestre, asig, grupo)
+        mapeo_fechas: Diccionario resultante con fechas por letra
+    """
+
+    def __init__(self, cfg: Dict, grupos_lab_posibles: Dict[Tuple[str, str, str], int]):
+        """Inicializar el calculador de fechas."""
+        self.cfg = cfg
+        self.grupos_lab_posibles = grupos_lab_posibles
+        self.mapeo_fechas: Dict[Tuple[str, str, str, str, str], List[str]] = {}
+
+    def ejecutar(self) -> Tuple[bool, Dict[Tuple[str, str, str, str, str], List[str]]]:
+        """
+        Ejecutar la FASE 2 completa.
+
+        Returns:
+            Tupla con:
+                - bool: True si el cálculo fue exitoso
+                - Dict: mapeo_fechas resultante
+        """
+        print("\n" + "=" * 70)
+        print("FASE 2: CÁLCULO DE FECHAS POR LETRA")
+        print("=" * 70)
+
+        # 2.1 y 2.2 - Calcular fechas para cada grupo
+        if not self._calcular_fechas_grupos():
+            return False, {}
+
+        # Resumen final
+        self._mostrar_resumen()
+
+        return True, self.mapeo_fechas
+
+    def _obtener_fechas_calendario(self, dia: str, semestre: str) -> List[str]:
+        """
+        Obtener todas las fechas del calendario para un día y semestre específico.
+
+        Args:
+            dia: Día de la semana (ej: "Lunes", "Martes")
+            semestre: Semestre (ej: "1 Semestre", "2 Semestre")
+
+        Returns:
+            Lista de fechas en formato dd/mm/yyyy ordenadas cronológicamente
+        """
+        calendario_datos = self.cfg.get("configuracion", {}).get("calendario", {}).get("datos", {})
+
+        # Determinar qué clave de semestre usar
+        semestre_key = "semestre_1" if "1" in semestre else "semestre_2"
+        semestre_datos = calendario_datos.get(semestre_key, {})
+
+        # Normalizar el día
+        dia_normalizado = dia.strip().capitalize()
+        reemplazos = {"Miercoles": "Miércoles", "Sabado": "Sábado"}
+        dia_normalizado = reemplazos.get(dia_normalizado, dia_normalizado)
+
+        # Extraer fechas donde horario_asignado coincida
+        fechas = []
+        for fecha_info in semestre_datos.values():
+            if isinstance(fecha_info, dict):
+                if fecha_info.get("horario_asignado") == dia_normalizado:
+                    fecha_str = fecha_info.get("fecha", "")
+                    if fecha_str:
+                        # Convertir yyyy-mm-dd a dd/mm/yyyy
+                        partes = fecha_str.split("-")
+                        if len(partes) == 3:
+                            fechas.append(f"{partes[2]}/{partes[1]}/{partes[0]}")
+
+        return fechas
+
+    def _filtrar_fechas_desde_semana(self, fechas: List[str], semana_inicio: int) -> List[str]:
+        """
+        Filtrar fechas a partir de una semana específica.
+
+        Args:
+            fechas: Lista de fechas ordenadas cronológicamente
+            semana_inicio: Número de semana desde la cual comenzar (1-X)
+
+        Returns:
+            Lista de fechas filtradas desde semana_inicio
+        """
+        # Índice base 0: semana 1 = índice 0
+        indice_inicio = semana_inicio - 1
+
+        if indice_inicio >= len(fechas):
+            return []
+
+        return fechas[indice_inicio:]
+
+    def _dividir_fechas_por_letras(self, fechas: List[str], num_letras: int) -> Dict[str, List[str]]:
+        """
+        Dividir fechas entre letras de forma intercalada.
+
+        Ejemplo con 4 fechas y 2 letras:
+            Letra A: [fecha0, fecha2] (índices pares)
+            Letra B: [fecha1, fecha3] (índices impares)
+
+        Args:
+            fechas: Lista de fechas ordenadas
+            num_letras: Número de letras a generar
+
+        Returns:
+            Diccionario {letra: [lista_fechas]}
+        """
+        resultado = {}
+        letras = [chr(65 + i) for i in range(num_letras)]  # A, B, C...
+
+        for i, letra in enumerate(letras):
+            # Tomar fechas con índices: i, i+num_letras, i+2*num_letras...
+            fechas_letra = fechas[i::num_letras]
+            resultado[letra] = fechas_letra
+
+        return resultado
+
+    def _calcular_fechas_grupos(self) -> bool:
+        """
+        2.1 y 2.2 - Calcular fechas para todos los grupos con horarios configurados.
+
+        Por cada grupo:
+            - Obtiene días configurados en horarios_grid
+            - Filtra fechas desde semana_inicio
+            - Divide fechas según num_sesiones para cada letra
+            - Guarda en mapeo_fechas
+
+        Returns:
+            True si el cálculo fue exitoso
+        """
+        print("\n[2.1-2.2] Calculando fechas por letra para cada grupo...")
+
+        asignaturas_data = self.cfg["configuracion"]["asignaturas"].get("datos", {})
+        horarios_data = self.cfg["configuracion"]["horarios"].get("datos", {})
+
+        num_grupos_procesados = 0
+
+        # Recorrer asignaturas para obtener configuración de laboratorio
+        for asig_codigo, asig_data in asignaturas_data.items():
+            semestre = asig_data.get("semestre", "Desconocido")
+            grupos_asociados = asig_data.get("grupos_asociados", {})
+
+            # Buscar horarios para esta asignatura
+            horarios_asig = None
+            for sem_key, asigs_horarios in horarios_data.items():
+                if asig_codigo in asigs_horarios:
+                    horarios_asig = asigs_horarios[asig_codigo]
+                    break
+
+            if not horarios_asig:
+                continue  # Sin horarios configurados, siguiente asignatura
+
+            horarios_grid = horarios_asig.get("horarios_grid", {})
+            if not horarios_grid:
+                continue
+
+            # Procesar cada grupo de la asignatura
+            for grupo_codigo in grupos_asociados.keys():
+                cfg_lab = grupos_asociados[grupo_codigo].get("configuracion_laboratorio", {})
+                semana_inicio = cfg_lab.get("semana_inicio")
+                num_sesiones = cfg_lab.get("num_sesiones")
+
+                if semana_inicio is None or num_sesiones is None:
+                    continue  # Sin configuración válida
+
+                # Obtener grupos_lab_posibles para este grupo
+                grupos_posibles = self.grupos_lab_posibles.get((semestre, asig_codigo, grupo_codigo))
+                if grupos_posibles is None:
+                    continue
+
+                # Extraer días únicos donde este grupo tiene horarios
+                dias_usados: Set[str] = set()
+                letras_por_dia: Dict[str, Set[str]] = {}
+
+                for franja, dias in horarios_grid.items():
+                    for dia, info in dias.items():
+                        if not isinstance(info, dict):
+                            continue
+
+                        grupos = info.get("grupos", [])
+                        letras = info.get("letras", [])
+
+                        # Si este grupo está en esta franja/día
+                        if grupo_codigo in grupos:
+                            dias_usados.add(dia)
+                            if dia not in letras_por_dia:
+                                letras_por_dia[dia] = set()
+                            letras_por_dia[dia].update(letras)
+
+                if not dias_usados:
+                    continue  # Este grupo no tiene horarios asignados
+
+                # Por cada día usado, calcular fechas por letra
+                for dia in dias_usados:
+                    # 2.1 - Obtener fechas del calendario para este día
+                    fechas_calendario = self._obtener_fechas_calendario(dia, semestre)
+
+                    if not fechas_calendario:
+                        print(f"  ⚠ {semestre}:{asig_codigo}:{grupo_codigo} - Sin fechas en calendario para {dia}")
+                        continue
+
+                    # Filtrar desde semana_inicio
+                    fechas_filtradas = self._filtrar_fechas_desde_semana(fechas_calendario, semana_inicio)
+
+                    if not fechas_filtradas:
+                        print(
+                            f"  ⚠ {semestre}:{asig_codigo}:{grupo_codigo} - Sin fechas disponibles desde semana {semana_inicio} para {dia}")
+                        continue
+
+                    # 2.2 - Dividir fechas entre letras
+                    fechas_por_letra = self._dividir_fechas_por_letras(fechas_filtradas, grupos_posibles)
+
+                    # Obtener letras realmente usadas en este día
+                    letras_usadas = letras_por_dia.get(dia, set())
+
+                    # 2.3 - Guardar en mapeo_fechas solo las letras usadas
+                    for letra in letras_usadas:
+                        if letra in fechas_por_letra:
+                            clave = (semestre, asig_codigo, grupo_codigo, dia, letra)
+                            self.mapeo_fechas[clave] = fechas_por_letra[letra]
+
+                            print(f"  ✓ {semestre}:{asig_codigo}:{grupo_codigo} | {dia} | Letra {letra} → "
+                                  f"{len(fechas_por_letra[letra])} fechas calculadas:{fechas_por_letra[letra]}")
+
+                num_grupos_procesados += 1
+
+        print(f"\n  Total grupos procesados: {num_grupos_procesados}")
+        print(f"  Total combinaciones (semestre, asig, grupo, dia, letra): {len(self.mapeo_fechas)}")
+
+        return True
+
+    def _mostrar_resumen(self) -> None:
+        """Mostrar resumen del cálculo de fechas."""
+        print("\n" + "-" * 70)
+        print("RESUMEN FASE 2")
+        print("-" * 70)
+
+        if len(self.mapeo_fechas) == 0:
+            print("  ⚠ No se calcularon fechas (posible error de configuración)\n")
+        else:
+            print(f"  ✓ CÁLCULO EXITOSO")
+            print(f"  • Combinaciones generadas: {len(self.mapeo_fechas)}")
+
+            # Estadísticas por letra
+            letras_count = {}
+            for (_, _, _, _, letra) in self.mapeo_fechas.keys():
+                letras_count[letra] = letras_count.get(letra, 0) + 1
+
+            print(f"  • Distribución por letra: {dict(sorted(letras_count.items()))}\n")
+
+
+# ========= MAIN - TESTING DE FASE 2/9 =========
 def main():
-    """Función principal para testing de la FASE 1."""
+    """Función principal para testing de las FASES 1 y 2."""
 
     # Buscar configuración por defecto
     config_path = Path(__file__).resolve().parents[2] / "configuracion_labs.json"
 
     if not config_path.exists():
         print(f"ERROR: No se encontró el archivo de configuración en: {config_path}")
-        print("Uso: python motor_organizacion_v2.py")
         sys.exit(1)
 
-    # Ejecutar FASE 1
+    # ===== FASE 1 =====
     validador = DatosValidador(config_path)
-    exito, cfg, errores = validador.ejecutar()
+    exito_fase1, cfg, errores = validador.ejecutar()
 
     # Mostrar errores detallados si los hay
     if errores:
@@ -624,15 +879,32 @@ def main():
 
     # Resultado final
     print("\n" + "=" * 70)
-    if exito:
-        print("✓ FASE 1 COMPLETADA CON ÉXITO")
-        print("=" * 70)
-        print("\nEl sistema está listo para continuar con la FASE 2")
-        sys.exit(0)
-    else:
+    # Si FASE 1 falla, detener
+    if not exito_fase1:
+        print("\n" + "=" * 70)
         print("✗ FASE 1 FALLÓ - Corrija los errores críticos antes de continuar")
         print("=" * 70)
         sys.exit(1)
+
+    # ===== FASE 2 =====
+    calculador = CalculadorFechas(cfg, validador.grupos_lab_posibles)
+    exito_fase2, mapeo_fechas = calculador.ejecutar()
+
+    # Si FASE 2 falla, detener
+    if not exito_fase2:
+        print("\n" + "=" * 70)
+        print("✗ FASE 2 FALLÓ")
+        print("=" * 70)
+        sys.exit(1)
+
+    # ===== RESULTADO FINAL =====
+    print("\n" + "=" * 70)
+    print("✓ FASES 1 Y 2 COMPLETADAS CON ÉXITO")
+    print("=" * 70)
+    print(f"\n  • Grupos validados: {len(validador.grupos_lab_posibles)}")
+    print(f"  • Combinaciones de fechas: {len(mapeo_fechas)}")
+    print("\nEl sistema está listo para continuar con la FASE 3")
+    sys.exit(0)
 
 
 if __name__ == "__main__":
