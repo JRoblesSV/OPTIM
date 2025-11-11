@@ -1812,8 +1812,29 @@ class ConfigurarAlumnosWindow(QMainWindow):
 
             # --- 3) Filtro por grupo seleccionado ---
             if filtro_grupo != "Todos los grupos":
-                if filtro_grupo not in grupos_matriculado:
-                    continue
+                # Si hay asignatura específica seleccionada, verificar grupo en esa asignatura
+                if filtro_texto != "Todas las asignaturas":
+                    # Extraer código de asignatura del texto del filtro
+                    partes = filtro_texto.split(" - ")
+                    if len(partes) < 2:
+                        continue
+
+                    codigo_parte = partes[1].strip()
+                    if not (codigo_parte.startswith("(") and codigo_parte.endswith(")")):
+                        continue
+
+                    codigo_asignatura = codigo_parte[1:-1]
+                    if codigo_asignatura not in asignaturas_matriculadas:
+                        continue
+
+                    # Verificar si el grupo del alumno en esta asignatura coincide con el filtro
+                    grupo_asignatura = asignaturas_matriculadas[codigo_asignatura].get('grupo', '')
+                    if grupo_asignatura != filtro_grupo:
+                        continue
+                else:
+                    # Filtro global: verificar si el grupo está en la lista general
+                    if filtro_grupo not in grupos_matriculado:
+                        continue
 
             # --- 4) Solo alumnos con más de un grupo ---
             if solo_multi_grupo:
@@ -2290,18 +2311,19 @@ class ConfigurarAlumnosWindow(QMainWindow):
                         aprobado = False
 
                     # Contar por grupo dentro de la asignatura
-                    for grupo in grupos_matriculado:
-                        if grupo not in stats_asignaturas[asig_key]['grupos']:
-                            stats_asignaturas[asig_key]['grupos'][grupo] = {
+                    grupo_especifico = asig_info.get('grupo', '')
+                    if grupo_especifico:
+                        if grupo_especifico not in stats_asignaturas[asig_key]['grupos']:
+                            stats_asignaturas[asig_key]['grupos'][grupo_especifico] = {
                                 'total': 0,
                                 'con_lab_aprobado': 0,
                                 'sin_lab_aprobado': 0
                             }
-                        stats_asignaturas[asig_key]['grupos'][grupo]['total'] += 1
+                        stats_asignaturas[asig_key]['grupos'][grupo_especifico]['total'] += 1
                         if aprobado:
-                            stats_asignaturas[asig_key]['grupos'][grupo]['con_lab_aprobado'] += 1
+                            stats_asignaturas[asig_key]['grupos'][grupo_especifico]['con_lab_aprobado'] += 1
                         else:
-                            stats_asignaturas[asig_key]['grupos'][grupo]['sin_lab_aprobado'] += 1
+                            stats_asignaturas[asig_key]['grupos'][grupo_especifico]['sin_lab_aprobado'] += 1
 
         # Calcular grupos recomendados (12-14 alumnos por grupo)
         for asig_key, stats in stats_asignaturas.items():
