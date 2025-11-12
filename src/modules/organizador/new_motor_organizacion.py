@@ -7,9 +7,9 @@ Universidad: ETSIDI (UPM)
 
 ESTRUCTURA DEL MOTOR:
     FASE 1: Carga y Validación
-    FASE 2: Cálculo de Fechas por Letra
+    FASE 2: Cálculo de Fechas por Letra (solo grados simples, luego agregamos dobles/mixtos)
     FASE 3: Aula Preferente
-    FASE 4: Crear Grupos de Laboratorio
+    FASE 4: Crear Grupos de Laboratorio (aquí agregamos grados dobles/mixtos)
     FASE 5: Asignar Alumnos
     FASE 6: Asignar Profesores
     FASE 7: Programar Fechas (con búsqueda alternativas)
@@ -28,7 +28,7 @@ from pathlib import Path
 from typing import Dict, List, Tuple, Optional, Any, Set
 
 
-# ========= CONSTANTES Y PATRONES (REUTILIZADO DEL MOTOR ANTERIOR) =========
+# ========= CONSTANTES Y PATRONES =========
 # Patrones de grupos
 PAT_SIMPLE = re.compile(r"^[A-Z]\d{3}$")  # Ejemplo: A404
 PAT_DOBLE = re.compile(r"^[A-Z]{2}\d{3}$")  # Ejemplo: EE403
@@ -40,7 +40,7 @@ DAY_ORDER = {
 }
 
 
-# ========= MODELOS DE DATOS (REUTILIZADO Y MEJORADO) =========
+# ========= MODELOS DE DATOS =========
 @dataclass
 class GrupoLab:
     """
@@ -97,7 +97,7 @@ class ErrorValidacion:
     detalle: Dict[str, Any] = field(default_factory=dict)
 
 
-# ========= UTILIDADES GENERALES (REUTILIZADO DEL MOTOR ANTERIOR) =========
+# ========= UTILIDADES GENERALES =========
 def load_configuration(path: Path) -> Dict:
     """
     Cargar configuración desde archivo JSON.
@@ -143,7 +143,7 @@ def normalize_time_range(rng: str) -> str:
 
 
 # ========= FASE 1: CARGA Y VALIDACIÓN =========
-class DatosValidador:
+class ValidadorDatos:
     """
     Clase responsable de la FASE 1: Carga y Validación de datos.
 
@@ -595,7 +595,7 @@ class DatosValidador:
 # ========= FASE 2: CÁLCULO DE FECHAS POR LETRA =========
 class CalculadorFechas:
     """
-    Clase responsable de la FASE 2: Cálculo de fechas por letra.
+    Clase responsable de la FASE 2: Cálculo de fechas por letra en grados simples.
 
     Realiza las siguientes operaciones:
         2.1 - Obtener fechas del calendario filtradas por semana_inicio
@@ -761,6 +761,10 @@ class CalculadorFechas:
                 semana_inicio = cfg_lab.get("semana_inicio")
                 num_sesiones = cfg_lab.get("num_sesiones")
 
+                # Ignorar grupos dobles (LLNNN)
+                if not PAT_SIMPLE.match(grupo_codigo):
+                    continue
+
                 if semana_inicio is None or num_sesiones is None:
                     continue  # Sin configuración válida
 
@@ -850,9 +854,593 @@ class CalculadorFechas:
             print(f"  • Distribución por letra: {dict(sorted(letras_count.items()))}\n")
 
 
-# ========= MAIN - TESTING DE FASE 2/9 =========
+# ========= FASE 3: AULA PREFERENTE =========
+class AsignadorAulaPreferente:
+    """
+    Clase responsable de la FASE 3: Asignación de aula preferente.
+
+    Realiza las siguientes operaciones:
+        3.1 - Por cada asignatura, buscar aulas asociadas
+        3.2 - Seleccionar el aula con MAYOR capacidad
+        3.3 - Crear mapeo: (semestre, asignatura) -> nombre_aula
+
+    Attributes:
+        cfg: Configuración completa
+        aulas_preferentes: Diccionario resultante con aula preferente por asignatura
+    """
+
+    def __init__(self, cfg: Dict):
+        """Inicializar el asignador de aulas preferentes."""
+        self.cfg = cfg
+        self.aulas_preferentes: Dict[Tuple[str, str], str] = {}
+
+    def ejecutar(self) -> Tuple[bool, Dict[Tuple[str, str], str]]:
+        """
+        Ejecutar la FASE 3 completa.
+
+        Returns:
+            Tupla con:
+                - bool: True si la asignación fue exitosa
+                - Dict: aulas_preferentes resultante
+        """
+        print("\n" + "=" * 70)
+        print("FASE 3: AULA PREFERENTE")
+        print("=" * 70)
+
+        # 3.1, 3.2, 3.3 - Asignar aulas preferentes
+        if not self._asignar_aulas_preferentes():
+            return False, {}
+
+        # Resumen final
+        self._mostrar_resumen()
+
+        return True, self.aulas_preferentes
+
+    def _obtener_aulas_por_asignatura(self, asignatura: str) -> List[Tuple[str, int]]:
+        """
+        Obtener todas las aulas asociadas a una asignatura.
+
+        Args:
+            asignatura: Código de la asignatura (ej: "SII")
+
+        Returns:
+            Lista de tuplas (nombre_aula, capacidad) que tienen esta asignatura
+        """
+        aulas_data = self.cfg.get("configuracion", {}).get("aulas", {}).get("datos", {})
+
+        aulas_encontradas = []
+
+        for nombre_aula, aula_info in aulas_data.items():
+            # Verificar que el aula esté disponible
+            if not aula_info.get("disponible", True):
+                continue
+
+            # Obtener asignaturas asociadas
+            asignaturas_asociadas = aula_info.get("asignaturas_asociadas", [])
+
+            # Si esta asignatura está en la lista
+            if asignatura in asignaturas_asociadas:
+                capacidad = aula_info.get("capacidad", 0)
+                aulas_encontradas.append((nombre_aula, capacidad))
+
+        return aulas_encontradas
+
+    def _seleccionar_aula_mayor_capacidad(self, aulas: List[Tuple[str, int]]) -> Optional[str]:
+        """
+        Seleccionar el aula con mayor capacidad de una lista.
+
+        Args:
+            aulas: Lista de tuplas (nombre_aula, capacidad)
+
+        Returns:
+            Nombre del aula con mayor capacidad, o None si la lista está vacía
+        """
+        if not aulas:
+            return None
+
+        # Ordenar por capacidad (descendente) y tomar la primera
+        aulas_ordenadas = sorted(aulas, key=lambda x: x[1], reverse=True)
+        return aulas_ordenadas[0][0]
+
+    def _asignar_aulas_preferentes(self) -> bool:
+        """
+        3.1, 3.2, 3.3 - Asignar aula preferente para cada asignatura.
+
+        Por cada asignatura:
+            - Buscar todas las aulas asociadas
+            - Seleccionar la de mayor capacidad
+            - Guardar en aulas_preferentes
+
+        Returns:
+            True si la asignación fue exitosa
+        """
+        print("\n[3.1-3.3] Asignando aulas preferentes...")
+
+        asignaturas_data = self.cfg.get("configuracion", {}).get("asignaturas", {}).get("datos", {})
+
+        if not asignaturas_data:
+            print("  ⚠ No hay asignaturas configuradas")
+            return False  # Es error crítico
+
+        num_asignadas = 0
+        num_sin_aula = 0
+
+        # Procesar cada asignatura
+        for asig_codigo, asig_data in asignaturas_data.items():
+            semestre = asig_data.get("semestre", "Desconocido")
+
+            # 3.1 - Buscar aulas asociadas a esta asignatura
+            aulas_disponibles = self._obtener_aulas_por_asignatura(asig_codigo)
+
+            if not aulas_disponibles:
+                print(f"  ⚠ {semestre}:{asig_codigo} - Sin aulas asociadas")
+                num_sin_aula += 1
+                continue
+
+            # 3.2 - Seleccionar aula con mayor capacidad
+            aula_preferente = self._seleccionar_aula_mayor_capacidad(aulas_disponibles)
+
+            if aula_preferente is None:
+                print(f"  ⚠ {semestre}:{asig_codigo} - No se pudo seleccionar aula")
+                num_sin_aula += 1
+                continue
+
+            # 3.3 - Guardar en mapeo
+            clave = (semestre, asig_codigo)
+            self.aulas_preferentes[clave] = aula_preferente
+
+            # Obtener capacidad para el log
+            capacidad = next((cap for nombre, cap in aulas_disponibles if nombre == aula_preferente), 0)
+
+            if len(aulas_disponibles) > 1:
+                print(f"  ✓ {semestre}:{asig_codigo} → {aula_preferente} (capacidad: {capacidad}) "
+                      f"[{len(aulas_disponibles)} aulas disponibles]")
+            else:
+                print(f"  ✓ {semestre}:{asig_codigo} → {aula_preferente} (capacidad: {capacidad})")
+
+            num_asignadas += 1
+
+        print(f"\n  Total asignaturas con aula: {num_asignadas}")
+        if num_sin_aula > 0:
+            print(f"  Total asignaturas sin aula: {num_sin_aula}")
+
+        return True
+
+    def _mostrar_resumen(self) -> None:
+        """Mostrar resumen de la asignación de aulas."""
+        print("\n" + "-" * 70)
+        print("RESUMEN FASE 3")
+        print("-" * 70)
+
+        if len(self.aulas_preferentes) == 0:
+            print("  ⚠ No se asignaron aulas preferentes\n")
+        else:
+            print(f"  ✓ ASIGNACIÓN EXITOSA")
+            print(f"  • Asignaturas con aula preferente: {len(self.aulas_preferentes)}")
+
+            # Estadísticas por aula
+            aulas_count = {}
+            for aula in self.aulas_preferentes.values():
+                aulas_count[aula] = aulas_count.get(aula, 0) + 1
+
+            print(f"  • Distribución de uso: {dict(sorted(aulas_count.items()))}\n")
+
+
+# ========= FASE 4: CREAR GRUPOS DE LABORATORIO =========
+class CreadorGruposLab:
+    """
+    Clase responsable de la FASE 4: Creación de grupos de laboratorio.
+
+    Realiza las siguientes operaciones:
+        4.1 - Por cada combinación en mapeo_fechas, crear 1 o + objetos GrupoLab
+        4.2 - Extraer franja horaria de horarios_grid
+        4.3 - Asignar aula y capacidad de aulas_preferentes
+        4.4 - Determinar si es slot_mixto
+        4.5 - Generar label único (A404-01, A404-02...)
+        4.6 - Agrupar por (dia, franja) para uso en FASE 7
+
+    Attributes:
+        cfg: Configuración completa
+        mapeo_fechas: Diccionario con fechas por letra (de FASE 2)
+        aulas_preferentes: Diccionario con aulas por asignatura (de FASE 3)
+        grupos_creados: Lista de objetos GrupoLab creados
+        grupos_por_slot: Diccionario agrupando grupos por (dia, franja)
+    """
+
+    def __init__(self, cfg: Dict, mapeo_fechas: Dict[Tuple[str, str, str, str, str], List[str]], aulas_preferentes: Dict[Tuple[str, str], str]):
+        """Inicializar el creador de grupos."""
+        self.cfg = cfg
+        self.mapeo_fechas = mapeo_fechas
+        self.aulas_preferentes = aulas_preferentes
+        self.grupos_creados: List[GrupoLab] = []
+        self.grupos_por_slot: Dict[Tuple[str, str], List[GrupoLab]] = {}
+        self.contador_labels: Dict[str, int] = {}  # Para generar labels únicos
+
+    def ejecutar(self) -> Tuple[bool, List[GrupoLab], Dict[Tuple[str, str], List[GrupoLab]]]:
+        """
+        Ejecutar la FASE 4 completa.
+
+        Returns:
+            Tupla con:
+                - bool: True si la creación fue exitosa
+                - List[GrupoLab]: Lista de grupos de laboratorio creados
+                - Dict: Grupos de Laboratorio agrupados por (día, franja)
+        """
+        print("\n" + "=" * 70)
+        print("FASE 4: CREAR GRUPOS DE LABORATORIO")
+        print("=" * 70)
+
+        # 4.1-4.6 - Crear grupos de laboratorio
+        if not self._crear_grupos_laboratorio():
+            return False, [], {}
+
+        # Resumen final
+        self._mostrar_resumen()
+
+        return True, self.grupos_creados, self.grupos_por_slot
+
+    def _normalizar_semestre(self, semestre) -> Optional[str]:
+        """
+        Normaliza cualquier representación de semestre a '1' o '2'.
+        Acepta: 1, 2, "1", "2", "1º Semestre", "2º Semestre",
+                "1 Semestre", "semestre_1", "semestre_2", "S1"/"S2", etc.
+        Returns:
+            String '1' o '2', o None si no se puede normalizar
+        """
+        if semestre is None:
+            return None
+        if isinstance(semestre, int):
+            return '1' if semestre == 1 else ('2' if semestre == 2 else None)
+        s_str = str(semestre).strip().lower()
+        if "2" in s_str:
+            return '2'
+        if "1" in s_str:
+            return '1'
+        return None
+
+    def _obtener_franjas_de_horarios_grid(self, semestre: str, asignatura: str,
+                                          grupo: str, dia: str, letra: str) -> Optional[List[str]]:
+        """
+        Buscar las franjas horarias en horarios_grid para un grupo específico.
+
+        Recorre el horarios_grid buscando todas las franjas donde:
+            - El grupo está en la lista de grupos
+            - La letra está en la lista de letras
+            - El día coincide
+
+        Args:
+            semestre: Semestre (ej: "1 Semestre")
+            asignatura: Código de asignatura (ej: "SII")
+            grupo: Código de grupo (ej: "A404")
+            dia: Día de la semana (ej: "Lunes")
+            letra: Letra de grupo laboratorio asignado (ej: "A")
+
+        Returns:
+            Lista de franjas horarias normalizadas (ej: ["09:30-11:30"]) o None si no se encuentra
+        """
+        horarios_data = self.cfg.get("configuracion", {}).get("horarios", {}).get("datos", {})
+
+        # Normalizar semestre de entrada
+        sem_norm = self._normalizar_semestre(semestre)
+        if sem_norm is None:
+            return None
+
+        # Buscar asignatura en el semestre correspondiente
+        asig_data = None
+        for sem_key, asigs in horarios_data.items():
+            if sem_norm not in sem_key:
+                continue
+            if asignatura in asigs:
+                asig_data = asigs[asignatura]
+                break
+
+        if not asig_data:
+            return None
+
+        horarios_grid = asig_data.get("horarios_grid", {})
+        if not isinstance(horarios_grid, dict) or not horarios_grid:
+            return None
+
+        # Recolectar todas las franjas donde aparece este grupo con esta letra en este día
+        franjas = []
+
+        for franja_raw, dias in horarios_grid.items():
+            info = dias.get(dia)
+            if not isinstance(info, dict):
+                continue
+
+            # Verificar que tenga la letra asignada
+            if letra not in info.get("letras", []):
+                continue
+
+            # Verificar que tenga el grupo asignado
+            grupos = info.get("grupos") or []
+            if grupo not in grupos:
+                continue
+
+            # Normalizar y agregar la franja
+            franja_norm = normalize_time_range(franja_raw)
+            franjas.append(franja_norm)
+
+        # Ordenar cronológicamente
+        # franjas = sorted(set(franjas), key=lambda x: time_start_minutes(x))
+
+        return franjas if franjas else None
+
+    def _determinar_slot_mixto(self, semestre: str, asignatura: str,
+                               grupo: str, dia: str, franja: str) -> bool:
+        """
+        Determinar si un slot (día + franja) contiene grupos simples Y dobles.
+
+        Un slot es mixto cuando en la misma franja y día conviven:
+            - Grupos de grado simple (ej: A404)
+            - Grupos de doble grado (ej: EE403)
+
+        Esta información está en el campo "mixta" del horarios_grid.
+
+        Args:
+            semestre: Semestre
+            asignatura: Código de asignatura
+            grupo: Código de grupo
+            dia: Día de la semana
+            franja: Franja horaria normalizada
+
+        Returns:
+            True si el slot es mixto, False en caso contrario
+        """
+        horarios_data = self.cfg.get("configuracion", {}).get("horarios", {}).get("datos", {})
+
+        # Buscar horarios para esta asignatura
+        for sem_key, asigs in horarios_data.items():
+            if asignatura not in asigs:
+                continue
+
+            horarios_grid = asigs[asignatura].get("horarios_grid", {})
+
+            # Buscar la franja específica
+            for franja_key, dias in horarios_grid.items():
+                if normalize_time_range(franja_key) != franja:
+                    continue
+
+                if dia not in dias:
+                    continue
+
+                info = dias[dia]
+                if not isinstance(info, dict):
+                    continue
+
+                # Verificar si está marcado como mixto
+                return bool(info.get("mixta", False))
+
+        return False
+
+    def _generar_label(self, grupo: str) -> str:
+        """
+        Generar label único para un grupo (ej: A404-01, A404-02...).
+
+        Utiliza un contador interno por código de grupo para generar
+        identificadores únicos secuenciales.
+
+        Args:
+            grupo: Código de grupo base (ej: "A404")
+
+        Returns:
+            Label único con formato GRUPO-NN
+        """
+        if grupo not in self.contador_labels:
+            self.contador_labels[grupo] = 0
+
+        self.contador_labels[grupo] += 1
+        numero = self.contador_labels[grupo]
+
+        return f"{grupo}-{numero:02d}"
+
+    def _obtener_capacidad_aula(self, nombre_aula: str) -> int:
+        """
+        Obtener la capacidad de un aula desde la configuración.
+
+        Args:
+            nombre_aula: Nombre del aula
+
+        Returns:
+            Capacidad del aula, o 0 si no se encuentra
+        """
+        aulas_data = self.cfg.get("configuracion", {}).get("aulas", {}).get("datos", {})
+
+        if nombre_aula in aulas_data:
+            return aulas_data[nombre_aula].get("capacidad", 0)
+
+        return 0
+
+    # new
+    def _buscar_grupo_doble_en_mixto(self, asignatura: str, dia: str, franja: str, grupo_simple: str) -> Optional[str]:
+        """
+        Buscar el grupo de doble grado asociado a un grupo simple en una franja mixta.
+
+        En las franjas mixtas, conviven grupos simples (A404) y dobles (EE403).
+        Esta función identifica cuál es el grupo doble que comparte la franja
+        con el grupo simple especificado.
+
+        Args:
+            asignatura: Código de asignatura (ej: "SII")
+            dia: Día de la semana (ej: "Lunes")
+            franja: Franja horaria (ej: "09:30-11:30")
+            grupo_simple: Código del grupo simple (ej: "A404")
+
+        Returns:
+            Código del grupo doble encontrado (ej: "EE403"), o None si no hay
+        """
+        horarios_data = self.cfg.get("configuracion", {}).get("horarios", {}).get("datos", {})
+
+        for _, asigs in horarios_data.items():
+            if asignatura not in asigs:
+                continue
+
+            horarios_grid = asigs[asignatura].get("horarios_grid", {})
+            if franja not in horarios_grid:
+                continue
+
+            info = horarios_grid[franja].get(dia)
+            if not isinstance(info, dict):
+                continue
+
+            # Solo consideramos franjas marcadas como mixta
+            if not bool(info.get("mixta", False)):
+                continue
+
+            grupos = info.get("grupos", [])
+            if grupo_simple not in grupos:
+                continue
+
+            # Devolver el primer grupo diferente al simple
+            for grupo in grupos:
+                if grupo != grupo_simple:
+                    return grupo
+
+        return None
+
+    def _crear_grupos_laboratorio(self) -> bool:
+        """
+        4.1-4.6 - Crear todos los grupos de laboratorio.
+
+        Por cada combinación en mapeo_fechas:
+            - Extraer datos de horarios_grid
+            - Obtener aula preferente y capacidad
+            - Determinar si es slot mixto
+            - Generar label único
+            - Crear objeto GrupoLab
+            - Agrupar por (dia, franja)
+
+        Returns:
+            True si la creación fue exitosa
+        """
+        print("\n[4.1-4.6] Creando grupos de laboratorio...")
+
+        if not self.mapeo_fechas:
+            print("  ⚠ No hay combinaciones en mapeo_fechas")
+            return False  # Error crítico
+
+        num_creados = 0
+        num_sin_franja = 0
+        num_sin_aula = 0
+
+        # Recorrer cada combinación en mapeo_fechas (ordenado por letra)
+        for (semestre, asignatura, grupo, dia, letra), fechas in sorted(self.mapeo_fechas.items(), key=lambda x: x[0][-1]):
+
+            # 4.2 - Obtener franja horaria desde horarios_grid
+            franjas = self._obtener_franjas_de_horarios_grid(semestre, asignatura, grupo, dia, letra)
+
+            if franjas is None:
+                print(f"  ⚠ {semestre}:{asignatura}:{grupo} - No se encontró franja para {dia}")
+                num_sin_franja += 1
+                continue
+
+            # Procesar cada franja encontrada (puede haber múltiples)
+            for franja in franjas:
+                # 4.3 - Obtener aula preferente asignada en FASE 3
+                aula_preferente = self.aulas_preferentes.get((semestre, asignatura))
+
+                if aula_preferente is None:
+                    print(f"  ⚠ {semestre}:{asignatura}:{grupo} - No hay aula preferente asignada")
+                    num_sin_aula += 1
+                    continue
+
+                # Obtener capacidad del aula
+                capacidad = self._obtener_capacidad_aula(aula_preferente)
+
+                # 4.4 - Determinar si es slot mixto
+                is_slot_mixto = self._determinar_slot_mixto(semestre, asignatura, grupo, dia, franja)
+
+                # 4.5 - Generar label único para este grupo de laboratorio
+                label = self._generar_label(grupo)
+
+                # Determinar tipo de grupo (simple/doble)
+                grupo_simple = ""
+                grupo_doble = None
+
+                if PAT_SIMPLE.match(grupo):
+                    grupo_simple = grupo
+
+                # Si es un slot mixto, buscar el grupo doble asociado
+                if is_slot_mixto:
+                    grupo_doble = self._buscar_grupo_doble_en_mixto(asignatura, dia, franja, grupo_simple)
+
+                # 4.1 - Crear objeto GrupoLab con toda la información recopilada
+                grupo_lab = GrupoLab(
+                    semestre=semestre,
+                    asignatura=asignatura,
+                    label=label,
+                    dia=dia,
+                    franja=franja,
+                    letra=letra,
+                    aula=aula_preferente,
+                    capacidad=capacidad,
+                    profesor="",  # Se asignará en FASE 6
+                    profesor_id=None,
+                    is_slot_mixto=is_slot_mixto,
+                    grupo_simple=grupo_simple,
+                    grupo_doble=grupo_doble,
+                    alumnos=[],  # Se asignará en FASE 5
+                    fechas=fechas
+                )
+
+                self.grupos_creados.append(grupo_lab)
+
+                # 4.6 - Agrupar por (dia, franja) para facilitar la FASE 7 (intercalado de fechas)
+                slot_key = (dia, franja)
+                if slot_key not in self.grupos_por_slot:
+                    self.grupos_por_slot[slot_key] = []
+                self.grupos_por_slot[slot_key].append(grupo_lab)
+
+                num_creados += 1
+
+                # Log informativo
+                mixto_str = f" [MIXTO con {grupo_doble}]" if is_slot_mixto else ""
+                print(f"  ✓ {label} | {semestre}:{asignatura} | {dia} {franja} | Letra {letra} | "
+                      f"{aula_preferente} (cap: {capacidad}){mixto_str}")
+
+        print(f"\n  Total grupos creados: {num_creados}")
+        if num_sin_franja > 0:
+            print(f"  ⚠ Grupos sin franja: {num_sin_franja}")
+        if num_sin_aula > 0:
+            print(f"  ⚠ Grupos sin aula: {num_sin_aula}")
+
+        return True
+
+    def _mostrar_resumen(self) -> None:
+        """Mostrar resumen de la creación de grupos."""
+        print("\n" + "-" * 70)
+        print("RESUMEN FASE 4")
+        print("-" * 70)
+
+        if len(self.grupos_creados) == 0:
+            print("  ⚠ No se crearon grupos de laboratorio\n")
+        else:
+            print(f"  ✓ CREACIÓN EXITOSA")
+            print(f"  • Grupos creados: {len(self.grupos_creados)}")
+            print(f"  • Slots únicos (dia, franja): {len(self.grupos_por_slot)}")
+
+            # Estadísticas por tipo
+            grupos_simples = sum(1 for g in self.grupos_creados if g.grupo_simple and not g.grupo_doble)
+            grupos_dobles = sum(1 for g in self.grupos_creados if g.grupo_doble)
+
+            print(f"  • Grupos simples: {grupos_simples}")
+            if grupos_dobles > 0:
+                print(f"  • Grupos dobles: {grupos_dobles}")
+
+            # Distribución por día
+            dias_count = {}
+            for grupo in self.grupos_creados:
+                dias_count[grupo.dia] = dias_count.get(grupo.dia, 0) + 1
+
+            print(
+                f"  • Distribución por día: {dict(sorted(dias_count.items(), key=lambda x: DAY_ORDER.get(x[0], 99)))}\n"
+            )
+
+
+# ========= MAIN - TESTING DE FASE 4/9 =========
 def main():
-    """Función principal para testing de las FASES 1 y 2."""
+    """Función principal para testing de las FASES 1, 2 y 3."""
 
     # Buscar configuración por defecto
     config_path = Path(__file__).resolve().parents[2] / "configuracion_labs.json"
@@ -862,7 +1450,7 @@ def main():
         sys.exit(1)
 
     # ===== FASE 1 =====
-    validador = DatosValidador(config_path)
+    validador = ValidadorDatos(config_path)
     exito_fase1, cfg, errores = validador.ejecutar()
 
     # Mostrar errores detallados si los hay
@@ -877,8 +1465,6 @@ def main():
             if error.detalle:
                 print(f"    Detalle: {error.detalle}")
 
-    # Resultado final
-    print("\n" + "=" * 70)
     # Si FASE 1 falla, detener
     if not exito_fase1:
         print("\n" + "=" * 70)
@@ -897,13 +1483,38 @@ def main():
         print("=" * 70)
         sys.exit(1)
 
+    # ===== FASE 3 =====
+    asignador_aulas = AsignadorAulaPreferente(cfg)
+    exito_fase3, aulas_preferentes = asignador_aulas.ejecutar()
+
+    # Si FASE 3 falla, detener
+    if not exito_fase3:
+        print("\n" + "=" * 70)
+        print("✗ FASE 3 FALLÓ")
+        print("=" * 70)
+        sys.exit(1)
+
+    # ===== FASE 4 =====
+    creador_grupos = CreadorGruposLab(cfg, mapeo_fechas, aulas_preferentes)
+    exito_fase4, grupos_creados, grupos_por_slot = creador_grupos.ejecutar()
+
+    # Si FASE 4 falla, detener
+    if not exito_fase4:
+        print("\n" + "=" * 70)
+        print("✗ FASE 4 FALLÓ")
+        print("=" * 70)
+        sys.exit(1)
+
     # ===== RESULTADO FINAL =====
     print("\n" + "=" * 70)
-    print("✓ FASES 1 Y 2 COMPLETADAS CON ÉXITO")
+    print("✓ FASES 1, 2, 3 Y 4 COMPLETADAS CON ÉXITO")
     print("=" * 70)
     print(f"\n  • Grupos validados: {len(validador.grupos_lab_posibles)}")
     print(f"  • Combinaciones de fechas: {len(mapeo_fechas)}")
-    print("\nEl sistema está listo para continuar con la FASE 3")
+    print(f"  • Aulas preferentes asignadas: {len(aulas_preferentes)}")
+    print(f"  • Grupos de laboratorio creados: {len(grupos_creados)}")
+    print(f"  • Slots únicos (dia, franja): {len(grupos_por_slot)}")
+    print("\nEl sistema está listo para continuar con la FASE 5")
     sys.exit(0)
 
 
