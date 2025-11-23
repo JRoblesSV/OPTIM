@@ -17,7 +17,7 @@ from PyQt6.QtGui import QPalette, QColor, QFont, QCursor
 from PyQt6.QtWidgets import (
     QApplication, QMainWindow, QWidget, QVBoxLayout,
     QLabel, QListWidget, QSplitter, QPushButton,
-    QTextEdit, QListWidgetItem
+    QTextEdit, QListWidgetItem, QGroupBox
 )
 
 
@@ -33,7 +33,7 @@ def center_window_on_screen(window, width, height) -> None:
 
         # Obtener información de la pantalla
         if screen:
-            screen_geometry = screen.availableGeometry()  # Considera la barra de tareas
+            screen_geometry = screen.availableGeometry()
 
             # Calcular posición centrada usando las dimensiones proporcionadas
             center_x = (screen_geometry.width() - width) // 2 + screen_geometry.x()
@@ -61,12 +61,12 @@ def apply_dark_palette(app: QApplication) -> None:
     palette = QPalette()
 
     # Definición de colores del tema oscuro OPTIM
-    base = QColor(30, 30, 30)
-    alt_base = QColor(45, 45, 45)
-    text = QColor(220, 220, 220)
-    disabled_text = QColor(127, 127, 127)
-    button = QColor(53, 53, 53)
-    highlight = QColor(42, 130, 218)
+    base = QColor(25, 25, 25)
+    alt_base = QColor(35, 35, 35)
+    text = QColor(210, 210, 210)
+    disabled_text = QColor(120, 120, 120)
+    button = QColor(45, 45, 45)
+    highlight = QColor(0, 120, 215)
 
     # Aplicación de colores a la paleta
     palette.setColor(QPalette.ColorRole.Window, base)
@@ -102,12 +102,11 @@ class ConfigurarParametrosWindow(QMainWindow):
             "No superar la capacidad máxima del aula",
             "Respetar franjas no disponibles de los profesores",
             "Respetar los días no disponibles de los profesores",
-            "Respetar los días no disponibles de las aulas",
-            "Paridad de grupos: todos pares; si el total es impar, solo un grupo impar"
+            "Respetar los días no disponibles de las aulas"
         ]
 
         self.restricciones_blandas = [
-            "Evitar que un alumno tenga dos asignaturas en la misma franja horaria",
+            "Paridad de grupos: intentar que todos los grupos sean pares"
             "Mantener tamaños de grupos equilibrados",
             "Favorecer el uso del aula preferente de la asignatura cuando sea posible",
             "Balancear la carga de grupos por profesor"
@@ -116,28 +115,27 @@ class ConfigurarParametrosWindow(QMainWindow):
         self.setup_ui()
 
         window_width = 800
-        window_height = 700
+        window_height = 600
         center_window_on_screen(self, window_width, window_height)
 
     def setup_ui(self) -> None:
         central = QWidget()
         layout = QVBoxLayout(central)
-        layout.setContentsMargins(15, 15, 15, 15)
-        layout.setSpacing(12)
+        layout.setContentsMargins(20, 15, 20, 15)
+        layout.setSpacing(15)
 
         # Título principal
-        titulo = QLabel("Parámetros del Motor de Organización")
+        titulo = QLabel("PARÁMETROS DEL MOTOR DE ORGANIZACIÓN")
         titulo.setStyleSheet("""
             QLabel {
-                color: rgb(42,130,218);
+                color: rgb(100,180,255);
                 font-size: 16px;
                 font-weight: bold;
-                padding: 10px;
-                border: 2px solid rgb(42,130,218);
-                border-radius: 8px;
-                background-color: rgb(35,35,35);
+                padding: 12px;
+                background-color: transparent;
             }
         """)
+        titulo.setAlignment(Qt.AlignmentFlag.AlignCenter)
         titulo.setAlignment(Qt.AlignmentFlag.AlignCenter)
         layout.addWidget(titulo)
 
@@ -160,10 +158,6 @@ class ConfigurarParametrosWindow(QMainWindow):
         )
         splitter.addWidget(panel_blandas)
 
-        # Panel de información adicional
-        panel_info = self.create_info_panel()
-        splitter.addWidget(panel_info)
-
         # Configurar proporciones del splitter
         splitter.setSizes([250, 250, 150])
         layout.addWidget(splitter)
@@ -173,50 +167,60 @@ class ConfigurarParametrosWindow(QMainWindow):
         btn_cerrar.clicked.connect(self.close)
         btn_cerrar.setStyleSheet("""
             QPushButton {
-                background-color: rgb(53,53,53);
-                color: white;
-                border: 1px solid rgb(127,127,127);
-                border-radius: 6px;
-                padding: 8px 20px;
+                background-color: rgb(50,50,50);
+                color: rgb(220,220,220);
+                border: 1px solid rgb(70,70,70);
+                border-radius: 5px;
+                padding: 10px 25px;
                 font-size: 11px;
                 font-weight: bold;
             }
             QPushButton:hover {
-                background-color: rgb(66,66,66);
-                border-color: rgb(42,130,218);
+                background-color: rgb(60,60,60);
+                border-color: rgb(100,180,255);
+            }
+            QPushButton:pressed {
+                background-color: rgb(70,70,70);
             }
         """)
         layout.addWidget(btn_cerrar, alignment=Qt.AlignmentFlag.AlignRight)
 
         self.setCentralWidget(central)
 
-    def create_restriction_panel(self, titulo: str, restricciones: List[str], descripcion: str) -> QWidget:
+    def create_restriction_panel(self, titulo: str, restricciones: List[str], descripcion: str) -> QGroupBox:
         """Crea un panel para mostrar un tipo de restricciones"""
-        panel = QWidget()
-        layout = QVBoxLayout(panel)
-        layout.setContentsMargins(8, 8, 8, 8)
-        layout.setSpacing(8)
+        from PyQt6.QtWidgets import QGroupBox
 
-        # Título del panel
-        label_titulo = QLabel(titulo)
-        label_titulo.setStyleSheet("""
-            QLabel {
-                font-size: 14px;
+        panel = QGroupBox(titulo)
+        panel.setStyleSheet("""
+            QGroupBox {
+                color: #ffffff;
+                border: 2px solid #4a4a4a;
+                border-radius: 5px;
+                margin-top: 10px;
+                padding-top: 10px;
                 font-weight: bold;
-                color: rgb(42,130,218);
-                padding: 5px;
+            }
+            QGroupBox::title {
+                subcontrol-origin: margin;
+                left: 10px;
+                padding: 0 5px 0 5px;
             }
         """)
-        layout.addWidget(label_titulo)
+
+        layout = QVBoxLayout()
+        layout.setContentsMargins(10, 15, 10, 10)
+        layout.setSpacing(8)
 
         # Descripción
         label_desc = QLabel(descripcion)
         label_desc.setStyleSheet("""
             QLabel {
-                font-size: 11px;
-                color: rgb(180,180,180);
-                padding: 3px;
+                font-size: 12px;
+                color: rgb(200,200,200);
+                padding: 5px 8px;
                 font-style: italic;
+                background-color: transparent;
             }
         """)
         label_desc.setWordWrap(True)
@@ -227,18 +231,22 @@ class ConfigurarParametrosWindow(QMainWindow):
         lista.setSelectionMode(QListWidget.SelectionMode.NoSelection)
         lista.setStyleSheet("""
             QListWidget {
-                background-color: rgb(42,42,42);
-                border: 1px solid rgb(127,127,127);
+                background-color: rgb(43,43,43);
+                border: 1px solid rgb(70,70,70);
                 border-radius: 4px;
-                padding: 5px;
+                padding: 10px;
             }
             QListWidget::item {
-                padding: 8px;
-                border-bottom: 1px solid rgb(60,60,60);
+                padding: 12px;
+                margin: 3px 0px;
                 color: rgb(220,220,220);
+                background-color: rgb(50,50,50);
+                border-radius: 4px;
+                border: none;
             }
-            QListWidget::item:last {
-                border-bottom: none;
+            QListWidget::item:hover {
+                background-color: rgb(60,60,60);
+                border-radius: 4px;
             }
         """)
 
@@ -249,56 +257,7 @@ class ConfigurarParametrosWindow(QMainWindow):
             lista.addItem(item)
 
         layout.addWidget(lista)
-        return panel
-
-    def create_info_panel(self) -> QWidget:
-        """Crea el panel de información adicional del sistema"""
-        panel = QWidget()
-        layout = QVBoxLayout(panel)
-        layout.setContentsMargins(8, 8, 8, 8)
-        layout.setSpacing(8)
-
-        # Título
-        label_titulo = QLabel("Información del Sistema")
-        label_titulo.setStyleSheet("""
-            QLabel {
-                font-size: 14px;
-                font-weight: bold;
-                color: rgb(42,130,218);
-                padding: 5px;
-            }
-        """)
-        layout.addWidget(label_titulo)
-
-        # Área de texto para información
-        info_text = QTextEdit()
-        info_text.setReadOnly(True)
-        info_text.setMaximumHeight(120)
-        info_text.setStyleSheet("""
-            QTextEdit {
-                background-color: rgb(35,35,35);
-                color: rgb(200,200,200);
-                border: 1px solid rgb(127,127,127);
-                border-radius: 4px;
-                padding: 8px;
-                font-family: 'Consolas', monospace;
-                font-size: 10px;
-            }
-        """)
-
-        # Contenido informativo
-        info_content = f"""Información Técnica:
-- Versión de parámetros: 1.0
-- Total restricciones duras: {len(self.restricciones_duras)}
-- Total restricciones blandas: {len(self.restricciones_blandas)}
-- Generado automáticamente: {datetime.now().strftime('%d/%m/%Y %H:%M')}
-
-Nota: Estas restricciones están definidas en el código fuente del sistema
-para garantizar consistencia entre ejecuciones y facilitar el mantenimiento."""
-
-        info_text.setPlainText(info_content)
-        layout.addWidget(info_text)
-
+        panel.setLayout(layout)
         return panel
 
 

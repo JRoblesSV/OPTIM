@@ -23,13 +23,14 @@ from PyQt6.QtWidgets import (
     QSizePolicy
 )
 from PyQt6.QtCore import Qt, QDate, pyqtSignal, QMimeData
-from PyQt6.QtGui import QFont, QPalette, QColor, QDrag, QPixmap, QIntValidator
+from PyQt6.QtGui import QFont, QPalette, QColor, QDrag, QPixmap, QIntValidator, QCursor
 
 
 def center_window_on_screen(window, width, height) -> None:
     """Centra la ventana en la pantalla"""
     try:
-        screen = QApplication.primaryScreen()
+        cursor_pos = QCursor.pos()
+        screen = QApplication.screenAt(cursor_pos)
         if screen:
             screen_geometry = screen.availableGeometry()
             center_x = (screen_geometry.width() - width) // 2 + screen_geometry.x()
@@ -53,7 +54,7 @@ def dir_downloads() -> str:
     return str(home)
 
 
-# ========= DIÁLOGO CONFIGURACIÓN DE DÍA =========
+# ========= Diálogo Configuración de Día =========
 class ConfiguracionDiaDialog(QDialog):
     """Mini-popup rápido para configurar un día"""
 
@@ -138,7 +139,8 @@ class ConfiguracionDiaDialog(QDialog):
 
     def center_on_screen(self) -> None:
         """Centrar ventana automáticamente en la pantalla"""
-        screen = QApplication.primaryScreen().availableGeometry()
+        cursor_pos = QCursor.pos()
+        screen = QApplication.screenAt(cursor_pos).availableGeometry()
         window_geometry = self.frameGeometry()
         center_point = screen.center()
         window_geometry.moveCenter(center_point)
@@ -281,7 +283,7 @@ class ConfiguracionDiaDialog(QDialog):
         """)
 
 
-# ========= WIDGET DE ZONA DE ARRASTRE (DROP ZONE) =========
+# ========= Widget de Zona de Arrastre (DROP ZONE) =========
 class DropZoneWidget(QLabel):
     """Widget que puede recibir drops para cambiar horarios"""
 
@@ -330,7 +332,7 @@ class DropZoneWidget(QLabel):
         self.setStyleSheet("border: 1px dashed #555; border-radius: 3px; background-color: #2b2b2b;")
 
 
-# ========= WIDGET REPRESENTATIVO DE DÍA =========
+# ========= Widget Representativo de día =========
 class DiaWidget(QFrame):
     """Widget para mostrar un día en el grid con botones de acción"""
 
@@ -595,7 +597,6 @@ class ConfigurarCalendarioWindow(QMainWindow):
 
         self.setup_ui()
         self.apply_dark_theme()
-        self.conectar_signals()
         self.cargar_datos_iniciales()
 
     # ========= CONFIGURACIÓN DE UI =========
@@ -606,17 +607,23 @@ class ConfigurarCalendarioWindow(QMainWindow):
         main_layout = QVBoxLayout()
         main_layout.setSpacing(10)
 
-        # Título principal
-        titulo = QLabel(f"CONFIGURACIÓN DE CALENDARIO ACADÉMICO | {self.datos_configuracion['anio_academico']}")
-        titulo.setStyleSheet("color: #4a9eff; font-weight: bold; font-size: 16px; margin-bottom: 10px;")
-        titulo.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        main_layout.addWidget(titulo)
+        # Título principal (anterior)
+        # titulo = QLabel(f"CONFIGURACIÓN DE CALENDARIO ACADÉMICO | {self.datos_configuracion['anio_academico']}")
+        # titulo.setStyleSheet("color: #4a9eff; font-weight: bold; font-size: 16px; margin-bottom: 10px;")
+        # titulo.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        # main_layout.addWidget(titulo)
 
-        # Información del anio académico
-        #self.anio_label = QLabel(f"📅 Año Académico: {self.datos_configuracion['anio_academico']}")
-        #self.anio_label.setStyleSheet("color: #cccccc; font-size: 12px; margin-bottom: 10px;")
-        #self.anio_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        #main_layout.addWidget(self.anio_label)
+        # Información del anio académico (sobra)
+        # self.anio_label = QLabel(f"Año Académico: {self.datos_configuracion['anio_academico']}")
+        # self.anio_label.setStyleSheet("color: #cccccc; font-size: 12px; margin-bottom: 10px;")
+        # self.anio_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        # main_layout.addWidget(self.anio_label)
+
+        # Título principal (evito error)
+        self.anio_label = QLabel(f"CONFIGURACIÓN DE CALENDARIO ACADÉMICO | {self.datos_configuracion['anio_academico']}")
+        self.anio_label.setStyleSheet("color: #4a9eff; font-weight: bold; font-size: 16px; margin-bottom: 10px;")
+        self.anio_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        main_layout.addWidget(self.anio_label)
 
         # Información de uso
         info_label = QLabel(
@@ -756,7 +763,7 @@ class ConfigurarCalendarioWindow(QMainWindow):
 
     def setup_calendarios_panel(self, parent_layout) -> None:
         """Panel izquierdo con calendarios clicables"""
-        left_panel = QGroupBox("📅 CALENDARIOS RÁPIDOS")
+        left_panel = QGroupBox("CALENDARIOS RÁPIDOS")
         left_layout = QVBoxLayout()
 
         # Control dinámico de anio académico
@@ -867,20 +874,20 @@ class ConfigurarCalendarioWindow(QMainWindow):
         leyenda_layout.addWidget(QLabel("⚪ Gris: Sin configurar"))
         leyenda_layout.addWidget(QLabel(""))
         leyenda_layout.addWidget(QLabel("💡 Arrastra días entre columnas"))
-        leyenda_layout.addWidget(QLabel("🖱️ Clic en calendario para añadir"))
+        leyenda_layout.addWidget(QLabel("💡 Clica en los dias del calendario para añadir"))
 
         leyenda_group.setLayout(leyenda_layout)
         left_layout.addWidget(leyenda_group)
 
         left_layout.addStretch()
         left_panel.setLayout(left_layout)
-        left_panel.setMaximumWidth(360)  # Aumentar de 350 a 450
-        left_panel.setMinimumWidth(350)  # Establecer ancho mínimo
+        left_panel.setMaximumWidth(360)
+        left_panel.setMinimumWidth(350)
         parent_layout.addWidget(left_panel)
 
     def setup_grids_panel(self, parent_layout) -> None:
         """Panel central con grids de días configurados"""
-        center_panel = QGroupBox("📋 DÍAS LECTIVOS CONFIGURADOS")
+        center_panel = QGroupBox("DÍAS LECTIVOS CONFIGURADOS")
         center_layout = QVBoxLayout()
 
         # Grid 1º semestre
@@ -912,11 +919,11 @@ class ConfigurarCalendarioWindow(QMainWindow):
         right_layout = QVBoxLayout()
 
         # Acciones rápidas
-        acciones_group = QGroupBox("🚀 ACCIONES RÁPIDAS")
+        acciones_group = QGroupBox("⚡ ACCIONES RÁPIDAS")
         acciones_layout = QVBoxLayout()
 
         self.btn_generar_calendario = QPushButton("Generar Calendario Automático")
-        self.btn_generar_calendario.setToolTip("Crear calendario académico básico automáticamente")
+        self.btn_generar_calendario.setToolTip("Crear calendario académico básico automáticamente (no real)")
         self.btn_generar_calendario.clicked.connect(self.generar_calendario_automatico)
         acciones_layout.addWidget(self.btn_generar_calendario)
 
@@ -1286,11 +1293,6 @@ class ConfigurarCalendarioWindow(QMainWindow):
             }
         """)
 
-    # ========= CONEXIÓN DE SEÑALES =========
-    def conectar_signals(self) -> None:
-        """Conectar señales"""
-        pass
-
     # ========= CARGA DE DATOS =========
     def cargar_datos_iniciales(self) -> None:
         """Cargar datos existentes al inicializar"""
@@ -1336,9 +1338,9 @@ class ConfigurarCalendarioWindow(QMainWindow):
             if total_dias > 0:
                 respuesta = QMessageBox.question(
                     self, "Cambiar Año Académico",
-                    f"🗓️ CAMBIAR AÑO ACADÉMICO\n\n"
-                    f"Año actual: {self.anio_academico}-{self.anio_academico + 1}\n"
-                    f"Año nuevo: {nuevo_anio}-{nuevo_anio + 1}\n\n"
+                    f"Cambio del año académico:\n"
+                    f"   • Año actual: {self.anio_academico}-{self.anio_academico + 1}\n"
+                    f"   • Año nuevo: {nuevo_anio}-{nuevo_anio + 1}\n\n"
                     f"⚠️ Hay {total_dias} días configurados actualmente.\n\n"
                     f"Al cambiar el año académico se perderán todos los días\n"
                     f"configurados y se reiniciará la configuración.\n\n"
@@ -1360,7 +1362,7 @@ class ConfigurarCalendarioWindow(QMainWindow):
             self.datos_configuracion["semestre_2"].clear()
 
             # Actualizar label de anio académico
-            self.anio_label.setText(f"📅 Año Académico: {self.datos_configuracion['anio_academico']}")
+            self.anio_label.setText(f"Año Académico: {self.datos_configuracion['anio_academico']}")
 
             # Actualizar rangos de calendarios
             self.actualizar_rangos_calendarios()
@@ -1376,10 +1378,9 @@ class ConfigurarCalendarioWindow(QMainWindow):
 
             QMessageBox.information(
                 self, "Año Actualizado",
-                f"✅ Año académico actualizado exitosamente\n\n"
-                f"Nuevo período: {nuevo_anio}-{nuevo_anio + 1}\n\n"
-                f"📝 Los calendarios han sido actualizados\n"
-                f"con las nuevas fechas disponibles."
+                f"Año académico actualizado exitosamente\n"
+                f"  • Nuevo período: {nuevo_anio}-{nuevo_anio + 1}\n\n"
+                f"Calendarios actualizados con las nuevas fechas."
             )
 
         except ValueError:
@@ -1424,9 +1425,9 @@ class ConfigurarCalendarioWindow(QMainWindow):
             if total_dias > 0:
                 respuesta = QMessageBox.question(
                     self, "Cambiar Límite de Semanas",
-                    f"🗓️ CAMBIAR LÍMITE DE SEMANAS\n\n"
-                    f"Límite actual: {self.limite_semanas} semanas\n"
-                    f"Límite nuevo: {nuevo_limite} semanas\n\n"
+                    f"CAMBIAR LÍMITE DE SEMANAS\n\n"
+                    f"  • Límite actual: {self.limite_semanas} semanas\n"
+                    f"  • Límite nuevo: {nuevo_limite} semanas\n\n"
                     f"⚠️ Hay {total_dias} días configurados actualmente.\n\n"
                     f"Al cambiar el límite se regenerarán los grids\n"
                     f"para mostrar la nueva configuración correctamente.\n\n"
@@ -1469,9 +1470,9 @@ class ConfigurarCalendarioWindow(QMainWindow):
             QMessageBox.information(
                 self, "Límite Actualizado",
                 f"✅ Límite de semanas actualizado exitosamente\n\n"
-                f"Nuevo límite: {nuevo_limite} semanas por horario\n\n"
+                f"  • Nuevo límite: {nuevo_limite} semanas por horario\n\n"
                 f"{estado_msg}\n\n"
-                f"💡 Usa 'Verificar Equilibrio' para análisis detallado."
+                f"💡 Tip: Pulsa 'Verificar Equilibrio' para análisis detallado."
             )
 
         except ValueError:
@@ -1617,7 +1618,7 @@ class ConfigurarCalendarioWindow(QMainWindow):
                 texto_1 += f" ({', '.join(detalles_1)})"
 
         if columnas_exceso_1:
-            texto_1 += f"\n🚨 EXCESO: {', '.join(columnas_exceso_1)}"
+            texto_1 += f"\n⚠️ EXCESO: {', '.join(columnas_exceso_1)}"
 
         texto_2 = f"Total: {total_2} días"
         if total_2 > 0:
@@ -1632,7 +1633,7 @@ class ConfigurarCalendarioWindow(QMainWindow):
                 texto_2 += f" ({', '.join(detalles_2)})"
 
         if columnas_exceso_2:
-            texto_2 += f"\n🚨 EXCESO: {', '.join(columnas_exceso_2)}"
+            texto_2 += f"\n⚠️ EXCESO: {', '.join(columnas_exceso_2)}"
 
         self.label_contador_1.setText(texto_1)
         self.label_contador_1.setStyleSheet(f"color: {color_1}; font-size: 10px; font-weight: bold;")
@@ -1890,22 +1891,22 @@ class ConfigurarCalendarioWindow(QMainWindow):
 
         if count > self.limite_semanas:
             QMessageBox.warning(
-                self, "⚠️ Límite Excedido",
-                f"🚨 LÍMITE SUPERADO\n\n"
+                self, "Límite Excedido",
+                f"LÍMITE SUPERADO\n\n"
                 f"Columna \"{horario_asignado}\" en {sem_nombre} semestre:\n"
-                f"📊 Días actuales: {count}\n"
-                f"📋 Límite configurado: {self.limite_semanas} días\n"
-                f"📈 Exceso: {count - self.limite_semanas} días\n\n"
-                f"⚠️ Esto puede causar sobrecarga en ese horario.\n"
+                f"• Días actuales: {count}\n"
+                f"• Límite configurado: {self.limite_semanas} días\n"
+                f"• Exceso: {count - self.limite_semanas} días\n\n"
+                f"Esto puede causar sobrecarga en ese horario.\n"
                 f"Considera redistribuir algunos días a otras columnas."
             )
         elif count == self.limite_semanas:
             QMessageBox.information(
-                self, "✅ Límite Alcanzado",
-                f"🎯 LÍMITE PERFECTO\n\n"
+                self, "Límite Alcanzado",
+                f"LÍMITE PERFECTO\n\n"
                 f"Columna \"{horario_asignado}\" en {sem_nombre} semestre:\n"
-                f"📊 Días actuales: {count}\n"
-                f"📋 Límite configurado: {self.limite_semanas} días\n\n"
+                f"• Días actuales: {count}\n"
+                f"• Límite configurado: {self.limite_semanas} días\n\n"
                 f"✅ Has alcanzado exactamente el límite configurado.\n"
                 f"💡 Evita añadir más días a esta columna."
             )
@@ -1927,39 +1928,39 @@ class ConfigurarCalendarioWindow(QMainWindow):
             for horario, count in conteo_horarios.items():
                 if count > self.limite_semanas:
                     problemas_encontrados.append(
-                        f"🚨 {sem_nombre} semestre - {horario}: {count} días (excede límite por {count - self.limite_semanas})"
+                        f"{sem_nombre} semestre - {horario}: {count} días (excede límite por {count - self.limite_semanas})"
                     )
                 elif count < self.limite_semanas and count > 0:
                     problemas_encontrados.append(
-                        f"⚠️ {sem_nombre} semestre - {horario}: {count} días (faltan {self.limite_semanas - count} para límite)"
+                        f"{sem_nombre} semestre - {horario}: {count} días (faltan {self.limite_semanas - count} para límite)"
                     )
                 elif count == 0:
                     problemas_encontrados.append(
-                        f"❌ {sem_nombre} semestre - {horario}: 0 días (columna vacía)"
+                        f"{sem_nombre} semestre - {horario}: 0 días (columna vacía)"
                     )
 
         if problemas_encontrados:
-            mensaje = "📊 ANÁLISIS DE EQUILIBRIO DE HORARIOS\n\n"
+            mensaje = ""
+            #mensaje += "ANÁLISIS DE EQUILIBRIO DE HORARIOS\n\n"
             mensaje += "Se detectaron los siguientes desequilibrios:\n\n"
 
             for i, problema in enumerate(problemas_encontrados, 1):
                 mensaje += f"{i}. {problema}\n"
 
             mensaje += f"\n💡 RECOMENDACIONES:\n"
-            mensaje += f"• Ideal: {self.limite_semanas} días por horario\n"
-            mensaje += f"• Redistribuye días entre columnas usando drag & drop\n"
-            mensaje += f"• Usa 'Generar Calendario Automático' para equilibrio perfecto"
+            mensaje += f"   • Ideal: {self.limite_semanas} días por horario\n"
+            mensaje += f"   • Redistribuye días entre columnas usando drag & drop\n"
+            mensaje += f"   • Pulsa 'Generar Calendario Automático' como ayuda inicial"
 
             QMessageBox.warning(self, "Desequilibrio de Horarios", mensaje)
             return False
         else:
             if mostrar_si_todo_ok:
                 QMessageBox.information(
-                    self, "✅ Equilibrio Perfecto",
-                    f"🎯 CONFIGURACIÓN IDEAL\n\n"
-                    f"✅ Todos los horarios tienen exactamente {self.limite_semanas} días\n"
-                    f"✅ Distribución perfectamente equilibrada\n\n"
-                    f"🎉 ¡Excelente configuración!"
+                    self, "Equilibrio Perfecto",
+                    f"CONFIGURACIÓN IDEAL\n\n"
+                    f"• Todos los horarios tienen exactamente {self.limite_semanas} días\n"
+                    f"• Distribución perfectamente equilibrada\n"
                 )
             return True
 
@@ -2084,10 +2085,10 @@ class ConfigurarCalendarioWindow(QMainWindow):
             respuesta = QMessageBox.question(
                 self, "Guardar y Cerrar",
                 f"¿Guardar configuración en el sistema y cerrar?\n\n"
-                f"📊 Resumen:\n"
-                f"• 1º Semestre: {len(self.datos_configuracion['semestre_1'])} días\n"
-                f"• 2º Semestre: {len(self.datos_configuracion['semestre_2'])} días\n"
-                f"• Total: {total_dias} días lectivos\n\n"
+                f"Resumen:\n"
+                f"  • 1º Semestre: {len(self.datos_configuracion['semestre_1'])} días\n"
+                f"  • 2º Semestre: {len(self.datos_configuracion['semestre_2'])} días\n"
+                f"  • Total: {total_dias} días lectivos\n\n"
                 f"La configuración se integrará con OPTIM y la ventana se cerrará.",
                 QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No
             )
@@ -2179,24 +2180,24 @@ class ConfigurarCalendarioWindow(QMainWindow):
 
             # Mensaje personalizado según el equilibrio
             if equilibrio_perfecto:
-                icono_equilibrio = "🎯"
-                estado_equilibrio = "¡Equilibrio perfecto logrado!"
+                icono_equilibrio = "✅"
+                estado_equilibrio = "Equilibrio perfecto logrado"
             else:
                 icono_equilibrio = "⚠️"
                 estado_equilibrio = "Revisa el equilibrio de horarios"
 
             QMessageBox.information(
                 self, "Calendario Generado",
-                f"✅ Calendario automático generado\n\n"
-                f"Total días lectivos: {total_generados}\n\n"
+                f"Calendario automático generado\n\n"
+                f"  • Total días lectivos: {total_generados}\n\n"
                 f"1º Semestre: {total_1} días\n"
-                f"   Inicio: {primer_lunes_sept.strftime('%d/%m/%Y')}\n"
-                f"   {detalles_1}\n\n"
+                f"   • Inicio: {primer_lunes_sept.strftime('%d/%m/%Y')}\n"
+                f"   • {detalles_1}\n\n"
                 f"2º Semestre: {total_2} días\n"
-                f"   Inicio: {primer_lunes_feb.strftime('%d/%m/%Y')}\n"
-                f"   {detalles_2}\n\n"
+                f"   • Inicio: {primer_lunes_feb.strftime('%d/%m/%Y')}\n"
+                f"   • {detalles_2}\n\n"
                 f"{icono_equilibrio} {estado_equilibrio}\n"
-                f"💡 Referencia: 14 días por horario"
+                # f"💡 Referencia: 14 días por horario"
             )
 
         except Exception as e:
@@ -2208,13 +2209,10 @@ class ConfigurarCalendarioWindow(QMainWindow):
         conteo_por_horario = {"Lunes": 0, "Martes": 0, "Miércoles": 0, "Jueves": 0, "Viernes": 0}
 
         festivos = [
-            (10, 12),  # Día del Pilar
-            (11, 1),  # Todos los Santos
             (12, 6),  # Constitución
-            (12, 8),  # Inmaculada
             (12, 25),  # Navidad
             (1, 1),  # Año Nuevo
-            (1, 6),  # Reyes
+            (1, 6)  # Reyes
         ]
 
         while fecha_actual <= fecha_fin:
@@ -2503,7 +2501,7 @@ class ConfigurarCalendarioWindow(QMainWindow):
             self, "Cambios sin Guardar",
             "Hay cambios sin guardar en la configuración.\n\n"
             "¿Cerrar sin guardar?\n\n"
-            "💡 Tip: Usa 'Guardar en Sistema' para conservar los cambios.",
+            "💡 Tip: Pulsa 'Guardar en Sistema' para conservar los cambios.",
             QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
             QMessageBox.StandardButton.No
         )
@@ -2555,7 +2553,8 @@ class ConfigurarCalendarioWindow(QMainWindow):
         super().showEvent(event)
 
         # Obtener geometría de la pantalla
-        screen = QApplication.primaryScreen()
+        cursor_pos = QCursor.pos()
+        screen = QApplication.screenAt(cursor_pos)
         if screen:
             screen_geometry = screen.availableGeometry()
             window_geometry = self.frameGeometry()
@@ -2572,6 +2571,7 @@ class ConfigurarCalendarioWindow(QMainWindow):
             self.move(center_x, center_y)
 
 
+# ========= main =========
 def main():
     """Función principal para testing"""
     app = QApplication(sys.argv)

@@ -718,7 +718,8 @@ class ConfigurarGruposWindow(QMainWindow):
             "grupos_eliminados": [],
             "profesores_eliminados": [],
             "aulas_eliminadas": [],
-            "asignaturas_eliminadas": []
+            "asignaturas_eliminadas": [],
+            "grupos_actualizados": []
         }
 
         # Estructura de datos principal
@@ -750,6 +751,9 @@ class ConfigurarGruposWindow(QMainWindow):
 
             # Mostrar resumen
             total_grupos = len(self.datos_configuracion)
+
+            # Actualizar estadísticas
+            self.update_estadisticas()
 
             if total_grupos > 0:
                 self.log_mensaje(
@@ -826,19 +830,19 @@ class ConfigurarGruposWindow(QMainWindow):
         titulo.setAlignment(Qt.AlignmentFlag.AlignCenter)
         main_layout.addWidget(titulo)
 
-        # Información del flujo
-        info_label = QLabel(
-            "ℹ️ Define los grupos académicos, coordinadores y asignaturas asociadas. Las estadísticas se actualizan desde los alumnos matriculados.")
-        info_label.setStyleSheet("color: #cccccc; font-size: 11px; margin-bottom: 10px;")
-        info_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        main_layout.addWidget(info_label)
-
         # Contenido principal en tres columnas
         content_layout = QHBoxLayout()
 
         # Columna izquierda - Lista de grupos
-        left_panel = QGroupBox("📋 GRUPOS CONFIGURADOS")
+        left_panel = QGroupBox("GRUPOS CONFIGURADOS")
         left_layout = QVBoxLayout()
+
+        # Información del flujo
+        info_label = QLabel("Gestiona la estructura de grupos académicos y "
+                            "su asociación con las asignaturas correspondientes.")
+        info_label.setStyleSheet("color: #cccccc; font-size: 11px; margin-bottom: 10px;")
+        info_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        main_layout.addWidget(info_label)
 
         # Header con botones de gestión
         grupos_header = QHBoxLayout()
@@ -848,7 +852,7 @@ class ConfigurarGruposWindow(QMainWindow):
         btn_add_grupo = self.crear_boton_accion("➕", "#4CAF50", "Añadir nuevo grupo")
         btn_add_grupo.clicked.connect(self.add_grupo)
 
-        btn_edit_grupo = self.crear_boton_accion("✏️", "#2196F3", "Editar grupo seleccionado")
+        btn_edit_grupo = self.crear_boton_accion("✏️", "#a8af4c", "Editar grupo seleccionado")
         btn_edit_grupo.clicked.connect(self.edit_grupo_seleccionado)
 
         btn_delete_grupo = self.crear_boton_accion("🗑️", "#f44336", "Eliminar grupo seleccionado")
@@ -870,7 +874,7 @@ class ConfigurarGruposWindow(QMainWindow):
         content_layout.addWidget(left_panel)
 
         # Columna central - Detalles del grupo
-        center_panel = QGroupBox("🔍 DETALLES DEL GRUPO")
+        center_panel = QGroupBox("DETALLES DEL GRUPO")
         center_layout = QVBoxLayout()
         center_layout.setSpacing(8)
 
@@ -887,21 +891,23 @@ class ConfigurarGruposWindow(QMainWindow):
         center_layout.addWidget(self.info_grupo)
 
         # Estadísticas automáticas
-        stats_group = QGroupBox("📊 ESTADÍSTICAS AUTOMÁTICAS")
+        stats_group = QGroupBox("ESTADÍSTICAS")
         stats_layout = QVBoxLayout()
         stats_layout.setSpacing(5)
 
         botones_stats_layout = QHBoxLayout()
         self.btn_calcular_ocupacion = QPushButton("Actualizar Estadísticas")
+        self.btn_calcular_ocupacion.setMaximumWidth(200)
         self.btn_calcular_ocupacion.clicked.connect(self.update_estadisticas)
         botones_stats_layout.addWidget(self.btn_calcular_ocupacion)
+        botones_stats_layout.addStretch()
 
         stats_layout.addLayout(botones_stats_layout)
 
         self.texto_stats = QTextEdit()
         self.texto_stats.setMaximumHeight(150)
         self.texto_stats.setReadOnly(True)
-        self.texto_stats.setText("📈 Presiona 'Actualizar desde Alumnos' para ver estadísticas")
+        self.texto_stats.setText("Presiona 'Actualizar Estadísticas' para ver estadísticas")
         stats_layout.addWidget(self.texto_stats)
 
         stats_group.setLayout(stats_layout)
@@ -915,7 +921,7 @@ class ConfigurarGruposWindow(QMainWindow):
         right_layout = QVBoxLayout()
 
         # Acciones rápidas
-        acciones_group = QGroupBox("🚀 ACCIONES RÁPIDAS")
+        acciones_group = QGroupBox("⚡ ACCIONES RÁPIDAS")
         acciones_layout = QVBoxLayout()
 
         self.btn_duplicar = QPushButton("Duplicar Grupo Seleccionado")
@@ -948,7 +954,7 @@ class ConfigurarGruposWindow(QMainWindow):
         exportar_layout.addWidget(self.btn_exportar_datos)
 
         self.btn__export_estadisticas = QPushButton("Exportar Estadísticas")
-        self.btn_exportar_datos.setToolTip("Exportar Estadisticas en TXT")
+        self.btn_exportar_datos.setToolTip("Exportar configuración a JSON")
         self.btn__export_estadisticas.clicked.connect(self.export_estadisticas)
         exportar_layout.addWidget(self.btn__export_estadisticas)
 
@@ -1137,7 +1143,7 @@ class ConfigurarGruposWindow(QMainWindow):
         self.list_grupos.clear()
 
         if not self.datos_configuracion:
-            item = QListWidgetItem("📭 No hay grupos configurados")
+            item = QListWidgetItem("⚠️ No hay grupos configurados")
             item.setFlags(Qt.ItemFlag.NoItemFlags)
             self.list_grupos.addItem(item)
             return
@@ -1186,31 +1192,30 @@ class ConfigurarGruposWindow(QMainWindow):
         self.label_grupo_actual.setText(f"{codigo} - {nombre}")
 
         # Mostrar información detallada
-        info = f"🎓 GRUPO: {codigo} - {nombre}\n\n"
-        info += f"Grupo Actual: {datos.get('grupo_actual', 'No definido')}\n"
-        info += f"Coordinador: {datos.get('coordinador', 'No definido')}\n"
-        info += f"Departamento: {datos.get('departamento', 'No definido')}\n"
-        info += f"Horario: {datos.get('horario_tipo', 'No definido')}\n"
-        info += f"Estado: {'Activo' if datos.get('activo', True) else 'Inactivo'}\n\n"
+        info =  f"GRUPO: {codigo} - {nombre}\n"
+        info += f"  • Coordinador: {datos.get('coordinador', 'No definido')}\n"
+        info += f"  • Departamento: {datos.get('departamento', 'No definido')}\n"
+        info += f"  • Horario: {datos.get('horario_tipo', 'No definido')}\n"
+        info += f"  • Estado: {'Activo' if datos.get('activo', True) else 'Inactivo'}\n\n"
 
         # Configuración académica
-        info += f"📊 CONFIGURACIÓN ACADÉMICA:\n"
-        info += f"• Créditos totales: {datos.get('creditos_totales', 'No definido')} ECTS\n"
-        info += f"• Plazas disponibles: {datos.get('plazas', 'No definido')}\n"
-        info += f"• Estudiantes matriculados: {datos.get('estudiantes_matriculados', 'No definido')}\n"
+        info += f"CONFIGURACIÓN ACADÉMICA:\n"
+        info += f"  • Créditos totales: {datos.get('creditos_totales', 'No definido')} ECTS\n"
+        info += f"  • Plazas disponibles: {datos.get('plazas', 'No definido')}\n"
+        info += f"  • Estudiantes matriculados: {datos.get('estudiantes_matriculados', 'No definido')}\n"
 
         # Calcular ocupación
         plazas = datos.get('plazas', 0)
         matriculados = datos.get('estudiantes_matriculados', 0)
         if plazas > 0:
             ocupacion = (matriculados / plazas) * 100
-            info += f"• Ocupación: {ocupacion:.1f}%\n"
+            info += f"  • Ocupación: {ocupacion:.1f}%\n"
         info += "\n"
 
         # Asignaturas asociadas
         asignaturas = datos.get('asignaturas_asociadas', [])
         if asignaturas:
-            info += f"📚 ASIGNATURAS ASOCIADAS ({len(asignaturas)}):\n"
+            info += f"ASIGNATURAS ASOCIADAS ({len(asignaturas)}):\n"
             for asignatura in asignaturas:
                 # Buscar nombre de la asignatura
                 nombre_asignatura = asignatura
@@ -1218,22 +1223,22 @@ class ConfigurarGruposWindow(QMainWindow):
                     nombre_asignatura = self.asignaturas_disponibles[asignatura].get('nombre', asignatura)
                 info += f"  • {asignatura} - {nombre_asignatura}\n"
         else:
-            info += f"📚 ASIGNATURAS: Sin asignaturas asociadas\n"
+            info += f"• ASIGNATURAS: Sin asignaturas asociadas\n"
         info += "\n"
 
         # Observaciones
         observaciones = datos.get('observaciones', '')
         if observaciones:
-            info += f"📝 OBSERVACIONES:\n{observaciones}\n\n"
+            info += f"OBSERVACIONES:\n  • {observaciones}\n\n"
 
         # Fechas
         fecha_creacion = datos.get('fecha_creacion', '')
         if fecha_creacion:
             try:
                 fecha = datetime.fromisoformat(fecha_creacion.replace('Z', '+00:00')).strftime("%d/%m/%Y %H:%M")
-                info += f"📅 Creado: {fecha}"
+                info += f"Creado: {fecha}"
             except:
-                info += f"📅 Creado: {fecha_creacion}"
+                info += f"Creado: {fecha_creacion}"
 
         self.info_grupo.setText(info)
 
@@ -1330,9 +1335,26 @@ class ConfigurarGruposWindow(QMainWindow):
 
             # EDICIÓN EN CASCADA: Si cambió el código, aplicar cambios
             if codigo_nuevo != codigo_original:
-                self.edit_grupo_en_cascada(codigo_original, codigo_nuevo)
+                # Verificar si ya está marcado
+                actualizacion_existente = None
+                for act in self.cambios_pendientes["grupos_actualizados"]:
+                    if act["codigo_original"] == codigo_original:
+                        actualizacion_existente = act
+                        break
 
-            # SINCRONIZACIÓN: Aplicar cambios de asignaturas
+                if actualizacion_existente:
+                    # Actualizar el registro existente
+                    actualizacion_existente["codigo_nuevo"] = codigo_nuevo
+                    actualizacion_existente["datos"] = datos_nuevos
+                else:
+                    # Agregar nueva actualización pendiente
+                    self.cambios_pendientes["grupos_actualizados"].append({
+                        "codigo_original": codigo_original,
+                        "codigo_nuevo": codigo_nuevo,
+                        "datos": datos_nuevos
+                    })
+
+            # SINCRONIZACIÓN: Aplicar cambios de asignaturas (solo local por ahora)
             if asignaturas_add or asignaturas_delete:
                 self.sync_con_asignaturas(codigo_nuevo, asignaturas_add, asignaturas_delete)
 
@@ -1464,11 +1486,11 @@ class ConfigurarGruposWindow(QMainWindow):
             total_estudiantes += datos.get('estudiantes_matriculados', 0)
 
         mensaje = f"¿Está seguro de eliminar TODOS los grupos configurados?\n\n"
-        mensaje += f"📊 IMPACTO TOTAL:\n"
-        mensaje += f"• {total_grupos} grupos serán eliminados\n"
-        mensaje += f"• {len(asignaturas_afectadas)} asignaturas serán afectadas\n"
-        mensaje += f"• {total_estudiantes} estudiantes matriculados afectados\n"
-        mensaje += f"• Todas las referencias en profesores, alumnos, horarios y aulas\n\n"
+        mensaje += f"IMPACTO TOTAL:\n"
+        mensaje += f"   • {total_grupos} grupos serán eliminados\n"
+        mensaje += f"   • {len(asignaturas_afectadas)} asignaturas serán afectadas\n"
+        mensaje += f"   • {total_estudiantes} estudiantes matriculados afectados\n"
+        mensaje += f"   • Todas las referencias en profesores, alumnos, horarios y aulas\n\n"
         mensaje += f"⚠️ Esta acción marcará TODOS los grupos para eliminación.\n"
         mensaje += f"La eliminación se aplicará al guardar en el sistema.\n\n"
         mensaje += f"Esta acción no se puede deshacer."
@@ -1543,12 +1565,7 @@ class ConfigurarGruposWindow(QMainWindow):
             self.log_mensaje(f"Error en edición completa de grupo {codigo_original}: {e}", "error")
 
     def edit_grupo_en_asignaturas_sistema(self, codigo_original, codigo_nuevo, asignaturas_asociadas) -> None:
-        """Renombra el código de grupo en el módulo de asignaturas.
-
-        Criterios:
-          - `grupos_asociados` es dict -> renombrar clave `codigo_original` a `codigo_nuevo`.
-          - Se conserva el payload asociado a la clave (dict existente o se crea vacío).
-        """
+        """Renombra el código de grupo en el módulo de asignaturas"""
         try:
             config_asignaturas = self.parent_window.configuracion["configuracion"].get("asignaturas", {})
             if not config_asignaturas.get("configurado") or not config_asignaturas.get("datos"):
@@ -1632,11 +1649,10 @@ class ConfigurarGruposWindow(QMainWindow):
                     for asignatura_codigo, asignatura_data in asignaturas_semestre.items():
 
                         # Editar en grupos principales
-                        grupos = asignatura_data.get("grupos", [])
-                        if codigo_original in grupos:
-                            indice = grupos.index(codigo_original)
-                            grupos[indice] = codigo_nuevo
-                            asignatura_data["grupos"] = grupos
+                        grupos = asignatura_data.get("grupos", {})
+                        if isinstance(grupos, dict) and codigo_original in grupos:
+                            # Mover la configuración del grupo antiguo al nuevo código
+                            grupos[codigo_nuevo] = grupos.pop(codigo_original)
                             cambios_realizados = True
                             self.log_mensaje(
                                 f"Grupo {codigo_original} → {codigo_nuevo} editado en {asignatura_codigo}.grupos",
@@ -1647,11 +1663,17 @@ class ConfigurarGruposWindow(QMainWindow):
 
                         for franja, dias_data in horarios_grid.items():
                             # Procesar cada día de la franja
-                            for dia, lista_grupos in dias_data.items():
-                                if isinstance(lista_grupos, list) and codigo_original in lista_grupos:
-                                    # Reemplazar código antiguo por nuevo
-                                    indice = lista_grupos.index(codigo_original)
-                                    lista_grupos[indice] = codigo_nuevo
+                            for dia, celda in dias_data.items():
+                                if not isinstance(celda, dict):
+                                    continue
+
+                                grupos = celda.get("grupos", [])
+
+                                if isinstance(grupos, list) and codigo_original in grupos:
+                                    celda["grupos"] = [
+                                        codigo_nuevo if g == codigo_original else g
+                                        for g in grupos
+                                    ]
                                     cambios_realizados = True
                                     self.log_mensaje(
                                         f"Grupo {codigo_original} → {codigo_nuevo} editado en {asignatura_codigo}.{franja}.{dia}",
@@ -1668,21 +1690,7 @@ class ConfigurarGruposWindow(QMainWindow):
 
     def edit_grupo_en_franjas_horario(self, codigo_original, codigo_nuevo, asignaturas_asociadas=None,
                                       semestres=None) -> None:
-        """Renombra el código de grupo en todas las franjas del horarios_grid.
-
-        Parámetros:
-            codigo_original (str): código de grupo actual en las franjas (p. ej., "A408").
-            codigo_nuevo (str): nuevo código de grupo a aplicar (p. ej., "A409").
-            asignaturas_asociadas (list[str] | None): limitar la actualización a estas asignaturas.
-                Si None, se intentará aplicar a todas las asignaturas presentes en los horarios.
-            semestres (list[str] | None): limitar a semestres concretos (p. ej., ["1", "2"]).
-                Si None, se detectan automáticamente a partir de la configuración.
-
-        Comportamiento:
-            - Recorre horarios_grid de cada asignatura/semestre y reemplaza codigo_original por codigo_nuevo
-              en todas las listas de grupos por franja y día.
-            - No crea nuevas franjas ni altera el orden de las listas, únicamente sustituye el literal del grupo.
-        """
+        """Renombra el código de grupo en todas las franjas del horarios_grid"""
         try:
             cfg = self.parent_window.configuracion.get("configuracion", {})
             horarios = cfg.get("horarios", {})
@@ -1760,6 +1768,30 @@ class ConfigurarGruposWindow(QMainWindow):
 
         except Exception as e:
             self.log_mensaje(f"Error editando grupo en grupos: {e}", "warning")
+
+    def commit_pending_actualizaciones(self) -> None:
+        """Aplicar todas las actualizaciones marcadas en cascada"""
+        try:
+            grupos_actualizados = self.cambios_pendientes["grupos_actualizados"].copy()
+
+            if not grupos_actualizados:
+                return
+
+            self.log_mensaje(f"Aplicando actualización en cascada de {len(grupos_actualizados)} grupos...", "info")
+
+            # Actualizar cada grupo marcado
+            for actualizacion in grupos_actualizados:
+                codigo_original = actualizacion["codigo_original"]
+                codigo_nuevo = actualizacion["codigo_nuevo"]
+                self.edit_grupo_en_cascada(codigo_original, codigo_nuevo)
+
+            # Limpiar lista de actualizaciones pendientes
+            self.cambios_pendientes["grupos_actualizados"].clear()
+
+            self.log_mensaje(f"Actualización en cascada completada para {len(grupos_actualizados)} grupos", "success")
+
+        except Exception as e:
+            self.log_mensaje(f"Error aplicando actualizaciones pendientes: {e}", "warning")
 
     # ========= ELIMINACIÓN EN SISTEMA EN CASCADA =========
     def marcar_grupo_eliminado_en_tabla(self, grupo_codigo) -> None:
@@ -1848,12 +1880,7 @@ class ConfigurarGruposWindow(QMainWindow):
             self.log_mensaje(f"Error en eliminación completa de grupo {grupo_codigo}: {e}", "error")
 
     def delete_grupo_de_asignaturas_sistema(self, grupo_codigo, asignaturas_asociadas) -> None:
-        """Elimina el grupo de todas las asignaturas indicadas.
-
-        Detalle:
-          - `grupos_asociados` es dict -> se elimina la clave `grupo_codigo` si existe.
-          - No ordena ni transforma: respeta la estructura actual del diccionario.
-        """
+        """Elimina el grupo de todas las asignaturas indicadas"""
         try:
             config_asignaturas = self.parent_window.configuracion["configuracion"].get("asignaturas", {})
             if not config_asignaturas.get("configurado") or not config_asignaturas.get("datos"):
@@ -1879,26 +1906,7 @@ class ConfigurarGruposWindow(QMainWindow):
             self.log_mensaje(f"Error eliminando grupo de asignaturas: {e}", "warning")
 
     def delete_grupo_de_alumnos_sistema(self, grupo_codigo) -> None:
-        """
-        Elimina el grupo del sistema de alumnos y limpia asignaturas huérfanas.
-
-        Cambios aplicados:
-        1. Elimina el grupo de grupos_matriculado
-        2. Elimina COMPLETAMENTE cualquier asignatura cuyo campo 'grupo' coincida con
-           el grupo eliminado (no tiene sentido tener asignaturas sin grupo)
-
-        Ejemplo:
-            Si se elimina A408 y un alumno tiene:
-                "asignaturas_matriculadas": {
-                    "SII": {"grupo": "A408", "matriculado": true},
-                    "SED": {"grupo": "A404", "matriculado": true}
-                }
-            Resultado:
-                "asignaturas_matriculadas": {
-                    "SED": {"grupo": "A404", "matriculado": true}
-                }
-            (SII se elimina porque su grupo A408 ya no existe)
-        """
+        """Elimina el grupo del sistema de alumnos y limpia asignaturas huérfanas"""
         try:
             config_alumnos = self.parent_window.configuracion["configuracion"].get("alumnos", {})
             if not config_alumnos.get("configurado") or not config_alumnos.get("datos"):
@@ -2016,19 +2024,7 @@ class ConfigurarGruposWindow(QMainWindow):
             self.log_mensaje(f"Error eliminando grupo de horarios: {e}", "warning")
 
     def delete_grupo_de_franjas_horario(self, grupo_codigo, asignaturas_asociadas=None, semestres=None) -> None:
-        """Elimina el código de grupo de todas las franjas del horarios_grid.
-
-        Parámetros:
-            grupo_codigo (str): código de grupo a eliminar de las franjas (p. ej., "EE403").
-            asignaturas_asociadas (list[str] | None): limitar la limpieza a estas asignaturas.
-                Si None, se intentará aplicar a todas las asignaturas presentes en los horarios.
-            semestres (list[str] | None): limitar a semestres concretos (p. ej., ["1", "2"]).
-                Si None, se detectan automáticamente a partir de la configuración.
-
-        Comportamiento:
-            - Recorre horarios_grid y elimina todas las apariciones de `grupo_codigo` en las listas de grupos.
-            - Si una lista queda vacía, se mantiene vacía (no se borran franjas ni días).
-        """
+        """Elimina el código de grupo de todas las franjas del horarios_grid"""
         try:
             cfg = self.parent_window.configuracion.get("configuracion", {})
             horarios = cfg.get("horarios", {})
@@ -2120,13 +2116,7 @@ class ConfigurarGruposWindow(QMainWindow):
 
     # ========= SINCRONIZACIÓN CON ASIGNATURAS =========
     def sync_con_asignaturas(self, grupo_codigo, asignaturas_nuevas, asignaturas_eliminadas) -> None:
-        """Sincroniza altas/bajas del grupo con el módulo de asignaturas.
-
-        Notas:
-          - `grupos_asociados` es un diccionario cuyas claves son códigos de grupo.
-          - Altas: se crea/actualiza la clave `grupo_codigo` con un dict (vacío si no aplica).
-          - Bajas: se elimina la clave `grupo_codigo` si existe.
-        """
+        """Sincroniza altas/bajas del grupo con el módulo de asignaturas"""
         try:
             if not self.parent_window:
                 return
@@ -2175,7 +2165,7 @@ class ConfigurarGruposWindow(QMainWindow):
                 QMessageBox.information(self, "Sin Datos", "No hay grupos configurados")
                 return
 
-            stats_text = "📊 OCUPACIÓN DE GRUPOS:\n\n"
+            stats_text = "OCUPACIÓN DE GRUPOS\n"
 
             total_plazas = 0
             total_matriculados = 0
@@ -2202,20 +2192,20 @@ class ConfigurarGruposWindow(QMainWindow):
                         estado = "⚪ VACÍO"
                         grupos_vacios += 1
 
-                    stats_text += f"🎓 {codigo}: {matriculados}/{plazas} ({ocupacion:.1f}%) {estado}\n"
+                    stats_text += f"   • {codigo}: {matriculados}/{plazas} ({ocupacion:.1f}%) {estado}\n"
 
                     total_plazas += plazas
                     total_matriculados += matriculados
                 else:
-                    stats_text += f"🎓 {codigo}: Sin plazas definidas\n"
+                    stats_text += f"• {codigo}: Sin plazas definidas\n"
 
             # Resumen global
             if total_plazas > 0:
                 ocupacion_global = (total_matriculados / total_plazas) * 100
-                stats_text += f"\n📊 RESUMEN GLOBAL:\n"
-                stats_text += f"• Total: {total_matriculados}/{total_plazas} ({ocupacion_global:.1f}%)\n"
-                stats_text += f"• Grupos completos: {grupos_completos}\n"
-                stats_text += f"• Grupos vacíos: {grupos_vacios}\n"
+                stats_text += f"\nRESUMEN GLOBAL\n"
+                stats_text += f"   • Total: {total_matriculados}/{total_plazas} ({ocupacion_global:.1f}%)\n"
+                stats_text += f"   • Grupos completos: {grupos_completos}\n"
+                stats_text += f"   • Grupos vacíos: {grupos_vacios}\n"
 
             self.texto_stats.setText(stats_text)
 
@@ -2244,7 +2234,7 @@ class ConfigurarGruposWindow(QMainWindow):
                 f.write(f"Generado: {datetime.now().strftime('%d/%m/%Y %H:%M:%S')}\n\n")
 
                 f.write(f"RESUMEN GENERAL:\n")
-                f.write(f"• Total grupos configurados: {len(self.datos_configuracion)}\n")
+                f.write(f"   • Total grupos configurados: {len(self.datos_configuracion)}\n")
 
                 # Estadísticas por tipo de horario
                 horarios = {}
@@ -2252,7 +2242,7 @@ class ConfigurarGruposWindow(QMainWindow):
                     horario = datos.get('horario_tipo', 'Sin horario')
                     horarios[horario] = horarios.get(horario, 0) + 1
 
-                f.write(f"• Por horario: {', '.join(f'{k}: {v}' for k, v in horarios.items())}\n")
+                f.write(f"   • Por horario: {', '.join(f'{k}: {v}' for k, v in horarios.items())}\n")
 
                 # Estadísticas generales
                 total_plazas = sum(datos.get('plazas', 0) for datos in self.datos_configuracion.values())
@@ -2260,9 +2250,9 @@ class ConfigurarGruposWindow(QMainWindow):
                     datos.get('estudiantes_matriculados', 0) for datos in self.datos_configuracion.values())
                 ocupacion_global = (total_matriculados / total_plazas * 100) if total_plazas > 0 else 0
 
-                f.write(f"• Total plazas: {total_plazas}\n")
-                f.write(f"• Total matriculados: {total_matriculados}\n")
-                f.write(f"• Ocupación global: {ocupacion_global:.1f}%\n\n")
+                f.write(f"   • Total plazas: {total_plazas}\n")
+                f.write(f"   • Total matriculados: {total_matriculados}\n")
+                f.write(f"   • Ocupación global: {ocupacion_global:.1f}%\n\n")
 
                 # Detalles por grupo
                 f.write("DETALLES POR GRUPO:\n")
@@ -2270,21 +2260,21 @@ class ConfigurarGruposWindow(QMainWindow):
 
                 for codigo, datos in sorted(self.datos_configuracion.items()):
                     f.write(f"{codigo} - {datos.get('nombre', 'Sin nombre')}\n")
-                    f.write(f"   Coordinador: {datos.get('coordinador', 'No definido')}\n")
-                    f.write(f"   Departamento: {datos.get('departamento', 'No definido')}\n")
-                    f.write(f"   Grupo: {datos.get('grupo_actual', 'No definido')}\n")
+                    f.write(f"   • Coordinador: {datos.get('coordinador', 'No definido')}\n")
+                    f.write(f"   • Departamento: {datos.get('departamento', 'No definido')}\n")
+                    f.write(f"   • Grupo: {datos.get('grupo_actual', 'No definido')}\n")
 
                     plazas = datos.get('plazas', 0)
                     matriculados = datos.get('estudiantes_matriculados', 0)
                     ocupacion = (matriculados / plazas * 100) if plazas > 0 else 0
-                    f.write(f"   Ocupación: {matriculados}/{plazas} ({ocupacion:.1f}%)\n")
+                    f.write(f"   • Ocupación: {matriculados}/{plazas} ({ocupacion:.1f}%)\n")
 
                     asignaturas = datos.get('asignaturas_asociadas', [])
-                    f.write(f"   Asignaturas: {len(asignaturas)} asociadas\n")
+                    f.write(f"   • Asignaturas: {len(asignaturas)} asociadas\n")
                     for asignatura in asignaturas:
                         f.write(f"     • {asignatura}\n")
 
-                    f.write(f"   Estado: {'Activo' if datos.get('activo', True) else 'Inactivo'}\n\n")
+                    f.write(f"   • Estado: {'Activo' if datos.get('activo', True) else 'Inactivo'}\n\n")
 
             QMessageBox.information(self, "Exportación Exitosa", f"Estadísticas exportadas a:\n{archivo}")
 
@@ -2376,18 +2366,18 @@ class ConfigurarGruposWindow(QMainWindow):
                 return
 
             mensaje_confirmacion = f"¿Guardar configuración en el sistema y cerrar?\n\n"
-            mensaje_confirmacion += f"📊 Resumen:\n"
-            mensaje_confirmacion += f"• {total_grupos} grupos configurados\n"
-            mensaje_confirmacion += f"• {grupos_activos} grupos activos\n"
+            mensaje_confirmacion += f"Resumen:\n"
+            mensaje_confirmacion += f"  • {total_grupos} grupos configurados\n"
+            mensaje_confirmacion += f"  • {grupos_activos} grupos activos\n"
 
             if grupos_a_eliminar > 0:
                 if grupos_a_eliminar == len(self.datos_configuracion) + grupos_a_eliminar:  # Si son todos
-                    mensaje_confirmacion += f"• TODOS los grupos ({grupos_a_eliminar}) serán eliminados en cascada\n"
+                    mensaje_confirmacion += f"  • TODOS los grupos ({grupos_a_eliminar}) serán eliminados en cascada\n"
                 else:
-                    mensaje_confirmacion += f"• {grupos_a_eliminar} grupos serán eliminados en cascada\n"
+                    mensaje_confirmacion += f"  • {grupos_a_eliminar} grupos serán eliminados en cascada\n"
 
             if grupos_a_actualizar > 0:
-                mensaje_confirmacion += f"• {grupos_a_actualizar} grupos serán actualizados en cascada\n"
+                mensaje_confirmacion += f"  • {grupos_a_actualizar} grupos serán actualizados en cascada\n"
 
             mensaje_confirmacion += f"\nLa configuración se integrará con OPTIM y la ventana se cerrará."
 
@@ -2402,6 +2392,8 @@ class ConfigurarGruposWindow(QMainWindow):
                 total_cambios = grupos_a_eliminar + grupos_a_actualizar
                 if total_cambios > 0:
                     self.commit_pending_deletions()
+                if grupos_a_actualizar > 0:
+                    self.commit_pending_actualizaciones()
 
                 # Enviar señal al sistema principal
                 self.configuracion_actualizada.emit(self.datos_configuracion)
@@ -2465,10 +2457,7 @@ class ConfigurarGruposWindow(QMainWindow):
             self.log_mensaje(f"Error cancelando cambios: {e}", "warning")
 
     def closeEvent(self, event) -> None:
-        """
-        Manejar cierre de ventana cancelando modificaciones pendientes si es necesario
-        Debe ser closeEvent y no close_event por la libreria pyQt6, es como lo detecta para cerrarlo
-        """
+        """Manejar cierre de ventana cancelando modificaciones pendientes si es necesario"""
         if not self.has_unsaved_changes():
             self.log_mensaje("Cerrando configuración de grupos", "info")
             event.accept()
@@ -2478,7 +2467,7 @@ class ConfigurarGruposWindow(QMainWindow):
             self, "Cambios sin Guardar",
             "Hay cambios sin guardar en la configuración.\n\n"
             "¿Cerrar sin guardar?\n\n"
-            "- Tip: Utiliza 'Guardar en Sistema' para conservar los cambios.",
+            "💡 Tip: Pulsa 'Guardar en Sistema' para conservar los cambios.",
             QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
             QMessageBox.StandardButton.No
         )

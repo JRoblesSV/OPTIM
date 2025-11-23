@@ -1,5 +1,4 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
+
 """
 Ver Resultados - OPTIM - Sistema de Programación Automática de Laboratorios
 Desarrollado por SoftVier para ETSIDI (UPM)
@@ -21,8 +20,8 @@ from PyQt6.QtGui import QAction, QPalette, QColor
 from PyQt6.QtWidgets import (
     QApplication, QMainWindow, QWidget, QVBoxLayout, QHBoxLayout,
     QLabel, QComboBox, QTreeWidget, QTreeWidgetItem, QSplitter,
-    QPushButton, QFileDialog, QMessageBox, QPlainTextEdit, QStatusBar, QDialog,
-    QTableWidget, QTableWidgetItem, QHeaderView, QSizePolicy, QLineEdit
+    QPushButton, QFileDialog, QMessageBox, QStatusBar, QDialog,
+    QTableWidget, QTableWidgetItem, QHeaderView, QLineEdit
 )
 
 from reportlab.lib.pagesizes import A4
@@ -30,15 +29,16 @@ from reportlab.lib import colors
 from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle, PageBreak
 from reportlab.lib.styles import getSampleStyleSheet
 
-# ------------------------------
-#  Utilidades de ordenación/fechas
-# ------------------------------
+
+# ========= Utilidades de Ordenación y Normalización =========
 DAY_ORDER = {
     "Lunes": 0, "Martes": 1, "Miércoles": 2, "Miercoles": 2, "Jueves": 3, "Viernes": 4,
     "Sábado": 5, "Sabado": 5, "Domingo": 6
 }
 
+
 def normalize_time_range(rng: str) -> str:
+    """Normaliza rangos horarios al formato HH:MM-HH:MM"""
     s = (rng or "").strip()
     m = re.match(r"^\s*(\d{1,2}):(\d{2})\s*-\s*(\d{1,2}):(\d{2})\s*$", s)
     if not m:
@@ -46,14 +46,18 @@ def normalize_time_range(rng: str) -> str:
     h1, m1, h2, m2 = map(int, m.groups())
     return f"{h1:02d}:{m1:02d}-{h2:02d}:{m2:02d}"
 
-def time_start_minutes(franja_norm: str) -> int:
+
+def time_start_in_minutes(franja_norm: str) -> int:
+    """Extrae la hora de inicio en minutos desde medianoche de una franja horaria normalizada"""
     m = re.match(r"^(\d{2}):(\d{2})-\d{2}:\d{2}$", (franja_norm or "").strip())
     if not m:
         return 0
     h, mi = int(m.group(1)), int(m.group(2))
     return h * 60 + mi
 
+
 def sort_ddmmyyyy_asc(lst: List[str]) -> List[str]:
+    """Ordena lista de fechas en formato DD/MM/YYYY de forma ascendente"""
     def key_fun(s: str):
         m = re.match(r"^(\d{2})/(\d{2})/(\d{4})$", (s or "").strip())
         if not m:
@@ -67,10 +71,52 @@ def sort_ddmmyyyy_asc(lst: List[str]) -> List[str]:
         return (y, mo, d)
     return sorted(lst, key=key_fun)
 
-# ------------------------------
-#  Paleta oscura
-# ------------------------------
+
+# ========= Formateo de Fechas =========
+_ddmmyyyy_re = re.compile(r"\b(\d{2})/(\d{2})/(\d{4})\b")
+_y_m_d_re    = re.compile(r"\b(\d{4})-(\d{2})-(\d{2})\b")
+_d_m_y_dash  = re.compile(r"\b(\d{2})-(\d{2})-(\d{4})\b")
+
+
+def any_to_ddmmyyyy(value: str) -> str:
+    """Convierte cualquier formato de fecha a DD/MM/YYYY"""
+    s = str(value or "").strip()
+    if not s:
+        return ""
+    # Caso 1: ya viene DD/MM/YYYY
+    m = _ddmmyyyy_re.search(s)
+    if m:
+        return f"{m.group(1)}/{m.group(2)}/{m.group(3)}"
+    # Caso 2: YYYY-MM-DD (o substring ISO 8601)
+    m = _y_m_d_re.search(s)
+    if m:
+        y, mo, d = m.groups()
+        return f"{d}/{mo}/{y}"
+    # Caso 3: DD-MM-YYYY
+    m = _d_m_y_dash.search(s)
+    if m:
+        d, mo, y = m.groups()
+        return f"{d}/{mo}/{y}"
+    # Caso 4: ISO con tiempo: 2025-09-15T18:43:26...
+    iso = re.search(r"(\d{4}-\d{2}-\d{2})T", s)
+    if iso:
+        y, mo, d = iso.group(1).split("-")
+        return f"{d}/{mo}/{y}"
+    # Caso 5: nada reconocible, devolver original
+    return s
+
+
+def dates_list_any_to_ddmmyyyy(values: Any) -> str:
+    """Convierte una lista de fechas a formato DD/MM/YYYY separadas por comas"""
+    if isinstance(values, list):
+        out = [any_to_ddmmyyyy(v) for v in values]
+        return ", ".join([v for v in out if v])
+    return any_to_ddmmyyyy(str(values or ""))
+
+
+# ========= Utilidades de Sistema y Configuración =========
 def apply_dark_palette(app: QApplication) -> None:
+    """Aplica tema oscuro"""
     app.setStyle("Fusion")
     palette = QPalette()
     base = QColor(30, 30, 30)
@@ -101,34 +147,20 @@ def apply_dark_palette(app: QApplication) -> None:
 
     app.setPalette(palette)
 
-# ------------------------------
-#  Carga y helpers de JSON
-# ------------------------------
+
 def default_config_path() -> Path:
-    # .../src/modules/interfaces/ver_resultados.py -> /src/configuracion_labs.json
+    """Obtiene la ruta por defecto al archivo de configuración configuracion_labs.json"""
     return Path(__file__).resolve().parents[2] / "configuracion_labs.json"
 
-def load_cfg(path: Path) -> Dict[str, Any]:
+
+def load_config(path: Path) -> Dict[str, Any]:
+    """Carga y parsea el archivo JSON de configuración"""
     with path.open("r", encoding="utf-8") as fh:
         return json.load(fh)
 
-def alumno_grupo_laboratorio(al: Dict[str, Any], grupo_simple: str, grupo_doble: str) -> str:
-    grupos_m = al.get("grupos_matriculado", []) or []
-    if grupo_simple and grupo_simple in grupos_m:
-        return grupo_simple
-    if grupo_doble and grupo_doble in grupos_m:
-        return grupo_doble
-    return grupos_m[0] if grupos_m else ""
-
-def semesters_in_results(res: Dict[str, Any]) -> List[str]:
-    out = [k for k in res.keys() if k.startswith("semestre_")]
-    # orden natural: semestre_1, semestre_2
-    def kf(k: str) -> int:
-        m = re.search(r"(\d+)$", k)
-        return int(m.group(1)) if m else 999
-    return sorted(out, key=kf)
 
 def downloads_dir() -> Path:
+    """Obtiene la ruta del directorio de Descargas del usuario"""
     home = Path.home()
     for name in ("Descargas", "Downloads"):
         p = home / name
@@ -136,72 +168,52 @@ def downloads_dir() -> Path:
             return p
     return home
 
+
+# ========= Helpers de Lógica de Datos =========
+def get_group_type(al: Dict[str, Any], grupo_simple: str, grupo_doble: str) -> str:
+    """Determina el tipo de grupo (simple o doble) en el que está matriculado el alumno"""
+    grupos_m = al.get("grupos_matriculado", []) or []
+    if grupo_simple and grupo_simple in grupos_m:
+        return grupo_simple
+    if grupo_doble and grupo_doble in grupos_m:
+        return grupo_doble
+    return grupos_m[0] if grupos_m else ""
+
+
+def semesters_in_results(res: Dict[str, Any]) -> List[str]:
+    """Extrae y ordena naturalmente los semestres presentes en los resultados"""
+    out = [k for k in res.keys() if k.startswith("semestre_")]
+    # orden natural: semestre_1, semestre_2
+    def kf(k: str) -> int:
+        m = re.search(r"(\d+)$", k)
+        return int(m.group(1)) if m else 999
+    return sorted(out, key=kf)
+
+
 def like(text: str, needle: str) -> bool:
+    """Realiza búsqueda insensible a mayúsculas/minúsculas (filtrado LIKE SQL)"""
     if not needle:
         return True
     return (text or "").lower().__contains__((needle or "").lower().strip())
 
-# --- Formateo robusto de fecha a DD/MM/YYYY ---
-_ddmmyyyy_re = re.compile(r"\b(\d{2})/(\d{2})/(\d{4})\b")
-_y_m_d_re    = re.compile(r"\b(\d{4})-(\d{2})-(\d{2})\b")
-_d_m_y_dash  = re.compile(r"\b(\d{2})-(\d{2})-(\d{4})\b")
 
-def to_ddmmyyyy(value: str) -> str:
-    s = str(value or "").strip()
-    if not s:
-        return ""
-    # Caso 1: ya viene DD/MM/YYYY
-    m = _ddmmyyyy_re.search(s)
-    if m:
-        return f"{m.group(1)}/{m.group(2)}/{m.group(3)}"
-    # Caso 2: YYYY-MM-DD (o substring ISO 8601)
-    m = _y_m_d_re.search(s)
-    if m:
-        y, mo, d = m.groups()
-        return f"{d}/{mo}/{y}"
-    # Caso 3: DD-MM-YYYY
-    m = _d_m_y_dash.search(s)
-    if m:
-        d, mo, y = m.groups()
-        return f"{d}/{mo}/{y}"
-    # Caso 4: ISO con tiempo: 2025-09-15T18:43:26...
-    iso = re.search(r"(\d{4}-\d{2}-\d{2})T", s)
-    if iso:
-        y, mo, d = iso.group(1).split("-")
-        return f"{d}/{mo}/{y}"
-    # Caso 5: nada reconocible, devolver original
-    return s
-
-def fechas_list_to_ddmmyyyy(values: Any) -> str:
-    if isinstance(values, list):
-        out = [to_ddmmyyyy(v) for v in values]
-        return ", ".join([v for v in out if v])
-    return to_ddmmyyyy(str(values or ""))
-
-# ------------------------------
-#  Diálogo de conflictos
-# ------------------------------
+# ========= Diálogo de Conflictos =========
 class ConflictsDialog(QDialog):
+    """Diálogo para visualizar detalladamente los conflictos de asignación en estructura de árbol"""
     def __init__(self, parent: QWidget, res: Dict[str, Any]):
         super().__init__(parent)
         self.setWindowTitle("Conflictos de organización")
         self.resize(1000, 520)
         layout = QVBoxLayout(self)
 
-        # --- Item ordenable con clave de orden ---
+        # Item ordenable con clave de orden
         class SortableItem(QTableWidgetItem):
             def __init__(self, display: str, sort_key: Any = None):
                 super().__init__(str(display))
                 self._key = sort_key if sort_key is not None else str(display).lower()
 
-            def __lt__(self, other: "QTableWidgetItem") -> bool:
-                if isinstance(other, SortableItem):
-                    return self._key < other._key
-                return super().__lt__(other)
-
         # Funciones auxiliares para claves de ordenación
         def semestre_key(s: str) -> tuple:
-            # "semestre_2" -> (2,) para orden natural
             m = re.search(r"(\d+)$", str(s))
             return (int(m.group(1)) if m else 999, str(s).lower())
 
@@ -209,9 +221,9 @@ class ConflictsDialog(QDialog):
             return (DAY_ORDER.get(str(d), 99), str(d).lower())
 
         def fecha_key(s: str) -> tuple:
-            # admite "DD/MM/YYYY", "YYYY-MM-DD", o lista separada por comas (toma la 1ª)
+            # admite "DD/MM/YYYY", "YYYY-MM-DD", o lista separada por comas
             txt = (s or "").split(",")[0].strip()
-            ddmmyyyy = to_ddmmyyyy(txt)
+            ddmmyyyy = any_to_ddmmyyyy(txt)
             m = re.match(r"^(\d{2})/(\d{2})/(\d{4})$", ddmmyyyy)
             if m:
                 d, mo, y = map(int, m.groups())
@@ -221,7 +233,7 @@ class ConflictsDialog(QDialog):
 
         def franja_key(rng: str) -> tuple:
             norm = normalize_time_range(rng or "")
-            return (time_start_minutes(norm), norm)
+            return (time_start_in_minutes(norm), norm)
 
         def text_key(s: str) -> str:
             return (s or "").lower().strip()
@@ -245,17 +257,11 @@ class ConflictsDialog(QDialog):
                     "aula": msg.get("aula", "-") or "-",
                     "profesor": msg.get("profesor", "-") or "-",
                 })
-            else:
-                # Compatibilidad con versiones anteriores (solo texto)
-                alumnos_rows.append({
-                    "semestre": "-", "asignatura": "-", "grupo": "-",
-                    "dia": "-", "fecha": "-", "franja": "-",
-                    "detalle": str(msg), "aula": "-", "profesor": "-"
-                })
+
         tabs.append(("Alumnos", alumnos_rows))
 
         for title, rows in tabs:
-            label = QLabel(f"🔹 {title} ({len(rows)})")
+            label = QLabel(f" {title} ({len(rows)})")
             layout.addWidget(label)
 
             table = QTableWidget(self)
@@ -266,7 +272,7 @@ class ConflictsDialog(QDialog):
             hdr = table.horizontalHeader()
             hdr.setSectionResizeMode(QHeaderView.ResizeMode.Interactive)  # permitir arrastrar para ancho/estrecho
             hdr.setStretchLastSection(False)  # sin estirar forzado del último
-            hdr.setSectionsMovable(True)  # opcional: permite reordenar columnas
+            hdr.setSectionsMovable(True)  # permite reordenar columnas
 
             table.setEditTriggers(QTableWidget.EditTrigger.NoEditTriggers)
             table.setSelectionBehavior(QTableWidget.SelectionBehavior.SelectRows)
@@ -281,14 +287,14 @@ class ConflictsDialog(QDialog):
                 # fecha puede venir como 'fecha', 'dia/fecha' o 'fechas' (lista)
                 fecha_val = row.get("fecha")
                 if fecha_val:
-                    fecha_val = to_ddmmyyyy(str(fecha_val))
+                    fecha_val = any_to_ddmmyyyy(str(fecha_val))
                 else:
                     alt = row.get("dia/fecha")
                     if alt:
-                        fecha_val = to_ddmmyyyy(str(alt))
+                        fecha_val = any_to_ddmmyyyy(str(alt))
                     else:
                         f_list = row.get("fechas") or []
-                        fecha_val = fechas_list_to_ddmmyyyy(f_list)
+                        fecha_val = dates_list_any_to_ddmmyyyy(f_list)
 
                 aula_val = row.get("aula") or row.get("aula_nombre") or row.get("sala") or "—"
                 prof_val = row.get("profesor") or row.get("docente") or row.get("profesor_apellidos") or "—"
@@ -322,10 +328,9 @@ class ConflictsDialog(QDialog):
         layout.addWidget(btn_close, alignment=Qt.AlignmentFlag.AlignRight)
 
 
-# ------------------------------
-#  Ventana principal
-# ------------------------------
+# ========= Ventana Principal =========
 class VerResultadosWindow(QMainWindow):
+    """Ventana principal para visualizar y gestionar resultados de organización de laboratorios"""
     def __init__(self, cfg_path: Optional[Path] = None):
         super().__init__()
         self.setWindowTitle("Resultados de Organización - OPTIM")
@@ -340,14 +345,15 @@ class VerResultadosWindow(QMainWindow):
         self.filter_alumno_exp: str = ""
         self.filter_prof_apell: str = ""
 
-        # para popup de conflictos sólo una vez
+        # para popup de conflictos solo una vez
         self._conflict_warned: bool = False
 
-        self._build_ui()
-        self._load_and_render()
+        self.setup_ui()
+        self.load_and_render()
 
-    # ---- UI ----
-    def _build_ui(self) -> None:
+    # ========= CONFIGURACIÓN DE UI =========
+    def setup_ui(self) -> None:
+        """Construye la interfaz gráfica con controles de filtrado y vista de árbol"""
         central = QWidget()
         root = QVBoxLayout(central)
         root.setContentsMargins(12, 12, 12, 12)
@@ -398,20 +404,21 @@ class VerResultadosWindow(QMainWindow):
         top2.addWidget(self.btn_apply_filters)
         top2.addStretch(1)
 
-        # Splitter: Árbol resultados | Parámetros (duras/blandas)
+        # Árbol resultados
         splitter = QSplitter(Qt.Orientation.Horizontal)
         self.tree = QTreeWidget()
         self.tree.setHeaderLabels(["Elemento", "Detalles"])
         self.tree.header().setSectionResizeMode(0, QHeaderView.ResizeMode.ResizeToContents)
         self.tree.header().setSectionResizeMode(1, QHeaderView.ResizeMode.Stretch)
 
-        self.txt_params = QPlainTextEdit()
-        self.txt_params.setReadOnly(True)
-        self.txt_params.setPlaceholderText("Parámetros de organización (restricciones duras y blandas)")
+        #self.txt_params = QPlainTextEdit()
+        #self.txt_params.setReadOnly(True)
+        #self.txt_params.setPlaceholderText("Parámetros de organización (restricciones duras y blandas)")
 
         splitter.addWidget(self.tree)
-        splitter.addWidget(self.txt_params)
-        splitter.setSizes([950, 350])
+        #splitter.addWidget(self.txt_params)
+        #splitter.setSizes([950, 350])
+
 
         root.addLayout(top1)
         root.addLayout(top2)
@@ -424,129 +431,22 @@ class VerResultadosWindow(QMainWindow):
         self.setStatusBar(sb)
 
         # Señales
-        self.btn_reload.clicked.connect(self._load_and_render)
-        self.cmb_semestre.currentIndexChanged.connect(self._on_semestre_changed)
-        self.cmb_asignatura.currentIndexChanged.connect(self._populate_tree)
-        self.btn_export.clicked.connect(self._export_pdf)
-        self.btn_conflicts.clicked.connect(self._show_conflicts)
-        self.btn_apply_filters.clicked.connect(self._on_apply_filters_clicked)
+        self.btn_reload.clicked.connect(self.load_and_render)
+        self.cmb_semestre.currentIndexChanged.connect(self.on_semestre_changed)
+        self.cmb_asignatura.currentIndexChanged.connect(self.populate_tree)
+        self.btn_export.clicked.connect(self.export_pdf)
+        self.btn_conflicts.clicked.connect(self.show_conflicts)
+        self.btn_apply_filters.clicked.connect(self.on_apply_filters_clicked)
 
         # Atajos / Acciones (opcional)
         act_reload = QAction("Recargar", self)
         act_reload.setShortcut("F5")
-        act_reload.triggered.connect(self._load_and_render)
+        act_reload.triggered.connect(self.load_and_render)
         self.addAction(act_reload)
 
-    # ---- Carga y render ----
-    def _load_and_render(self) -> None:
-        try:
-            self.cfg = load_cfg(self.cfg_path)
-        except Exception as e:
-            QMessageBox.critical(self, "Error", f"No se pudo cargar el JSON:\n{self.cfg_path}\n\n{e}")
-            return
-
-        self.res = self.cfg.get("resultados_organizacion", {}) or {}
-        self.alumnos = (self.cfg.get("configuracion", {})
-                           .get("alumnos", {})
-                           .get("datos", {}) or {})
-
-        # Top info
-        meta = self.res.get("_metadata", {})
-        when = meta.get("ultima_ejecucion", "—")
-        ver = meta.get("version", "—")
-        self.statusBar().showMessage(f"JSON: {self.cfg_path} | Ejecutado: {when} | Motor: {ver}")
-
-        # Parámetros
-        params = self.cfg.get("parametros_organizacion", {}) or {}
-        duras = params.get("restricciones_duras", []) or []
-        blandas = params.get("restricciones_blandas", []) or []
-        ptxt = ["🔒 Restricciones duras:"]
-        ptxt += [f"  • {x}" for x in duras]
-        ptxt += ["", "🎯 Restricciones blandas:"]
-        ptxt += [f"  • {x}" for x in blandas]
-        self.txt_params.setPlainText("\n".join(ptxt))
-
-        # Combos
-        self._populate_semestres_y_asignaturas()
-        # Árbol
-        self._populate_tree()
-
-        # Popup inicial de conflictos (una vez)
-        if not self._conflict_warned:
-            confs = self.res.get("conflictos", {}) or {}
-            c_prof = len(confs.get("profesores", []) or [])
-            c_aulas = len(confs.get("aulas", []) or [])
-            c_alum = len(confs.get("alumnos", []) or [])
-            total = c_prof + c_aulas + c_alum
-            if total > 0:
-                self._conflict_warned = True
-                mb = QMessageBox(self)
-                mb.setIcon(QMessageBox.Icon.Warning)
-                mb.setWindowTitle("Conflictos detectados")
-                mb.setText(
-                    f"Se han detectado {total} conflictos (Profesores: {c_prof} | Aulas: {c_aulas} | Alumnos: {c_alum}).")
-                mb.setInformativeText("Revísalos para asegurar la planificación.")
-                ver_btn = mb.addButton("Abrir conflictos", QMessageBox.ButtonRole.AcceptRole)
-                mb.addButton("Cerrar", QMessageBox.ButtonRole.RejectRole)
-                mb.exec()
-                if mb.clickedButton() is ver_btn:
-                    self._show_conflicts()
-
-    def _populate_semestres_y_asignaturas(self) -> None:
-        sems = semesters_in_results(self.res)
-        self.cmb_semestre.blockSignals(True)
-        self.cmb_asignatura.blockSignals(True)
-
-        self.cmb_semestre.clear()
-        self.cmb_semestre.addItem("Todos", userData=None)
-        for s in sems:
-            self.cmb_semestre.addItem(s, userData=s)
-
-        # Asignaturas dependerán del semestre seleccionado
-        self._fill_asignaturas_for_current_sem()
-
-        self.cmb_semestre.blockSignals(False)
-        self.cmb_asignatura.blockSignals(False)
-
-    def _fill_asignaturas_for_current_sem(self) -> None:
-        sel_sem = self.cmb_semestre.currentData()
-        self.cmb_asignatura.clear()
-        self.cmb_asignatura.addItem("Todas", userData=None)
-
-        if sel_sem is None:
-            # Todas las asig de todos los semestres
-            seen = set()
-            for s in semesters_in_results(self.res):
-                for asig in (self.res.get(s) or {}).keys():
-                    if asig.startswith("_"):
-                        continue
-                    if asig not in seen:
-                        self.cmb_asignatura.addItem(asig, userData=asig)
-                        seen.add(asig)
-        else:
-            for asig in (self.res.get(sel_sem) or {}).keys():
-                if asig.startswith("_"):
-                    continue
-                self.cmb_asignatura.addItem(asig, userData=asig)
-
-    def _on_semestre_changed(self) -> None:
-        self.cmb_asignatura.blockSignals(True)
-        self._fill_asignaturas_for_current_sem()
-        self.cmb_asignatura.blockSignals(False)
-        self._populate_tree()
-
-    def _on_apply_filters_clicked(self) -> None:
-        self.filter_alumno_exp = (self.txt_filter_alumno.text() or "").strip()
-        self.filter_prof_apell = (self.txt_filter_prof.text() or "").strip()
-        self._populate_tree()
-
-    def _grupo_pasa_filtro(self, ginfo: Dict[str, Any]) -> Tuple[bool, List[Tuple[str, Dict[str, Any]]]]:
-        """
-        Devuelve:
-          - pasa (bool): si el grupo pasa los filtros actuales
-          - alumnos_filtrados: lista de pares (sid, alumno_dict) que coinciden con el filtro de alumno.
-                               Si no hay filtro de alumno, devuelve todos los del grupo.
-        """
+    # ========= FILTROS Y BÚSQUEDA =========
+    def filter_group_and_students(self, ginfo: Dict[str, Any]) -> Tuple[bool, List[Tuple[str, Dict[str, Any]]]]:
+        """Aplica filtros de semestre, asignatura y búsqueda a un grupo y sus alumnos"""
         alumnos_ids = ginfo.get("alumnos", []) or []
         profesor_txt = ginfo.get("profesor", "") or ""
         # filtro profesor (apellidos LIKE sobre el texto completo del campo profesor)
@@ -569,7 +469,123 @@ class VerResultadosWindow(QMainWindow):
 
         return True, out_alumnos
 
-    def _populate_tree(self) -> None:
+    def on_apply_filters_clicked(self) -> None:
+        """Captura los filtros textuales y recarga el árbol"""
+        self.filter_alumno_exp = (self.txt_filter_alumno.text() or "").strip()
+        self.filter_prof_apell = (self.txt_filter_prof.text() or "").strip()
+        self.populate_tree()
+
+    # ========= CARGA DE DATOS =========
+    def load_and_render(self) -> None:
+        """Carga JSON, actualiza combos y árbol, muestra conflictos detectados"""
+        self.filter_alumno_exp = ""
+        self.filter_prof_apell = ""
+        self.txt_filter_alumno.clear()
+        self.txt_filter_prof.clear()
+
+        try:
+            self.cfg = load_config(self.cfg_path)
+        except Exception as e:
+            QMessageBox.critical(self, "Error", f"No se pudo cargar el JSON:\n{self.cfg_path}\n\n{e}")
+            return
+
+        self.res = self.cfg.get("resultados_organizacion", {}) or {}
+        self.alumnos = (self.cfg.get("configuracion", {})
+                           .get("alumnos", {})
+                           .get("datos", {}) or {})
+
+        # Top info
+        meta = self.res.get("_metadata", {})
+        when = meta.get("ultima_ejecucion", "—")
+        ver = meta.get("version", "—")
+        self.statusBar().showMessage(f"JSON: {self.cfg_path} | Ejecutado: {when} | Motor: {ver}")
+
+        # Parámetros
+        #params = self.cfg.get("parametros_organizacion", {}) or {}
+        #duras = params.get("restricciones_duras", []) or []
+        #blandas = params.get("restricciones_blandas", []) or []
+        #ptxt = ["Restricciones duras:"]
+        #ptxt += [f"  • {x}" for x in duras]
+        #ptxt += ["", "Restricciones blandas:"]
+        #ptxt += [f"  • {x}" for x in blandas]
+        #self.txt_params.setPlainText("\n".join(ptxt))
+
+        # Combos
+        self.populate_semestres_y_asignaturas()
+        # Árbol
+        self.populate_tree()
+
+        # Popup inicial de conflictos (una vez)
+        if not self._conflict_warned:
+            confs = self.res.get("conflictos", {}) or {}
+            c_prof = len(confs.get("profesores", []) or [])
+            c_aulas = len(confs.get("aulas", []) or [])
+            c_alum = len(confs.get("alumnos", []) or [])
+            total = c_prof + c_aulas + c_alum
+            if total > 0:
+                self._conflict_warned = True
+                mb = QMessageBox(self)
+                mb.setIcon(QMessageBox.Icon.Warning)
+                mb.setWindowTitle("Conflictos detectados")
+                mb.setText(
+                    f"Se han detectado {total} conflictos (Profesores: {c_prof} | Aulas: {c_aulas} | Alumnos: {c_alum}).")
+                mb.setInformativeText("Revísalos para asegurar la planificación.")
+                ver_btn = mb.addButton("Abrir conflictos", QMessageBox.ButtonRole.AcceptRole)
+                mb.addButton("Cerrar", QMessageBox.ButtonRole.RejectRole)
+                mb.exec()
+                if mb.clickedButton() is ver_btn:
+                    self.show_conflicts()
+
+    # ========= SEMESTRES Y ASIGNATURAS =========
+    def populate_semestres_y_asignaturas(self) -> None:
+        """Rellena el combo de semestres disponibles"""
+        sems = semesters_in_results(self.res)
+        self.cmb_semestre.blockSignals(True)
+        self.cmb_asignatura.blockSignals(True)
+
+        self.cmb_semestre.clear()
+        self.cmb_semestre.addItem("Todos", userData=None)
+        for s in sems:
+            self.cmb_semestre.addItem(s, userData=s)
+
+        # Asignaturas dependerán del semestre seleccionado
+        self.fill_asignaturas_for_current_sem()
+
+        self.cmb_semestre.blockSignals(False)
+        self.cmb_asignatura.blockSignals(False)
+
+    def fill_asignaturas_for_current_sem(self) -> None:
+        """Rellena las asignaturas según el semestre seleccionado"""
+        sel_sem = self.cmb_semestre.currentData()
+        self.cmb_asignatura.clear()
+        self.cmb_asignatura.addItem("Todas", userData=None)
+
+        if sel_sem is None:
+            # Cargar todas las asignaturas si no hay filtro de semestre
+            seen = set()
+            for s in semesters_in_results(self.res):
+                for asig in (self.res.get(s) or {}).keys():
+                    if asig.startswith("_"):
+                        continue
+                    if asig not in seen:
+                        self.cmb_asignatura.addItem(asig, userData=asig)
+                        seen.add(asig)
+        else:
+            for asig in (self.res.get(sel_sem) or {}).keys():
+                if asig.startswith("_"):
+                    continue
+                self.cmb_asignatura.addItem(asig, userData=asig)
+
+    def on_semestre_changed(self) -> None:
+        """Actualiza asignaturas y recarga el árbol al cambiar semestre"""
+        self.cmb_asignatura.blockSignals(True)
+        self.fill_asignaturas_for_current_sem()
+        self.cmb_asignatura.blockSignals(False)
+        self.populate_tree()
+
+    # ========= ÁRBOL DE RESULTADOS =========
+    def populate_tree(self) -> None:
+        """Construye árbol jerárquico de semestres → asignaturas → grupos → alumnos con filtros aplicados"""
         self.tree.clear()
 
         # Filtros de combos
@@ -585,7 +601,7 @@ class VerResultadosWindow(QMainWindow):
         total_alumnos = 0
 
         for sem in semesters_iter():
-            sem_node = QTreeWidgetItem([f"📚 {sem}", ""])
+            sem_node = QTreeWidgetItem([f"{sem}", ""])
             self.tree.addTopLevelItem(sem_node)
 
             asignaturas = self.res.get(sem, {}) or {}
@@ -596,7 +612,7 @@ class VerResultadosWindow(QMainWindow):
             for asig, a_data in sorted(asignaturas.items(), key=lambda kv: kv[0]):
                 if not isinstance(a_data, dict) or "grupos" not in a_data:
                     continue
-                asig_node = QTreeWidgetItem([f"🔹 {asig}", ""])
+                asig_node = QTreeWidgetItem([f"{asig}", ""])
                 sem_node.addChild(asig_node)
 
                 grupos = a_data.get("grupos", {}) or {}
@@ -606,10 +622,10 @@ class VerResultadosWindow(QMainWindow):
                     label, info = item
                     dia = info.get("dia", "")
                     franja = normalize_time_range(info.get("franja", "00:00-00:00"))
-                    return (DAY_ORDER.get(dia, 99), time_start_minutes(franja), franja, label)
+                    return (DAY_ORDER.get(dia, 99), time_start_in_minutes(franja), franja, label)
 
                 for label, ginfo in sorted(grupos.items(), key=gkey):
-                    pasa, alumnos_filtrados = self._grupo_pasa_filtro(ginfo)
+                    pasa, alumnos_filtrados = self.filter_group_and_students(ginfo)
                     if not pasa:
                         continue
 
@@ -617,7 +633,7 @@ class VerResultadosWindow(QMainWindow):
                     aula = ginfo.get("aula", "—")
                     dia = ginfo.get("dia", "—")
                     franja = normalize_time_range(ginfo.get("franja", "—"))
-                    fechas = [to_ddmmyyyy(f) for f in (ginfo.get("fechas", []) or [])]
+                    fechas = [any_to_ddmmyyyy(f) for f in (ginfo.get("fechas", []) or [])]
                     fechas = sort_ddmmyyyy_asc(fechas)
                     capacidad = ginfo.get("capacidad", 0)
                     mixta = "Sí" if ginfo.get("mixta", False) else "No"
@@ -625,8 +641,10 @@ class VerResultadosWindow(QMainWindow):
                     total_grupos += 1
                     total_alumnos += len(alumnos_filtrados)
 
+                    letra = ginfo.get("letra", "")
                     det = (f"Día: {dia}  |  Franja: {franja}  |  Aula: {aula}  |  Prof: {profesor}  |  "
-                           f"Mixta: {mixta}  |  Cap: {capacidad}  |  Alumnos: {len(alumnos_filtrados)}")
+                           f"Mixta: {mixta}  |  Cap: {capacidad}  |  Alumnos: {len(alumnos_filtrados)}  |  "
+                           f"Letra: {letra}")
                     g_node = QTreeWidgetItem([f"Grupo {label}", det])
                     asig_node.addChild(g_node)
 
@@ -645,7 +663,7 @@ class VerResultadosWindow(QMainWindow):
                         exp = str(al.get("exp_centro", "") or "").strip() or str(sid)
                         nombre = (al.get("nombre") or "").strip()
                         apell = (al.get("apellidos") or "").strip()
-                        grupolab = alumno_grupo_laboratorio(al, grupo_simple, grupo_doble)
+                        grupolab = get_group_type(al, grupo_simple, grupo_doble)
                         label_al = f"{exp} — {nombre} {apell}".strip()
                         info_al = f"Grupo: {grupolab}"
                         a_node.addChild(QTreeWidgetItem([label_al, info_al]))
@@ -661,14 +679,16 @@ class VerResultadosWindow(QMainWindow):
             f"JSON: {self.cfg_path}  |  Grupos: {total_grupos}  |  Alumnos listados: {total_alumnos}  |  Conflictos -> Profesores: {c_prof}  |  Aulas: {c_aulas}  |  Alumnos: {c_alum}"
         )
 
-    # ---- Acciones ----
-    def _show_conflicts(self) -> None:
+    # ========= ACCIONES =========
+    def show_conflicts(self) -> None:
+        """Abre diálogo con conflictos detectados"""
         if not self.res:
             return
         dlg = ConflictsDialog(self, self.res)
         dlg.exec()
 
-    def _export_pdf(self) -> None:
+    def export_pdf(self) -> None:
+        """Exporta resultados filtrados a PDF con tablas de alumnos"""
         # Sugerir ruta Descargas por defecto
         default_dir = str(downloads_dir())
         fname, _ = QFileDialog.getSaveFileName(
@@ -682,7 +702,7 @@ class VerResultadosWindow(QMainWindow):
         styles = getSampleStyleSheet()
         story = []
 
-        # Filtros de combos y de texto (para PDF ahora sí aplican TODOS)
+        # Aplicar todos los filtros activos (semestre, asignatura, alumno, profesor) al PDF
         sel_sem = self.cmb_semestre.currentData()
         sel_asig = self.cmb_asignatura.currentData()
 
@@ -709,16 +729,16 @@ class VerResultadosWindow(QMainWindow):
                     label, info = item
                     dia = info.get("dia", "")
                     franja = normalize_time_range(info.get("franja", "00:00-00:00"))
-                    return (DAY_ORDER.get(dia, 99), time_start_minutes(franja), franja, label)
+                    return (DAY_ORDER.get(dia, 99), time_start_in_minutes(franja), franja, label)
 
                 any_group_printed = False
 
                 for label, ginfo in sorted(grupos.items(), key=gkey):
-                    pasa, alumnos_filtrados = self._grupo_pasa_filtro(ginfo)
+                    pasa, alumnos_filtrados = self.filter_group_and_students(ginfo)
                     if not pasa:
                         continue
 
-                    # Si hay filtro de alumno, sólo imprimimos filas de esos alumnos (no el grupo entero vacío)
+                    # Si hay filtro de alumno, solo imprimimos filas de esos alumnos
                     if self.filter_alumno_exp and len(alumnos_filtrados) == 0:
                         continue
 
@@ -735,26 +755,31 @@ class VerResultadosWindow(QMainWindow):
                     aula = ginfo.get("aula", "—")
                     dia = ginfo.get("dia", "—")
                     franja = normalize_time_range(ginfo.get("franja", "—"))
-                    fechas = [to_ddmmyyyy(f) for f in (ginfo.get("fechas", []) or [])]
+                    fechas = [any_to_ddmmyyyy(f) for f in (ginfo.get("fechas", []) or [])]
                     fechas = sort_ddmmyyyy_asc(fechas)
                     grupo_simple = ginfo.get("grupo_simple", "")
                     grupo_doble = ginfo.get("grupo_doble", "")
 
                     story.append(Spacer(1, 4))
-                    story.append(Paragraph(f"<b>Grupo {label}</b>", styles["Heading2"]))
+                    # story.append(Paragraph(f"<b>Grupo {label}</b>", styles["Heading2"]))
+                    letra = ginfo.get("letra", "")
+                    franja_inicio = franja.split("-")[0] if franja else ""
+
+                    story.append(Paragraph(f"<b>Grupo {dia} {franja_inicio} {letra}</b>", styles["Heading2"]))
                     meta_line = f"Día: {dia} | Franja: {franja} | Aula: {aula} | Prof: {profesor}"
+
                     story.append(Paragraph(meta_line, styles["Normal"]))
                     if fechas:
                         story.append(Paragraph("Fechas: " + ", ".join(fechas), styles["Normal"]))
                     story.append(Spacer(1, 6))
 
-                    # Tabla de alumnos (aplica filtro de alumno: sólo los coincidentes)
+                    # Tabla de alumnos (aplica filtro de alumno: solo los coincidentes)
                     data = [["Matrícula", "Nombre", "Apellidos", "Grupo"]]
                     for sid, al in alumnos_filtrados:
                         exp = str(al.get("exp_centro", "") or "").strip() or str(sid)
                         nombre = (al.get("nombre") or "").strip()
                         apell = (al.get("apellidos") or "").strip()
-                        grupolab = alumno_grupo_laboratorio(al, grupo_simple, grupo_doble)
+                        grupolab = get_group_type(al, grupo_simple, grupo_doble)
                         data.append([exp, nombre, apell, grupolab])
 
                     # Si no hay filas tras aplicar el filtro, omitir la tabla
@@ -785,9 +810,8 @@ class VerResultadosWindow(QMainWindow):
         except Exception as e:
             QMessageBox.critical(self, "Error", f"No se pudo generar el PDF:\n{e}")
 
-# ------------------------------
-#  main
-# ------------------------------
+
+# ========= main =========
 def main():
     parser = argparse.ArgumentParser(description="Ver resultados de organización")
     parser.add_argument("--config", help="Ruta al configuracion_labs.json", default=None)

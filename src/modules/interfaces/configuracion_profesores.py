@@ -23,13 +23,15 @@ from PyQt6.QtWidgets import (
     QCalendarWidget, QTabWidget, QSpacerItem
 )
 from PyQt6.QtCore import Qt, pyqtSignal, QTimer, QDate
-from PyQt6.QtGui import QFont, QPalette, QColor
+from PyQt6.QtGui import QFont, QPalette, QColor, QCursor
 
 
 def center_window_on_screen(window, width, height) -> None:
-    """Centra la ventana en la pantalla"""
+    """Centrar ventana en la pantalla donde está el cursor"""
     try:
-        screen = QApplication.primaryScreen()
+        # Obtener la pantalla donde está el cursor
+        cursor_pos = QCursor.pos()
+        screen = QApplication.screenAt(cursor_pos)
         if screen:
             screen_geometry = screen.availableGeometry()
             center_x = (screen_geometry.width() - width) // 2 + screen_geometry.x()
@@ -199,8 +201,8 @@ class GestionProfesorDialog(QDialog):
         layout = QVBoxLayout()
         layout.setSpacing(12)
 
-        # 👤 DATOS PERSONALES
-        datos_personales_group = QGroupBox("👤 DATOS PERSONALES")
+        # DATOS PERSONALES
+        datos_personales_group = QGroupBox("DATOS PERSONALES")
         datos_personales_layout = QGridLayout()
 
         # Fila 1: Nombre | Apellidos
@@ -210,16 +212,16 @@ class GestionProfesorDialog(QDialog):
         self.edit_apellidos = QLineEdit()
         self.edit_apellidos.setPlaceholderText("Ej: García López")
 
-        datos_personales_layout.addWidget(QLabel("👤 Nombre:"), 0, 0)
+        datos_personales_layout.addWidget(QLabel("Nombre:"), 0, 0)
         datos_personales_layout.addWidget(self.edit_nombre, 0, 1)
-        datos_personales_layout.addWidget(QLabel("👤 Apellidos:"), 0, 2)
+        datos_personales_layout.addWidget(QLabel("Apellidos:"), 0, 2)
         datos_personales_layout.addWidget(self.edit_apellidos, 0, 3)
 
         datos_personales_group.setLayout(datos_personales_layout)
         layout.addWidget(datos_personales_group)
 
-        # 📚 ASIGNATURAS QUE IMPARTE
-        asignaturas_group = QGroupBox("📚 ASIGNATURAS QUE IMPARTE")
+        # ASIGNATURAS QUE IMPARTE
+        asignaturas_group = QGroupBox("ASIGNATURAS QUE IMPARTE")
         asignaturas_layout = QVBoxLayout()
 
         info_asig_label = QLabel("Selecciona las asignaturas que este profesor imparte:")
@@ -274,12 +276,12 @@ class GestionProfesorDialog(QDialog):
         tab_dias_layout.setSpacing(20)
 
         # Explicación
-        info_dias = QLabel("📋 Selecciona los días en los que el profesor puede dar clases:")
-        info_dias.setStyleSheet("color: #cccccc; font-size: 12px; margin-bottom: 10px;")
-        tab_dias_layout.addWidget(info_dias)
+        # info_dias = QLabel("Selecciona los días en los que el profesor puede dar clases:")
+        # info_dias.setStyleSheet("color: #cccccc; font-size: 12px; margin-bottom: 10px;")
+        # tab_dias_layout.addWidget(info_dias)
 
         # DÍAS DE TRABAJO - Layout horizontal centrado
-        dias_group = QGroupBox("🗓️ Días de Trabajo")
+        dias_group = QGroupBox("Días de Trabajo")
         dias_layout = QHBoxLayout()
         dias_layout.setSpacing(25)
 
@@ -328,11 +330,11 @@ class GestionProfesorDialog(QDialog):
         tab_dias_layout.addWidget(dias_group)
 
         # Información adicional
-        info_extra = QLabel("💡 El profesor dará clases los días marcados")
+        info_extra = QLabel("💡 Tip: El profesor dará clases los días marcados")
         info_extra.setStyleSheet("color: #90EE90; font-size: 12px; font-style: italic; margin-top: 10px;")
         tab_dias_layout.addWidget(info_extra)
 
-        info_siguiente = QLabel("📝 Después configura las franjas específicas en la pestaña 'Horario Semanal'")
+        info_siguiente = QLabel("Después configura las franjas específicas en la pestaña 'Horario Semanal'")
         info_siguiente.setStyleSheet("color: #FFB347; font-size: 11px; font-style: italic; margin-top: 5px;")
         tab_dias_layout.addWidget(info_siguiente)
 
@@ -347,7 +349,7 @@ class GestionProfesorDialog(QDialog):
         # MODO DE MARCADO - Layout horizontal con grupo a la izquierda
         top_horarios_layout = QHBoxLayout()
 
-        modo_group = QGroupBox("🎯 Modo de Marcado")
+        modo_group = QGroupBox("Modo de Marcado")
         modo_layout = QVBoxLayout()  # Cambio a vertical para ocupar menos espacio horizontal
         modo_layout.setSpacing(8)
 
@@ -432,7 +434,7 @@ class GestionProfesorDialog(QDialog):
         tab_no_disp_layout.setContentsMargins(15, 20, 15, 15)
         tab_no_disp_layout.setSpacing(15)
 
-        no_disp_info_label = QLabel("📅 Fechas NO disponibles:")
+        no_disp_info_label = QLabel("Fechas NO disponibles:")
         no_disp_info_label.setStyleSheet("color: #cccccc; font-size: 12px; margin-bottom: 8px;")
         no_disp_info_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
         tab_no_disp_layout.addWidget(no_disp_info_label)
@@ -452,7 +454,7 @@ class GestionProfesorDialog(QDialog):
         no_disp_derecha.setSpacing(10)
 
         # Título para la lista
-        lista_titulo = QLabel("📋 Fechas bloqueadas:")
+        lista_titulo = QLabel("Fechas bloqueadas:")
         lista_titulo.setStyleSheet("font-weight: bold; color: #ffffff; margin-bottom: 5px;")
         no_disp_derecha.addWidget(lista_titulo)
 
@@ -465,8 +467,8 @@ class GestionProfesorDialog(QDialog):
         botones_fechas = QHBoxLayout()
         botones_fechas.setSpacing(8)
 
-        btn_eliminar_fecha = QPushButton("🗑️ Eliminar")
-        btn_limpiar_fechas = QPushButton("🧹 Limpiar Todo")
+        btn_eliminar_fecha = QPushButton("Eliminar")
+        btn_limpiar_fechas = QPushButton("Limpiar Todo")
         btn_eliminar_fecha.clicked.connect(self.eliminar_fecha_no_disponible)
         btn_limpiar_fechas.clicked.connect(self.limpiar_todas_fechas)
 
@@ -499,8 +501,8 @@ class GestionProfesorDialog(QDialog):
 
         layout.addWidget(tabs_widget)
 
-        # 📝 OBSERVACIONES
-        observaciones_group = QGroupBox("📝 OBSERVACIONES")
+        # OBSERVACIONES
+        observaciones_group = QGroupBox("OBSERVACIONES")
         observaciones_layout = QVBoxLayout()
 
         self.edit_observaciones = QTextEdit()
@@ -537,7 +539,8 @@ class GestionProfesorDialog(QDialog):
 
         if not sem1 and not sem2:
             no_asig_label = QLabel(
-                "⚠️ No hay asignaturas configuradas en el sistema.\n\n💡 Configura primero las asignaturas en el sistema principal.")
+                "⚠️ No hay asignaturas configuradas en el sistema.\n\n"
+                "💡 Tip: Configura primero las asignaturas en el sistema principal.")
             no_asig_label.setStyleSheet("""
                 color: #ffaa00; 
                 font-style: italic; 
@@ -556,7 +559,7 @@ class GestionProfesorDialog(QDialog):
 
         # 1º Semestre
         if sem1:
-            sem1_label = QLabel("📋 1º SEMESTRE")
+            sem1_label = QLabel("1º SEMESTRE")
             sem1_label.setStyleSheet("""
                 color: #90EE90; 
                 font-weight: bold; 
@@ -582,7 +585,7 @@ class GestionProfesorDialog(QDialog):
                 espaciador.setFixedHeight(15)
                 self.asignaturas_scroll_layout.addWidget(espaciador)
 
-            sem2_label = QLabel("📋 2º SEMESTRE")
+            sem2_label = QLabel("2º SEMESTRE")
             sem2_label.setStyleSheet("""
                 color: #FFB347; 
                 font-weight: bold; 
@@ -700,9 +703,9 @@ class GestionProfesorDialog(QDialog):
 
     def crear_grid_horarios_profesor(self) -> None:
         """Crea el grid de horarios 4x5 para el profesor"""
-        self.grid_horarios_group = QGroupBox("🗓️ Horario Semanal")
+        self.grid_horarios_group = QGroupBox("Horario Semanal")
         grid_layout = QGridLayout()
-        grid_layout.setSpacing(5)
+        grid_layout.setSpacing(2)
 
         # Horarios fijos del sistema
         self.horarios_fijos = ["9:30-11:30", "11:30-13:30", "15:30-17:30", "17:30-19:30"]
@@ -816,7 +819,7 @@ class GestionProfesorDialog(QDialog):
         }.get(estado, estado)
 
         print(f"{tipo_cambio}: {dia} {horario}")
-        print(f"📊 Disponibles: {stats['disponible']}, Tutorías: {stats['tutoria']}, Ocupados: {stats['no disponible']}")
+        print(f"    - Franjas disponibles: {stats['disponible']}, Tutorías: {stats['tutoria']}, Ocupados: {stats['no disponible']}")
 
         # Calcular total de franjas posibles en días laborables
         total_franjas_posibles = len(dias_marcados) * len(self.horarios_fijos)
@@ -1186,8 +1189,8 @@ class ConfigurarProfesoresWindow(QMainWindow):
         main_layout.addWidget(titulo)
 
         # Información contextual
-        info_label = QLabel(
-            "Gestiona la plantilla de profesores del centro. Configura qué asignaturas puede impartir cada uno y su disponibilidad.")
+        info_label = QLabel("Gestiona la plantilla de profesores del centro. "
+                            "Configura qué asignaturas puede impartir cada uno y su disponibilidad.")
         info_label.setStyleSheet("color: #cccccc; font-size: 11px; margin-bottom: 10px;")
         info_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
         main_layout.addWidget(info_label)
@@ -1196,7 +1199,7 @@ class ConfigurarProfesoresWindow(QMainWindow):
         content_layout = QHBoxLayout()
 
         # Columna izquierda - Lista de profesores con filtros
-        left_panel = QGroupBox("👨‍🏫 PROFESORES REGISTRADOS")
+        left_panel = QGroupBox("PROFESORES REGISTRADOS")
         left_layout = QVBoxLayout()
 
         # Filtros
@@ -1223,7 +1226,7 @@ class ConfigurarProfesoresWindow(QMainWindow):
         btn_add_profesor = self.crear_boton_accion("➕", "#4CAF50", "Añadir nuevo profesor")
         btn_add_profesor.clicked.connect(self.add_profesor)
 
-        btn_edit_profesor = self.crear_boton_accion("✏️", "#2196F3", "Editar profesor seleccionado")
+        btn_edit_profesor = self.crear_boton_accion("✏️", "#a8af4c", "Editar profesor seleccionado")
         btn_edit_profesor.clicked.connect(self.editar_profesor_seleccionado)
 
         btn_delete_profesor = self.crear_boton_accion("🗑️", "#f44336", "Eliminar profesor seleccionado")
@@ -1245,7 +1248,7 @@ class ConfigurarProfesoresWindow(QMainWindow):
         content_layout.addWidget(left_panel)
 
         # Columna central - Detalles del profesor
-        center_panel = QGroupBox("👤 DETALLES DEL PROFESOR")
+        center_panel = QGroupBox("DETALLES DEL PROFESOR")
         center_layout = QVBoxLayout()
         center_layout.setSpacing(10)
 
@@ -1263,13 +1266,13 @@ class ConfigurarProfesoresWindow(QMainWindow):
         center_layout.addWidget(self.info_profesor)
 
         # Estadísticas por asignatura
-        stats_group = QGroupBox("📊 ESTADÍSTICAS POR ASIGNATURA")
+        stats_group = QGroupBox("ESTADÍSTICAS POR ASIGNATURA")
         stats_layout = QVBoxLayout()
         stats_layout.setSpacing(8)
 
         # Layout horizontal para el botón
         btn_stats_layout = QHBoxLayout()
-        self.btn_actualizar_stats = QPushButton("📈 Actualizar Estadísticas")
+        self.btn_actualizar_stats = QPushButton("Actualizar Estadísticas")
         self.btn_actualizar_stats.setMaximumWidth(200)
         self.btn_actualizar_stats.clicked.connect(self.actualizar_estadisticas)
         btn_stats_layout.addWidget(self.btn_actualizar_stats)
@@ -1281,7 +1284,7 @@ class ConfigurarProfesoresWindow(QMainWindow):
         self.texto_stats.setMinimumHeight(280)
         self.texto_stats.setMaximumHeight(380)
         self.texto_stats.setReadOnly(True)
-        self.texto_stats.setText("📈 Presiona 'Actualizar' para ver estadísticas")
+        self.texto_stats.setText("• Presiona 'Actualizar Estadísticas' para ver estadísticas")
         # Mejorar fuente para mejor legibilidad
         self.texto_stats.setStyleSheet("""
             QTextEdit {
@@ -1299,11 +1302,11 @@ class ConfigurarProfesoresWindow(QMainWindow):
         content_layout.addWidget(center_panel)
 
         # Columna derecha - Acciones rápidas y configuración
-        right_panel = QGroupBox("🔧 GESTIÓN Y CONFIGURACIÓN")
+        right_panel = QGroupBox("⚙️ GESTIÓN Y CONFIGURACIÓN")
         right_layout = QVBoxLayout()
 
         # Acciones rápidas
-        acciones_group = QGroupBox("🚀 ACCIONES RÁPIDAS")
+        acciones_group = QGroupBox("⚡ ACCIONES RÁPIDAS")
         acciones_layout = QVBoxLayout()
 
         self.btn_duplicar = QPushButton("Duplicar Profesor Seleccionado")
@@ -1655,7 +1658,7 @@ class ConfigurarProfesoresWindow(QMainWindow):
         self.list_profesores.clear()
 
         if not self.datos_configuracion:
-            item = QListWidgetItem("📭 No hay profesores configurados")
+            item = QListWidgetItem("⚠️ No hay profesores configurados")
             item.setFlags(Qt.ItemFlag.NoItemFlags)
             self.list_profesores.addItem(item)
             return
@@ -1776,11 +1779,11 @@ class ConfigurarProfesoresWindow(QMainWindow):
         self.label_profesor_actual.setText(f"{nombre_completo.strip()}")
 
         # Mostrar información detallada
-        info = f"👨‍🏫 PROFESOR: {nombre_completo.strip()}\n\n"
+        info = f"PROFESOR: {nombre_completo.strip()}\n\n"
 
         # Mostrar asignaturas que imparte
         asignaturas_imparte = datos.get('asignaturas_imparte', [])
-        info += f"📚 ASIGNATURAS ({len(asignaturas_imparte)}):\n"
+        info += f"ASIGNATURAS ({len(asignaturas_imparte)}):\n"
         if asignaturas_imparte:
             for codigo_asig in asignaturas_imparte:
                 # Buscar el nombre de la asignatura por su código
@@ -1799,11 +1802,11 @@ class ConfigurarProfesoresWindow(QMainWindow):
                 else:
                     info += f"  • {codigo_asig}\n"
         else:
-            info += "  Sin asignaturas asignadas\n"
+            info += "  • Sin asignaturas asignadas\n"
 
         # Disponibilidad semanal
         dias_trabajo = datos.get('dias_trabajo', [])
-        info += f"\n📅 DISPONIBILIDAD SEMANAL:\n"
+        info += f"\nDISPONIBILIDAD SEMANAL:\n"
         if dias_trabajo:
             info += f"  • Días de trabajo: {', '.join(dias_trabajo)}\n"
         else:
@@ -1816,7 +1819,8 @@ class ConfigurarProfesoresWindow(QMainWindow):
 
         observaciones = datos.get('observaciones', '').strip()
         if observaciones:
-            info += f"\n📝 OBSERVACIONES:\n  {observaciones}\n"
+            info += (f"\nOBSERVACIONES:\n"
+                     f"  • {observaciones}\n")
 
         self.info_profesor.setText(info)
 
@@ -2133,9 +2137,9 @@ class ConfigurarProfesoresWindow(QMainWindow):
             respuesta = QMessageBox.question(
                 self, "Guardar y Cerrar",
                 f"¿Guardar configuración en el sistema y cerrar?\n\n"
-                f"📊 Resumen:\n"
-                f"• {total_profesores} profesores configurados\n"
-                f"• {len(asignaturas_unicas)} asignaturas distintas cubiertas\n\n"
+                f"Resumen:\n"
+                f"   • {total_profesores} profesores configurados\n"
+                f"   • {len(asignaturas_unicas)} asignaturas distintas cubiertas\n\n"
                 f"La configuración se integrará con OPTIM y la ventana se cerrará.",
                 QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No
             )
@@ -2158,7 +2162,7 @@ class ConfigurarProfesoresWindow(QMainWindow):
     def actualizar_estadisticas(self) -> None:
         """Actualizar estadísticas por asignatura"""
         if not self.datos_configuracion:
-            self.texto_stats.setText("📊 No hay profesores para generar estadísticas")
+            self.texto_stats.setText("No hay profesores para generar estadísticas")
             return
 
         # Estadísticas generales
@@ -2202,13 +2206,13 @@ class ConfigurarProfesoresWindow(QMainWindow):
                     stats_asignaturas[asig_key]['disponibles_hoy'] += 1
 
         # Generar texto de estadísticas
-        stats_texto = f"📈 ESTADÍSTICAS GENERALES:\n"
-        stats_texto += f"Total profesores: {total_profesores}\n"
-        stats_texto += f"Disponibles hoy ({dia_hoy}): {disponibles_hoy}\n"
-        stats_texto += f"No disponibles hoy: {total_profesores - disponibles_hoy}\n\n"
+        stats_texto = f"ESTADÍSTICAS GENERALES:\n"
+        stats_texto += f"   • Total profesores: {total_profesores}\n"
+        stats_texto += f"   • Disponibles hoy ({dia_hoy}): {disponibles_hoy}\n"
+        stats_texto += f"   • No disponibles hoy: {total_profesores - disponibles_hoy}\n\n"
 
         if stats_asignaturas:
-            stats_texto += f"📚 POR ASIGNATURA:\n"
+            stats_texto += f"POR ASIGNATURA:\n"
             for asig_key, stats in sorted(stats_asignaturas.items()):
                 if '_' in asig_key:
                     sem, nombre = asig_key.split('_', 1)
@@ -2219,8 +2223,8 @@ class ConfigurarProfesoresWindow(QMainWindow):
                 total = stats['total_profesores']
                 disp_hoy = stats['disponibles_hoy']
 
-                stats_texto += f"• {nombre_completo}: {total} prof.\n"
-                stats_texto += f"  - Disponibles hoy: {disp_hoy}\n"
+                stats_texto += f"   • {nombre_completo}: {total} prof.\n"
+                stats_texto += f"       - Disponibles hoy: {disp_hoy}\n"
 
         self.texto_stats.setText(stats_texto)
 
@@ -2342,6 +2346,7 @@ class ConfigurarProfesoresWindow(QMainWindow):
             self.log_mensaje(f"Error cancelando cambios: {e}", "warning")
 
 
+# ========= main =========
 def main():
     """Función principal"""
     app = QApplication(sys.argv)

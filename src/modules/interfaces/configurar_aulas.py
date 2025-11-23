@@ -22,13 +22,15 @@ from PyQt6.QtWidgets import (
     QTabWidget, QCalendarWidget, QSpacerItem, QSizePolicy
 )
 from PyQt6.QtCore import Qt, pyqtSignal, QDate
-from PyQt6.QtGui import QPalette, QColor
+from PyQt6.QtGui import QPalette, QColor, QCursor
 
 
 def center_window_on_screen(window, width, height) -> None:
-    """Centra la ventana en la pantalla"""
+    """Centrar ventana en la pantalla donde está el cursor"""
     try:
-        screen = QApplication.primaryScreen()
+        # Obtener la pantalla donde está el cursor
+        cursor_pos = QCursor.pos()
+        screen = QApplication.screenAt(cursor_pos)
         if screen:
             screen_geometry = screen.availableGeometry()
             center_x = (screen_geometry.width() - width) // 2 + screen_geometry.x()
@@ -82,7 +84,7 @@ class GestionAulaDialog(QDialog):
         layout.setSpacing(12)
 
         # Datos básicos del laboratorio
-        datos_group = QGroupBox("🏢 DATOS BÁSICOS DEL LABORATORIO")
+        datos_group = QGroupBox("DATOS BÁSICOS DEL LABORATORIO")
         datos_layout = QFormLayout()
 
         # Nombre
@@ -148,11 +150,11 @@ class GestionAulaDialog(QDialog):
         """)
 
         # Añadir campos al formulario
-        datos_layout.addRow("🏷️ Nombre:", self.edit_nombre)
-        datos_layout.addRow("👥 Capacidad:", capacidad_layout)
-        datos_layout.addRow("🔧 Equipamiento:", self.edit_equipamiento)
-        datos_layout.addRow("🏢 Edificio:", self.edit_edificio)
-        datos_layout.addRow("📍 Planta:", self.edit_planta)
+        datos_layout.addRow("Nombre:", self.edit_nombre)
+        datos_layout.addRow("Capacidad:", capacidad_layout)
+        datos_layout.addRow("Equipamiento:", self.edit_equipamiento)
+        datos_layout.addRow("Edificio:", self.edit_edificio)
+        datos_layout.addRow("Planta:", self.edit_planta)
         datos_layout.addRow("", self.check_disponible)
 
         datos_group.setLayout(datos_layout)
@@ -177,7 +179,7 @@ class GestionAulaDialog(QDialog):
             # Scroll area para asignaturas
             scroll_asignaturas = QScrollArea()
             scroll_asignaturas.setWidgetResizable(True)
-            scroll_asignaturas.setMinimumHeight(300)
+            scroll_asignaturas.setMinimumHeight(150)
             scroll_asignaturas.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
 
             scroll_widget = QWidget()
@@ -196,7 +198,7 @@ class GestionAulaDialog(QDialog):
 
             # 1º Semestre
             if asignaturas_por_semestre["1º Semestre"]:
-                sem1_label = QLabel("📋 1º SEMESTRE:")
+                sem1_label = QLabel("1º SEMESTRE:")
                 sem1_label.setStyleSheet("color: #90EE90; font-weight: bold; margin-top: 8px; font-size: 13px;")
                 scroll_layout.addWidget(sem1_label)
 
@@ -252,7 +254,7 @@ class GestionAulaDialog(QDialog):
                     espaciador.setFixedHeight(10)
                     scroll_layout.addWidget(espaciador)
 
-                sem2_label = QLabel("📋 2º SEMESTRE:")
+                sem2_label = QLabel("2º SEMESTRE:")
                 sem2_label.setStyleSheet("color: #FFB347; font-weight: bold; margin-top: 8px; font-size: 13px;")
                 scroll_layout.addWidget(sem2_label)
 
@@ -319,7 +321,7 @@ class GestionAulaDialog(QDialog):
         tab_no_disp_layout.setContentsMargins(15, 20, 15, 15)
         tab_no_disp_layout.setSpacing(15)
 
-        no_disp_info_label = QLabel("📅 Fechas NO disponibles (obras, mantenimiento, etc.):")
+        no_disp_info_label = QLabel("Fechas NO disponibles (obras, mantenimiento, etc.):")
         no_disp_info_label.setStyleSheet("color: #cccccc; font-size: 12px; margin-bottom: 8px;")
         no_disp_info_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
         tab_no_disp_layout.addWidget(no_disp_info_label)
@@ -339,7 +341,7 @@ class GestionAulaDialog(QDialog):
         no_disp_derecha.setSpacing(10)
 
         # Título para la lista
-        lista_titulo = QLabel("📋 Fechas bloqueadas:")
+        lista_titulo = QLabel("Fechas bloqueadas:")
         lista_titulo.setStyleSheet("font-weight: bold; color: #ffffff; margin-bottom: 5px;")
         no_disp_derecha.addWidget(lista_titulo)
 
@@ -352,8 +354,8 @@ class GestionAulaDialog(QDialog):
         botones_fechas = QHBoxLayout()
         botones_fechas.setSpacing(8)
 
-        btn_eliminar_fecha = QPushButton("🗑️ Eliminar")
-        btn_limpiar_fechas = QPushButton("🧹 Limpiar Todo")
+        btn_eliminar_fecha = QPushButton("Eliminar")
+        btn_limpiar_fechas = QPushButton("Limpiar Todo")
         btn_eliminar_fecha.clicked.connect(self.eliminar_fecha_no_disponible)
         btn_limpiar_fechas.clicked.connect(self.limpiar_todas_fechas)
 
@@ -380,7 +382,7 @@ class GestionAulaDialog(QDialog):
         tab_no_disp_layout.addStretch()
 
         # ================== AÑADIR TABS AL WIDGET PRINCIPAL ==================
-        tabs_widget.addTab(tab_asignaturas, "📚 Asignaturas Asociadas")
+        tabs_widget.addTab(tab_asignaturas, "📖 Asignaturas Asociadas")
         tabs_widget.addTab(tab_no_disponibles, "❌ Días No Disponibles")
 
         layout.addWidget(tabs_widget)
@@ -702,11 +704,17 @@ class ConfigurarAulasWindow(QMainWindow):
         titulo.setAlignment(Qt.AlignmentFlag.AlignCenter)
         main_layout.addWidget(titulo)
 
+        # Información del flujo
+        info_label = QLabel("Gestiona las aulas, su capacidad y disponibilidad para la planificación de laboratorios.")
+        info_label.setStyleSheet("color: #cccccc; font-size: 11px; margin-bottom: 10px;")
+        info_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        main_layout.addWidget(info_label)
+
         # Contenido principal en tres columnas
         content_layout = QHBoxLayout()
 
         # Columna izquierda - Lista de aulas
-        left_panel = QGroupBox("📋 AULAS CONFIGURADAS")
+        left_panel = QGroupBox("AULAS CONFIGURADAS")
         left_layout = QVBoxLayout()
 
         # Header con botones de gestión
@@ -718,7 +726,7 @@ class ConfigurarAulasWindow(QMainWindow):
         btn_add_aula = self.crear_boton_accion("➕", "#4CAF50", "Añadir nueva aula")
         btn_add_aula.clicked.connect(self.add_aula)
 
-        btn_edit_aula = self.crear_boton_accion("✏️", "#2196F3", "Editar aula seleccionada")
+        btn_edit_aula = self.crear_boton_accion("✏️", "#a8af4c", "Editar aula seleccionada")
         btn_edit_aula.clicked.connect(self.editar_aula_seleccionada)
 
         btn_delete_aula = self.crear_boton_accion("🗑️", "#f44336", "Eliminar aula seleccionada")
@@ -740,7 +748,7 @@ class ConfigurarAulasWindow(QMainWindow):
         content_layout.addWidget(left_panel)
 
         # Columna central - Detalles del aula
-        center_panel = QGroupBox("🔍 DETALLES DEL LABORATORIO")
+        center_panel = QGroupBox("DETALLES DEL LABORATORIO")
         center_layout = QVBoxLayout()
         center_layout.setSpacing(8)
 
@@ -757,14 +765,14 @@ class ConfigurarAulasWindow(QMainWindow):
         center_layout.addWidget(self.info_aula)
 
         # Estadísticas simplificadas
-        stats_group = QGroupBox("📊 ESTADÍSTICAS")
+        stats_group = QGroupBox("ESTADÍSTICAS")
         stats_layout = QVBoxLayout()
         stats_layout.setSpacing(5)
 
         self.texto_stats = QTextEdit()
         self.texto_stats.setMaximumHeight(120)
         self.texto_stats.setReadOnly(True)
-        self.texto_stats.setText("📈 Seleccione datos para ver estadísticas")
+        self.texto_stats.setText("Seleccione datos para ver estadísticas")
         stats_layout.addWidget(self.texto_stats)
 
         stats_group.setLayout(stats_layout)
@@ -778,7 +786,7 @@ class ConfigurarAulasWindow(QMainWindow):
         right_layout = QVBoxLayout()
 
         # Acciones rápidas
-        acciones_group = QGroupBox("🚀 ACCIONES RÁPIDAS")
+        acciones_group = QGroupBox("⚡ ACCIONES RÁPIDAS")
         acciones_layout = QVBoxLayout()
 
         self.btn_duplicar = QPushButton("Duplicar Aula Seleccionada")
@@ -939,7 +947,7 @@ class ConfigurarAulasWindow(QMainWindow):
         return ', '.join(str(int(hex_color[i:i + 2], 16)) for i in (0, 2, 4))
 
     def apply_dark_theme(self) -> None:
-        """Aplicar tema oscuro idéntico al resto del sistema - CON TOOLTIPS"""
+        """Aplicar tema oscuro"""
         self.setStyleSheet("""
             QMainWindow {
                 background-color: #2b2b2b;
@@ -1360,11 +1368,11 @@ class ConfigurarAulasWindow(QMainWindow):
             respuesta = QMessageBox.question(
                 self, "Guardar y Cerrar",
                 f"¿Guardar configuración en el sistema y cerrar?\n\n"
-                f"📊 Resumen:\n"
-                f"• {total_aulas} laboratorios configurados\n"
-                f"• {disponibles} laboratorios disponibles\n"
-                f"• {total_asociaciones} asignaturas asociadas\n"
-                f"• {total_fechas_bloqueadas} fechas bloqueadas\n\n"
+                f"Resumen:\n"
+                f"  • {total_aulas} laboratorios configurados\n"
+                f"  • {disponibles} laboratorios disponibles\n"
+                f"  • {total_asociaciones} asignaturas asociadas\n"
+                f"  • {total_fechas_bloqueadas} fechas bloqueadas\n\n"
                 f"La configuración se integrará con OPTIM y la ventana se cerrará.",
                 QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No
             )
@@ -1428,7 +1436,7 @@ class ConfigurarAulasWindow(QMainWindow):
         self.list_aulas.clear()
 
         if not self.datos_configuracion:
-            item = QListWidgetItem("📭 No hay aulas configuradas")
+            item = QListWidgetItem("⚠️ No hay aulas configuradas")
             item.setFlags(Qt.ItemFlag.NoItemFlags)
             self.list_aulas.addItem(item)
             return
@@ -1478,17 +1486,17 @@ class ConfigurarAulasWindow(QMainWindow):
         self.label_aula_actual.setText(f"{nombre}")
 
         # Mostrar información detallada con asignaturas asociadas y fechas no disponibles
-        info = f"🏷️ LABORATORIO: {nombre}\n\n"
-        info += f"👥 Capacidad: {datos.get('capacidad', 'No definida')} personas\n"
-        info += f"🔧 Equipamiento: {datos.get('equipamiento', 'No definido')}\n"
-        info += f"🏢 Edificio: {datos.get('edificio', 'No definido')}\n"
-        info += f"📍 Planta: {datos.get('planta', 'No definida')}\n"
-        info += f"✅ Disponible: {'Sí' if datos.get('disponible', True) else 'No'}\n\n"
+        info = f"LABORATORIO: {nombre}\n"
+        info += f"  • Capacidad: {datos.get('capacidad', 'No definida')} personas\n"
+        info += f"  • Equipamiento: {datos.get('equipamiento', 'No definido')}\n"
+        info += f"  • Edificio: {datos.get('edificio', 'No definido')}\n"
+        info += f"  • Planta: {datos.get('planta', 'No definida')}\n"
+        info += f"  • Disponible: {'Sí' if datos.get('disponible', True) else 'No'}\n\n"
 
         # Mostrar asignaturas asociadas
         asignaturas_asociadas = datos.get('asignaturas_asociadas', [])
         if asignaturas_asociadas:
-            info += f"📚 ASIGNATURAS ({len(asignaturas_asociadas)}):\n"
+            info += f"ASIGNATURAS ({len(asignaturas_asociadas)}):\n"
             for codigo_asig in asignaturas_asociadas:
                 # Buscar el nombre de la asignatura
                 if codigo_asig in self.asignaturas_disponibles:
@@ -1499,12 +1507,13 @@ class ConfigurarAulasWindow(QMainWindow):
                 else:
                     info += f"  • {codigo_asig}\n"
         else:
-            info += f"📚 ASIGNATURAS: Sin asignaturas asociadas\n"
+            info += (f"ASIGNATURAS:\n"
+                     f"    • Sin asignaturas asociadas\n")
 
         # Mostrar fechas no disponibles
         fechas_no_disponibles = datos.get('fechas_no_disponibles', [])
         if fechas_no_disponibles:
-            info += f"\n❌ DÍAS NO DISPONIBLES ({len(fechas_no_disponibles)}):\n"
+            info += f"\nDÍAS NO DISPONIBLES ({len(fechas_no_disponibles)}):\n"
             # Mostrar solo las primeras 5 fechas para no saturar
             fechas_mostrar = fechas_no_disponibles[:5]
             for fecha in fechas_mostrar:
@@ -1512,7 +1521,7 @@ class ConfigurarAulasWindow(QMainWindow):
             if len(fechas_no_disponibles) > 5:
                 info += f"  ... y {len(fechas_no_disponibles) - 5} fechas más\n"
         else:
-            info += f"\n❌ DÍAS NO DISPONIBLES: Ninguno\n"
+            info += f"\nDÍAS NO DISPONIBLES: Ninguno\n"
 
         self.info_aula.setText(info)
 
@@ -1540,7 +1549,7 @@ class ConfigurarAulasWindow(QMainWindow):
         """Actualizar estadísticas simplificadas"""
         total = len(self.datos_configuracion)
         if total == 0:
-            self.texto_stats.setText("📊 No hay aulas configuradas")
+            self.texto_stats.setText("No hay aulas configuradas")
             return
 
         disponibles = sum(1 for datos in self.datos_configuracion.values()
@@ -1563,15 +1572,15 @@ class ConfigurarAulasWindow(QMainWindow):
                                       for datos in self.datos_configuracion.values())
 
         # Estadísticas
-        stats = f"📈 RESUMEN: {total} aulas, {disponibles} disponibles\n"
-        stats += f"👥 CAPACIDAD: {cap_total} total"
+        stats = f"RESUMEN: {total} aulas, {disponibles} disponibles\n"
+        stats += f"CAPACIDAD: {cap_total} total"
         if capacidades:
             stats += f" ({min(capacidades)}-{max(capacidades)})\n"
         else:
             stats += "\n"
-        stats += f"🏗️ UBICACIONES: {len(edificios)} edificios\n"
-        stats += f"📚 ASOCIACIONES: {total_asociaciones} asignaturas vinculadas\n"
-        stats += f"❌ FECHAS BLOQUEADAS: {total_fechas_bloqueadas} días"
+        stats += f"UBICACIONES: {len(edificios)} edificios\n"
+        stats += f"ASOCIACIONES: {total_asociaciones} asignaturas vinculadas\n"
+        stats += f"FECHAS BLOQUEADAS: {total_fechas_bloqueadas} días"
 
         self.texto_stats.setText(stats)
 
@@ -1651,6 +1660,7 @@ class ConfigurarAulasWindow(QMainWindow):
             self.log_mensaje(f"Error cancelando cambios: {e}", "warning")
 
 
+# ========= main =========
 def main():
     """Función principal para testing"""
     app = QApplication(sys.argv)
@@ -1671,7 +1681,7 @@ def main():
             "edificio": "Edificio A",
             "planta": "Planta 1",
             "disponible": True,
-            "asignaturas_asociadas": ["FIS1", "QUI1"],  # Códigos reales del JSON
+            "asignaturas_asociadas": ["FIS1", "QUI1"],
             "fechas_no_disponibles": ["15/03/2025", "22/03/2025", "01/04/2025"]
         },
         "Lab_Electronica_C": {
@@ -1681,7 +1691,7 @@ def main():
             "edificio": "Edificio C",
             "planta": "Planta 3",
             "disponible": True,
-            "asignaturas_asociadas": ["EANA", "EDIG"],  # Códigos reales del JSON
+            "asignaturas_asociadas": ["EANA", "EDIG"],
             "fechas_no_disponibles": ["10/04/2025"]
         }
     }

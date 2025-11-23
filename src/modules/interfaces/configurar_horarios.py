@@ -22,13 +22,15 @@ from PyQt6.QtWidgets import (
     QCheckBox, QFileDialog, QLineEdit
 )
 from PyQt6.QtCore import Qt, pyqtSignal
-from PyQt6.QtGui import QFont, QPalette, QColor
+from PyQt6.QtGui import QFont, QPalette, QColor, QCursor
 
 
 def center_window_on_screen(window, width, height) -> None:
-    """Centra la ventana en la pantalla"""
+    """Centrar ventana en la pantalla donde está el cursor"""
     try:
-        screen = QApplication.primaryScreen()
+        # Obtener la pantalla donde está el cursor
+        cursor_pos = QCursor.pos()
+        screen = QApplication.screenAt(cursor_pos)
         if screen:
             screen_geometry = screen.availableGeometry()
             center_x = (screen_geometry.width() - width) // 2 + screen_geometry.x()
@@ -78,7 +80,7 @@ class GestionAsignaturaDialog(QDialog):
         layout = QVBoxLayout()
 
         # Título
-        titulo = QLabel(f"📚 {self.dia} - {self.horario}")
+        titulo = QLabel(f"{self.dia} - {self.horario}")
         titulo.setStyleSheet("color: #4a9eff; font-weight: bold; font-size: 14px;")
         titulo.setAlignment(Qt.AlignmentFlag.AlignCenter)
         layout.addWidget(titulo)
@@ -329,7 +331,7 @@ class GestionAsignaturaDialog(QDialog):
 class FranjaHorarioWidget(QFrame):
     """Widget para mostrar una franja horaria con sus grupos"""
 
-    franja_editada = pyqtSignal(str, str, list, list)  # Se añade list para letras
+    franja_editada = pyqtSignal(str, str, list, list)
     franja_eliminada = pyqtSignal(str, str)
 
     # ========= INICIALIZACIÓN =========
@@ -338,7 +340,7 @@ class FranjaHorarioWidget(QFrame):
         self.dia = dia
         self.horario = horario
         self.grupos = grupos or []
-        self.letras = letras or []  # agregado para las letras
+        self.letras = letras or []
         self.parent_window = parent
         self._widgets_creados = False
 
@@ -356,7 +358,7 @@ class FranjaHorarioWidget(QFrame):
         self.main_layout.setContentsMargins(5, 5, 5, 5)
         self.main_layout.setSpacing(2)
 
-        # NEW LETRAS!! - Label para letras (pequeño, arriba a la izquierda)
+        # Label para letras (pequeño, arriba a la izquierda)
         self.letras_label = QLabel()
         self.letras_label.setAlignment(Qt.AlignmentFlag.AlignLeft)
         self.letras_label.setFont(QFont("Arial", 7))
@@ -506,15 +508,15 @@ class FranjaHorarioWidget(QFrame):
                 border: 1px solid #555;
                 border-radius: 4px;
                 background-color: #333;
-                color: #2196F3;
+                color: #a8af4c;
                 padding: 2px;
                 margin: 0px;
                 text-align: center;
             }
             QPushButton:hover {
-                background-color: rgba(33, 150, 243, 0.3);
-                border-color: #2196F3;
-                color: #2196F3;
+                background-color: rgba(168, 175, 76, 0.3);
+                border-color: #a8af4c;
+                color: #a8af4c;
             }
             QPushButton:pressed {
                 background-color: rgba(33, 150, 243, 0.5);
@@ -626,9 +628,13 @@ class FranjaHorarioWidget(QFrame):
             return
 
         respuesta = QMessageBox.question(
-            self, "Eliminar Grupos",
-            f"¿Eliminar todos los grupos de {self.dia} {self.horario}?\n\n"
-            f"Grupos actuales: {', '.join(self.grupos)}",
+            self,
+            "Eliminar Grupos y Letras",
+            (
+                f"¿Eliminar todos los grupos y letras de {self.dia} {self.horario}?\n\n"
+                f"Grupos actuales: {', '.join(self.grupos)}\n"
+                f"Letras actuales: {', '.join(self.letras)}"
+            ),
             QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No
         )
 
@@ -694,7 +700,7 @@ class ConfigurarHorariosWindow(QMainWindow):
         main_layout = QVBoxLayout()
 
         # Selector de semestre
-        semestre_group = QGroupBox("📚 SELECCIÓN DE SEMESTRE")
+        semestre_group = QGroupBox("SELECCIÓN DE SEMESTRE")
         semestre_layout = QHBoxLayout()
 
         self.radio_sem1 = QPushButton("1º Semestre")
@@ -714,7 +720,7 @@ class ConfigurarHorariosWindow(QMainWindow):
         content_layout = QHBoxLayout()
 
         # Panel izquierdo - Asignaturas (SOLO LECTURA)
-        left_panel = QGroupBox("📋 ASIGNATURAS DEL SEMESTRE")
+        left_panel = QGroupBox("ASIGNATURAS DEL SEMESTRE")
         left_layout = QVBoxLayout()
 
         # Header sin botones de gestión
@@ -732,7 +738,7 @@ class ConfigurarHorariosWindow(QMainWindow):
         content_layout.addWidget(left_panel)
 
         # Panel central - Grupos (SOLO LECTURA)
-        center_panel = QGroupBox("🎓 GRUPOS DE LA ASIGNATURA")
+        center_panel = QGroupBox("GRUPOS DE LA ASIGNATURA")
         center_layout = QVBoxLayout()
 
         self.label_asignatura_grupos = QLabel("Seleccione una asignatura")
@@ -754,7 +760,7 @@ class ConfigurarHorariosWindow(QMainWindow):
         content_layout.addWidget(center_panel)
 
         # Panel derecho - Grid de horarios
-        right_panel = QGroupBox("⚙️ CONFIGURACIÓN DE HORARIOS")
+        right_panel = QGroupBox("CONFIGURACIÓN DE HORARIOS")
         right_layout = QVBoxLayout()
 
         self.label_asignatura = QLabel("Seleccione una asignatura")
@@ -762,7 +768,7 @@ class ConfigurarHorariosWindow(QMainWindow):
         right_layout.addWidget(self.label_asignatura)
 
         # Grid de horarios
-        grid_group = QGroupBox("🗓️ HORARIOS DE LABORATORIO")
+        grid_group = QGroupBox("HORARIOS DE LABORATORIO")
         grid_layout = QVBoxLayout()
 
         self.crear_grid_horarios(grid_layout)
@@ -820,7 +826,7 @@ class ConfigurarHorariosWindow(QMainWindow):
         central_widget.setLayout(main_layout)
 
     def apply_dark_theme(self) -> None:
-        """Aplicar tema oscuro completo idéntico al de aulas"""
+        """Aplicar tema oscuro"""
         self.setStyleSheet("""
             QMainWindow {
                 background-color: #2b2b2b;
@@ -1011,7 +1017,7 @@ class ConfigurarHorariosWindow(QMainWindow):
             self.log_mensaje(f"Error cargando datos: {e}", "warning")
 
     def cargar_asignaturas(self) -> None:
-        """Carga asignaturas SOLO desde el sistema central (configuracion_labs.json)"""
+        """Carga asignaturas desde el sistema central (configuracion_labs.json)"""
         self.list_asignaturas.clear()
 
         try:
@@ -1075,11 +1081,11 @@ class ConfigurarHorariosWindow(QMainWindow):
                             break
 
                     # Crear texto descriptivo con código y nombre
-                    texto = f"📚 {codigo} - {nombre_completo if nombre_completo else codigo}"
+                    texto = f"• {codigo} - {nombre_completo if nombre_completo else codigo}"
                     if grupos:
-                        texto += f"\n   📝 {len(grupos)} grupos: {', '.join(grupos)}"
+                        texto += f"\n     {len(grupos)} grupos: {', '.join(grupos)}"
                     else:
-                        texto += f"\n   ⚠️ Sin grupos configurados"
+                        texto += f"\n     Sin grupos configurados"
 
                     item = QListWidgetItem(texto)
                     item.setData(Qt.ItemDataRole.UserRole, codigo)
@@ -1175,7 +1181,7 @@ class ConfigurarHorariosWindow(QMainWindow):
 
         # Establecer nueva selección
         self.asignatura_actual = asignatura
-        self.label_asignatura.setText(f"📚 {asignatura}")
+        self.label_asignatura.setText(f"{asignatura}")
         self.label_asignatura_grupos.setText(asignatura)
 
         self.log_mensaje(f"Seleccionada asignatura: {asignatura}", "success")
@@ -1253,7 +1259,7 @@ class ConfigurarHorariosWindow(QMainWindow):
             if grupos_dict:
                 for codigo, nombre in sorted(grupos_dict.items()):
                     # Mostrar "código - nombre"
-                    texto_grupo = f"🎓 {codigo} - {nombre}"
+                    texto_grupo = f"• {codigo} - {nombre}"
                     item = QListWidgetItem(texto_grupo)
                     item.setData(Qt.ItemDataRole.UserRole, codigo)
                     item.setBackground(QColor(0, 0, 100, 80))
@@ -1443,10 +1449,12 @@ class ConfigurarHorariosWindow(QMainWindow):
             if letras is None:
                 letras = []
 
+            mixta = len([g for g in grupos if g]) > 1
+
             asignaturas[self.asignatura_actual]["horarios_grid"][horario][dia] = {
                 "grupos": grupos,
                 "letras": letras,
-                "mixta": False  # Valor por defecto
+                "mixta": mixta
             }
 
             # Marcar cambios
@@ -1565,8 +1573,8 @@ class ConfigurarHorariosWindow(QMainWindow):
             respuesta = QMessageBox.question(
                 self, "Guardar y Cerrar",
                 f"¿Guardar configuración?\n\n"
-                f"• {total_asignaturas} asignaturas\n"
-                f"• {total_franjas} franjas configuradas",
+                f"   • {total_asignaturas} asignaturas\n"
+                f"   • {total_franjas} franjas configuradas",
                 QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No
             )
 
@@ -1617,10 +1625,7 @@ class ConfigurarHorariosWindow(QMainWindow):
         return datos_actuales != self.datos_iniciales and not self.datos_guardados
 
     def closeEvent(self, event) -> None:
-        """
-        Manejar cierre de ventana cancelando modificaciones pendientes si es necesario
-        Debe ser closeEvent y no close_event por la libreria pyQt6, es como lo detecta para cerrarlo
-        """
+        """Manejar cierre de ventana cancelando modificaciones pendientes si es necesario"""
         if not self.hay_cambios_sin_guardar():
             self.log_mensaje("Cerrando configuración de horarios", "info")
             event.accept()
@@ -1630,7 +1635,7 @@ class ConfigurarHorariosWindow(QMainWindow):
             self, "Cambios sin Guardar",
             "Hay cambios sin guardar en la configuración.\n\n"
             "¿Cerrar sin guardar?\n\n"
-            "💡 Tip: Usa 'Guardar en Sistema' para conservar los cambios.",
+            "💡 Tip: Pulsa 'Guardar en Sistema' para conservar los cambios.",
             QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
             QMessageBox.StandardButton.No
         )
@@ -1680,6 +1685,7 @@ class ConfigurarHorariosWindow(QMainWindow):
             print(f"{iconos.get(tipo, 'ℹ️')} {mensaje}")
 
 
+# ========= main =========
 def main():
     """Función principal"""
     app = QApplication(sys.argv)
