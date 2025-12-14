@@ -1152,6 +1152,8 @@ class ConfigurarAulasWindow(QMainWindow):
             self.btn_toggle_disponible.setEnabled(False)
             self.marcar_cambio_realizado()
 
+            self.actualizar_estadisticas()
+
             QMessageBox.information(self, "Limpieza Completada", "Todos los laboratorios han sido eliminados")
 
     def duplicar_aula_seleccionada(self) -> None:

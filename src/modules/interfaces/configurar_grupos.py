@@ -743,6 +743,14 @@ class ConfigurarGruposWindow(QMainWindow):
     def cargar_datos_iniciales(self) -> None:
         """Cargar datos existentes al inicializar"""
         try:
+            # Actualizar número de estudiantes matriculados con los datos reales
+            for codigo, datos in self.datos_configuracion.items():
+                matriculados_reales = sum(
+                    1 for alumno in self.alumnos_disponibles.values()
+                    if codigo in alumno.get("grupos_matriculado", [])
+                )
+                datos["estudiantes_matriculados"] = matriculados_reales
+
             # Ordenar grupos alfabéticamente
             self.sort_grupos_alfabeticamente()
 

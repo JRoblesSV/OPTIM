@@ -1017,19 +1017,29 @@ class OptimLabsGUI(QtWidgets.QMainWindow):
                                 len(config.get("configuraciones_adicionales", {}))
                         )
                         self.labels_estado[key].setText(f"✅ {total_parametros} parámetros\nconfigurados")
+                        self.labels_estado[key].setStyleSheet("font-size: 11px; color: rgb(100,200,100);")
                     elif key == "horarios":
                         # Caso especial para horarios - mostrar franjas
                         total_franjas = config.get("total", 0)
                         total_asignaturas = config.get("total_asignaturas", 0)
-                        self.labels_estado[key].setText(f"✅ {total_franjas} franjas\n{total_asignaturas} asignaturas")
+                        if total_franjas > 0:
+                            self.labels_estado[key].setText(
+                                f"✅ {total_franjas} franjas\n{total_asignaturas} asignaturas")
+                            self.labels_estado[key].setStyleSheet("font-size: 11px; color: rgb(100,200,100);")
+                        else:
+                            self.labels_estado[key].setText(
+                                f"❌ {total_franjas} franjas\n{total_asignaturas} asignaturas")
+                            self.labels_estado[key].setStyleSheet("font-size: 11px; color: rgb(200,80,80);")
                     elif key == "calendario":
                         # Caso especial para calendario - mostrar días
                         total_dias = config.get("total", 0)
                         self.labels_estado[key].setText(f"✅ {total_dias} días lectivos\nconfigurados")
+                        self.labels_estado[key].setStyleSheet("font-size: 11px; color: rgb(100,200,100);")
                     elif key == "aulas":
                         # Caso especial para aulas - mostrar laboratorios
                         total_aulas = config.get("total_aulas", config.get("total", 0))
                         self.labels_estado[key].setText(f"✅ {total_aulas} laboratorios\nconfigurados")
+                        self.labels_estado[key].setStyleSheet("font-size: 11px; color: rgb(100,200,100);")
                     else:
                         # Otros casos (grupos, asignaturas, profesores, alumnos)
                         total = config.get("total", 0)
@@ -1041,8 +1051,9 @@ class OptimLabsGUI(QtWidgets.QMainWindow):
                         }
                         texto_elemento = elementos_texto.get(key, "elementos")
                         self.labels_estado[key].setText(f"✅ {total} {texto_elemento}\nconfigurados")
+                        self.labels_estado[key].setStyleSheet("font-size: 11px; color: rgb(100,200,100);")
 
-                    self.labels_estado[key].setStyleSheet("font-size: 11px; color: rgb(100,200,100);")
+
                 else:
                     self.labels_estado[key].setText("❌ Sin\nconfigurar")
                     self.labels_estado[key].setStyleSheet("font-size: 11px; color: rgb(220,220,220);")

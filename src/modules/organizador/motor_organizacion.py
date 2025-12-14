@@ -27,6 +27,7 @@ from datetime import datetime
 from pathlib import Path
 from typing import Dict, List, Tuple, Optional, Any, Set
 
+from PyQt6.QtWidgets import QMessageBox, QApplication
 
 # ========= CONSTANTES Y PATRONES =========
 # Patrones de grupos
@@ -110,18 +111,6 @@ def load_configuration(path: Path) -> Dict:
     """
     with path.open("r", encoding="utf-8") as fh:
         return json.load(fh)
-
-
-def save_configuration(path: Path, cfg: Dict) -> None:
-    """
-    Guardar configuración en archivo JSON.
-
-    Args:
-        path: Ruta donde guardar el archivo
-        cfg: Diccionario con la configuración
-    """
-    with path.open("w", encoding="utf-8") as fh:
-        json.dump(cfg, fh, ensure_ascii=False, indent=2)
 
 
 def normalize_time_range(rng: str) -> str:
@@ -538,11 +527,11 @@ class ValidadorDatos:
                     # Buscar grupos_lab_posibles para este grupo específico
                     # Primero intentar con formato completo, luego buscar coincidencias parciales
                     grupos_lab_posibles = self.grupos_lab_posibles.get(
-                        (f"{semestre} Semestre", asig_codigo, grupo_codigo)
+                        (f"{semestre}º Semestre", asig_codigo, grupo_codigo)
                     )
 
                     if grupos_lab_posibles is None:
-                        # Búsqueda alternativa por asignatura y grupo (sin semestre exacto)
+                        # Búsqueda alternativa por asignatura y grupo
                         for (sem, asig, grupo), valor in self.grupos_lab_posibles.items():
                             if asig == asig_codigo and grupo == grupo_codigo:
                                 grupos_lab_posibles = valor
@@ -893,8 +882,9 @@ class AsignadorAulaPreferente:
         """Inicializar el asignador de aulas preferentes."""
         self.cfg = cfg
         self.aulas_preferentes: Dict[Tuple[str, str], str] = {}
+        self.conflictos_aulas: List[Dict] = []
 
-    def ejecutar(self) -> Tuple[bool, Dict[Tuple[str, str], str]]:
+    def ejecutar(self) -> tuple[bool, dict[Any, Any]] | tuple[bool, dict[tuple[str, str], str], list[dict]]:
         """
         Ejecutar la FASE 3 completa.
 
@@ -914,7 +904,7 @@ class AsignadorAulaPreferente:
         # Resumen final
         self._mostrar_resumen()
 
-        return True, self.aulas_preferentes
+        return True, self.aulas_preferentes, self.conflictos_aulas
 
     def _obtener_aulas_por_asignatura(self, asignatura: str) -> List[Tuple[str, int]]:
         """
@@ -995,6 +985,17 @@ class AsignadorAulaPreferente:
             if not aulas_disponibles:
                 print(f"  ⚠ {semestre}:{asig_codigo} - Sin aulas asociadas")
                 num_sin_aula += 1
+                self.conflictos_aulas.append({
+                    "semestre": semestre,
+                    "asignatura": asig_codigo,
+                    "grupo": "—",
+                    "dia": "—",
+                    "franja": "—",
+                    "fecha": "—",
+                    "aula": "NO ASIGNADA",
+                    "profesor": "—",
+                    "detalle": f"Asignatura {asig_codigo} sin aulas asociadas en configuración"
+                })
                 continue
 
             # 3.2 - Seleccionar aula con mayor capacidad
@@ -1074,9 +1075,11 @@ class CreadorGruposLab:
         self.aulas_preferentes = aulas_preferentes
         self.grupos_creados: List[GrupoLab] = []
         self.grupos_por_slot: Dict[Tuple[str, str], List[GrupoLab]] = {}
-        self.contador_labels: Dict[str, int] = {}  # Para generar labels únicos
+        self.contador_labels: Dict[Tuple[str, str], int] = {}
+        self.conflictos_aulas: List[Dict] = []
 
-    def ejecutar(self) -> Tuple[bool, List[GrupoLab], Dict[Tuple[str, str], List[GrupoLab]]]:
+    def ejecutar(self) -> tuple[bool, list[Any], dict[Any, Any]] | tuple[bool, list[GrupoLab], dict[tuple[str, str],
+    list[GrupoLab]], list[dict]]:
         """
         Ejecutar la FASE 4 completa.
 
@@ -1097,7 +1100,7 @@ class CreadorGruposLab:
         # Resumen final
         self._mostrar_resumen()
 
-        return True, self.grupos_creados, self.grupos_por_slot
+        return True, self.grupos_creados, self.grupos_por_slot, self.conflictos_aulas
 
     def _obtener_franjas_de_horarios_grid(self, semestre: str, asignatura: str,
                                           grupo: str, dia: str, letra: str) -> Optional[List[str]]:
@@ -1346,6 +1349,17 @@ class CreadorGruposLab:
                 if aula_preferente is None:
                     print(f"  ⚠ {semestre}:{asignatura}:{grupo} - No hay aula preferente asignada")
                     num_sin_aula += 1
+                    self.conflictos_aulas.append({
+                        "semestre": semestre,
+                        "asignatura": asignatura,
+                        "grupo": f"{grupo}-{letra}",
+                        "dia": dia,
+                        "franja": "—",
+                        "fecha": "—",
+                        "aula": "NO ASIGNADA",
+                        "profesor": "—",
+                        "detalle": f"Grupo {grupo} letra {letra} sin aula asignada (Fase 4 no encontró aulas)"
+                    })
                     continue
 
                 # Obtener capacidad del aula
@@ -1486,6 +1500,7 @@ class AsignadorAlumnos:
         self.cfg = cfg
         self.grupos_creados = grupos_creados
         self.avisos: List[str] = []
+        self.conflictos_alumnos: List[Dict] = []
 
         # Mapeos de alumnos (se construyen por asignatura)
         self.alumno_simple: Dict[str, str] = {}  # alumno_id -> grupo_simple
@@ -1495,7 +1510,7 @@ class AsignadorAlumnos:
         self.asignatura_actual = ""
         self.semestre_actual = ""
 
-    def ejecutar(self) -> Tuple[bool, List[GrupoLab], List[str]]:
+    def ejecutar(self) -> tuple[bool, list[GrupoLab], list[str], list[dict]]:
         """
         Ejecutar la FASE 5 completa.
 
@@ -1544,7 +1559,7 @@ class AsignadorAlumnos:
         # Resumen final
         self._mostrar_resumen()
 
-        return True, self.grupos_creados, self.avisos
+        return True, self.grupos_creados, self.avisos, self.conflictos_alumnos
 
     def _construir_mapeos_alumnos(self, asignatura: str) -> None:
         """
@@ -1889,6 +1904,18 @@ class AsignadorAlumnos:
                 f"{num_sin_asignar} alumno(s) sin asignar por capacidad insuficiente"
             )
 
+            self.conflictos_alumnos.append({
+                "semestre": self.semestre_actual,
+                "asignatura": self.asignatura_actual,
+                "grupo": "—",
+                "dia": "—",
+                "franja": "—",
+                "fecha": "—",
+                "aula": "—",
+                "profesor": "—",
+                "detalle": f"{num_sin_asignar} alumno(s) sin asignar por capacidad insuficiente"
+            })
+
     def _slot_permite_alumno(self, grupo: GrupoLab, alumno_id: str) -> bool:
         """
         Verificar si un slot/grupo permite a un alumno específico.
@@ -1984,6 +2011,7 @@ class AsignadorProfesores:
         self.cfg = cfg
         self.grupos_creados = grupos_creados
         self.avisos: List[str] = []
+        self.conflictos_profesores: List[Dict] = []
 
         # Datos de profesores
         self.profesores_data = (
@@ -1996,7 +2024,7 @@ class AsignadorProfesores:
         self.prof_carga_total: Dict[str, int] = {}  # prof_id -> número total de grupos
         self.prof_carga_por_asig: Dict[Tuple[str, str], int] = {}  # (prof_id, asignatura) -> número grupos
 
-    def ejecutar(self) -> Tuple[bool, List['GrupoLab'], List[str]]:
+    def ejecutar(self) -> tuple[bool, list[GrupoLab], list[str], list[dict]]:
         """
         Ejecutar la FASE 6 completa.
 
@@ -2021,7 +2049,7 @@ class AsignadorProfesores:
         # 6.4 - Mostrar resumen
         self._mostrar_resumen()
 
-        return True, self.grupos_creados, self.avisos
+        return True, self.grupos_creados, self.avisos, self.conflictos_profesores
 
     def _construir_indices(self) -> None:
         """
@@ -2078,6 +2106,18 @@ class AsignadorProfesores:
                     f"{grupo.semestre}:{grupo.asignatura} - "
                     f"Grupo {grupo.label} sin profesor disponible para {grupo.dia} {grupo.franja}"
                 )
+
+                self.conflictos_profesores.append({
+                    "semestre": grupo.semestre,
+                    "asignatura": grupo.asignatura,
+                    "grupo": grupo.label,
+                    "dia": grupo.dia,
+                    "franja": grupo.franja,
+                    "fecha": "",
+                    "aula": grupo.aula or "—",
+                    "profesor": "SIN ASIGNAR",
+                    "detalle": f"No hay profesores disponibles para {grupo.dia} {grupo.franja}"
+                })
 
         print(f"    ✓ Grupos con profesor: {grupos_asignados}/{len(self.grupos_creados)}")
         if grupos_sin_profesor > 0:
@@ -2501,7 +2541,7 @@ class ProgramadorFechas:
                             "fecha": fecha_dd,
                             "aula": grupo.aula or "—",
                             "profesor": grupo.profesor or "—",
-                            "detalle": f"Conflicto sin resolver (prof/aula no disponible en {fecha_dd})"
+                            "detalle": f"Conflicto sin resolver (profesor o aula no disponible en {fecha_dd})"
                         })
 
             # Actualizar fechas del grupo con las validadas
@@ -2908,6 +2948,7 @@ class GeneradorOutputs:
         grupos: List,
         conflictos_profesores: List[Dict] = None,
         conflictos_aulas: List[Dict] = None,
+        conflictos_alumnos: List[Dict] = None,
         avisos: List[str] = None
     ):
         """
@@ -2924,6 +2965,7 @@ class GeneradorOutputs:
         self.grupos = grupos
         self.conflictos_profesores = conflictos_profesores or []
         self.conflictos_aulas = conflictos_aulas or []
+        self.conflictos_alumnos = conflictos_alumnos or []
         self.avisos = avisos or []
 
     def ejecutar(self, output_path: Path) -> Tuple[bool, Dict]:
@@ -2979,6 +3021,7 @@ class GeneradorOutputs:
                 'aula': grupo.aula,
                 'dia': grupo.dia,
                 'franja': grupo.franja,
+                'letra': grupo.letra,
                 'fechas': grupo.fechas or [],
                 'alumnos': list(grupo.alumnos) if grupo.alumnos else [],
                 'capacidad': grupo.capacidad,
@@ -3029,7 +3072,7 @@ class GeneradorOutputs:
         resultados["conflictos"] = {
             "profesores": self.conflictos_profesores,
             "aulas": self.conflictos_aulas,
-            "alumnos": self._extraer_conflictos_alumnos()
+            "alumnos": self.conflictos_alumnos
         }
 
         # Avisos
@@ -3038,7 +3081,7 @@ class GeneradorOutputs:
         # Agrupar por semestre -> asignatura -> grupos
         for grupo_dict in grupos_json:
             # Normalizar clave de semestre
-            sem_key = self._normalizar_semestre_key(grupo_dict['semestre'])
+            sem_key = "semestre_" + normalizar_semestre(grupo_dict['semestre'])
             asignatura = grupo_dict['asignatura']
             label = grupo_dict['label']
 
@@ -3061,7 +3104,8 @@ class GeneradorOutputs:
                 'capacidad': grupo_dict['capacidad'],
                 'mixta': grupo_dict['mixta'],
                 'grupo_simple': grupo_dict['grupo_simple'],
-                'grupo_doble': grupo_dict['grupo_doble']
+                'grupo_doble': grupo_dict['grupo_doble'],
+                'letra': grupo_dict['letra']
             }
 
             resultados[sem_key][asignatura]["grupos"][label] = grupo_data
@@ -3086,6 +3130,7 @@ class GeneradorOutputs:
         print(f"    • Grupos totales: {len(grupos_json)}")
         print(f"    • Conflictos profesores: {len(self.conflictos_profesores)}")
         print(f"    • Conflictos aulas: {len(self.conflictos_aulas)}")
+        print(f"    • Conflictos alumnos: {len(self.conflictos_alumnos)}")
         print(f"    • Avisos: {len(self.avisos)}")
 
         return resultados
@@ -3153,6 +3198,8 @@ class GeneradorOutputs:
                     print(f"  • Profesores: {len(self.conflictos_profesores)}")
                 if self.conflictos_aulas:
                     print(f"  • Aulas: {len(self.conflictos_aulas)}")
+                if self.conflictos_alumnos:
+                    print(f"  • Alumnos: {len(self.conflictos_alumnos)}")
 
             if self.avisos:
                 print(f"\n  AVISOS REGISTRADOS:")
@@ -3166,90 +3213,94 @@ class GeneradorOutputs:
             print(f"\n  ✗ ERROR AL GENERAR OUTPUTS")
             print(f"  Revise los errores anteriores")
 
-    def _extraer_conflictos_alumnos(self) -> List[Dict]:
-        """
-        Extraer conflictos de alumnos de los avisos.
 
-        Los avisos que empiezan con ciertos patrones se convierten en conflictos
-        estructurados de alumnos.
-
-        Returns:
-            Lista de conflictos de alumnos en formato estructurado
-        """
-        conflictos_alumnos = []
-
-        for aviso in self.avisos:
-            # Si el aviso ya es un dict estructurado
-            if isinstance(aviso, dict):
-                conflictos_alumnos.append(aviso)
-            # Si es string y empieza con marcador de capacidad
-            elif isinstance(aviso, str) and "[CAPACIDAD" in aviso.upper():
-                # Convertir a formato estructurado básico
-                conflictos_alumnos.append({
-                    "semestre": "-",
-                    "asignatura": "-",
-                    "grupo": "-",
-                    "dia": "-",
-                    "fecha": "-",
-                    "franja": "-",
-                    "aula": "-",
-                    "profesor": "-",
-                    "detalle": aviso
-                })
-
-        return conflictos_alumnos
-
-    def _normalizar_semestre_key(self, semestre: str) -> str:
-        """
-        Normalizar clave de semestre a formato 'semestre_N'.
-
-        Args:
-            semestre: Semestre en cualquier formato
-
-        Returns:
-            Semestre normalizado (ej: 'semestre_1', 'semestre_2')
-        """
-        # Si ya está en formato correcto
-        if semestre.startswith("semestre_"):
-            return semestre
-
-        # Extraer número
-        if "1" in semestre:
-            return "semestre_1"
-        elif "2" in semestre:
-            return "semestre_2"
-
-        # Por defecto
-        return f"semestre_{semestre}"
-
-
-# ========= FUNCIÓN DE CONVENIENCIA =========
-def generar_outputs(
-    cfg: Dict,
-    grupos: List,
-    output_path: Path,
-    conflictos_profesores: List[Dict] = None,
-    conflictos_aulas: List[Dict] = None,
-    avisos: List[str] = None
-) -> Tuple[bool, Dict]:
+# ========= CLASE DE POP-UPS =========
+class PopupManager:
     """
-    Función de conveniencia para ejecutar la Fase 8.
+    Utilidades para mostrar pop-ups informativos y de error.
 
-    Args:
-        cfg: Configuración completa del sistema
-        grupos: Lista de grupos programados
-        output_path: Ruta donde guardar el JSON
-        conflictos_profesores: Conflictos de profesores (opcional)
-        conflictos_aulas: Conflictos de aulas (opcional)
-        avisos: Lista de avisos (opcional)
-
-    Returns:
-        Tupla con (éxito, configuración_actualizada)
+    Si no existe un QApplication activo (ejecución en consola),
+    los mensajes se muestran por terminal.
     """
-    generador = GeneradorOutputs(
-        cfg, grupos, conflictos_profesores, conflictos_aulas, avisos
-    )
-    return generador.ejecutar(output_path)
+
+    @staticmethod
+    def _hay_app() -> bool:
+        """Comprobar si hay un QApplication activo"""
+        try:
+            return QApplication.instance() is not None
+        except Exception:
+            return False
+
+    @staticmethod
+    def _mostrar_qmessagebox(
+        icono: QMessageBox.Icon,
+        titulo: str,
+        mensaje: str,
+        detalle: Optional[str] = None
+    ) -> None:
+        """Mostrar un QMessageBox con el estilo indicado"""
+        box = QMessageBox()
+        box.setIcon(icono)
+        box.setWindowTitle(titulo)
+        box.setText(mensaje)
+        if detalle:
+            box.setInformativeText(detalle)
+        box.exec()
+
+    @staticmethod
+    def show_critical(titulo: str, mensaje: str, detalle: Optional[str] = None) -> None:
+        """Mostrar un mensaje de error crítico"""
+        if PopupManager._hay_app():
+            PopupManager._mostrar_qmessagebox(QMessageBox.Icon.Critical, titulo, mensaje, detalle)
+        else:
+            # Modo consola
+            print("\n" + "=" * 70)
+            print(titulo)
+            print("=" * 70)
+            print(mensaje)
+            if detalle:
+                print(f"\nDetalle:\n{detalle}")
+            print("=" * 70)
+
+    @staticmethod
+    def show_warning(titulo: str, mensaje: str, detalle: Optional[str] = None) -> None:
+        """Mostrar una advertencia no crítica"""
+        if PopupManager._hay_app():
+            PopupManager._mostrar_qmessagebox(QMessageBox.Icon.Warning, titulo, mensaje, detalle)
+        else:
+            print("\n" + "-" * 70)
+            print(f"ADVERTENCIA: {titulo}")
+            print("-" * 70)
+            print(mensaje)
+            if detalle:
+                print(f"\nDetalle:\n{detalle}")
+            print("-" * 70)
+
+    @staticmethod
+    def show_info(titulo: str, mensaje: str, detalle: Optional[str] = None) -> None:
+        """Mostrar un mensaje informativo"""
+        if PopupManager._hay_app():
+            PopupManager._mostrar_qmessagebox(QMessageBox.Icon.Information, titulo, mensaje, detalle)
+        else:
+            print("\n" + "-" * 70)
+            print(titulo)
+            print("-" * 70)
+            print(mensaje)
+            if detalle:
+                print(f"\nDetalle:\n{detalle}")
+            print("-" * 70)
+
+
+def get_config_path() -> Path:
+    """Devuelve ruta de configuracion_labs.json de forma compatible para .exe y para desarrollar"""
+    if getattr(sys, "frozen", False):
+        # Ejecutándose como .exe - está junto al ejecutable
+        base_dir = Path(sys.executable).parent
+    else:
+        # Ejecutándose desde código fuente - motor_organizacion.py está en /src/modules/organizador
+        base_dir = Path(__file__).resolve().parents[2]
+
+    return base_dir / "configuracion_labs.json"
 
 
 # ========= MAIN - TESTING DE FASE 8/8 =========
@@ -3269,11 +3320,16 @@ def main():
     """
 
     # Buscar configuración por defecto
-    config_path = Path(__file__).resolve().parents[2] / "configuracion_labs.json"
+    config_path = get_config_path()
 
     if not config_path.exists():
         print(f"ERROR: No se encontró el archivo de configuración en: {config_path}")
-        sys.exit(1)
+        PopupManager.show_critical(
+            "❌ Error",
+            "No se encuentra el archivo de configuración configuracion_labs.json.\n\n"
+            f"Revisa que el archivo exista en la ruta esperada: {config_path}."
+        )
+        return
 
     # ===== FASE 1: CARGA Y VALIDACIÓN =====
     validador = ValidadorDatos(config_path)
@@ -3296,7 +3352,20 @@ def main():
         print("\n" + "=" * 70)
         print("✗ FASE 1 FALLÓ - Corrija los errores críticos antes de continuar")
         print("=" * 70)
-        sys.exit(1)
+        PopupManager.show_critical(
+            "❌ Error en Fase 1",
+            "La Fase 1 (Carga y Validación de Datos) no se ha podido completar.\n\n"
+            "Esta fase verifica que el archivo de configuración contiene toda "
+            "la información necesaria para continuar con el proceso. "
+            "Los fallos más habituales son:\n\n"
+            " • Faltan secciones obligatorias en el archivo JSON.\n"
+            " • Alguna asignatura no tiene parámetros básicos definidos.\n"
+            " • Grupos, horarios o aulas están incompletos o mal configurados.\n"
+            " • Revisar si es compatible el número de sesiones en Asignaturas y el número de letras en Horarios.\n"
+            " • Valores vacíos o inconsistentes (semana_inicio, num_sesiones, letras de grupos...) revisa calendario.\n\n"
+            "Revisa el panel de errores y corrige las configuraciones indicadas."
+        )
+        return
 
     # ===== FASE 2: CÁLCULO DE FECHAS =====
     calculador = CalculadorFechas(cfg, validador.grupos_lab_posibles)
@@ -3307,51 +3376,96 @@ def main():
         print("\n" + "=" * 70)
         print("✗ FASE 2 FALLÓ")
         print("=" * 70)
-        sys.exit(1)
+        PopupManager.show_critical(
+            "❌ Error en Fase 2",
+            "La Fase 2 (Cálculo de fechas) no ha podido completarse.\n\n"
+            "Esto suele ocurrir cuando:\n"
+            " • No se definió correctamente la semana de inicio.\n"
+            " • El número de sesiones no coincide con la duración del semestre.\n"
+            " • Hay huecos en el calendario o semanas fuera de rango.\n\n"
+            "Revisa la configuración del calendario en el módulo correspondiente."
+        )
+        return
 
     # ===== FASE 3: AULA PREFERENTE =====
     asignador_aulas = AsignadorAulaPreferente(cfg)
-    exito_fase3, aulas_preferentes = asignador_aulas.ejecutar()
+    exito_fase3, aulas_preferentes, conflictos_aulas_fase3 = asignador_aulas.ejecutar()
 
     # Si FASE 3 falla, detener
     if not exito_fase3:
         print("\n" + "=" * 70)
         print("✗ FASE 3 FALLÓ")
         print("=" * 70)
-        sys.exit(1)
+        PopupManager.show_critical(
+            "❌ Error en Fase 3",
+            "La Fase 3 (Asignación de Aula Preferente) ha fallado.\n\n"
+            "Generalmente ocurre cuando:\n"
+            " • No existen aulas registradas en el sistema.\n"
+            " • La asignatura no tiene definida un aula válida.\n"
+            " • La capacidad del aula es insuficiente.\n\n"
+            "Revisa la configuración de Aulas y las Asignaturas afectadas."
+        )
+        return
 
     # ===== FASE 4: CREAR GRUPOS =====
     creador_grupos = CreadorGruposLab(cfg, mapeo_fechas, aulas_preferentes)
-    exito_fase4, grupos_creados, grupos_por_slot = creador_grupos.ejecutar()
+    exito_fase4, grupos_creados, grupos_por_slot, conflictos_aulas_fase4 = creador_grupos.ejecutar()
 
     # Si FASE 4 falla, detener
     if not exito_fase4:
         print("\n" + "=" * 70)
         print("✗ FASE 4 FALLÓ")
         print("=" * 70)
-        sys.exit(1)
+        PopupManager.show_critical(
+            "❌ Error en Fase 4",
+            "La Fase 4 (Creación de Grupos de laboratorio) no se ha completado.\n\n"
+            "Posibles causas:\n"
+            " • La asignatura no tiene configurados los grupos correctamente.\n"
+            " • El horario tiene grupos con demasiadas letras o inconsistencias.\n\n"
+            "Revisa el módulo 'Grupos' y 'Horarios' para corregir la configuración."
+        )
+        return
 
     # ===== FASE 5: ASIGNAR ALUMNOS =====
     asignador_alumnos = AsignadorAlumnos(cfg, grupos_creados)
-    exito_fase5, grupos_con_alumnos, avisos_fase5 = asignador_alumnos.ejecutar()
+    exito_fase5, grupos_con_alumnos, avisos_fase5, conflictos_alumnos_fase5 = asignador_alumnos.ejecutar()
 
     # Si FASE 5 falla, detener
     if not exito_fase5:
         print("\n" + "=" * 70)
         print("✗ FASE 5 FALLÓ")
         print("=" * 70)
-        sys.exit(1)
+        PopupManager.show_critical(
+            "❌ Error en Fase 5",
+            "La Fase 5 (Asignación de alumnos) no pudo realizarse.\n\n"
+            "Esto suele deberse a:\n"
+            " • Alumnos matriculados en asignaturas sin grupos configurados.\n"
+            " • Grupos saturados que no admiten más alumnos.\n"
+            " • Datos incompletos en la matrícula de alumnos.\n"
+            " • Existen alumnos sin información completa o con datos incorrectos.\n\n"
+            "Revisa el módulo 'Alumnos' y asegúrate de que los grupos tienen capacidad."
+        )
+        return
 
     # ===== FASE 6: ASIGNAR PROFESORES =====
     asignador_profesores = AsignadorProfesores(cfg, grupos_con_alumnos)
-    exito_fase6, grupos_con_profesores, avisos_fase6 = asignador_profesores.ejecutar()
+    exito_fase6, grupos_con_profesores, avisos_fase6, conflictos_prof_fase6 = asignador_profesores.ejecutar()
 
     # Si FASE 6 falla, detener
     if not exito_fase6:
         print("\n" + "=" * 70)
         print("✗ FASE 6 FALLÓ")
         print("=" * 70)
-        sys.exit(1)
+        PopupManager.show_critical(
+            "❌ Error en Fase 6",
+            "La Fase 6 (Asignación de profesores) ha fallado.\n\n"
+            "Causas frecuentes:\n"
+            " • Profesores sin disponibilidad compatible con los grupos.\n"
+            " • Falta de profesores asignados a ciertas asignaturas.\n"
+            " • Conflictos entre múltiples grupos asignados al mismo profesor.\n\n"
+            "Revisa el módulo 'Profesores' y asegúrate de que todos tienen horarios válidos."
+        )
+        return
 
     # ===== FASE 7: PROGRAMAR FECHAS =====
     # IMPORTANTE: Pasar mapeo_fechas de Fase 2
@@ -3363,18 +3477,34 @@ def main():
         print("\n" + "=" * 70)
         print("✗ FASE 7 FALLÓ")
         print("=" * 70)
-        sys.exit(1)
+        PopupManager.show_critical(
+            "❌ Error en Fase 7",
+            "La Fase 7 (Programación de Fechas del laboratorio) no pudo completarse.\n\n"
+            "Suele producirse cuando:\n"
+            " • Existen conflictos de disponibilidad entre profesores y grupos.\n"
+            " • No hay aulas libres para algunas sesiones.\n"
+            " • Las fechas generadas no encajan en el calendario configurado.\n"
+            " • Hay grupos que quedaron sin sesión/fecha asignada.\n\n"
+            "Revisa conflictos de profesores, aulas y disponibilidad del calendario."
+        )
+        return
 
     # ===== FASE 8: OUTPUTS (GENERACIÓN JSON) =====
     # Combinar todos los avisos de las fases anteriores
     avisos_totales = avisos_fase5 + avisos_fase6
 
+    # Combinar Conflictos de Todas las Fases
+    conflictos_aulas_totales = conflictos_aulas_fase3 + conflictos_aulas_fase4 + conflictos_aulas_fase7
+    conflictos_profesores_totales = conflictos_prof_fase6 + conflictos_profes_fase7
+    conflictos_alumnos_totales = conflictos_alumnos_fase5
+
     # Crear generador de outputs
     generador = GeneradorOutputs(
         cfg=cfg,
         grupos=grupos_con_fechas,
-        conflictos_profesores=conflictos_profes_fase7,
-        conflictos_aulas=conflictos_aulas_fase7,
+        conflictos_profesores=conflictos_profesores_totales,
+        conflictos_aulas=conflictos_aulas_totales,
+        conflictos_alumnos=conflictos_alumnos_totales,
         avisos=avisos_totales
     )
 
@@ -3385,7 +3515,17 @@ def main():
         print("\n" + "=" * 70)
         print("✗ FASE 8 FALLÓ")
         print("=" * 70)
-        sys.exit(1)
+        PopupManager.show_critical(
+            "❌ Error en Fase 8",
+            "La Fase 8 (Generación del archivo final) ha fallado.\n\n"
+            "Esto puede deberse a:\n"
+            " • Falta de permisos para guardar el archivo.\n"
+            " • La ruta de destino no es válida o está bloqueada.\n"
+            " • El JSON resultante es inconsistente.\n"
+            " • El archivo está siendo usado por otro programa.\n\n"
+            "Revisa la ruta de guardado y asegúrate de que el archivo no está bloqueado."
+        )
+        return
 
     # ===== RESULTADO FINAL =====
     print("\n" + "=" * 70)

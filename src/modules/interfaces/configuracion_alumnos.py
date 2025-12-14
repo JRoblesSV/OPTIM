@@ -2268,7 +2268,7 @@ class ConfigurarAlumnosWindow(QMainWindow):
     def actualizar_estadisticas(self) -> None:
         """Actualizar estadísticas por asignatura con desglose de grupos"""
         if not self.datos_configuracion:
-            self.texto_stats.setText("📊 No hay alumnos para generar estadísticas")
+            self.texto_stats.setText("No hay alumnos para generar estadísticas")
             return
 
         # Estadísticas generales

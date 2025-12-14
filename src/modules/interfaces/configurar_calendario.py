@@ -835,7 +835,7 @@ class ConfigurarCalendarioWindow(QMainWindow):
         sem1_layout.addWidget(self.calendario_1)
 
         # Contador de días 1º semestre
-        self.label_contador_1 = QLabel("📊 Días configurados: 0/14")
+        self.label_contador_1 = QLabel("Días configurados: 0/14")
         self.label_contador_1.setStyleSheet("color: #cccccc; font-size: 10px;")
         sem1_layout.addWidget(self.label_contador_1)
 
@@ -854,7 +854,7 @@ class ConfigurarCalendarioWindow(QMainWindow):
         sem2_layout.addWidget(self.calendario_2)
 
         # Contador de días 2º semestre
-        self.label_contador_2 = QLabel("📊 Días configurados: 0/14")
+        self.label_contador_2 = QLabel("Días configurados: 0/14")
         self.label_contador_2.setStyleSheet("color: #cccccc; font-size: 10px;")
         sem2_layout.addWidget(self.label_contador_2)
 
@@ -2111,12 +2111,12 @@ class ConfigurarCalendarioWindow(QMainWindow):
     def generar_calendario_automatico(self) -> None:
         """Generar calendario automático básico"""
         try:
-            respuesta = QMessageBox.question(
+            respuesta = QMessageBox.warning(
                 self, "Generar Calendario Automático",
                 "¿Generar un calendario académico básico?\n\n"
                 "Esto creará días lectivos típicos de lunes a viernes\n"
                 "excluyendo festivos comunes.\n\n"
-                "⚠️ Esto reemplazará la configuración actual",
+                "Esto reemplazará la configuración actual",
                 QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No
             )
 
@@ -2189,7 +2189,7 @@ class ConfigurarCalendarioWindow(QMainWindow):
             QMessageBox.information(
                 self, "Calendario Generado",
                 f"Calendario automático generado\n\n"
-                f"  • Total días lectivos: {total_generados}\n\n"
+                f"Total días lectivos: {total_generados}\n\n"
                 f"1º Semestre: {total_1} días\n"
                 f"   • Inicio: {primer_lunes_sept.strftime('%d/%m/%Y')}\n"
                 f"   • {detalles_1}\n\n"

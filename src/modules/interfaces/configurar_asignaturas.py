@@ -1030,8 +1030,8 @@ class ConfigurarAsignaturasWindow(QMainWindow):
         self.info_asignatura.setText("ℹ️ Seleccione una asignatura para ver sus detalles")
         center_layout.addWidget(self.info_asignatura)
 
-        # Estadísticas automáticas
-        stats_group = QGroupBox("ESTADÍSTICAS AUTOMÁTICAS")
+        # Estadísticas
+        stats_group = QGroupBox("ESTADÍSTICAS")
         stats_layout = QVBoxLayout()
         stats_layout.setSpacing(5)
 

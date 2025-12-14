@@ -1265,8 +1265,8 @@ class ConfigurarProfesoresWindow(QMainWindow):
         self.info_profesor.setText("ℹ️ Seleccione un profesor para ver sus detalles")
         center_layout.addWidget(self.info_profesor)
 
-        # Estadísticas por asignatura
-        stats_group = QGroupBox("ESTADÍSTICAS POR ASIGNATURA")
+        # Estadísticas
+        stats_group = QGroupBox("ESTADÍSTICAS")
         stats_layout = QVBoxLayout()
         stats_layout.setSpacing(8)
 
