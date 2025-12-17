@@ -1027,9 +1027,8 @@ class OptimLabsGUI(QtWidgets.QMainWindow):
                                 f"✅ {total_franjas} franjas\n{total_asignaturas} asignaturas")
                             self.labels_estado[key].setStyleSheet("font-size: 11px; color: rgb(100,200,100);")
                         else:
-                            self.labels_estado[key].setText(
-                                f"❌ {total_franjas} franjas\n{total_asignaturas} asignaturas")
-                            self.labels_estado[key].setStyleSheet("font-size: 11px; color: rgb(200,80,80);")
+                            self.labels_estado[key].setText("❌ Sin\nconfigurar")
+                            self.labels_estado[key].setStyleSheet("font-size: 11px; color: rgb(220,220,220);")
                     elif key == "calendario":
                         # Caso especial para calendario - mostrar días
                         total_dias = config.get("total", 0)
