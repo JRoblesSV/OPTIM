@@ -1167,7 +1167,7 @@ class ConfigurarProfesoresWindow(QMainWindow):
         self.datos_iniciales = json.dumps(self.datos_configuracion, sort_keys=True)
         self.datos_guardados_en_sistema = datos_existentes is not None
         self.profesor_actual = None
-        self.filtro_asignatura_actual = "Todas las asignaturas"
+        self.filtro_asignatura_actual = "Todos los profesores"
 
         self.setup_ui()
         self.apply_dark_theme()
@@ -1441,7 +1441,7 @@ class ConfigurarProfesoresWindow(QMainWindow):
         """Configurar opciones de filtros"""
         # Llenar combo de asignaturas
         self.combo_filtro_asignatura.clear()
-        self.combo_filtro_asignatura.addItem("Todas las asignaturas")
+        self.combo_filtro_asignatura.addItem("Todos los profesores")
 
         # Añadir asignaturas por semestre
         sem1 = self.asignaturas_disponibles.get("1", {})
@@ -1672,9 +1672,8 @@ class ConfigurarProfesoresWindow(QMainWindow):
             # FILTRO POR ASIGNATURA
             incluir_por_asignatura = False
 
-            if filtro_texto == "Todas las asignaturas":
-                # Si puede impartir cualquier asignatura
-                incluir_por_asignatura = bool(asignaturas_imparte)
+            if filtro_texto == "Todos los profesores":
+                incluir_por_asignatura = True
             else:
                 # Extraer semestre y asignatura del filtro "1º - Fisica"
                 if " - " in filtro_texto:
@@ -1752,7 +1751,7 @@ class ConfigurarProfesoresWindow(QMainWindow):
         # Mostrar información del filtro
         if profesores_filtrados:
             total = len(profesores_filtrados)
-            contexto = "global" if filtro_texto == "Todas las asignaturas" else f"para {filtro_texto}"
+            contexto = "global" if filtro_texto == "Todos los profesores" else f"para {filtro_texto}"
             filtro_disp = " (disponibles hoy)" if solo_disponibles else ""
             self.log_mensaje(f"Filtro {contexto}{filtro_disp}: {total} profesores mostrados", "info")
         else:
@@ -2123,8 +2122,21 @@ class ConfigurarProfesoresWindow(QMainWindow):
     def guardar_en_sistema(self) -> None:
         """Guardar configuración en el sistema principal"""
         try:
+            # Cambio para poder guardar sin datos
+            # if not self.datos_configuracion:
+            #     QMessageBox.warning(self, "Sin Datos", "No hay profesores configurados para guardar.")
+            #     return
             if not self.datos_configuracion:
-                QMessageBox.warning(self, "Sin Datos", "No hay profesores configurados para guardar.")
+                respuesta = QMessageBox.question(
+                    self, "Guardar y Cerrar",
+                    "No hay profesores configurados.\n\n¿Guardar igualmente en el sistema y cerrar?",
+                    QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No
+                )
+                if respuesta == QMessageBox.StandardButton.Yes:
+                    self.configuracion_actualizada.emit({})  # guardar vacío
+                    self.datos_guardados_en_sistema = True
+                    self.datos_iniciales = json.dumps(self.datos_configuracion, sort_keys=True)
+                    self.close()
                 return
 
             total_profesores = len(self.datos_configuracion)

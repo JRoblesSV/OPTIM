@@ -1355,9 +1355,10 @@ class ConfigurarAulasWindow(QMainWindow):
     def guardar_en_sistema(self) -> None:
         """Guardar configuración en el sistema principal"""
         try:
-            if not self.datos_configuracion:
-                QMessageBox.warning(self, "Sin Datos", "No hay laboratorios configurados para guardar.")
-                return
+            # Cambio para poder guardar sin datos
+            # if not self.datos_configuracion:
+            #     QMessageBox.warning(self, "Sin Datos", "No hay laboratorios configurados para guardar.")
+            #     return
 
             total_aulas = len(self.datos_configuracion)
             disponibles = sum(1 for datos in self.datos_configuracion.values()

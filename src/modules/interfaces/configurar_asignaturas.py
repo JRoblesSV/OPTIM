@@ -1741,6 +1741,7 @@ class ConfigurarAsignaturasWindow(QMainWindow):
             QMessageBox.information(self, "Marcada para Eliminación",
                                     f"Asignatura '{asignatura_codigo}' marcada para eliminación.\n\nLa eliminación se aplicará al guardar en el sistema.")
 
+
     # ========= SINCRONIZACIÓN =========
     def sincronizar_con_grupos(self, asignatura_codigo, grupos_nuevos, grupos_eliminados) -> None:
         """Sincronizar cambios con módulo de grupos"""
@@ -2529,6 +2530,9 @@ class ConfigurarAsignaturasWindow(QMainWindow):
                 if asignaturas_a_actualizar > 0:
                     self.aplicar_actualizaciones_pendientes()
 
+                # Recalcular metadatos de horarios después de eliminar
+                self.recalcular_metadatos_horarios()
+
                 # Enviar señal al sistema principal
                 self.configuracion_actualizada.emit(self.datos_configuracion)
 
@@ -3006,6 +3010,49 @@ class ConfigurarAsignaturasWindow(QMainWindow):
 
         except Exception as e:
             QMessageBox.critical(self, "Error de Exportación", f"Error al exportar estadísticas:\n{str(e)}")
+
+    # ========= RECALCULO METADATA HORARIOS =========
+    def recalcular_metadatos_horarios(self) -> None:
+        """Recalcula total_franjas y total_asignaturas en metadatos de horarios"""
+        try:
+            cfg = self.parent_window.configuracion.get("configuracion", {})
+            horarios = cfg.get("horarios", {})
+            datos_hor = horarios.get("datos", {})
+            if not datos_hor:
+                return
+
+            total_asignaturas = 0
+            total_franjas = 0
+
+            for semestre in datos_hor.keys():
+                asignaturas_sem = datos_hor.get(semestre, {})
+                if not isinstance(asignaturas_sem, dict):
+                    continue
+                total_asignaturas += len(asignaturas_sem)
+
+                for asig_data in asignaturas_sem.values():
+                    grid = asig_data.get("horarios_grid", {})
+                    if not isinstance(grid, dict):
+                        continue
+                    for dias in grid.values():
+                        if not isinstance(dias, dict):
+                            continue
+                        for celda in dias.values():
+                            grupos = celda.get("grupos", []) if isinstance(celda, dict) else celda
+                            if isinstance(grupos, list) and len(grupos) > 0:
+                                total_franjas += 1
+
+            # Actualizar metadatos
+            horarios["total_asignaturas"] = total_asignaturas
+            horarios["total_franjas"] = total_franjas
+            horarios["total"] = total_franjas
+            horarios["fecha_actualizacion"] = datetime.now().isoformat()
+
+            self.log_mensaje(
+                f"Metadatos horarios recalculados: {total_asignaturas} asignaturas, {total_franjas} franjas", "info")
+
+        except Exception as e:
+            self.log_mensaje(f"Error recalculando metadatos de horarios: {e}", "warning")
 
 
 # ========= main =========

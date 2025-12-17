@@ -1268,7 +1268,7 @@ class ConfigurarAlumnosWindow(QMainWindow):
         self.datos_iniciales = json.dumps(self.datos_configuracion, sort_keys=True)
         self.datos_guardados_en_sistema = datos_existentes is not None
         self.alumno_actual = None
-        self.filtro_asignatura_actual = "Todas las asignaturas"
+        self.filtro_asignatura_actual = "Todos los alumnos"
 
         self.setup_ui()
         self.apply_dark_theme()
@@ -1589,7 +1589,7 @@ class ConfigurarAlumnosWindow(QMainWindow):
         """Configurar opciones de filtros (asignaturas y grupos)."""
         # Filtro por asignaturas
         self.combo_filtro_asignatura.clear()
-        self.combo_filtro_asignatura.addItem("Todas las asignaturas")
+        self.combo_filtro_asignatura.addItem("Todos los alumnos")
 
         sem1 = self.asignaturas_disponibles.get("1", {})
         sem2 = self.asignaturas_disponibles.get("2", {})
@@ -1778,8 +1778,8 @@ class ConfigurarAlumnosWindow(QMainWindow):
 
             # --- 1) Filtro por asignatura (igual que antes) ---
             incluir_por_asignatura = False
-            if filtro_texto == "Todas las asignaturas":
-                incluir_por_asignatura = bool(asignaturas_matriculadas)
+            if filtro_texto == "Todos los alumnos":
+                incluir_por_asignatura = True
             else:
                 if " - " in filtro_texto:
                     partes = filtro_texto.split(" - ")
@@ -1795,7 +1795,7 @@ class ConfigurarAlumnosWindow(QMainWindow):
 
             # --- 2) Filtro “Solo sin lab” (igual que antes, respetando global/específica) ---
             if solo_sin_lab:
-                if filtro_texto == "Todas las asignaturas":
+                if filtro_texto == "Todos los alumnos":
                     tiene_alguna_sin_experiencia = any(
                         not asig_info.get('lab_aprobado', False)
                         for asig_info in asignaturas_matriculadas.values()
@@ -1816,7 +1816,7 @@ class ConfigurarAlumnosWindow(QMainWindow):
             # --- 3) Filtro por grupo seleccionado ---
             if filtro_grupo != "Todos los grupos":
                 # Si hay asignatura específica seleccionada, verificar grupo en esa asignatura
-                if filtro_texto != "Todas las asignaturas":
+                if filtro_texto != "Todos los alumnos":
                     # Extraer código de asignatura del texto del filtro
                     partes = filtro_texto.split(" - ")
                     if len(partes) < 2:
@@ -1865,7 +1865,7 @@ class ConfigurarAlumnosWindow(QMainWindow):
 
                 # Experiencia (global o por asignatura actual)
                 asignaturas_matriculadas = datos.get('asignaturas_matriculadas', {})
-                if filtro_texto == "Todas las asignaturas":
+                if filtro_texto == "Todos los alumnos":
                     tiene_experiencia = any(
                         asig_info.get('lab_aprobado', False)
                         for asig_info in asignaturas_matriculadas.values()
@@ -1890,7 +1890,7 @@ class ConfigurarAlumnosWindow(QMainWindow):
                 self.list_alumnos.addItem(item)
 
             # Log de contexto (añadimos info del grupo/multi)
-            contexto = "global" if filtro_texto == "Todas las asignaturas" else f"para {filtro_texto}"
+            contexto = "global" if filtro_texto == "Todos los alumnos" else f"para {filtro_texto}"
             extras = []
             if solo_sin_lab:
                 extras.append("sin lab")
@@ -2168,8 +2168,21 @@ class ConfigurarAlumnosWindow(QMainWindow):
     def guardar_en_sistema(self) -> None:
         """Guardar configuración en el sistema principal"""
         try:
+            # Cambio para poder guardar sin datos
+            # if not self.datos_configuracion:
+            #     QMessageBox.warning(self, "Sin Datos", "No hay alumnos configurados para guardar.")
+            #     return
             if not self.datos_configuracion:
-                QMessageBox.warning(self, "Sin Datos", "No hay alumnos configurados para guardar.")
+                respuesta = QMessageBox.question(
+                    self, "Guardar y Cerrar",
+                    "No hay alumnos configurados.\n\n¿Guardar igualmente en el sistema y cerrar?",
+                    QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No
+                )
+                if respuesta == QMessageBox.StandardButton.Yes:
+                    self.configuracion_actualizada.emit({})  # guardar vacío
+                    self.datos_guardados_en_sistema = True
+                    self.datos_iniciales = json.dumps(self.datos_configuracion, sort_keys=True)
+                    self.close()
                 return
 
             total_alumnos = len(self.datos_configuracion)
@@ -2645,6 +2658,19 @@ class ConfigurarAlumnosWindow(QMainWindow):
         observaciones = datos.get('observaciones', '').strip()
         if observaciones:
             info += f"  • Observaciones: {observaciones}\n"
+
+        self.info_alumno.setText(info)
+
+        # Añadir laboratorios asignados
+        labs_asignados = self.obtener_laboratorios_alumno(dni)
+        if labs_asignados:
+            info += f"\nLABORATORIOS ASIGNADOS ({len(labs_asignados)}):\n"
+            for lab in labs_asignados:
+                info += f"  • {lab['asignatura']}: {lab['dia']} {lab['franja']}\n"
+                info += f"    Fechas: {lab['fechas']}\n"
+                info += f"    Letra: {lab['letra']}\n"
+        else:
+            info += f"\nLABORATORIOS ASIGNADOS:\n  • Ninguno\n"
 
         self.info_alumno.setText(info)
 
@@ -3251,6 +3277,60 @@ class ConfigurarAlumnosWindow(QMainWindow):
                                  f"Use archivos .xlsx o .xls\n\n"
                                  f"Error original: {str(e)}")
 
+    # ========= DATOS LABORATORIO DE ALUMNO ========
+    def obtener_laboratorios_alumno(self, dni: str) -> list:
+        """Obtener los laboratorios asignados a un alumno desde resultados_organizacion"""
+        laboratorios = []
+        try:
+            if not self.parent_window or not hasattr(self.parent_window, 'configuracion'):
+                return laboratorios
+
+            resultados = self.parent_window.configuracion.get("resultados_organizacion", {})
+            if not resultados.get("datos_disponibles", False):
+                return laboratorios
+
+            # Recorrer semestres
+            for key, semestre_data in resultados.items():
+                if not key.startswith("semestre_"):
+                    continue
+
+                semestre_nombre = "1º Semestre" if "1" in key else "2º Semestre"
+
+                # Recorrer asignaturas
+                for codigo_asig, asig_data in semestre_data.items():
+                    if not isinstance(asig_data, dict) or "grupos" not in asig_data:
+                        continue
+
+                    # Recorrer grupos
+                    for grupo_id, grupo_info in asig_data.get("grupos", {}).items():
+                        alumnos_grupo = grupo_info.get("alumnos", [])
+
+                        # Verificar si el alumno está en este grupo
+                        if dni in alumnos_grupo:
+                            fechas_lista = grupo_info.get("fechas", [])
+                            fechas_str = ", ".join(fechas_lista) if fechas_lista else "Sin fechas"
+
+                            letra = grupo_info.get("letra", [])
+
+                            laboratorios.append({
+                                "asignatura": codigo_asig,
+                                "semestre": semestre_nombre,
+                                "grupo": grupo_id,
+                                "dia": grupo_info.get("dia", ""),
+                                "franja": grupo_info.get("franja", ""),
+                                "fechas": fechas_str,
+                                "aula": grupo_info.get("aula", ""),
+                                "profesor": grupo_info.get("profesor", ""),
+                                "letra": letra
+                            })
+
+            # Ordenar por semestre y asignatura
+            laboratorios.sort(key=lambda x: (x["semestre"], x["asignatura"]))
+
+        except Exception as e:
+            self.log_mensaje(f"Error obteniendo laboratorios del alumno: {e}", "warning")
+
+        return laboratorios
 
 # ========= main =========
 def main():

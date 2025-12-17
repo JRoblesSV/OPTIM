@@ -8,6 +8,8 @@ Universidad: ETSIDI (UPM)
 """
 
 from __future__ import annotations
+
+import hashlib
 import sys
 import json
 import re
@@ -21,10 +23,10 @@ from PyQt6.QtWidgets import (
     QApplication, QMainWindow, QWidget, QVBoxLayout, QHBoxLayout,
     QLabel, QComboBox, QTreeWidget, QTreeWidgetItem, QSplitter,
     QPushButton, QFileDialog, QMessageBox, QStatusBar, QDialog,
-    QTableWidget, QTableWidgetItem, QHeaderView, QLineEdit
+    QTableWidget, QTableWidgetItem, QHeaderView, QLineEdit, QTextEdit
 )
 
-from reportlab.lib.pagesizes import A4
+from reportlab.lib.pagesizes import A4, landscape
 from reportlab.lib import colors
 from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle, PageBreak
 from reportlab.lib.styles import getSampleStyleSheet
@@ -323,6 +325,21 @@ class ConflictsDialog(QDialog):
 
             layout.addWidget(table)
 
+        # Avisos
+        avisos = res.get("avisos", []) or []
+        if avisos:
+            label = QLabel(f" Avisos ({len(avisos)}) / Detalle de los conflictos")
+            layout.addWidget(label)
+
+            avisos_text = QTextEdit(self)
+            avisos_text.setReadOnly(True)
+            avisos_text.setMaximumHeight(120)
+
+            contenido = "\n".join([f"• {aviso}" for aviso in avisos])
+            avisos_text.setText(contenido)
+
+            layout.addWidget(avisos_text)
+
         btn_close = QPushButton("Cerrar")
         btn_close.clicked.connect(self.accept)
         layout.addWidget(btn_close, alignment=Qt.AlignmentFlag.AlignRight)
@@ -369,6 +386,7 @@ class VerResultadosWindow(QMainWindow):
         self.btn_reload = QPushButton("Recargar")
         self.btn_export = QPushButton("Exportar PDF")
         self.btn_conflicts = QPushButton("Ver conflictos")
+        self.btn_pdf_resumen = QPushButton("PDF resumen horarios")
 
         top1.addWidget(QLabel("Semestre:"))
         top1.addWidget(self.cmb_semestre)
@@ -381,6 +399,8 @@ class VerResultadosWindow(QMainWindow):
         top1.addWidget(self.btn_export)
         top1.addSpacing(8)
         top1.addWidget(self.btn_reload)
+        top1.addSpacing(8)
+        top1.addWidget(self.btn_pdf_resumen)
 
         # Barra de filtros textuales (alumno/profesor) + botón Filtrar
         top2 = QHBoxLayout()
@@ -437,6 +457,7 @@ class VerResultadosWindow(QMainWindow):
         self.btn_export.clicked.connect(self.export_pdf)
         self.btn_conflicts.clicked.connect(self.show_conflicts)
         self.btn_apply_filters.clicked.connect(self.on_apply_filters_clicked)
+        self.btn_pdf_resumen.clicked.connect(self.export_pdf_resumen_horarios)
 
         # Atajos / Acciones (opcional)
         act_reload = QAction("Recargar", self)
@@ -679,7 +700,6 @@ class VerResultadosWindow(QMainWindow):
             f"JSON: {self.cfg_path}  |  Grupos: {total_grupos}  |  Alumnos listados: {total_alumnos}  |  Conflictos -> Profesores: {c_prof}  |  Aulas: {c_aulas}  |  Alumnos: {c_alum}"
         )
 
-    # ========= ACCIONES =========
     def show_conflicts(self) -> None:
         """Abre diálogo con conflictos detectados"""
         if not self.res:
@@ -698,7 +718,7 @@ class VerResultadosWindow(QMainWindow):
         if not fname:
             return
 
-        doc = SimpleDocTemplate(fname, pagesize=A4, leftMargin=36, rightMargin=36, topMargin=36, bottomMargin=36)
+        doc = SimpleDocTemplate(fname, pagesize=landscape(A4), leftMargin=36, rightMargin=36, topMargin=36, bottomMargin=36)
         styles = getSampleStyleSheet()
         story = []
 
@@ -809,6 +829,191 @@ class VerResultadosWindow(QMainWindow):
             QMessageBox.information(self, "Exportado", f"PDF generado correctamente en:\n{fname}")
         except Exception as e:
             QMessageBox.critical(self, "Error", f"No se pudo generar el PDF:\n{e}")
+
+    # ========= FUNCIONES PDF RESUMEN =========
+    def merge_blocks_same_prof(self, lista_bloques) -> list[dict]:
+        """
+        Fusiona elementos que tengan la misma asignatura, profesor y grupo_simple,
+        unificando las letras en una sola entrada
+        """
+        fusion = {}
+
+        for b in lista_bloques:
+            key = (b["asignatura"], b["profesor"], b["grupo_simple"])
+
+            if key not in fusion:
+                fusion[key] = {
+                    "asignatura": b["asignatura"],
+                    "profesor": b["profesor"],
+                    "grupo_simple": b["grupo_simple"],
+                    "grupo_id": b["grupo_id"],
+                    "letras": set([b["letra"]]),
+                    "mixta": bool(b.get("mixta", False))
+                }
+            else:
+                fusion[key]["letras"].add(b["letra"])
+
+        out = []
+        for v in fusion.values():
+            v["letras"] = ", ".join(sorted(v["letras"]))
+            out.append(v)
+
+        return out
+
+    def export_pdf_resumen_horarios(self) -> None:
+        """ Exportar PDF con resumen de horarios del profesorado"""
+
+        # Selecciona el archivo
+        default_dir = str(downloads_dir())
+        fname, _ = QFileDialog.getSaveFileName(
+            self, "Guardar PDF resumen horarios",
+            str(Path(default_dir) / "resumen_horarios.pdf"),
+            "PDF (*.pdf)"
+        )
+        if not fname:
+            return
+
+        dias = ["Lunes", "Martes", "Miércoles", "Jueves", "Viernes"]
+        franjas = ["09:30-11:30", "11:30-13:30", "15:30-17:30", "17:30-19:30"]
+
+        # Crea PDF
+        doc = SimpleDocTemplate(fname,
+                                pagesize=landscape(A4),
+                                leftMargin=10, rightMargin=10,
+                                topMargin=10, bottomMargin=10)
+        styles = getSampleStyleSheet()
+        story = []
+
+        # Función interna para normalizar franjas
+        def norm_franja(f):
+            if not f:
+                return None
+            f = f.replace(" ", "")
+            partes = f.split("-")
+            if len(partes) != 2:
+                return None
+            return partes[0] + "-" + partes[1]
+
+        # Función para dar colores únicos
+        asignatura_color = {}
+
+        def get_color(asig):
+            if asig not in asignatura_color:
+                h = hashlib.md5(asig.encode("utf-8")).hexdigest()
+                r = int(h[0:2], 16) / 255.0
+                g = int(h[2:4], 16) / 255.0
+                b = int(h[4:6], 16) / 255.0
+
+                # “Pastelizar”: mezclar con blanco (cuanto mayor, más pastel) quiero evitar tener colores oscuros que
+                #                   visualmente no permitan leer bien los datos
+                pastel = 0.40
+                r = r * (1 - pastel) + 1.0 * pastel
+                g = g * (1 - pastel) + 1.0 * pastel
+                b = b * (1 - pastel) + 1.0 * pastel
+
+                asignatura_color[asig] = (r, g, b)
+            return asignatura_color[asig]
+
+        # Recorre los semestres
+        semestres = [k for k in self.res.keys() if k.startswith("semestre_")]
+
+        first_sem = True
+        for sem in semestres:
+            if not first_sem:
+                story.append(PageBreak())  # cada semestre en una hoja nueva
+            first_sem = False
+
+            story.append(Paragraph(f"<b>Resumen horarios — {sem}</b>", styles["Title"]))
+            story.append(Spacer(1, 12))
+
+            # Crear estructura vacía del horario
+            horario = {d: {f: [] for f in franjas} for d in dias}
+
+            sem_data = self.res.get(sem, {})
+
+            # Cargar los grupos en el grid
+            for asignatura, a_data in sem_data.items():
+                if not isinstance(a_data, dict) or "grupos" not in a_data:
+                    continue
+
+                for gid, ginfo in a_data["grupos"].items():
+                    dia = ginfo.get("dia")
+                    fr = norm_franja(ginfo.get("franja"))
+
+                    if dia not in horario or fr not in horario[dia]:
+                        continue
+
+                    horario[dia][fr].append({
+                        "asignatura": asignatura,
+                        "grupo_id": gid,
+                        "grupo_simple": ginfo.get("grupo_simple", ""),
+                        "letra": ginfo.get("letra", ""),
+                        "profesor": ginfo.get("profesor", ""),
+                        "mixta": bool(ginfo.get("mixta", False)),
+                    })
+
+            # Fusiona los bloques dentro de cada celda
+            for dia in dias:
+                for fr in franjas:
+                    bloques = horario[dia][fr]
+                    horario[dia][fr] = self.merge_blocks_same_prof(bloques)
+
+            # Crea la tabla del PDF
+            table_data = [["", *dias]]
+
+            for fr in franjas:
+                row = [fr]
+
+                for dia in dias:
+                    bloques = horario[dia][fr]
+
+                    if not bloques:
+                        row.append("")  # celda vacía
+                        continue
+
+                    # Crear mini-tabla en cada celda
+                    inner_rows = []
+                    for b in bloques:
+                        txt = f"{b['asignatura']} — {b['grupo_simple']} — {b['profesor']} — {b['letras']}"
+                        if b.get("mixta"):
+                            txt = f"<b>{txt}</b>"
+                        inner_rows.append([Paragraph(txt, styles["BodyText"])])
+
+                    mini = Table(inner_rows)
+
+                    # Pintar cada fila interna según asignatura
+                    inner_style = [('ALIGN', (0, 0), (-1, -1), 'LEFT')]
+                    for i, b in enumerate(bloques):
+                        inner_style.append((
+                            'BACKGROUND',
+                            (0, i), (0, i),
+                            get_color(b["asignatura"])
+                        ))
+
+                    mini.setStyle(TableStyle(inner_style))
+                    row.append(mini)
+
+                table_data.append(row)
+
+            # Estilo tabla principal
+            table = Table(table_data, repeatRows=1)
+
+            ts = [
+                ('GRID', (0, 0), (-1, -1), 0.4, colors.black),
+                ('BACKGROUND', (0, 0), (-1, 0), colors.lightgrey),
+                ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
+                ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
+            ]
+
+            table.setStyle(TableStyle(ts))
+            story.append(table)
+            story.append(Spacer(1, 20))
+
+        try:
+            doc.build(story)
+            QMessageBox.information(self, "Exportado", f"PDF generado correctamente:\n{fname}")
+        except Exception as e:
+            QMessageBox.critical(self, "Error", str(e))
 
 
 # ========= main =========

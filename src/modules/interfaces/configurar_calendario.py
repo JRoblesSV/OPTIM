@@ -2075,9 +2075,10 @@ class ConfigurarCalendarioWindow(QMainWindow):
             total_dias = len(self.datos_configuracion['semestre_1']) + len(
                 self.datos_configuracion['semestre_2'])
 
-            if total_dias == 0:
-                QMessageBox.warning(self, "Sin Datos", "No hay días configurados para guardar.")
-                return
+            # Cambio para poder guardar sin datos
+            # if total_dias == 0:
+            #     QMessageBox.warning(self, "Sin Datos", "No hay días configurados para guardar.")
+            #     return
 
             # Verificar equilibrio antes de guardar
             self.verificar_equilibrio_completo(mostrar_si_todo_ok=False)

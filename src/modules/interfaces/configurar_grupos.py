@@ -761,7 +761,7 @@ class ConfigurarGruposWindow(QMainWindow):
             total_grupos = len(self.datos_configuracion)
 
             # Actualizar estadísticas
-            self.update_estadisticas()
+            # self.update_estadisticas()
 
             if total_grupos > 0:
                 self.log_mensaje(
@@ -2403,6 +2403,9 @@ class ConfigurarGruposWindow(QMainWindow):
                 if grupos_a_actualizar > 0:
                     self.commit_pending_actualizaciones()
 
+                # Recalcular metadatos de horarios después de eliminar
+                self.recalcular_metadatos_horarios()
+
                 # Enviar señal al sistema principal
                 self.configuracion_actualizada.emit(self.datos_configuracion)
 
@@ -2537,6 +2540,49 @@ class ConfigurarGruposWindow(QMainWindow):
             iconos = {"info": "ℹ️", "warning": "⚠️", "error": "❌", "success": "✅"}
             icono = iconos.get(tipo, "ℹ️")
             print(f"{icono} {mensaje}")
+
+    # ========= RECALCULO METADATA HORARIOS =========
+    def recalcular_metadatos_horarios(self) -> None:
+        """Recalcula total_franjas y total_asignaturas en metadatos de horarios"""
+        try:
+            cfg = self.parent_window.configuracion.get("configuracion", {})
+            horarios = cfg.get("horarios", {})
+            datos_hor = horarios.get("datos", {})
+            if not datos_hor:
+                return
+
+            total_asignaturas = 0
+            total_franjas = 0
+
+            for semestre in datos_hor.keys():
+                asignaturas_sem = datos_hor.get(semestre, {})
+                if not isinstance(asignaturas_sem, dict):
+                    continue
+                total_asignaturas += len(asignaturas_sem)
+
+                for asig_data in asignaturas_sem.values():
+                    grid = asig_data.get("horarios_grid", {})
+                    if not isinstance(grid, dict):
+                        continue
+                    for dias in grid.values():
+                        if not isinstance(dias, dict):
+                            continue
+                        for celda in dias.values():
+                            grupos = celda.get("grupos", []) if isinstance(celda, dict) else celda
+                            if isinstance(grupos, list) and len(grupos) > 0:
+                                total_franjas += 1
+
+            # Actualizar metadatos
+            horarios["total_asignaturas"] = total_asignaturas
+            horarios["total_franjas"] = total_franjas
+            horarios["total"] = total_franjas
+            horarios["fecha_actualizacion"] = datetime.now().isoformat()
+
+            self.log_mensaje(
+                f"Metadatos horarios recalculados: {total_asignaturas} asignaturas, {total_franjas} franjas", "info")
+
+        except Exception as e:
+            self.log_mensaje(f"Error recalculando metadatos de horarios: {e}", "warning")
 
 
 # ========= main =========
