@@ -97,18 +97,18 @@ class ConfigurarParametrosWindow(QMainWindow):
 
         # Definición de restricciones en código fuente
         self.restricciones_duras = [
-            "Un profesor no puede estar en dos franjas horarias a la vez",
-            "Un aula no puede estar asignada a dos grupos en la misma franja horaria",
-            "No superar la capacidad máxima del aula",
-            "Respetar franjas no disponibles de los profesores",
-            "Respetar los días no disponibles de los profesores",
-            "Respetar los días no disponibles de las aulas"
+            "Un profesor no puede estar asignado a dos grupos distintos en la misma franja horaria",
+            "Un alumno no puede estar asignado en dos grupos distintos en la misma franja horaria",
+            "Un aula no puede estar asignada a dos asignaturas en la misma franja horaria",
+            "La capacidad del aula no puede ser superada",
+            "Se debe respetar las franjas horarias no disponibles de los profesores",
+            "Se debe respetar los días no disponibles de los profesores",
+            "Se debe respetar los días no disponibles de las aulas"
         ]
 
         self.restricciones_blandas = [
-            "Paridad de grupos: intentar que todos los grupos sean pares"
+            "Paridad de grupos: solo un grupo será impar, el resto debe ser par (siempre que no genere un conflicto)",
             "Mantener tamaños de grupos equilibrados",
-            "Favorecer el uso del aula preferente de la asignatura cuando sea posible",
             "Balancear la carga de grupos por profesor"
         ]
 

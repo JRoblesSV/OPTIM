@@ -15,7 +15,7 @@ import re as _re
 from datetime import datetime
 from pathlib import Path
 
-from PyQt6.QtWidgets import QApplication
+from PyQt6.QtWidgets import QApplication, QMessageBox
 from PyQt6 import QtCore, QtGui, QtWidgets
 
 
@@ -2083,13 +2083,30 @@ class OptimLabsGUI(QtWidgets.QMainWindow):
             self.log_mensaje("Organización completada y guardada en el JSON", "success")
 
             # Preguntar si quiere ver los resultados
-            # === Determinar estado final del motor ===
             conflictos = self.configuracion.get("resultados_organizacion", {}).get("conflictos", {})
             hay_conflictos = any(len(v) > 0 for v in conflictos.values())
 
-            errores_criticos = self.configuracion.get("resultados_organizacion", {}).get("error_critico", False)
+            # 1) Aviso Popup de alertas semana_inicio (si existe)
+            alertas_semana = self.configuracion.get("resultados_organizacion",{}).get("alertas_semana_inicio",[]) or []
+            if alertas_semana:
+                mb = QMessageBox(self)
+                mb.setIcon(QMessageBox.Icon.Warning)
+                mb.setWindowTitle("Alertas de Semana de Inicio")
 
-            # 1) ERROR CRÍTICO no mostrar diálogo, nop hacer nada, ya configurado en motor_organizacion
+                # Construir mensaje
+                lineas = [
+                    f"Se detectaron {len(alertas_semana)} grupos que empiezan ANTES de su semana configurada:\n"]
+                for a in alertas_semana[:8]:  # Máximo 8 en el popup
+                    lineas.append(f"• {a['grupo']} ({a['asignatura']}): "
+                                  f"semana {a['semana_real']} vs configurada {a['semana_inicio']}")
+                if len(alertas_semana) > 8:
+                    lineas.append(f"\n... y {len(alertas_semana) - 8} más")
+
+                mb.setText("\n".join(lineas))
+                mb.setInformativeText("Esto ocurre porque las fechas del calendario se han movido.")
+                mb.addButton("Entendido", QMessageBox.ButtonRole.AcceptRole)
+                mb.exec()
+
             # 2) CONFICTOS mensaje distinto
             if hay_conflictos:
                 reply = QtWidgets.QMessageBox.warning(

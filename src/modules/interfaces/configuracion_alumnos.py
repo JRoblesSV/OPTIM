@@ -3279,7 +3279,7 @@ class ConfigurarAlumnosWindow(QMainWindow):
 
     # ========= DATOS LABORATORIO DE ALUMNO ========
     def obtener_laboratorios_alumno(self, dni: str) -> list:
-        """Obtener los laboratorios asignados a un alumno desde resultados_organizacion"""
+        """Obtener los laboratorios asignados a un alumno desde JSON resultados_organizacion"""
         laboratorios = []
         try:
             if not self.parent_window or not hasattr(self.parent_window, 'configuracion'):

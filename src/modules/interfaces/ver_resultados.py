@@ -333,12 +333,35 @@ class ConflictsDialog(QDialog):
 
             avisos_text = QTextEdit(self)
             avisos_text.setReadOnly(True)
-            avisos_text.setMaximumHeight(120)
+            avisos_text.setMaximumHeight(200)
 
             contenido = "\n".join([f"• {aviso}" for aviso in avisos])
             avisos_text.setText(contenido)
 
             layout.addWidget(avisos_text)
+
+        # Alertas semana_inicio
+        alertas_semana = res.get("alertas_semana_inicio", []) or []
+        if alertas_semana:
+            label = QLabel(f" Alertas Semana Inicio ({len(alertas_semana)})")
+            layout.addWidget(label)
+
+            alertas_text = QTextEdit(self)
+            alertas_text.setReadOnly(True)
+            alertas_text.setMaximumHeight(200)
+
+            lineas = []
+            for a in alertas_semana:
+                grupo = a.get('grupo', '')
+                asig = a.get('asignatura', '')
+                real = a.get('semana_real', '')
+                config = a.get('semana_inicio', '')
+                diff = a.get('diferencia', '')
+                lineas.append(
+                    f"• {grupo} [{asig}] → Inicia en semana {real} (configurada para inicio en la semana: {config}, adelanto: {diff} sem.)")
+
+            alertas_text.setText("\n".join(lineas))
+            layout.addWidget(alertas_text)
 
         btn_close = QPushButton("Cerrar")
         btn_close.clicked.connect(self.accept)
@@ -533,10 +556,11 @@ class VerResultadosWindow(QMainWindow):
 
         # Combos
         self.populate_semestres_y_asignaturas()
+
         # Árbol
         self.populate_tree()
 
-        # Popup inicial de conflictos (una vez)
+        # Popup inicial de conflictos
         if not self._conflict_warned:
             confs = self.res.get("conflictos", {}) or {}
             c_prof = len(confs.get("profesores", []) or [])
@@ -1030,6 +1054,7 @@ def main():
     win.show()
 
     sys.exit(app.exec())
+
 
 if __name__ == "__main__":
     main()
