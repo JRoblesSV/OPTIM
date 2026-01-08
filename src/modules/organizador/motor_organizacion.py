@@ -151,6 +151,71 @@ def normalizar_semestre(semestre) -> Optional[str]:
     return None
 
 
+def get_config_path() -> Path:
+    """Devuelve ruta de configuracion_labs.json de forma compatible para .exe y para desarrollar"""
+    if getattr(sys, "frozen", False):
+        # Ejecutándose como .exe - está junto al ejecutable
+        base_dir = Path(sys.executable).parent
+    else:
+        # Ejecutándose desde código fuente - motor_organizacion.py está en /src/modules/organizador
+        base_dir = Path(__file__).resolve().parents[2]
+
+    return base_dir / "configuracion_labs.json"
+
+
+def detectar_grupos_antes_semana_inicio(cfg: Dict, grupos: List[GrupoLab]) -> List[Dict]:
+    """Detectar grupos cuya primera sesión es anterior a su semana_inicio."""
+    alertas = []
+    asignaturas_data = cfg.get("configuracion", {}).get("asignaturas", {}).get("datos", {})
+    calendario_data = cfg.get("configuracion", {}).get("calendario", {}).get("datos", {})
+
+    for grupo in grupos:
+        if not grupo.fechas:
+            continue
+
+        # Obtener semana_inicio del grupo
+        cfg_lab = (asignaturas_data.get(grupo.asignatura, {})
+                   .get("grupos_asociados", {})
+                   .get(grupo.grupo_simple, {})
+                   .get("configuracion_laboratorio", {}))
+        semana_inicio = cfg_lab.get("semana_inicio")
+        if not semana_inicio:
+            continue
+
+        # Primera fecha asignada -> convertir a ISO
+        primera = grupo.fechas[0]
+        m = re.match(r"^(\d{2})/(\d{2})/(\d{4})$", primera)
+        if not m:
+            continue
+        d, mo, y = m.groups()
+        primera_iso = f"{y}-{mo}-{d}"
+
+        # Buscar semana real en calendario
+        sem_key = f"semestre_{normalizar_semestre(grupo.semestre)}"
+        sem_datos = calendario_data.get(sem_key, {})
+
+        dia_norm = grupo.dia.strip().capitalize()
+        dia_norm = {"Miercoles": "Miércoles", "Sabado": "Sábado"}.get(dia_norm, dia_norm)
+
+        fechas_dia = sorted([
+            info.get("fecha") for info in sem_datos.values()
+            if isinstance(info, dict) and info.get("horario_asignado") == dia_norm and info.get("fecha")
+        ])
+
+        if primera_iso in fechas_dia:
+            semana_real = fechas_dia.index(primera_iso) + 1
+            if semana_real < semana_inicio:
+                alertas.append({
+                    "grupo": grupo.label,
+                    "asignatura": grupo.asignatura,
+                    "semana_real": semana_real,
+                    "semana_inicio": semana_inicio,
+                    "diferencia": semana_inicio - semana_real
+                })
+
+    return alertas
+
+
 # ========= FASE 1: CARGA Y VALIDACIÓN =========
 class ValidadorDatos:
     """
@@ -1473,514 +1538,519 @@ class CreadorGruposLab:
 # ========= FASE 5: ASIGNADOR DE ALUMNOS =========
 class AsignadorAlumnos:
     """
-    Clase responsable de la FASE 5: Asignación de Alumnos a Grupos.
+    Clase responsable de la FASE 5: Asignación de Alumnos a Grupos de Laboratorio.
 
-    Esta fase toma los grupos creados en la Fase 4 y asigna los alumnos
-    matriculados siguiendo un algoritmo que respeta todas las restricciones
-    del sistema (grupos simples/dobles, capacidades, balanceo, etc.).
+    Esta fase implementa un algoritmo de asignación en DOS FASES SEPARADAS:
+        FASE A: Asignar TODOS los alumnos de doble grado en TODAS las asignaturas
+        FASE B: Asignar TODOS los alumnos de grado simple en TODAS las asignaturas
+
+    Esto garantiza que los alumnos de doble grado (que tienen menos opciones)
+    se asignen primero SIN que las asignaciones de simples les bloqueen slots.
+
+    Restricciones:
+        - OBLIGATORIO: No superar capacidad del aula
+        - OBLIGATORIO: No asignar un alumno a dos laboratorios simultáneos (misma fecha y franja)
+        - OBLIGATORIO: Máximo 1 grupo impar por código simple (cuando es matemáticamente posible)
+        - DESEABLE: Grupos de tamaño similar (sacrificable si evita conflictos)
+
+    La detección de conflictos se basa en fechas reales, no solo en día/franja.
+    La ordenación por restricción cuenta slots reales (combinación única de fechas).
 
     Attributes:
         cfg: Configuración completa del sistema
         grupos_creados: Lista de grupos creados en Fase 4
         avisos: Lista de advertencias generadas durante la asignación
-        alumno_simple: Mapeo de alumno_id -> grupo_simple
-        alumno_doble: Mapeo de alumno_id -> grupo_doble
-        asignatura_actual: Código de la asignatura que se está procesando
-        semestre_actual: Semestre que se está procesando
+        conflictos_alumnos: Lista de conflictos detectados durante la fase
+        ocupacion_global: Índice global de sesiones ocupadas por alumno
+                          Formato: {alumno_id: {("dd/mm/yyyy", "HH:MM-HH:MM"), ...}}
+        alumnos_sin_asignar: Registro de alumnos que no pudieron ser asignados durante la fase
     """
 
     def __init__(self, cfg: Dict, grupos_creados: List[GrupoLab]):
-        """
-        Inicializar el asignador de alumnos.
-
-        Args:
-            cfg: Configuración completa del sistema
-            grupos_creados: Lista de grupos creados en Fase 4
-        """
         self.cfg = cfg
-        self.grupos_creados = grupos_creados
+        self.grupos_creados = grupos_creados  # Lista de grupos creados en Fase 4 (objetos GrupoLab)
         self.avisos: List[str] = []
         self.conflictos_alumnos: List[Dict] = []
 
-        # Mapeos de alumnos (se construyen por asignatura)
-        self.alumno_simple: Dict[str, str] = {}  # alumno_id -> grupo_simple
-        self.alumno_doble: Dict[str, str] = {}  # alumno_id -> grupo_doble
+        # Índice de ocupación: {alumno_id: {(fecha, franja), ...}}
+        self.ocupacion_global: Dict[str, Set[Tuple[str, str]]] = {}
 
-        # Control de contexto actual
-        self.asignatura_actual = ""
-        self.semestre_actual = ""
+        # Registro de alumnos sin asignar
+        self.alumnos_sin_asignar: Dict[str, List[Dict]] = {}
 
-    def ejecutar(self) -> tuple[bool, list[GrupoLab], list[str], list[dict]]:
-        """
-        Ejecutar la FASE 5 completa.
+        # Mapeos: {asignatura: {"simples": {id: codigo}, "dobles": {id: codigo}}}
+        self.mapeos_alumnos: Dict[str, Dict[str, Dict[str, str]]] = {}
 
-        Returns:
-            Tupla con:
-                - bool: True si la asignación fue exitosa
-                - List[GrupoLab]: Lista de grupos con alumnos asignados
-                - List[str]: Lista de avisos generados
-        """
+        # Mapeo de asignaturas a semestres
+        self.semestres: Dict[str, str] = {}
+        asignaturas_cfg = self.cfg.get("configuracion", {}).get("asignaturas", {}).get("datos", {}) or {}
+        for asig_nombre, asig_data in asignaturas_cfg.items():
+            semestre = asig_data.get("semestre", "1º Semestre")  # Default por si da error
+            self.semestres[asig_nombre] = semestre
+
+        # Cache de grupos por asignatura (se construye solo una vez)
+        self.grupos_por_asignatura: Dict[str, List[GrupoLab]] = {}
+        for grupo in self.grupos_creados:
+            if grupo.asignatura not in self.grupos_por_asignatura:
+                self.grupos_por_asignatura[grupo.asignatura] = []
+            self.grupos_por_asignatura[grupo.asignatura].append(grupo)
+
+    def ejecutar(self) -> Tuple[bool, List[GrupoLab], List[str], List[Dict]]:
+        """Ejecutar la asignación completa de alumnos"""
         print("\n" + "=" * 70)
         print("FASE 5: ASIGNACIÓN DE ALUMNOS")
         print("=" * 70)
+        # print("  Modo: Detección por fechas reales")
+        print("  Estrategia: Doble grado primero (todas las asignaturas), luego simples")
 
-        # Agrupar por (semestre, asignatura)
-        grupos_por_asignatura: Dict[Tuple[str, str], List[GrupoLab]] = {}
-        for grupo in self.grupos_creados:
-            key = (grupo.semestre, grupo.asignatura)
-            if key not in grupos_por_asignatura:
-                grupos_por_asignatura[key] = []
-            grupos_por_asignatura[key].append(grupo)
+        # 5.0 - Construir mapeos de alumnos
+        print(f"\n[5.0] Construyendo mapeos de alumnos...")
+        self._construir_mapeos()
 
-        # Procesar cada asignatura
-        for (semestre, asignatura), grupos in grupos_por_asignatura.items():
-            self.semestre_actual = semestre
-            self.asignatura_actual = asignatura
+        # 5.1 - FASE A: Asignar dobles
+        # print("\nFASE A Asignación de los alumnos de doble grado")
+        self._asignar_todos(es_doble=True)
 
-            print(f"\n[5] Procesando {semestre} - {asignatura}...")
+        # 5.2 - FASE B: Asignar simples
+        # print("\nFASE B Asignación de los alumnos de grado simple")
+        self._asignar_todos(es_doble=False)
 
-            # 5.1 - Construir mapeos de alumnos para esta asignatura
-            self._construir_mapeos_alumnos(asignatura)
+        # 5.3 - Balancear paridad
+        print("\n[5.3] Balanceo de paridad")
+        self._balancear_paridad_global()
 
-            # 5.2 - Asignar alumnos dobles
-            self._asignar_alumnos_dobles(grupos)
-
-            # 5.3 - Asignar alumnos simples
-            self._asignar_alumnos_simples(grupos)
-
-            # 5.4 - Ya se distribuyó con mínima carga
-
-            # 5.5 - Balance de paridad
-            self._balancear_paridad(grupos)
-
-            # 5.6 - Verificar capacidad
-            self._verificar_capacidad(grupos)
-
-        # Resumen final
+        # 5.4 y 5.5 - Verificaciones
+        print(f"\n[5.4] Verificación asignación global")
+        self._verificar_asignacion_global()
+        self._generar_aviso_capacidad_insuf()
         self._mostrar_resumen()
+
+        print(f"\n[5.5] Verificación final de conflictos")
+        self._verificar_conflictos_finales()
 
         return True, self.grupos_creados, self.avisos, self.conflictos_alumnos
 
-    def _construir_mapeos_alumnos(self, asignatura: str) -> None:
-        """
-        5.1 - Construir mapeos de alumnos para la asignatura actual.
+    # ========= CONSTRUCCIÓN DE MAPEOS =========
+    def _construir_mapeos(self) -> None:
+        """Construir mapeos de alumnos para todas las asignaturas."""
+        alumnos_data = (
+                           self.cfg.get("configuracion", {})
+                           .get("alumnos", {})
+                           .get("datos", {})
+                       ) or {}
 
-        Crea dos diccionarios:
-            - alumno_simple: mapea alumno_id -> grupo_simple
-            - alumno_doble: mapea alumno_id -> grupo_doble
+        # Inicializar mapeos
+        for asignatura in self.grupos_por_asignatura:
+            self.mapeos_alumnos[asignatura] = {"simples": {}, "dobles": {}}
 
-        Args:
-            asignatura: Código de la asignatura
-        """
-        print(f"  [5.1] Construyendo mapeos de alumnos...")
-
-        # Limpiar mapeos previos
-        self.alumno_simple.clear()
-        self.alumno_doble.clear()
-
-        # Obtener datos de alumnos
-        alumnos_data = self.cfg.get("configuracion", {}).get("alumnos", {}).get("datos", {}) or {}
-
-        # Construir mapeos
+        # Clasificar alumnos
         for alumno_id, alumno_data in alumnos_data.items():
-            asigs_matriculadas = alumno_data.get("asignaturas_matriculadas", {}) or {}
+            asignaturas = alumno_data.get("asignaturas_matriculadas", {}) or {}
 
-            # Verificar si el alumno está matriculado en esta asignatura
-            if asignatura not in asigs_matriculadas:
+            for asignatura, info in asignaturas.items():
+                if asignatura not in self.mapeos_alumnos:
+                    continue
+                if not isinstance(info, dict):
+                    continue
+                if not info.get("matriculado", False) or info.get("lab_aprobado", False):
+                    continue
+
+                grupo = info.get("grupo", "")
+                if not grupo:
+                    continue
+
+                tipo = "dobles" if PAT_DOBLE.match(grupo) else "simples" if PAT_SIMPLE.match(grupo) else None
+                if tipo:
+                    self.mapeos_alumnos[asignatura][tipo][alumno_id] = grupo
+
+        # Resumen
+        total_dobles = sum(len(m["dobles"]) for m in self.mapeos_alumnos.values())
+        total_simples = sum(len(m["simples"]) for m in self.mapeos_alumnos.values())
+        print(f"      Asignaturas: {len(self.mapeos_alumnos)}")
+        print(f"      Matrículas dobles: {total_dobles}, simples: {total_simples}")
+
+    # ========= ORDENACIÓN Y ASIGNACIÓN =========
+    def _contar_slots_reales(self, grupos: List[GrupoLab]) -> int:
+        """Contar slots reales (combinaciones únicas de letras+franjas)."""
+        return len({(tuple(sorted(g.fechas)), g.franja) for g in grupos})
+
+    def _ordenar_asignaturas(self, es_doble: bool) -> List[Tuple[str, List[GrupoLab], int]]:
+        """Ordenar asignaturas de más restrictivas a menos (los que menos slots tengan van primero)"""
+        resultado = []
+
+        for asignatura, grupos in self.grupos_por_asignatura.items():
+            tipo = "dobles" if es_doble else "simples"
+            alumnos = self.mapeos_alumnos.get(asignatura, {}).get(tipo, {})
+
+            if not alumnos:
                 continue
 
-            asig_info = asigs_matriculadas[asignatura]
-            if not isinstance(asig_info, dict):
-                continue
+            # Para dobles: solo grupos mixtos. Para simples: todos
+            if es_doble:
+                grupos_filtrados = [g for g in grupos if g.is_slot_mixto or g.grupo_doble]
+                if not grupos_filtrados:
+                    continue
+            else:
+                grupos_filtrados = grupos
 
-            # Verificar que esté matriculado y no tenga el lab aprobado
-            if not asig_info.get("matriculado", False):
-                continue
-            if asig_info.get("lab_aprobado", False):
-                continue
+            num_slots = self._contar_slots_reales(grupos_filtrados)
+            resultado.append((asignatura, grupos_filtrados, num_slots))
 
-            # Obtener grupo específico para esta asignatura
-            grupo = asig_info.get("grupo", "")
-            if not grupo:
-                continue
+        resultado.sort(key=lambda x: (x[2], len(x[1])))
+        return resultado
 
-            # Clasificar según el patrón del grupo
-            if PAT_SIMPLE.match(grupo):
-                self.alumno_simple[alumno_id] = grupo
-            elif PAT_DOBLE.match(grupo):
-                self.alumno_doble[alumno_id] = grupo
+    def _asignar_todos(self, es_doble: bool) -> None:
+        """Asignar todos los alumnos (grado doble o simple) de todas las asignaturas"""
+        testu = "doble grado" if es_doble else "grado simple"
+        tipo = "dobles" if es_doble else "simples"
+        asignaturas = self._ordenar_asignaturas(es_doble)
 
-        print(f"    ✓ Alumnos simples: {len(self.alumno_simple)}")
-        print(f"    ✓ Alumnos dobles: {len(self.alumno_doble)}")
+        print(f"\n[5.{'1' if es_doble else '2'}] Asignación de los alumnos de {testu}:")
+        for idx, (asig, grupos, slots) in enumerate(asignaturas, 1):
+            num = len(self.mapeos_alumnos[asig][tipo])
+            print(f"      {idx}. {asig}: {slots} slots, {len(grupos)} grupos, {num} alumnos")
 
-    def _asignar_alumnos_dobles(self, grupos: List[GrupoLab]) -> None:
-        """
-        5.2 - Asignar alumnos de doble grado a los grupos.
+        for asignatura, grupos, _ in asignaturas:
+            self._asignar_asignatura(asignatura, grupos, es_doble)
 
-        Los alumnos dobles tienen prioridad y solo pueden ir a slots mixtos
-        o slots específicos de su grupo doble.
+    def _asignar_asignatura(self, asignatura: str, grupos: List[GrupoLab], es_doble: bool) -> None:
+        """Asignar alumnos de una asignatura específica"""
+        tipo = "dobles" if es_doble else "simples"
+        alumnos = self.mapeos_alumnos[asignatura][tipo]
 
-        Args:
-            grupos: Lista de grupos de la asignatura actual
-        """
-        print(f"  [5.2] Asignando alumnos dobles...")
-
-        # Identificar grupos que aceptan dobles (slots mixtos o específicos dobles)
-        grupos_para_dobles = []
-        for grupo in grupos:
-            if grupo.is_slot_mixto or grupo.grupo_doble:
-                grupos_para_dobles.append(grupo)
-
-        if not grupos_para_dobles:
-            if self.alumno_doble:
-                self.avisos.append(
-                    f"{self.semestre_actual}:{self.asignatura_actual} - "
-                    f"No hay grupos disponibles para {len(self.alumno_doble)} alumnos dobles"
-                )
+        if not alumnos:
             return
 
-        # Asignar cada alumno doble
-        alumnos_asignados = 0
-        for alumno_id, grupo_doble in self.alumno_doble.items():
-            # Buscar grupo con capacidad compatible
-            mejor_grupo = None
-            min_carga = float('inf')
+        print(f"\n  [{asignatura}] Asignando {len(alumnos)} {tipo}...")
 
-            for grupo in grupos_para_dobles:
-                # Verificar capacidad
-                if len(grupo.alumnos) >= grupo.capacidad:
+        if es_doble:
+            # Dobles: asignar directamente
+            self._asignar_grupo_alumnos(alumnos, grupos, asignatura, es_doble)
+        else:
+            # Simples: agrupar por código
+            por_codigo: Dict[str, List[str]] = {}
+            for alumno_id, codigo in alumnos.items():
+                por_codigo.setdefault(codigo, []).append(alumno_id)
+
+            total = 0
+            for codigo, lista in por_codigo.items():
+                grupos_codigo = [g for g in grupos if g.grupo_simple == codigo]
+                if not grupos_codigo:
+                    self.avisos.append(f"{asignatura}: Sin grupos para {codigo} ({len(lista)} alumnos)")
+                    for aid in lista:
+                        self._registrar_sin_asignar(aid, asignatura, f"Sin grupos para {codigo}")
                     continue
 
-                # Verificar compatibilidad del slot
-                if not self._slot_permite_alumno(grupo, alumno_id):
-                    continue
-
-                # Seleccionar el grupo con menos carga
-                if len(grupo.alumnos) < min_carga:
-                    min_carga = len(grupo.alumnos)
-                    mejor_grupo = grupo
-
-            if mejor_grupo:
-                mejor_grupo.alumnos.append(alumno_id)
-                alumnos_asignados += 1
-            else:
-                self.avisos.append(
-                    f"{self.semestre_actual}:{self.asignatura_actual} - "
-                    f"Alumno {alumno_id} (doble {grupo_doble}) sin grupo compatible disponible"
+                asignados = self._asignar_grupo_alumnos(
+                    {a: codigo for a in lista}, grupos_codigo, asignatura, es_doble
                 )
+                print(f"      {codigo}: {asignados}/{len(lista)}")
+                total += asignados
 
-        print(f"    ✓ {alumnos_asignados}/{len(self.alumno_doble)} alumnos dobles asignados")
+            print(f"      ✓ {total}/{len(alumnos)} asignados")
 
-    def _asignar_alumnos_simples(self, grupos: List[GrupoLab]) -> None:
-        """
-        5.3 - Asignar alumnos de grado simple a los grupos.
+    def _asignar_grupo_alumnos(
+            self,
+            alumnos: Dict[str, str],
+            grupos: List[GrupoLab],
+            asignatura: str,
+            es_doble: bool
+    ) -> int:
+        """Asignar un conjunto de alumnos a los grupos de laboratorio. Núcleo de la asignación de los alumnos."""
 
-        Distribuye los alumnos simples entre sus grupos correspondientes,
-        balanceando la carga de manera uniforme.
+        # Ordenar alumnos por las alternativas de franjas que tiene (menos primero)
+        def contar_alt(alumno_id: str) -> int:
+            """Contar las alternativas válidas (grupos de lab disponibles) para un alumno"""
+            return sum(
+                1 for g in grupos                                           # Para cada grupo
+                if len(g.alumnos) < g.capacidad                             # Tiene sitio?
+                and self._grupo_acepta(g, alumnos[alumno_id], es_doble)     # Me acepta?
+                and not self._tiene_conflicto(alumno_id, g)                 # Sin conflicto?
+            )
 
-        Args:
-            grupos: Lista de grupos de la asignatura actual
-        """
-        print(f"  [5.3] Asignando alumnos simples...")
-
-        # Agrupar alumnos por código de grupo simple
-        alumnos_por_codigo: Dict[str, List[str]] = {}
-        for alumno_id, grupo_simple in self.alumno_simple.items():
-            if grupo_simple not in alumnos_por_codigo:
-                alumnos_por_codigo[grupo_simple] = []
-            alumnos_por_codigo[grupo_simple].append(alumno_id)
-
-        # Procesar cada código de grupo
-        total_asignados = 0
-        for grupo_simple, lista_alumnos in alumnos_por_codigo.items():
-            # Encontrar grupos que corresponden a este código
-            grupos_codigo = [g for g in grupos if g.grupo_simple == grupo_simple]
-
-            if not grupos_codigo:
-                self.avisos.append(
-                    f"{self.semestre_actual}:{self.asignatura_actual} - "
-                    f"No hay grupos para código {grupo_simple}"
-                )
-                continue
-
-            # Distribuir alumnos con mínima carga
-            asignados = self._distribuir_alumnos_min_carga(grupos_codigo, lista_alumnos)
-            total_asignados += asignados
-
-        print(f"    ✓ {total_asignados}/{len(self.alumno_simple)} alumnos simples asignados")
-
-    def _distribuir_alumnos_min_carga(self, grupos: List[GrupoLab], alumnos: List[str]) -> int:
-        """
-        5.4 - Distribuir alumnos entre grupos minimizando desbalance de carga.
-
-        Implementa un algoritmo greedy que asigna cada alumno al grupo
-        con menor número de alumnos (que tenga capacidad disponible).
-
-        Args:
-            grupos: Lista de grupos entre los que distribuir
-            alumnos: Lista de IDs de alumnos a distribuir
-
-        Returns:
-            Número de alumnos asignados exitosamente
-        """
+        ordenados = sorted(alumnos.keys(), key=contar_alt)
         asignados = 0
 
-        for alumno_id in alumnos:
-            # Buscar grupo con menor carga y capacidad disponible
-            mejor_grupo = None
-            min_carga = float('inf')
+        for alumno_id in ordenados:
+            codigo = alumnos[alumno_id]
+            mejor = None
+            mejor_carga = float('inf')
 
             for grupo in grupos:
-                # Verificar capacidad
                 if len(grupo.alumnos) >= grupo.capacidad:
                     continue
-
-                # Verificar compatibilidad del slot
-                if not self._slot_permite_alumno(grupo, alumno_id):
+                if not self._grupo_acepta(grupo, codigo, es_doble):
                     continue
+                if self._tiene_conflicto(alumno_id, grupo):
+                    continue
+                if len(grupo.alumnos) < mejor_carga:
+                    mejor_carga = len(grupo.alumnos)
+                    mejor = grupo
 
-                # Seleccionar el grupo con menos carga
-                if len(grupo.alumnos) < min_carga:
-                    min_carga = len(grupo.alumnos)
-                    mejor_grupo = grupo
-
-            if mejor_grupo:
-                mejor_grupo.alumnos.append(alumno_id)
+            if mejor:
+                mejor.alumnos.append(alumno_id)
+                self._registrar_ocupacion(alumno_id, mejor)
                 asignados += 1
+            else:
+                semestre = self.semestres.get(asignatura, "1º Semestre")
+                if es_doble:
+                    self.avisos.append(
+                        f"{semestre}:{asignatura} - "
+                        f"Alumno {alumno_id} (doble {codigo}) sin grupo compatible disponible"
+                    )
+                else:
+                    self.avisos.append(
+                        f"{semestre}:{asignatura} - "
+                        f"Alumno {alumno_id} (simple {codigo}) sin grupo compatible disponible"
+                    )
+                self._registrar_sin_asignar(alumno_id, asignatura, "Sin alternativas válidas")
+
+        if es_doble:
+            print(f"      ✓ {asignados}/{len(alumnos)} asignados")
 
         return asignados
 
-    def _balancear_paridad(self, grupos: List[GrupoLab]) -> None:
-        """
-        5.5 - Balancear grupos para lograr número par de alumnos.
+    def _grupo_acepta(self, grupo: GrupoLab, codigo: str, es_doble: bool) -> bool:
+        """Verificar si un grupo puede recibir a un alumno con un código específico"""
+        if es_doble:
+            return grupo.is_slot_mixto or grupo.grupo_doble == codigo
+        return grupo.grupo_simple == codigo
 
-        Los laboratorios requieren trabajo en parejas, por lo que intentamos
-        que todos los grupos tengan un número par de alumnos.
+    # ========= GESTIÓN DE CONFLICTOS =========
+    def _tiene_conflicto(self, alumno_id: str, grupo: GrupoLab) -> bool:
+        """Verificar si asignar el alumno al grupo crearía conflicto horario"""
+        if alumno_id not in self.ocupacion_global:
+            return False
+        ocupacion = self.ocupacion_global[alumno_id]
+        return any((fecha, grupo.franja) in ocupacion for fecha in grupo.fechas)
 
-        RESTRICCIÓN CRÍTICA: Solo se mueven alumnos entre grupos del MISMO código simple.
-        Por ejemplo: E403-01 ↔ E403-02 (SÍ), pero E403-01 ↔ A404-01 (NO).
+    def _registrar_ocupacion(self, alumno_id: str, grupo: GrupoLab) -> None:
+        """Marcar fechas como ocupadas después de asignar"""
+        if alumno_id not in self.ocupacion_global:
+            self.ocupacion_global[alumno_id] = set()
+        for fecha in grupo.fechas:
+            self.ocupacion_global[alumno_id].add((fecha, grupo.franja))
 
-        Strategy:
-            1. Agrupar por código simple (ej: todos los E403-XX juntos)
-            2. Si suma total de alumnos del código es impar → SIEMPRE quedará 1 grupo impar
-            3. Si hay 2+ grupos impares → intentar emparejarlos moviendo alumnos
-            4. Objetivo: minimizar grupos impares (idealmente solo 1 por código)
+    def _quitar_ocupacion(self, alumno_id: str, grupo: GrupoLab) -> None:
+        """Liberar fechas cuando se mueve un alumno (usado en balanceo)"""
+        if alumno_id in self.ocupacion_global:
+            for fecha in grupo.fechas:
+                self.ocupacion_global[alumno_id].discard((fecha, grupo.franja))
 
-        Args:
-            grupos: Lista de grupos de la asignatura actual
-        """
-        print(f"  [5.5] Balanceando paridad de grupos...")
+    def _registrar_sin_asignar(self, alumno_id: str, asignatura: str, motivo: str) -> None:
+        """Registrar un alumno que no pudo ser asignado"""
 
-        # Agrupar por código simple
-        grupos_por_codigo: Dict[str, List[GrupoLab]] = {}
-        for grupo in grupos:
-            codigo = grupo.grupo_simple
-            if codigo not in grupos_por_codigo:
-                grupos_por_codigo[codigo] = []
-            grupos_por_codigo[codigo].append(grupo)
+        self.alumnos_sin_asignar.setdefault(asignatura, []).append({
+            "alumno_id": alumno_id,
+            "motivo": motivo
+        })
+        self.conflictos_alumnos.append({
+            "semestre": self.semestres.get(asignatura, "1º Semestre"),
+            "asignatura": asignatura,
+            "alumno": alumno_id,
+            "tipo": "SIN_ASIGNAR",
+            "detalle": motivo
+        })
 
-        # Procesar cada código
+    # ========= BALANCEO DE PARIDAD =========
+    def _balancear_paridad_global(self) -> None:
+        """Intentar que todos los grupos tengan número par de alumnos cuando sea posible"""
+
+        # Agrupar por (asignatura, código)
+        por_contexto: Dict[Tuple[str, str], List[GrupoLab]] = {}
+        for grupo in self.grupos_creados:
+            key = (grupo.asignatura, grupo.grupo_simple)
+            por_contexto.setdefault(key, []).append(grupo)
+
         cambios_totales = 0
-        for codigo, grupos_codigo in grupos_por_codigo.items():
-            # Solo grupos con alumnos
-            grupos_con_alumnos = [g for g in grupos_codigo if g.alumnos]
+        excepciones = 0
+
+        for (asig, codigo), grupos in por_contexto.items():
+            grupos_con_alumnos = [g for g in grupos if g.alumnos]
             if not grupos_con_alumnos:
                 continue
 
-            # Calcular total de alumnos en este código
-            total_alumnos = sum(len(g.alumnos) for g in grupos_con_alumnos)
+            total = sum(len(g.alumnos) for g in grupos_con_alumnos)
+            impares = [g for g in grupos_con_alumnos if len(g.alumnos) % 2 == 1]
 
-            # Si el total es impar, SIEMPRE habrá 1 grupo impar (matemática básica)
-            if total_alumnos % 2 == 1:
-                print(f"    • {codigo}: {total_alumnos} alumnos (impar) → mínimo 1 grupo impar inevitable")
+            # Verificar si necesita balanceo
+            if (total % 2 == 0 and len(impares) == 0) or (total % 2 == 1 and len(impares) == 1):
+                continue
 
-            cambios = self._balancear_codigo(grupos_con_alumnos, codigo)
+            cambios, excepcion = self._balancear_codigo(grupos_con_alumnos, asig, codigo)
             cambios_totales += cambios
+            if excepcion:
+                excepciones += 1
 
-        if cambios_totales > 0:
-            print(f"    ✓ {cambios_totales} movimientos realizados para balancear paridad")
-        else:
-            print(f"    ✓ No se requirieron movimientos (balance óptimo alcanzado)")
+        print(f"      ✓ {cambios_totales} movimientos realizados")
+        if excepciones > 0:
+            print(f"      ⚠ {excepciones} códigos con paridad subóptima")
 
-    def _balancear_codigo(self, grupos: List[GrupoLab], codigo: str) -> int:
-        """
-        Balancear paridad para un código de grupo específico.
-
-        LÓGICA:
-            - Si solo hay 1 grupo impar → NO hacer nada (no se puede balancear)
-            - Si hay 2+ grupos impares → intentar mover alumnos entre ellos
-
-        Args:
-            grupos: Lista de grupos del mismo código simple
-            codigo: Código del grupo simple (ej: "E403")
-
-        Returns:
-            Número de movimientos realizados
-        """
+    def _balancear_codigo(self, grupos: List[GrupoLab], asig: str, codigo: str) -> Tuple[int, bool]:
+        """Balancear paridad para un código específico"""
         cambios = 0
-        max_iteraciones = 50  # Evitar bucles infinitos
 
-        for iteracion in range(max_iteraciones):
-            # Identificar grupos impares
-            grupos_impares = [g for g in grupos if len(g.alumnos) % 2 == 1]
+        for _ in range(50):  # Límite de iteraciones
+            impares = [g for g in grupos if len(g.alumnos) % 2 == 1]
+            if len(impares) <= 1:
+                return cambios, False
 
-            # Si hay 0 grupos impares → Perfecto, terminamos
-            if len(grupos_impares) == 0:
-                break
-
-            # Si hay 1 grupo impar → No se puede hacer nada (inevitable si total es impar)
-            if len(grupos_impares) == 1:
-                # Solo mostrar mensaje en la primera iteración
-                if iteracion == 0 and cambios == 0:
-                    print(f"    • {codigo}: 1 grupo impar (no requiere balance)")
-                break
-
-            # Si hay 2+ grupos impares → intentar emparejarlos
-            cambio_realizado = False
-
-            for i in range(len(grupos_impares)):
-                if cambio_realizado:
+            movido = False
+            for i, origen in enumerate(impares):
+                if movido:
                     break
-
-                src = grupos_impares[i]
-
-                for j in range(i + 1, len(grupos_impares)):
-                    dst = grupos_impares[j]
-
-                    # Verificar capacidad del destino
-                    if len(dst.alumnos) >= dst.capacidad:
+                for destino in impares[i + 1:]:
+                    if len(destino.alumnos) >= destino.capacidad:
                         continue
 
-                    # Buscar alumno movible de src a dst
-                    alumno_movible = None
-                    for alumno_id in src.alumnos:
-                        if self._slot_permite_alumno(dst, alumno_id):
-                            alumno_movible = alumno_id
-                            break
-
-                    if alumno_movible:
-                        # Mover alumno
-                        src.alumnos.remove(alumno_movible)
-                        dst.alumnos.append(alumno_movible)
+                    # Buscar alumno que pueda moverse
+                    alumno = self._encontrar_movible(origen, destino)
+                    if alumno:
+                        origen.alumnos.remove(alumno)
+                        destino.alumnos.append(alumno)
+                        self._quitar_ocupacion(alumno, origen)
+                        self._registrar_ocupacion(alumno, destino)
                         cambios += 1
-                        cambio_realizado = True
+                        movido = True
                         break
 
-            # Si no se pudo hacer ningún movimiento, terminamos
-            if not cambio_realizado:
-                grupos_impares_final = [g for g in grupos if len(g.alumnos) % 2 == 1]
-                if len(grupos_impares_final) > 1:
-                    print(f"    • {codigo}: {len(grupos_impares_final)} grupos impares "
-                          f"(no se pudo reducir más por restricciones)")
-                break
+            if not movido:
+                # self.avisos.append(f"{asig} ({codigo}): {len(impares)} grupos impares (conflictos)")
+                semestre = self.semestres.get(asig, "1º Semestre")
+                self.avisos.append(
+                    f"{semestre}:{asig} ({codigo}): "
+                    f"{len(impares)} grupos impares - no se pudo reducir más por restricciones de conflictos"
+                )
+                return cambios, True
 
-        return cambios
+        return cambios, False
 
-    def _verificar_capacidad(self, grupos: List[GrupoLab]) -> None:
-        """
-        5.6 - Verificar capacidad y generar avisos de alumnos sin asignar.
+    def _encontrar_movible(self, origen: GrupoLab, destino: GrupoLab) -> Optional[str]:
+        """Encontrar alumno que se pueda mover sin tener conflicto"""
+        for alumno_id in origen.alumnos:
+            if alumno_id not in self.ocupacion_global:
+                return alumno_id
 
-        Compara los alumnos matriculados con los alumnos asignados
-        y genera avisos si hay alumnos sin asignar por falta de capacidad.
+            # Simular el movimiento
+            ocupacion = self.ocupacion_global[alumno_id].copy()
+            for fecha in origen.fechas:
+                ocupacion.discard((fecha, origen.franja))
 
-        Args:
-            grupos: Lista de grupos de la asignatura actual
-        """
-        # Alumnos asignados en estos grupos
-        alumnos_asignados = set()
-        for grupo in grupos:
-            alumnos_asignados.update(grupo.alumnos)
+            if not any((fecha, destino.franja) in ocupacion for fecha in destino.fechas):
+                return alumno_id
 
-        # Alumnos matriculados (simples + dobles)
-        alumnos_matriculados = set(self.alumno_simple.keys()) | set(self.alumno_doble.keys())
+        return None
 
-        # Alumnos sin asignar
-        alumnos_sin_asignar = alumnos_matriculados - alumnos_asignados
+    # ========= VERIFICACIÓN Y RESUMEN =========
+    def _verificar_asignacion_global(self) -> None:
+        """Verificar que todos los alumnos fueron asignados."""
 
-        if alumnos_sin_asignar:
-            num_sin_asignar = len(alumnos_sin_asignar)
-            self.avisos.append(
-                f"{self.semestre_actual}:{self.asignatura_actual} - "
-                f"{num_sin_asignar} alumno(s) sin asignar por capacidad insuficiente"
-            )
+        for asig, mapeos in self.mapeos_alumnos.items():
+            matriculados = set(mapeos["simples"]) | set(mapeos["dobles"])
+            asignados = set()
+            for g in self.grupos_creados:
+                if g.asignatura == asig:
+                    asignados.update(g.alumnos)
 
-            self.conflictos_alumnos.append({
-                "semestre": self.semestre_actual,
-                "asignatura": self.asignatura_actual,
-                "grupo": "—",
-                "dia": "—",
-                "franja": "—",
-                "fecha": "—",
-                "aula": "—",
-                "profesor": "—",
-                "detalle": f"{num_sin_asignar} alumno(s) sin asignar por capacidad insuficiente"
-            })
+            sin = matriculados - asignados
+            if sin:
+                print(f"      ⚠ {asig}: {len(sin)} sin asignar de {len(matriculados)}")
+            else:
+                print(f"      ✓ {asig}: {len(asignados)}/{len(matriculados)} asignados")
 
-    def _slot_permite_alumno(self, grupo: GrupoLab, alumno_id: str) -> bool:
-        """
-        Verificar si un slot/grupo permite a un alumno específico.
+    def _verificar_conflictos_finales(self) -> int:
+        """Verificación de seguridad para detectar conflictos de fechas."""
 
-        Un slot permite a un alumno si:
-            - El alumno es simple y el grupo acepta su código simple, O
-            - El alumno es doble y el slot es mixto o específico de dobles
+        # Construir mapa de sesiones
+        sesiones: Dict[str, List[Tuple[str, str, str, str]]] = {}
+        for g in self.grupos_creados:
+            for alumno in g.alumnos:
+                sesiones.setdefault(alumno, []).extend(
+                    (g.asignatura, g.label, fecha, g.franja) for fecha in g.fechas
+                )
 
-        Args:
-            grupo: Grupo a verificar
-            alumno_id: ID del alumno
+        # Detectar conflictos
+        conflictos = 0
+        for alumno, lista in sesiones.items():
+            slots: Dict[Tuple[str, str], List[str]] = {}
+            for asig, label, fecha, franja in lista:
+                slots.setdefault((fecha, franja), []).append(f"{asig}:{label}")
 
-        Returns:
-            True si el slot permite al alumno, False en caso contrario
-        """
-        # Verificar si el alumno es simple
-        if alumno_id in self.alumno_simple:
-            grupo_simple_alumno = self.alumno_simple[alumno_id]
-            return grupo.grupo_simple == grupo_simple_alumno
+            for (fecha, franja), grupos in slots.items():
+                if len(grupos) > 1:
+                    conflictos += 1
+                    if conflictos <= 5:
+                        print(f"        • {alumno}: {fecha} {franja} -> {grupos}")
 
-        # Verificar si el alumno es doble
-        if alumno_id in self.alumno_doble:
-            grupo_doble_alumno = self.alumno_doble[alumno_id]
-            # El slot debe ser mixto o específico del grupo doble
-            return grupo.is_slot_mixto or (grupo.grupo_doble == grupo_doble_alumno)
+        if conflictos == 0:
+            print(f"        ✓ No se detectaron conflictos")
+        else:
+            print(f"        ⚠ {conflictos} conflictos detectados")
 
-        # El alumno no está en ningún mapeo
-        return False
+        return conflictos
 
     def _mostrar_resumen(self) -> None:
-        """Mostrar resumen de la asignación de alumnos."""
-        print("\n" + "-" * 70)
-        print("RESUMEN FASE 5")
-        print("-" * 70)
+        """Mostrar resumen de la asignación."""
+        print("\n" + "=" * 70)
+        print("RESUMEN FASE 5: ASIGNACIÓN DE ALUMNOS")
+        print("=" * 70)
 
-        total_alumnos = sum(len(g.alumnos) for g in self.grupos_creados)
-        grupos_con_alumnos = sum(1 for g in self.grupos_creados if g.alumnos)
-
-        print(f"  ✓ ASIGNACIÓN COMPLETADA")
-        print(f"  • Total alumnos asignados: {total_alumnos}")
-        print(f"  • Grupos con alumnos: {grupos_con_alumnos}/{len(self.grupos_creados)}")
-
-        # Estadísticas por tipo
-        grupos_pares = sum(1 for g in self.grupos_creados if len(g.alumnos) % 2 == 0 and g.alumnos)
-        grupos_impares = sum(1 for g in self.grupos_creados if len(g.alumnos) % 2 == 1)
-
-        print(f"  • Grupos pares: {grupos_pares}")
-        print(f"  • Grupos impares: {grupos_impares}")
-
-        # Capacidad promedio
-        if grupos_con_alumnos > 0:
-            promedio = total_alumnos / grupos_con_alumnos
-            print(f"  • Promedio alumnos/grupo: {promedio:.1f}")
-
-        # Distribución de carga
+        total = sum(len(g.alumnos) for g in self.grupos_creados)
+        con_alumnos = sum(1 for g in self.grupos_creados if g.alumnos)
         cargas = [len(g.alumnos) for g in self.grupos_creados if g.alumnos]
+
+        print(f"\n  ESTADÍSTICAS GENERALES:")
+        print(f"  {'─' * 50}")
+        print(f"  • Total alumnos asignados:    {total}")
+        print(f"  • Grupos con alumnos:         {con_alumnos}/{len(self.grupos_creados)}")
         if cargas:
-            print(f"  • Min-Max alumnos/grupo: {min(cargas)}-{max(cargas)}")
+            print(f"  • Promedio alumnos/grupo:     {sum(cargas) / len(cargas):.1f}")
+            print(f"  • Rango (min-max):            {min(cargas)}-{max(cargas)}")
+
+        pares = sum(1 for g in self.grupos_creados if g.alumnos and len(g.alumnos) % 2 == 0)
+        impares = sum(1 for g in self.grupos_creados if len(g.alumnos) % 2 == 1)
+        print(f"  • Grupos pares:               {pares}")
+        print(f"  • Grupos impares:             {impares}")
+
+        sesiones = sum(len(s) for s in self.ocupacion_global.values())
+        print(f"\n  OCUPACIÓN HORARIA:")
+        print(f"  {'─' * 50}")
+        print(f"  • Total sesiones registradas: {sesiones}")
+        print(f"  • Alumnos en índice:          {len(self.ocupacion_global)}")
+
+        total_sin = sum(len(v) for v in self.alumnos_sin_asignar.values())
+        if total_sin > 0:
+            print(f"\n  ALUMNOS SIN ASIGNAR:")
+            print(f"  {'─' * 50}")
+            for asig, lista in self.alumnos_sin_asignar.items():
+                print(f"  • {asig}: {len(lista)} alumno(s)")
 
         if self.avisos:
-            print(f"\n  ⚠ Avisos generados: {len(self.avisos)}")
-            for aviso in self.avisos[:5]:  # Mostrar primeros 5 avisos
-                print(f"    - {aviso}")
-            if len(self.avisos) > 5:
-                print(f"    ... y {len(self.avisos) - 5} avisos más")
+            print(f"\n  AVISOS:")
+            print(f"  {'─' * 50}")
+            for aviso in self.avisos[:10]:
+                print(f"  ⚠ {aviso}")
+
+        print(f"\n{'=' * 70}\n")
+
+    # ========= AVISOS =========
+    def _generar_aviso_capacidad_insuf(self) -> None:
+        """Generar avisos de alumnos sin asignar por capacidad."""
+
+        for asignatura, lista in self.alumnos_sin_asignar.items():
+            # Contar por motivo
+            por_motivo: Dict[str, int] = {}
+            for item in lista:
+                motivo = item["motivo"]
+                por_motivo[motivo] = por_motivo.get(motivo, 0) + 1
+
+            semestre = self.semestres.get(asignatura, "1º Semestre")
+            for motivo, count in por_motivo.items():
+                if "capacidad" in motivo.lower() or "sin alternativas" in motivo.lower():
+                    self.avisos.append(
+                        f"{semestre}:{asignatura} - "
+                        f"{count} alumno(s) sin asignar por capacidad insuficiente"
+                    )
 
 
 # ========= FASE 6: ASIGNADOR DE PROFESORES =========
@@ -2949,7 +3019,8 @@ class GeneradorOutputs:
         conflictos_profesores: List[Dict] = None,
         conflictos_aulas: List[Dict] = None,
         conflictos_alumnos: List[Dict] = None,
-        avisos: List[str] = None
+        avisos: List[str] = None,
+        alertas_semana_inicio: List[Dict] = None
     ):
         """
         Inicializar el generador de outputs.
@@ -2960,6 +3031,7 @@ class GeneradorOutputs:
             conflictos_profesores: Conflictos de profesores (opcional)
             conflictos_aulas: Conflictos de aulas (opcional)
             avisos: Lista de avisos (opcional)
+            alertas_semana_inicio: Lista de grupos de laboratorio que empiezan antes de la semana inicial indicada (opcional)
         """
         self.cfg = cfg
         self.grupos = grupos
@@ -2967,6 +3039,7 @@ class GeneradorOutputs:
         self.conflictos_aulas = conflictos_aulas or []
         self.conflictos_alumnos = conflictos_alumnos or []
         self.avisos = avisos or []
+        self.alertas_semana_inicio = alertas_semana_inicio or []
 
     def ejecutar(self, output_path: Path) -> Tuple[bool, Dict]:
         """
@@ -3077,6 +3150,9 @@ class GeneradorOutputs:
 
         # Avisos
         resultados["avisos"] = self.avisos
+
+        # Alertas semana inicio
+        resultados["alertas_semana_inicio"] = self.alertas_semana_inicio
 
         # Agrupar por semestre -> asignatura -> grupos
         for grupo_dict in grupos_json:
@@ -3291,18 +3367,6 @@ class PopupManager:
             print("-" * 70)
 
 
-def get_config_path() -> Path:
-    """Devuelve ruta de configuracion_labs.json de forma compatible para .exe y para desarrollar"""
-    if getattr(sys, "frozen", False):
-        # Ejecutándose como .exe - está junto al ejecutable
-        base_dir = Path(sys.executable).parent
-    else:
-        # Ejecutándose desde código fuente - motor_organizacion.py está en /src/modules/organizador
-        base_dir = Path(__file__).resolve().parents[2]
-
-    return base_dir / "configuracion_labs.json"
-
-
 # ========= MAIN - TESTING DE FASE 8/8 =========
 def main():
     """
@@ -3497,6 +3561,8 @@ def main():
     conflictos_aulas_totales = conflictos_aulas_fase3 + conflictos_aulas_fase4 + conflictos_aulas_fase7
     conflictos_profesores_totales = conflictos_prof_fase6 + conflictos_profes_fase7
     conflictos_alumnos_totales = conflictos_alumnos_fase5
+    # Detectar alertas de semana_inicio
+    alertas_semana = detectar_grupos_antes_semana_inicio(cfg, grupos_con_fechas)
 
     # Crear generador de outputs
     generador = GeneradorOutputs(
@@ -3505,7 +3571,8 @@ def main():
         conflictos_profesores=conflictos_profesores_totales,
         conflictos_aulas=conflictos_aulas_totales,
         conflictos_alumnos=conflictos_alumnos_totales,
-        avisos=avisos_totales
+        avisos=avisos_totales,
+        alertas_semana_inicio=alertas_semana
     )
 
     # Ejecutar generación y guardar
